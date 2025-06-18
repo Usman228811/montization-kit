@@ -10,11 +10,11 @@ import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
-import io.monetize.kit.sdk.core.utils.MKInternetController
-import io.monetize.kit.sdk.core.utils.MkPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.MKConsentManager
+import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
 
 
 data class NativeAdSingleModel(
@@ -25,9 +25,9 @@ data class NativeAdSingleModel(
 val singleNativeList = ArrayList<NativeAdSingleModel>()
 
 class NativeAdSingleController(
-    private val prefs: MkPref,
-    private val internetController: MKInternetController,
-    private val consentManager: MKConsentManager
+    private val prefs: AdKPref,
+    private val internetController: AdKitInternetController,
+    private val consentManager: AdKConsentManager
 ) {
     private var canRequestLargeAd = true
     private var largeAndSmallNativeAd: NativeAd? = null

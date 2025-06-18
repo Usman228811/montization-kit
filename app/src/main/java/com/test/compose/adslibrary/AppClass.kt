@@ -1,20 +1,31 @@
 package com.test.compose.adslibrary
 
+import android.app.Activity
 import android.app.Application
+import android.app.Application.ActivityLifecycleCallbacks
+import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.di.AdKit
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
-class AppClass : Application() {
-    val adKitInterHelper: AdKitInterHelper by inject()
+class AppClass : Application(), ActivityLifecycleCallbacks {
+    private val adKitInterHelper: AdKitInterHelper by inject()
+    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+
+    companion object {
+        var appContext: Context? = null
+    }
 
     override fun onCreate() {
         super.onCreate()
+        appContext = this
 
         startKoin {
             androidContext(this@AppClass)
@@ -38,13 +49,53 @@ class AppClass : Application() {
                         splashInterEnable = true,
                         splashTime = 16L,
                         interLoadingEnable = true
-
                     )
                 )
-                Log.d("MyAdKit", "onCreate: ")
+                adKitOpenAdManager.setOpenAdConfigs(
+                    adId = "ca-app-pub-3940256099942544/9257395921",
+                    isAdEnable = true,
+                    isLoadingEnable = true
+                )
             }
         )
 
 
+    }
+
+    fun initializeAppClass() {
+        try {
+            registerActivityLifecycleCallbacks(this)
+        } catch (_: Exception) {
+        }
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
+    override fun onActivityStarted(activity: Activity) {
+        handleCurrentActivity(activity)
+    }
+
+
+    private fun handleCurrentActivity(activity: Activity) {
+        adKitInterHelper.setAppInPause(false)
+        adKitOpenAdManager.setActivity(activity)
+//        canShowOpenAd =
+//            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        handleCurrentActivity(activity)
+    }
+
+    override fun onActivityStopped(activity: Activity) {}
+    override fun onActivityPaused(activity: Activity) {
+        adKitInterHelper.setAppInPause(true)
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+    override fun onActivityDestroyed(activity: Activity) {
+
+        adKitOpenAdManager.setActivity(null)
+        adKitInterHelper.setAppInPause(false)
     }
 }

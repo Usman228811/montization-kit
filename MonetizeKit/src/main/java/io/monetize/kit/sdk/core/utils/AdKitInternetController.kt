@@ -2,13 +2,9 @@ package io.monetize.kit.sdk.core.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 
-class MKInternetController(private val context: Context) {
+class AdKitInternetController(private val context: Context) {
     private val connectivityManager by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }

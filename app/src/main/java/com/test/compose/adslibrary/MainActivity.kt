@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,19 +16,27 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.test.compose.adslibrary.AppClass.Companion.appContext
 import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
+import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
-    val adKitInterHelper: AdKitInterHelper by inject()
+
+    private val adKitInterHelper: AdKitInterHelper by inject()
+    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        (appContext as AppClass).initializeAppClass()
+        adKitOpenAdManager.initOpenAd()
+
         setContent {
 
             Scaffold { padding ->

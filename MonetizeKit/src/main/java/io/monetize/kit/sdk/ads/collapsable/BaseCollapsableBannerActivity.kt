@@ -11,20 +11,19 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import io.monetize.kit.sdk.R
 
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.MKInternetController
-import io.monetize.kit.sdk.core.utils.MkPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.MKConsentManager
+import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
 
 class BaseCollapsableBannerActivity(
-    private val mPrefHelper: MkPref,
-    private val internetController: MKInternetController,
-    private val consentManager: MKConsentManager
+    private val mPrefHelper: AdKPref,
+    private val internetController: AdKitInternetController,
+    private val consentManager: AdKConsentManager
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null

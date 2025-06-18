@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.core.content.edit
 
-class MkPref(context: Context) {
+class AdKPref(context: Context) {
     private val pref = context.getSharedPreferences(
         "MonetizeKitPref", MODE_PRIVATE
     )

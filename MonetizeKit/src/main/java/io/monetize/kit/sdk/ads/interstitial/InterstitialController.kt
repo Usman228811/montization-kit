@@ -12,11 +12,10 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.IS_APP_PAUSE
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.MKInternetController
-import io.monetize.kit.sdk.core.utils.MkPref
-import io.monetize.kit.sdk.core.utils.consent.MKConsentManager
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKPref
+import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,9 +30,9 @@ data class InterControllerConfig(
 
 
 class InterstitialController(
-    private val internetController: MKInternetController,
-    private val mMyPref: MkPref,
-    private val mConsent: MKConsentManager,
+    private val internetController: AdKitInternetController,
+    private val mMyPref: AdKPref,
+    private val mConsent: AdKConsentManager,
 ) {
     private var interControllerConfig: InterControllerConfig? = null
     private var handlerAd = Handler(Looper.getMainLooper())
@@ -43,6 +42,7 @@ class InterstitialController(
     private var adLoadingDialog: AdLoadingDialog? = null
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
+    private var isAppPause = false
     private var isHandlerAdDelayRunning = false
     private val runnableHandlerAdDelay = Runnable {
         if (mInterstitialControllerListener != null && isHandlerAdDelayRunning) {
@@ -56,6 +56,12 @@ class InterstitialController(
     }
     private val adIdIndex = AtomicInteger(0)
     private var idsList: List<String> = emptyList()
+
+
+    fun setAppInPause(isAppPause: Boolean) {
+        this.isAppPause = isAppPause
+    }
+
 
     fun setAdIds(ids: List<String>, interControllerConfig: InterControllerConfig) {
         idsList = ids
@@ -90,7 +96,7 @@ class InterstitialController(
 
     private fun showAdmobAd(activity: Activity, key: String) {
         try {
-            if (admobInterAd != null && !IS_APP_PAUSE && !IS_INTERSTITIAL_Ad_SHOWING) {
+            if (admobInterAd != null && !isAppPause && !IS_INTERSTITIAL_Ad_SHOWING) {
                 mInterstitialControllerListener?.onAdShow()
                 if (admobInterAd != null) {
                     setAdmobFullScreen()
@@ -113,7 +119,7 @@ class InterstitialController(
     ) {
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || IS_APP_PAUSE || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
@@ -135,7 +141,7 @@ class InterstitialController(
         listener: InterstitialControllerListener
     ) {
         mInterstitialControllerListener = listener
-        if (mMyPref.isAppPurchased || !enable || IS_APP_PAUSE || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else {
             if (admobInterAd != null) {
@@ -152,7 +158,7 @@ class InterstitialController(
     ) {
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || IS_APP_PAUSE || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {

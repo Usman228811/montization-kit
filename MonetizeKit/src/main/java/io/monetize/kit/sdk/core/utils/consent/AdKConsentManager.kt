@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import io.monetize.kit.sdk.BuildConfig
 
-class MKConsentManager(context: Context) {
+class AdKConsentManager(context: Context) {
     private val coroutineScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }

@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("maven-publish")
 }
 
 android {
@@ -59,16 +58,6 @@ dependencies {
     implementation(libs.ssp.android)
 
 
-}
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.yourusername"
-                artifactId = "your-custom-library-name" // 👈 change this
-                version = "1.0.0"
-            }
-        }
-    }
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.process)
 }

@@ -10,17 +10,16 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.IS_APP_PAUSE
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.MKInternetController
-import io.monetize.kit.sdk.core.utils.MkPref
-import io.monetize.kit.sdk.core.utils.consent.MKConsentManager
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKPref
+import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
 
 
 class SplashAdController(
-    private val internetController: MKInternetController,
-    private val myPref: MkPref,
-    private val mConsent: MKConsentManager,
+    private val internetController: AdKitInternetController,
+    private val myPref: AdKPref,
+    private val mConsent: AdKConsentManager,
 ) {
     private val handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
@@ -30,9 +29,14 @@ class SplashAdController(
     private var mInterstitialControllerListener: InterstitialControllerListener? = null
     private var isHandlerRunning = false
     private var isPauseDone = false
+    private var isAppPause = false
     private var adId: String = ""
     private var interControllerConfig: InterControllerConfig? = null
 
+
+    fun setAppInPause(isAppPause: Boolean) {
+        this.isAppPause = isAppPause
+    }
 
 
     fun setSplashId(id: String, interControllerConfig: InterControllerConfig) {
@@ -150,7 +154,7 @@ class SplashAdController(
         interstitialControllerListener: InterstitialControllerListener,
     ) {
         mInterstitialControllerListener = interstitialControllerListener
-        if (myPref.isAppPurchased || !enable || IS_APP_PAUSE || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (myPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             interstitialControllerListener.onAdClosed()
         } else if (interstitialAd != null) {
             adLoadingCheck(activity)
@@ -186,7 +190,7 @@ class SplashAdController(
     ) {
         try {
             when {
-                IS_APP_PAUSE -> {
+                isAppPause -> {
                     mInterstitialControllerListener?.onAdClosed()
                 }
 
