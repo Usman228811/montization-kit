@@ -60,19 +60,15 @@ dependencies {
 
 
 }
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            afterEvaluate {
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
                 from(components["release"])
+                groupId = "com.github.yourusername"
+                artifactId = "your-custom-library-name" // 👈 change this
+                version = "1.0.0"
             }
-            groupId = "io.monetize.sdk"
-            artifactId = "monetizationkit"
-            version = "1.0.0"
         }
-    }
-
-    repositories {
-        mavenLocal() // publish with ./gradlew publishToMavenLocal
     }
 }
