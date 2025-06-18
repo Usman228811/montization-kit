@@ -11,11 +11,10 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
@@ -28,9 +27,10 @@ class BaseCollapsableBannerActivity(
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
     private var isAdLoadCalled: Boolean = false
+    private var isBottom: Boolean = true
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
-    private lateinit var bannerControllerConfig:BannerControllerConfig
+    private lateinit var bannerControllerConfig: BannerControllerConfig
 
     private fun destroyCollapsableBannerAd() {
         bannerAd?.destroy()
@@ -47,6 +47,7 @@ class BaseCollapsableBannerActivity(
         bannerControllerConfig: BannerControllerConfig
     ) {
         this.bannerControllerConfig = bannerControllerConfig
+        isBottom = bannerControllerConfig.collapsableConfig?.isBottom ?: true
         this.mContext = mContext
         this.adFrame = adFrame
         this.isAdLoadCalled = true
@@ -83,7 +84,12 @@ class BaseCollapsableBannerActivity(
                                     .addNetworkExtrasBundle(
                                         AdMobAdapter::class.java,
                                         Bundle().apply {
-                                            putString("collapsible", "bottom")
+                                            if (isBottom) {
+                                                putString("collapsible", "bottom")
+                                            } else {
+                                                putString("collapsible", "top")
+
+                                            }
                                         }).build()
                             )
                         }

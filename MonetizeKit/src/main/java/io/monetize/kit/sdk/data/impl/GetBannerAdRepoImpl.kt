@@ -20,7 +20,7 @@ class GetBannerAdRepoImpl(
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig
     ) {
-        this.isForCollapse = bannerControllerConfig.isForCollapse
+        this.isForCollapse = bannerControllerConfig.collapsableConfig != null
         if (isForCollapse) {
             baseCollapsableBannerActivity.initCollapsableBannerAd(
                 mContext = mContext,

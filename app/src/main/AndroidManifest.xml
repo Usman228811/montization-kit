@@ -14,6 +14,11 @@
         android:theme="@style/Theme.AdsLibrary"
         tools:targetApi="31">
         <activity
+            android:name=".MainXmlActivity"
+            android:exported="true" >
+
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"

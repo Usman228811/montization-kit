@@ -23,6 +23,7 @@ import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKitInit
 import org.koin.android.ext.android.inject
@@ -63,6 +64,20 @@ class MainActivity : ComponentActivity() {
                         .background(Color.Red)
                 ) {
 
+                    Box(modifier = Modifier.fillMaxWidth()) {
+
+                        AdKitBannerAdView(
+                            bannerControllerConfig = BannerControllerConfig(
+                                key = "home_banner",
+                                adId = "ca-app-pub-3940256099942544/2014213617",
+                                isAdEnable = true,
+                                collapsableConfig = CollapsableConfig(
+                                    isBottom = false
+                                )
+                            )
+                        )
+                    }
+
                     Button(onClick = {
                         adKitInterHelper.showInterAd(
                             activity = this@MainActivity,
@@ -96,16 +111,7 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Box(modifier = Modifier.fillMaxWidth()) {
 
-                        AdKitBannerAdView(
-                            bannerControllerConfig = BannerControllerConfig(
-                                key = "home_banner",
-                                adId = "ca-app-pub-3940256099942544/9214589741",
-                                isAdEnable = true
-                            )
-                        )
-                    }
                 }
             }
         }

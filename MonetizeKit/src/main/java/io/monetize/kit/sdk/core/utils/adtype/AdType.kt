@@ -11,7 +11,12 @@ data class BannerControllerConfig(
     val key: String = "",
     val adId: String = "",
     val isAdEnable: Boolean = false,
-    val isForCollapse: Boolean = false
+    val collapsableConfig: CollapsableConfig? = null,
+
+)
+
+data class CollapsableConfig(
+    val isBottom:Boolean = true
 )
 
 data class NativeControllerConfig(

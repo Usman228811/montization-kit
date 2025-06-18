@@ -116,7 +116,6 @@ class NativeAdSingleController(
         this.nativeControllerConfig = nativeControllerConfig
         if (nativeControllerConfig.isAdEnable && !prefs.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
-
                 try {
                     try {
                         addNativeAdView(
