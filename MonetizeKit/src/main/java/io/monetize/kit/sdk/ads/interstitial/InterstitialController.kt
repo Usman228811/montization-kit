@@ -22,10 +22,15 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 
 data class InterControllerConfig(
+    val openAdId: String,
+    val splashId: String,
+    val appInterIds: List<String>,
     val splashInterEnable:Boolean = false,
+    val openAdEnable:Boolean = false,
     val splashTime :Long = 16L,
     val instantInterTime: Long = 8L,
     val interLoadingEnable: Boolean = false,
+    val openAdLoadingEnable: Boolean = false,
 )
 
 

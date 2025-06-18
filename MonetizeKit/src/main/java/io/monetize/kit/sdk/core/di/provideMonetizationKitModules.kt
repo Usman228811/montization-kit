@@ -10,6 +10,7 @@ import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKPref
 import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKitInit
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -24,6 +25,7 @@ val AppKitModule = module {
     singleOf(::SplashAdController)
     singleOf(::AdPreLoad)
     singleOf(::AdKitOpenAdManager)
+    singleOf(::AdKitInit)
 
 
 }
@@ -34,12 +36,3 @@ fun provideMonetizationKitModules() = listOf(
     domainModule,
     presentationModule
 )
-
-object AdKit {
-    fun init(context: Context, adMobAppId: String, onInit:()->Unit) {
-        MobileAds.initialize(context) {
-
-        }
-        onInit()
-    }
-}

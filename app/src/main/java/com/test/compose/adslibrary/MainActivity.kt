@@ -19,23 +19,39 @@ import androidx.compose.ui.graphics.Color
 import com.test.compose.adslibrary.AppClass.Companion.appContext
 import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKitInit
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
     private val adKitInterHelper: AdKitInterHelper by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+    private val adKitInit: AdKitInit by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (appContext as AppClass).initializeAppClass()
-        adKitOpenAdManager.initOpenAd()
+
+        adKitInit.init(
+            InterControllerConfig(
+                openAdId = "ca-app-pub-3940256099942544/9257395921",
+                splashId = "ca-app-pub-3940256099942544/1033173712",
+                appInterIds = listOf(
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
+                ),
+                splashInterEnable = true,
+                openAdEnable = true,
+                splashTime = 16L,
+                interLoadingEnable = true,
+                openAdLoadingEnable = true
+            )
+        )
 
         setContent {
 

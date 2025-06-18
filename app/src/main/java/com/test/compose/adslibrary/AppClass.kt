@@ -5,17 +5,17 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.di.AdKit
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
+import io.monetize.kit.sdk.core.utils.init.AdKitInit
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
+
+    private val adKitInit: AdKitInit by inject()
     private val adKitInterHelper: AdKitInterHelper by inject()
     private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
@@ -34,28 +34,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             )
         }
 
-        AdKit.init(
-            context = this,
+        adKitInit.initMobileAds(
             adMobAppId = "ca-app-pub-3940256099942544~3347511713",
             onInit = {
 
-                adKitInterHelper.setAdIds(
-                    splashId = "ca-app-pub-3940256099942544/1033173712",
-                    appInterIds = listOf(
-                        "ca-app-pub-3940256099942544/1033173712",
-                        "ca-app-pub-3940256099942544/1033173712"
-                    ),
-                    interControllerConfig = InterControllerConfig(
-                        splashInterEnable = true,
-                        splashTime = 16L,
-                        interLoadingEnable = true
-                    )
-                )
-                adKitOpenAdManager.setOpenAdConfigs(
-                    adId = "ca-app-pub-3940256099942544/9257395921",
-                    isAdEnable = true,
-                    isLoadingEnable = true
-                )
+
             }
         )
 
