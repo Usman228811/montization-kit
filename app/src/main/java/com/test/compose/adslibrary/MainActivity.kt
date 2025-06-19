@@ -1,44 +1,32 @@
 package com.test.compose.adslibrary
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.navigation.compose.rememberNavController
 import com.test.compose.adslibrary.AppClass.Companion.appContext
-import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import com.test.compose.adslibrary.navigation.AppNavHost
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
-import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
-import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.init.AdKitInit
+import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
-    private val adKitInterHelper: AdKitInterHelper by inject()
-    private val adKitInit: AdKitInit by inject()
+    private val adSdkInitializer: AdSdkInitializer by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (appContext as AppClass).initializeAppClass()
 
-        adKitInit.init(
+        adSdkInitializer.init(
             InterControllerConfig(
                 openAdId = "ca-app-pub-3940256099942544/9257395921",
                 splashId = "ca-app-pub-3940256099942544/1033173712",
@@ -55,65 +43,18 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-
-            Scaffold { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .background(Color.Red)
-                ) {
-
-                    Box(modifier = Modifier.fillMaxWidth()) {
-
-                        AdKitBannerAdView(
-                            bannerControllerConfig = BannerControllerConfig(
-                                key = "home_banner",
-                                adId = "ca-app-pub-3940256099942544/2014213617",
-                                isAdEnable = true,
-                                collapsableConfig = CollapsableConfig(
-                                    isBottom = false
-                                )
-                            )
-                        )
-                    }
-
-                    Button(onClick = {
-                        adKitInterHelper.showInterAd(
-                            activity = this@MainActivity,
-                            enable = true,
-                            interInstant = true,
-                            listener = object : InterstitialControllerListener {
-                                override fun onAdClosed() {
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        "ad closed",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-
-                            }
-                        )
-                    }) {
-                        Text("showinter")
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    AdKitNativeAdView(
-                        nativeControllerConfig = NativeControllerConfig(
-                            key = "home_native",
-                            adId = "ca-app-pub-3940256099942544/2247696110",
-                            isAdEnable = true,
-                            adType = 0
-                        )
-                    )
+            val paddingValues = WindowInsets.systemBars.asPaddingValues()
+            val navHostController = rememberNavController()
 
 
-                    Spacer(modifier = Modifier.weight(1f))
-
-
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                AppNavHost(navHostController)
             }
+
         }
     }
 }

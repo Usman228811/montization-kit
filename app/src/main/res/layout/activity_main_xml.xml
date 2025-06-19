@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_height="wrap_content"/>
 
-    <io.monetize.kit.sdk.ads.banner.AdKitBannerAdViewXml
+    <io.monetize.kit.sdk.ads.banner.AdSdkBannerAdViewXml
         android:layout_width="match_parent"
         android:id="@+id/adFrame"
         android:layout_height="wrap_content"

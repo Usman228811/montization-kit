@@ -1,15 +1,15 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.app.Activity
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKPref
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 
 class AdPreLoad(
-    private val internetController: AdKitInternetController,
-    private val mySharedPreference: AdKPref,
-    private val mConsent: AdKConsentManager,
+    private val internetController: AdSdkInternetController,
+    private val mySharedPreference: AdSdkPref,
+    private val mConsent: AdSdkConsentManager,
 ) {
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
         if (nativeControllerConfig.isAdEnable && mConsent.canRequestAds) {

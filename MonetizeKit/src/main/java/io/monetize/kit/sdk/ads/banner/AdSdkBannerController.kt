@@ -10,9 +10,9 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKPref
-import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 
 val singleBannerList = ArrayList<BannerSingleAdControllerModel>()
 
@@ -23,9 +23,9 @@ data class BannerSingleAdControllerModel(
 )
 
 class AdKitBannerController(
-    private val prefs: AdKPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKConsentManager
+    private val prefs: AdSdkPref,
+    private val internetController: AdSdkInternetController,
+    private val consentManager: AdSdkConsentManager
 ) {
     private var key: String = ""
     private var bannerAdId: String = ""

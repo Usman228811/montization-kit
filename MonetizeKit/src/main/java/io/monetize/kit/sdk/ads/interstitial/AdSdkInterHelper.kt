@@ -3,8 +3,8 @@ package io.monetize.kit.sdk.ads.interstitial
 import android.app.Activity
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 
-class AdKitInterHelper(
-    private val splashController: SplashAdController,
+class AdSdkInterHelper(
+    private val splashController: AdSdkSplashAdController,
     private val interstitialController: InterstitialController,
     private val adKitOpenAdManager: AdKitOpenAdManager
 ) {

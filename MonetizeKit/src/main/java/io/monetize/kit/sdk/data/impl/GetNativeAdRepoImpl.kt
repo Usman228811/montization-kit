@@ -11,18 +11,18 @@ import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKPref
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
 class GetNativeAdRepoImpl(
-    private val prefs: AdKPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKConsentManager,
+    private val prefs: AdSdkPref,
+    private val internetController: AdSdkInternetController,
+    private val consentManager: AdSdkConsentManager,
 ) : GetNativeAdRepo {
 
     private var largeNativeAd: Any? = null

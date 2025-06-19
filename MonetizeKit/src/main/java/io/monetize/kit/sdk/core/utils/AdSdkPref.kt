@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.core.content.edit
 
-class AdKPref(context: Context) {
+class AdSdkPref(context: Context) {
     private val pref = context.getSharedPreferences(
         "MonetizeKitPref", MODE_PRIVATE
     )

@@ -11,15 +11,15 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKPref
-import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 
 
-class SplashAdController(
-    private val internetController: AdKitInternetController,
-    private val myPref: AdKPref,
-    private val mConsent: AdKConsentManager,
+class AdSdkSplashAdController(
+    private val internetController: AdSdkInternetController,
+    private val myPref: AdSdkPref,
+    private val mConsent: AdSdkConsentManager,
 ) {
     private val handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true

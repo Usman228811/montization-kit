@@ -1,31 +1,29 @@
 package io.monetize.kit.sdk.core.di
 
-import android.content.Context
-import com.google.android.gms.ads.MobileAds
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterstitialController
-import io.monetize.kit.sdk.ads.interstitial.SplashAdController
+import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
 import io.monetize.kit.sdk.ads.native_ad.AdPreLoad
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKPref
-import io.monetize.kit.sdk.core.utils.consent.AdKConsentManager
-import io.monetize.kit.sdk.core.utils.init.AdKitInit
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 
 val AppKitModule = module {
 
-    singleOf(::AdKPref)
-    singleOf(::AdKitInternetController)
-    singleOf(::AdKConsentManager)
-    singleOf(::AdKitInterHelper)
+    singleOf(::AdSdkPref)
+    singleOf(::AdSdkInternetController)
+    singleOf(::AdSdkConsentManager)
+    singleOf(::AdSdkInterHelper)
     singleOf(::InterstitialController)
-    singleOf(::SplashAdController)
+    singleOf(::AdSdkSplashAdController)
     singleOf(::AdPreLoad)
     singleOf(::AdKitOpenAdManager)
-    singleOf(::AdKitInit)
+    singleOf(::AdSdkInitializer)
 
 
 }

@@ -2,13 +2,13 @@ package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
 import com.google.android.gms.ads.MobileAds
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 
-class AdKitInit(
+class AdSdkInitializer(
     private val context: Context,
-    private val adKitInterHelper: AdKitInterHelper,
+    private val adSdkInterHelper: AdSdkInterHelper,
     private val adKitOpenAdManager: AdKitOpenAdManager
 ) {
 
@@ -22,7 +22,7 @@ class AdKitInit(
     fun init(
         interControllerConfig: InterControllerConfig,
     ) {
-        adKitInterHelper.setAdIds(
+        adSdkInterHelper.setAdIds(
             splashId = interControllerConfig.splashId,
             appInterIds = interControllerConfig.appInterIds,
             interControllerConfig = interControllerConfig

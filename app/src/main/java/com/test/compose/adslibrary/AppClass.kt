@@ -5,18 +5,19 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import com.test.compose.adslibrary.di.MainModule
+import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
-import io.monetize.kit.sdk.core.utils.init.AdKitInit
+import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
-    private val adKitInit: AdKitInit by inject()
-    private val adKitInterHelper: AdKitInterHelper by inject()
+    private val adSdkInitializer: AdSdkInitializer by inject()
+    private val adSdkInterHelper: AdSdkInterHelper by inject()
     private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
     companion object {
@@ -29,12 +30,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
         startKoin {
             androidContext(this@AppClass)
+            modules(MainModule)
             modules(
                 provideMonetizationKitModules()
             )
         }
 
-        adKitInit.initMobileAds(
+        adSdkInitializer.initMobileAds(
             adMobAppId = "ca-app-pub-3940256099942544~3347511713",
             onInit = {
 
@@ -60,7 +62,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
     private fun handleCurrentActivity(activity: Activity) {
-        adKitInterHelper.setAppInPause(false)
+        adSdkInterHelper.setAppInPause(false)
         adKitOpenAdManager.setActivity(activity)
 //        canShowOpenAd =
 //            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
@@ -72,13 +74,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivityPaused(activity: Activity) {
-        adKitInterHelper.setAppInPause(true)
+        adSdkInterHelper.setAppInPause(true)
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
         adKitOpenAdManager.setActivity(null)
-        adKitInterHelper.setAppInPause(false)
+        adSdkInterHelper.setAppInPause(false)
     }
 }
