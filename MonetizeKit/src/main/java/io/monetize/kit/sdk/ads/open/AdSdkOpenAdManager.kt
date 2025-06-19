@@ -20,7 +20,7 @@ import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
 import java.util.Date
 
-class AdKitOpenAdManager(
+class AdSdkOpenAdManager(
     private val mContext: Context,
     private val internetController: AdSdkInternetController,
     private val prefHelper: AdSdkPref

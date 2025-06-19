@@ -1,12 +1,12 @@
 package io.monetize.kit.sdk.ads.interstitial
 
 import android.app.Activity
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 
 class AdSdkInterHelper(
     private val splashController: AdSdkSplashAdController,
     private val interstitialController: InterstitialController,
-    private val adKitOpenAdManager: AdKitOpenAdManager
+    private val adSdkOpenAdManager: AdSdkOpenAdManager
 ) {
 
 
@@ -23,7 +23,7 @@ class AdSdkInterHelper(
     fun setAppInPause(isPause: Boolean) {
         splashController.setAppInPause(isPause)
         interstitialController.setAppInPause(isPause)
-        adKitOpenAdManager.setAppInPause(isPause)
+        adSdkOpenAdManager.setAppInPause(isPause)
     }
 
 

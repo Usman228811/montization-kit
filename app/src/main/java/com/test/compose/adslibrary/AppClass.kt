@@ -7,7 +7,7 @@ import android.content.Context
 import android.os.Bundle
 import com.test.compose.adslibrary.di.MainModule
 import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
 import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
 import org.koin.android.ext.android.inject
@@ -18,7 +18,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     private val adSdkInitializer: AdSdkInitializer by inject()
     private val adSdkInterHelper: AdSdkInterHelper by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+    private val adSdkOpenAdManager: AdSdkOpenAdManager by inject()
 
     companion object {
         var appContext: Context? = null
@@ -63,7 +63,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     private fun handleCurrentActivity(activity: Activity) {
         adSdkInterHelper.setAppInPause(false)
-        adKitOpenAdManager.setActivity(activity)
+        adSdkOpenAdManager.setActivity(activity)
 //        canShowOpenAd =
 //            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
     }
@@ -80,7 +80,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        adKitOpenAdManager.setActivity(null)
+        adSdkOpenAdManager.setActivity(null)
         adSdkInterHelper.setAppInPause(false)
     }
 }

@@ -4,12 +4,12 @@ import android.content.Context
 import com.google.android.gms.ads.MobileAds
 import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 
 class AdSdkInitializer(
     private val context: Context,
     private val adSdkInterHelper: AdSdkInterHelper,
-    private val adKitOpenAdManager: AdKitOpenAdManager
+    private val adSdkOpenAdManager: AdSdkOpenAdManager
 ) {
 
     fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
@@ -27,12 +27,12 @@ class AdSdkInitializer(
             appInterIds = interControllerConfig.appInterIds,
             interControllerConfig = interControllerConfig
         )
-        adKitOpenAdManager.setOpenAdConfigs(
+        adSdkOpenAdManager.setOpenAdConfigs(
             adId = interControllerConfig.openAdId,
             isAdEnable = interControllerConfig.openAdEnable,
             isLoadingEnable = interControllerConfig.openAdLoadingEnable
         )
-        adKitOpenAdManager.initOpenAd()
+        adSdkOpenAdManager.initOpenAd()
 
     }
 }

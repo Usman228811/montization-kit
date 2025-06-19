@@ -2,6 +2,9 @@ package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -10,6 +13,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
+import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
+import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,10 +26,11 @@ data class SplashScreenState(
     val isAppResumed: Boolean = false,
     val moveToMain: Boolean = false,
     val progress: Int = 0,
+    val updateState: UpdateState = UpdateState.Idle,
 )
 
 class SplashScreenViewModel(
-    private val adSdkSplashAdController: AdSdkSplashAdController
+    private val adSdkSplashAdController: AdSdkSplashAdController,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -37,8 +43,9 @@ class SplashScreenViewModel(
     init {
         adSdkSplashAdController.resetSplash()
         startProgressAnimation()
-        runSplash()
+
     }
+
 
     private fun onResume() {
         if (state.value.runSplash) {
@@ -89,7 +96,7 @@ class SplashScreenViewModel(
     }
 
 
-    private fun runSplash() {
+    fun runSplash() {
         viewModelScope.launch {
             if (state.value.runSplash.not()) {
                 _state.update {

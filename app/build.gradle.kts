@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
+    implementation(libs.sdpCompose)
     implementation(libs.androidx.navigation.compose)
 
 

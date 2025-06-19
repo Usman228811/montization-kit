@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
 
+    implementation(libs.app.update.ktx)
+    implementation(libs.sdpCompose)
 
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.process)
