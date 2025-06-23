@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -11,12 +12,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.test.compose.adslibrary.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
+import io.monetize.kit.sdk.core.utils.remoteconfig.FirebaseRemoteConfigHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -31,6 +35,8 @@ data class SplashScreenState(
 
 class SplashScreenViewModel(
     private val adSdkSplashAdController: AdSdkSplashAdController,
+    private val firebaseRemoteConfigHelper: FirebaseRemoteConfigHelper,
+    private val adSdkInAppUpdateManager: AdSdkInAppUpdateManager,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -41,9 +47,77 @@ class SplashScreenViewModel(
     private var animator: ValueAnimator? = null
 
     init {
+
+
+        firebaseRemoteConfigHelper.apply {
+            viewModelScope.launch {
+                configFetched.collectLatest {
+                    try {
+                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
+                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
+                        val IS_AI = getString("IS_AI", "YES")
+                        Log.d("iiiiii", ": $SPLASH_TIME")
+                        Log.d("iiiiii", ": $HOME_NATIVE_ENABLE")
+                        Log.d("iiiiii", ": $IS_AI")
+                        runSplash()
+                    } catch (e: Exception) {
+                        Log.d("iiiiii", ": ex")
+                        runSplash()
+                    }
+                }
+            }
+
+            fetchRemoteValues(
+                BuildConfig.DEBUG,
+                mapOf(
+                    "SPLASH_TIME" to 16,
+                    "HOME_NATIVE_ENABLE" to true,
+                )
+            )
+
+        }
+
         adSdkSplashAdController.resetSplash()
         startProgressAnimation()
 
+    }
+
+    fun checkUpdate(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
+
+        adSdkInAppUpdateManager.setUpdateStateCallback { updateState ->
+            when (updateState) {
+                UpdateState.Available -> {
+
+                    adSdkInAppUpdateManager.startUpdateFlow(launcher)
+                }
+
+                UpdateState.Downloaded -> {
+                    /* show restart dialog
+                     or
+                    adSdkInAppUpdateManager.updateComplete()*/
+
+                }
+
+                UpdateState.Failed -> {
+                    //continue
+
+                }
+
+                UpdateState.Idle -> {
+
+                }
+            }
+
+        }
+
+        adSdkInAppUpdateManager.checkUpdate()
+
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        inAppUpdateManager.unRegisterLister()
+        animator?.cancel()
     }
 
 

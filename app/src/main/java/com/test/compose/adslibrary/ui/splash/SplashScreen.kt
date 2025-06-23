@@ -26,9 +26,15 @@ fun SplashScreen(
     val state by viewModel.state.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val launcher = AdSdkInAppUpdateFlowResultLauncher (onFail = {
+        viewModel.initConsent(activity)
+    })
+
 
     LaunchedEffect(Unit) {
         viewModel.observeLifecycle(lifecycleOwner)
+
+        viewModel.checkUpdate(launcher)
     }
 
     LaunchedEffect(state.moveToMain) {

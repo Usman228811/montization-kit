@@ -10,6 +10,7 @@ import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
+import io.monetize.kit.sdk.core.utils.remoteconfig.FirebaseRemoteConfigHelper
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -26,6 +27,7 @@ val AppKitModule = module {
     singleOf(::AdSdkOpenAdManager)
     singleOf(::AdSdkInitializer)
     singleOf(::AdSdkInAppUpdateManager)
+    singleOf(::FirebaseRemoteConfigHelper)
 
 
 
