@@ -19,7 +19,8 @@ import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
-import io.monetize.kit.sdk.core.utils.remoteconfig.FirebaseRemoteConfigHelper
+import io.monetize.kit.sdk.core.utils.purchase.AdSdkPurchaseHelper
+import io.monetize.kit.sdk.core.utils.remoteconfig.AdSdkFirebaseRemoteConfigHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -38,11 +39,12 @@ data class SplashScreenState(
 
 class SplashScreenViewModel(
     private val adSdkSplashAdController: AdSdkSplashAdController,
-    private val firebaseRemoteConfigHelper: FirebaseRemoteConfigHelper,
+    private val adSdkFirebaseRemoteConfigHelper: AdSdkFirebaseRemoteConfigHelper,
     private val adSdkInAppUpdateManager: AdSdkInAppUpdateManager,
     private val adSdkConsentManager: AdSdkConsentManager,
     private val pref: AdSdkPref,
     private val adSdkInternetController: AdSdkInternetController,
+    private val adSdkPurchaseHelper: AdSdkPurchaseHelper,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -54,11 +56,34 @@ class SplashScreenViewModel(
 
     init {
 
+
         viewModelScope.apply {
 
             launch {
                 adSdkConsentManager.googleConsent.collectLatest {
                     runSplash()
+                }
+            }
+        }
+
+
+        adSdkPurchaseHelper.initBilling("one_time_purchase_id")
+
+        viewModelScope.apply {
+
+            launch {
+
+                adSdkPurchaseHelper.appPurchased.collectLatest { isPurchased ->
+                    Log.d("ioiioo", "isPurchased: $isPurchased")
+                }
+            }
+
+            launch {
+
+                adSdkPurchaseHelper.productPriceFlow.collectLatest {
+
+                    Log.d("ioiioo", "productPriceFlow: ${it.price.ifEmpty { "..." }}")
+
                 }
             }
         }
@@ -235,22 +260,22 @@ class SplashScreenViewModel(
 
     fun showSplashAd(mContext: Activity) {
 
-        animator?.cancel()
-        adSdkSplashAdController.initSplashAdmob(
-            mContext,
-            true,
-            object : InterstitialControllerListener {
-                override fun onAdClosed() {
-                    _state.update {
-                        it.copy(
-                            progress = 100,
-                            moveToMain = true,
-                        )
-                    }
-                }
-
-            }
-        )
+//        animator?.cancel()
+//        adSdkSplashAdController.initSplashAdmob(
+//            mContext,
+//            true,
+//            object : InterstitialControllerListener {
+//                override fun onAdClosed() {
+//                    _state.update {
+//                        it.copy(
+//                            progress = 100,
+//                            moveToMain = true,
+//                        )
+//                    }
+//                }
+//
+//            }
+//        )
 
 
     }

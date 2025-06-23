@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.test.compose.adslibrary"
+        applicationId = "com.fart.funny.pranks.sounds"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

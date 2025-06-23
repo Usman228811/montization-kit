@@ -22,7 +22,7 @@ gmsServiceVersion = "4.4.2"
 firebaseCrashlyticsVersion = "3.0.4"
 firebasePerfVersion = "1.4.2"
 
-
+billingKtx = "7.1.1"
 firebaseBom = "33.15.0"
 
 
@@ -58,6 +58,7 @@ firebase-analytincs = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
+billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
 
 [bundles]
 firebase = ["firebase-bom",
@@ -66,6 +67,7 @@ firebase = ["firebase-bom",
     "firebase-crashlytics",
     "firebase-config",
     "firebase-perf",
+    "billing-ktx",
 ]
 
 
