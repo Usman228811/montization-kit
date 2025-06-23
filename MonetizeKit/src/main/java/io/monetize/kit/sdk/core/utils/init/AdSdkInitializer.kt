@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
@@ -18,6 +19,18 @@ class AdSdkInitializer(
 ) {
 
     fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
+        try {
+            val applicationInfo = context.packageManager.getApplicationInfo(
+                context.packageName,
+                PackageManager.GET_META_DATA
+            )
+            applicationInfo.metaData?.putString("com.google.android.gms.ads.APPLICATION_ID", adMobAppId)
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.i("APPLICATION_ID", "ApplicationID not found")
+            e.printStackTrace()
+        }
+
+
         try {
             FirebaseApp.initializeApp(context)
         } catch (ex: Exception) {
@@ -49,6 +62,5 @@ class AdSdkInitializer(
             isLoadingEnable = interControllerConfig.openAdLoadingEnable
         )
         adSdkOpenAdManager.initOpenAd()
-
     }
 }

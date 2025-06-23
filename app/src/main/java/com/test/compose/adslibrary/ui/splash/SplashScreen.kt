@@ -30,8 +30,10 @@ fun SplashScreen(
 //    })
 
 
+
     LaunchedEffect(Unit) {
         viewModel.observeLifecycle(lifecycleOwner)
+        viewModel.initConsent(activity)
 
 //        viewModel.checkUpdate(launcher)
     }

@@ -12,9 +12,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.test.compose.adslibrary.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
+import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.remoteconfig.FirebaseRemoteConfigHelper
@@ -29,6 +31,7 @@ data class SplashScreenState(
     val runSplash: Boolean = false,
     val isAppResumed: Boolean = false,
     val moveToMain: Boolean = false,
+    val isConsentManager: Boolean = false,
     val progress: Int = 0,
     val updateState: UpdateState = UpdateState.Idle,
 )
@@ -37,6 +40,9 @@ class SplashScreenViewModel(
     private val adSdkSplashAdController: AdSdkSplashAdController,
     private val firebaseRemoteConfigHelper: FirebaseRemoteConfigHelper,
     private val adSdkInAppUpdateManager: AdSdkInAppUpdateManager,
+    private val adSdkConsentManager: AdSdkConsentManager,
+    private val pref: AdSdkPref,
+    private val adSdkInternetController: AdSdkInternetController,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -48,36 +54,65 @@ class SplashScreenViewModel(
 
     init {
 
+        viewModelScope.apply {
 
-        firebaseRemoteConfigHelper.apply {
-            viewModelScope.launch {
-                configFetched.collectLatest {
-                    try {
-                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
-                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
-                        val IS_AI = getString("IS_AI", "YES")
-
-                        runSplash()
-                    } catch (e: Exception) {
-                        runSplash()
-                    }
+            launch {
+                adSdkConsentManager.googleConsent.collectLatest {
+                    runSplash()
                 }
             }
-
-            fetchRemoteValues(
-                BuildConfig.DEBUG,
-                mapOf(
-                    "SPLASH_TIME" to 16,
-                    "HOME_NATIVE_ENABLE" to true,
-                )
-            )
-
         }
+
+//        firebaseRemoteConfigHelper.apply {
+//            viewModelScope.launch {
+//                configFetched.collectLatest {
+//                    try {
+//                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
+//                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
+//                        val IS_AI = getString("IS_AI", "YES")
+//
+//                        runSplash()
+//                    } catch (e: Exception) {
+//                        runSplash()
+//                    }
+//                }
+//            }
+//
+//            fetchRemoteValues(
+//                BuildConfig.DEBUG,
+//                mapOf(
+//                    "SPLASH_TIME" to 16,
+//                    "HOME_NATIVE_ENABLE" to true,
+//                )
+//            )
+//
+//        }
 
         adSdkSplashAdController.resetSplash()
         startProgressAnimation()
 
     }
+
+    fun initConsent(activity: Activity) {
+        viewModelScope.launch {
+            if (state.value.isConsentManager.not()) {
+                _state.update {
+                    it.copy(
+                        isConsentManager = true
+                    )
+                }
+                if (!pref.isAppPurchased && adSdkInternetController.isConnected) {
+                    adSdkConsentManager.gatherConsent(activity)
+                    if (adSdkConsentManager.canRequestAds) {
+                        runSplash()
+                    }
+                } else {
+                    runSplash()
+                }
+            }
+        }
+    }
+
 
     fun checkUpdate(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
 

@@ -38,7 +38,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         }
 
         adSdkInitializer.initMobileAds(
-            adMobAppId = "ca-app-pub-3940256099942544~3347511713",
+            adMobAppId = "ca-app-pub-9690615864092002~8960663430",
             onInit = {
 
 

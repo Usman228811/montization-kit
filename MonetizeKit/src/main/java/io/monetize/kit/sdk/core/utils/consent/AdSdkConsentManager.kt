@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.core.utils.consent
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
@@ -13,6 +14,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import io.monetize.kit.sdk.BuildConfig
+import kotlin.math.log
 
 class AdSdkConsentManager(context: Context) {
     private val coroutineScope by lazy {
@@ -24,8 +26,7 @@ class AdSdkConsentManager(context: Context) {
     private val _googleConsent: Channel<Boolean> = Channel()
     val googleConsent = _googleConsent.receiveAsFlow()
     val canRequestAds: Boolean
-        get() = true
-//        get() = consentInformation.canRequestAds()
+        get() = consentInformation.canRequestAds()
     private var isRequestingConsent = false
 
     fun gatherConsent(activity: Activity) {
@@ -35,10 +36,11 @@ class AdSdkConsentManager(context: Context) {
         }
         isRequestingConsent = true
         try {
+            Log.d("AdKit_Logs", "gatherConsent: ${BuildConfig.DEBUG}")
             val params: ConsentRequestParameters = if (BuildConfig.DEBUG) {
                 val debugSettings = ConsentDebugSettings.Builder(activity)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                    .addTestDeviceHashedId("6F656C859AF41A3E0572969B57C89107").build()
+                    .addTestDeviceHashedId("F6A02AFF47CB6BB7BF2AF64A8CC1D411").build()
                 ConsentRequestParameters.Builder().setConsentDebugSettings(debugSettings).build()
             } else {
                 ConsentRequestParameters.Builder().build()
