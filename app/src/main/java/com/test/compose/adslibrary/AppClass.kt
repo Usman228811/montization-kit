@@ -6,6 +6,7 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
 import com.test.compose.adslibrary.di.MainModule
+import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
@@ -42,6 +43,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
             }
+        )
+
+        adSdkOpenAdManager.excludeComposeRoutesFromOpenAd(
+            AppRoute.SplashRoute.route,
+            AppRoute.SettingsRoute.route
         )
 
 

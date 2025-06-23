@@ -56,7 +56,6 @@ class NativeAdSingleController(
                         return
                     }
                     canRequestLargeAd = false
-                    Log.d("MyAdKit", "loadNativeAd: ${nativeControllerConfig.adId}")
 //                    if (BuildConfig.DEBUG) {
 //                        Toast.makeText(context, "large native ad calling", Toast.LENGTH_SHORT)
 //                            .show()

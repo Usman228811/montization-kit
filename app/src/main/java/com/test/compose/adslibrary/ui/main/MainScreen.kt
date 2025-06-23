@@ -1,6 +1,7 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,8 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    adSdkInterHelper: AdSdkInterHelper = koinInject()
+    adSdkInterHelper: AdSdkInterHelper = koinInject(),
+    gotoSettings:()->Unit
 ) {
 
     val activity = LocalActivity.current as Activity
@@ -45,56 +47,56 @@ fun MainScreen(
             .fillMaxSize()
     ) {
 
-        AdSdkGeneralBottomSheet(
-            onDismissRequest = {
-
-            },
-            titleComposable = {
-                Text(
-                    text = "title",
-                    fontSize = 18.ssp,
-                    color = Color.Red
-                )
-            },
-
-            descriptionComposable = {
-                Text(
-                    text = "description"
-                )
-            },
-            negativeButtonComposable = {
-                Button(
-                    modifier = Modifier
-                        .width(width = 130.sdp)
-                        .height(height = 40.sdp),
-                    onClick = {
-
-                    },
-                ) {
-                    Text(
-                        text = "cancel"
-                    )
-                }
-            },
-            positiveButtonComposable = {
-                Button(
-                    modifier = Modifier
-                        .width(width = 130.sdp)
-                        .height(height = 40.sdp),
-                    onClick = {
-
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.Gray
-                    )
-                ) {
-                    Text(
-                        text = "exit"
-                    )
-                }
-            }
-        )
+//        AdSdkGeneralBottomSheet(
+//            onDismissRequest = {
+//
+//            },
+//            titleComposable = {
+//                Text(
+//                    text = "title",
+//                    fontSize = 18.ssp,
+//                    color = Color.Red
+//                )
+//            },
+//
+//            descriptionComposable = {
+//                Text(
+//                    text = "description"
+//                )
+//            },
+//            negativeButtonComposable = {
+//                Button(
+//                    modifier = Modifier
+//                        .width(width = 130.sdp)
+//                        .height(height = 40.sdp),
+//                    onClick = {
+//
+//                    },
+//                ) {
+//                    Text(
+//                        text = "cancel"
+//                    )
+//                }
+//            },
+//            positiveButtonComposable = {
+//                Button(
+//                    modifier = Modifier
+//                        .width(width = 130.sdp)
+//                        .height(height = 40.sdp),
+//                    onClick = {
+//
+//                    },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.LightGray,
+//                        contentColor = Color.Gray
+//                    )
+//                ) {
+//                    Text(
+//                        text = "exit"
+//                    )
+//                }
+//            }
+//        )
 
 
 
@@ -105,11 +107,8 @@ fun MainScreen(
                 interInstant = true,
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {
-                        Toast.makeText(
-                            activity,
-                            "ad closed",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Log.d("uiuiui", "onAdClosed: ")
+                        gotoSettings()
                     }
 
                 }

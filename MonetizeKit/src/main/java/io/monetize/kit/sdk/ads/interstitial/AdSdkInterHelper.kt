@@ -78,6 +78,7 @@ class AdSdkInterHelper(
                     interstitialController.loadAndShow(
                         context = activity,
                         enable = true,
+                        listener = listener,
                     )
                 }
             }

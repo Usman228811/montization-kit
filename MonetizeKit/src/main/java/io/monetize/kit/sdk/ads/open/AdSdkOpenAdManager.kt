@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -14,8 +15,8 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
-import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdSdkPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
 import java.util.Date
@@ -35,6 +36,23 @@ class AdSdkOpenAdManager(
     private var canShowOpenAd = true
     private var adId = ""
     private var currentActivity: Activity? = null
+
+    private var currentRoute: String? = null
+
+    fun setCurrentComposeRoute(route: String?) {
+        currentRoute = route
+    }
+
+    private val excludedActivities = mutableSetOf<String>()
+    private val excludedComposeRoutes = mutableSetOf<String>()
+
+    fun excludeComposeRoutesFromOpenAd(vararg routes: String) {
+        excludedComposeRoutes.addAll(routes)
+    }
+
+    fun excludeActivitiesFromOpenAd(vararg activityClasses: Class<out Activity>) {
+        excludedActivities.addAll(activityClasses.map { it.name })
+    }
 
     fun setAppInPause(isPause: Boolean) {
         this.isPause = isPause
@@ -142,12 +160,22 @@ class AdSdkOpenAdManager(
             if (!IS_INTERSTITIAL_Ad_SHOWING) {
                 if (!IS_OPEN_Ad_SHOWING && isAdAvailable) {
                     if (!isPause) {
+                        Log.d("AdKit_Logs", "currentRoute: $currentRoute")
 
-                        currentActivity?.let { currentActivity ->
-                            if (currentActivity !is AdActivity) {
-                                checkProgressShowAd(currentActivity)
-                            }
+                        val isExcludedRoute = currentRoute in excludedComposeRoutes
+                        val isExcludedActivity =
+                            currentActivity?.javaClass?.name in excludedActivities
+
+                        if (!isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
+                            currentActivity?.let { checkProgressShowAd(it) }
                         }
+
+//                        currentActivity?.let { currentActivity ->
+//                            val className = currentActivity::class.java.name
+//                            if (currentActivity !is AdActivity && className !in excludedActivities) {
+//                                checkProgressShowAd(currentActivity)
+//                            }
+//                        }
                     }
                 } else {
                     fetchAd()

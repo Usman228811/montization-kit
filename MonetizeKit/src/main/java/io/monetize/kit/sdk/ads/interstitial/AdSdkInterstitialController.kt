@@ -130,7 +130,7 @@ class InterstitialController(
             if (admobInterAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context, true, key)
+                loadAndShow(context, true, key, listener)
             }
         } else if ((savedCount + 1).toLong() >= counter) {
             listener.onAdClosed()
@@ -262,7 +262,9 @@ class InterstitialController(
         context: Activity,
         enable: Boolean = true,
         key: String = "",
+        listener: InterstitialControllerListener,
     ) {
+        mInterstitialControllerListener = listener
         try {
             if (!mMyPref.isAppPurchased && internetController.isConnected && enable && mConsent.canRequestAds) {
                 if (!canRequestAd) {

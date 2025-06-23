@@ -26,7 +26,7 @@ class AdSdkInitializer(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 MobileAds.initialize(context) {
-                    Log.d("iiiiii", "initMobileAds: app-id =: $adMobAppId")
+                    Log.d("AdKit_Logs", "initMobileAds: app-id =: $adMobAppId")
                 }
             } catch (_: Exception) {
             } catch (_: NoClassDefFoundError) {

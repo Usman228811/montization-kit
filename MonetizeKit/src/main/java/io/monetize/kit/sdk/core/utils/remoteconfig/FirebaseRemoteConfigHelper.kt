@@ -64,9 +64,9 @@ class FirebaseRemoteConfigHelper {
                 fetchAndActivate()
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.d("FirebaseRemoteConfig", "Fetch successful")
+                            Log.d("AdKit_Logs", "Firebase Fetch successful")
                         } else {
-                            Log.e("FirebaseRemoteConfig", "Fetch failed", task.exception)
+                            Log.e("AdKit_Logs", "Firebase Fetch failed", task.exception)
                         }
                         _configFetched.trySend(true)
                     }
@@ -78,6 +78,7 @@ class FirebaseRemoteConfigHelper {
                     }
             }
         } catch (e: Exception) {
+            Log.d("AdKit_Logs", "fetchRemoteConfig package error: ")
             _configFetched.trySend(true)
         }
 
@@ -89,13 +90,13 @@ class FirebaseRemoteConfigHelper {
                 firebaseRemoteConfig.activate()
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
-                            Log.d("FirebaseRemoteConfig", "Config updated & activated.")
+                            Log.d("AdKit_Logs", "Config updated & activated.")
                         }
                     }
             }
 
             override fun onError(error: FirebaseRemoteConfigException) {
-                Log.e("FirebaseRemoteConfig", "Config update listener failed", error)
+                Log.e("AdKit_Logs", "Config update listener failed", error)
             }
         })
     }

@@ -6,10 +6,14 @@ class NavigationActions(private val navHostController: NavHostController) {
 
 
     val goToMainScreen: () -> Unit = {
-        navHostController.navigate(AppRoute.MainRoute){
-            popUpTo(AppRoute.SplashRoute){
+        navHostController.navigate(AppRoute.MainRoute.route){
+            popUpTo(AppRoute.SplashRoute.route){
                 inclusive = true
             }
         }
+    }
+
+    val goToSettingScreen: () -> Unit = {
+        navHostController.navigate(AppRoute.SettingsRoute.route)
     }
 }

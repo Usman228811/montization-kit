@@ -56,12 +56,9 @@ class SplashScreenViewModel(
                         val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
                         val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
                         val IS_AI = getString("IS_AI", "YES")
-                        Log.d("iiiiii", ": $SPLASH_TIME")
-                        Log.d("iiiiii", ": $HOME_NATIVE_ENABLE")
-                        Log.d("iiiiii", ": $IS_AI")
+
                         runSplash()
                     } catch (e: Exception) {
-                        Log.d("iiiiii", ": ex")
                         runSplash()
                     }
                 }
@@ -114,11 +111,11 @@ class SplashScreenViewModel(
 
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        inAppUpdateManager.unRegisterLister()
-        animator?.cancel()
-    }
+//    override fun onCleared() {
+//        super.onCleared()
+//        inAppUpdateManager.unRegisterLister()
+//        animator?.cancel()
+//    }
 
 
     private fun onResume() {
