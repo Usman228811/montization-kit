@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.test.compose.adslibrary.ui.main.MainScreen
-import com.test.compose.adslibrary.ui.settings.SettingScreen
+import com.test.compose.adslibrary.ui.settings.SubscriptionScreen
 import com.test.compose.adslibrary.ui.splash.SplashScreen
 
 @Composable
@@ -26,14 +26,14 @@ fun AppNavHost(
         }
 
         composable(AppRoute.MainRoute.route) {
-            MainScreen(gotoSettings = {
-                gotoNext(AppRoute.SettingsRoute, navigationActions)
+            MainScreen(gotoSubscription = {
+                gotoNext(AppRoute.SubscriptionRoute, navigationActions)
 
             })
         }
 
-        composable(AppRoute.SettingsRoute.route) {
-            SettingScreen()
+        composable(AppRoute.SubscriptionRoute.route) {
+            SubscriptionScreen()
         }
 
 
@@ -50,7 +50,7 @@ fun gotoNext(appRoute: AppRoute, navigationActions: NavigationActions) {
 
         }
 
-        AppRoute.SettingsRoute -> {
+        AppRoute.SubscriptionRoute -> {
             navigationActions.goToSettingScreen()
         }
     }

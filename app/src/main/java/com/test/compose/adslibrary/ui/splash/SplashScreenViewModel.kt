@@ -69,6 +69,8 @@ class SplashScreenViewModel(
 
         adSdkPurchaseHelper.initBilling("one_time_purchase_id")
 
+
+
         viewModelScope.apply {
 
             launch {
@@ -260,22 +262,22 @@ class SplashScreenViewModel(
 
     fun showSplashAd(mContext: Activity) {
 
-//        animator?.cancel()
-//        adSdkSplashAdController.initSplashAdmob(
-//            mContext,
-//            true,
-//            object : InterstitialControllerListener {
-//                override fun onAdClosed() {
-//                    _state.update {
-//                        it.copy(
-//                            progress = 100,
-//                            moveToMain = true,
-//                        )
-//                    }
-//                }
-//
-//            }
-//        )
+        animator?.cancel()
+        adSdkSplashAdController.initSplashAdmob(
+            mContext,
+            true,
+            object : InterstitialControllerListener {
+                override fun onAdClosed() {
+                    _state.update {
+                        it.copy(
+                            progress = 100,
+                            moveToMain = true,
+                        )
+                    }
+                }
+
+            }
+        )
 
 
     }

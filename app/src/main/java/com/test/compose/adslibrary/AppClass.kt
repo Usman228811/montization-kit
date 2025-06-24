@@ -47,7 +47,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
         adSdkOpenAdManager.excludeComposeRoutesFromOpenAd(
             AppRoute.SplashRoute.route,
-            AppRoute.SettingsRoute.route
+            AppRoute.SubscriptionRoute.route
         )
 
 

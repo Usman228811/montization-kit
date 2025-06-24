@@ -34,7 +34,7 @@ import org.koin.compose.koinInject
 @Composable
 fun MainScreen(
     adSdkInterHelper: AdSdkInterHelper = koinInject(),
-    gotoSettings:()->Unit
+    gotoSubscription:()->Unit
 ) {
 
     val activity = LocalActivity.current as Activity
@@ -103,18 +103,18 @@ fun MainScreen(
         Button(onClick = {
             adSdkInterHelper.showInterAd(
                 activity = activity,
-                enable = true,
+                enable = false,
                 interInstant = true,
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         Log.d("uiuiui", "onAdClosed: ")
-                        gotoSettings()
+                        gotoSubscription()
                     }
 
                 }
             )
         }) {
-            Text("showinter")
+            Text("showinter and to got subscripption screen")
         }
         Spacer(modifier = Modifier.weight(1f))
 

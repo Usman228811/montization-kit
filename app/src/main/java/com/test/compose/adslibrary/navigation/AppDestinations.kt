@@ -11,6 +11,6 @@ sealed class AppRoute(val route: String) {
     data object MainRoute : AppRoute("main")
 
     @Serializable
-    data object SettingsRoute : AppRoute("settings")
+    data object SubscriptionRoute : AppRoute("Subscription")
 
 }

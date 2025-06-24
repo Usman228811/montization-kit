@@ -14,6 +14,6 @@ class NavigationActions(private val navHostController: NavHostController) {
     }
 
     val goToSettingScreen: () -> Unit = {
-        navHostController.navigate(AppRoute.SettingsRoute.route)
+        navHostController.navigate(AppRoute.SubscriptionRoute.route)
     }
 }
