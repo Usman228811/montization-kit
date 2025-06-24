@@ -86,7 +86,9 @@ class AdSdkInAppUpdateManager(private val context: Context, private val internet
         appUpdateInfo = null
     }
 
-    fun updateComplete() = appUpdateManager?.completeUpdate()
+    fun updateComplete(){
+        appUpdateManager?.completeUpdate()
+    }
 
     fun startUpdateFlow(launcher: ActivityResultLauncher<IntentSenderRequest>) {
         appUpdateInfo?.let { info ->

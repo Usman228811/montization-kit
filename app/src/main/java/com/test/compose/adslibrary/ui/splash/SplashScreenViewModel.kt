@@ -115,6 +115,7 @@ class SplashScreenViewModel(
 //
 //        }
 
+
         adSdkSplashAdController.resetSplash()
         startProgressAnimation()
 
