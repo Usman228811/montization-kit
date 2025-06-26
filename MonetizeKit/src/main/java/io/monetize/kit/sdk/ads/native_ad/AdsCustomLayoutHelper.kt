@@ -11,7 +11,7 @@ class AdsCustomLayoutHelper {
         this.bigNative = bigNative
     }
 
-    fun getBigNative() :Int?{
+    fun getBigNative(): Int? {
         return bigNative
     }
 
@@ -20,16 +20,16 @@ class AdsCustomLayoutHelper {
     }
 
 
-    fun getSmallNative() :Int?{
+    fun getSmallNative(): Int? {
         return smallNative
     }
-
 
 
     fun setSplitNative(splitNative: Int?) {
         this.splitNative = splitNative
     }
-    fun getSplitNative() :Int?{
+
+    fun getSplitNative(): Int? {
         return splitNative
     }
 
