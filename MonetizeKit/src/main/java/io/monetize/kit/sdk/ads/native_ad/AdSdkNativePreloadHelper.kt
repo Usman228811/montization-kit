@@ -10,6 +10,7 @@ class AdSdkNativePreloadHelper(
     private val internetController: AdSdkInternetController,
     private val mySharedPreference: AdSdkPref,
     private val mConsent: AdSdkConsentManager,
+    private val customLayoutHelper: AdsCustomLayoutHelper,
 ) {
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
         if (nativeControllerConfig.isAdEnable && mConsent.canRequestAds) {
@@ -20,7 +21,8 @@ class AdSdkNativePreloadHelper(
                         NativeAdSingleModel(
                             nativeControllerConfig.key,
                             NativeAdSingleController(
-                                mySharedPreference, internetController, consentManager = mConsent
+                                mySharedPreference, internetController, consentManager = mConsent,
+                                customLayoutHelper
                             )
                         )
                     )

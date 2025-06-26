@@ -27,7 +27,8 @@ val singleNativeList = ArrayList<NativeAdSingleModel>()
 class NativeAdSingleController(
     private val prefs: AdSdkPref,
     private val internetController: AdSdkInternetController,
-    private val consentManager: AdSdkConsentManager
+    private val consentManager: AdSdkConsentManager,
+    private val customLayoutHelper: AdsCustomLayoutHelper,
 ) {
     private var canRequestLargeAd = true
     private var largeAndSmallNativeAd: NativeAd? = null
@@ -118,6 +119,7 @@ class NativeAdSingleController(
                 try {
                     try {
                         addNativeAdView(
+                            adsCustomLayoutHelper = customLayoutHelper,
                             adType = AdType.entries.filter { entries -> entries.type == nativeControllerConfig.adType.toInt() }[0],
                             context = context,
                             adFrame = adFrame,

@@ -1,9 +1,10 @@
 package io.monetize.kit.sdk.core.di
 
 import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
-import io.monetize.kit.sdk.ads.interstitial.InterstitialController
 import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
+import io.monetize.kit.sdk.ads.interstitial.InterstitialController
 import io.monetize.kit.sdk.ads.native_ad.AdSdkNativePreloadHelper
+import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdSdkInternetController
 import io.monetize.kit.sdk.core.utils.AdSdkPref
@@ -32,8 +33,7 @@ val AppKitModule = module {
     singleOf(::AdSdkFirebaseRemoteConfigHelper)
     singleOf(::AdSdkPurchaseHelper)
     singleOf(::AdSdkSubscriptionHelper)
-
-
+    singleOf(::AdsCustomLayoutHelper)
 
 
 }

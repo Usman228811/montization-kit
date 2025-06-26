@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.nativead.NativeAd
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
+import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
@@ -23,6 +24,7 @@ class GetNativeAdRepoImpl(
     private val prefs: AdSdkPref,
     private val internetController: AdSdkInternetController,
     private val consentManager: AdSdkConsentManager,
+    private val customLayoutHelper: AdsCustomLayoutHelper,
 ) : GetNativeAdRepo {
 
     private var largeNativeAd: Any? = null
@@ -58,7 +60,8 @@ class GetNativeAdRepoImpl(
                         NativeAdSingleController(
                             prefs = prefs,
                             internetController = internetController,
-                            consentManager = consentManager
+                            consentManager = consentManager,
+                            customLayoutHelper = customLayoutHelper
                         )
                     )
                 )
@@ -184,6 +187,7 @@ class GetNativeAdRepoImpl(
                                 }
                             } else {
                                 addNativeAdView(
+                                    customLayoutHelper,
                                     adType,
                                     mContext,
                                     adFrame,

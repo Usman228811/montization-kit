@@ -7,6 +7,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class AdSdkInitializer(
     private val context: Context,
     private val adSdkInterHelper: AdSdkInterHelper,
-    private val adSdkOpenAdManager: AdSdkOpenAdManager
+    private val adSdkOpenAdManager: AdSdkOpenAdManager,
+    private val customLayoutHelper: AdsCustomLayoutHelper
 ) {
 
     fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
@@ -24,7 +26,10 @@ class AdSdkInitializer(
                 context.packageName,
                 PackageManager.GET_META_DATA
             )
-            applicationInfo.metaData?.putString("com.google.android.gms.ads.APPLICATION_ID", adMobAppId)
+            applicationInfo.metaData?.putString(
+                "com.google.android.gms.ads.APPLICATION_ID",
+                adMobAppId
+            )
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i("APPLICATION_ID", "ApplicationID not found")
             e.printStackTrace()
@@ -46,6 +51,18 @@ class AdSdkInitializer(
             }
         }
         onInit()
+    }
+
+    fun setNativeCustomLayouts(
+        bigNativeLayout: Int?,
+        smallNativeLayout: Int?,
+        splitNativeLayout: Int?,
+    ) {
+        customLayoutHelper.apply {
+            setBigNative(bigNativeLayout)
+            setSmallNative(smallNativeLayout)
+            setSplitNative(splitNativeLayout)
+        }
     }
 
     fun init(

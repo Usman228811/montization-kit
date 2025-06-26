@@ -25,7 +25,7 @@ fun addShimmerLayout(
     val shimmerLayout =
         adFrame.findViewById<ShimmerFrameLayout>(R.id.shimmerContainer)
     if (nativeAdView == null && shimmerLayout == null) {
-        val shimmerLayoutId = when(adType){
+        val shimmerLayoutId = when (adType) {
             AdType.LARGE_NATIVE -> R.layout.large_native_layout
             AdType.JAZZ_LEFT_BOTTOM_CTA -> R.layout.large_native_right_jazz
             AdType.SMALL_BOTTOM_BUTTON -> R.layout.small_native_layout
@@ -55,6 +55,7 @@ fun addShimmerLayout(
 
 
 fun addNativeAdView(
+    adsCustomLayoutHelper: AdsCustomLayoutHelper,
     adType: AdType,
     context: Context,
     adFrame: LinearLayout,
@@ -66,7 +67,10 @@ fun addNativeAdView(
             AdType.JAZZ_LEFT_BOTTOM_CTA -> {
                 val adView =
                     LayoutInflater.from(context)
-                        .inflate(R.layout.large_native_right_jazz, adFrame, false)
+                        .inflate(
+                            adsCustomLayoutHelper.getSplitNative()
+                                ?: R.layout.large_native_right_jazz, adFrame, false
+                        )
 
                 try {
                     adView.parent?.let { parent ->
@@ -90,11 +94,16 @@ fun addNativeAdView(
             else -> {
                 val adView = if (adType == AdType.SMALL_BOTTOM_BUTTON) {
                     LayoutInflater.from(context)
-                        .inflate(R.layout.small_native_layout, adFrame, false)
+                        .inflate(
+                            adsCustomLayoutHelper.getSmallNative()
+                                ?: R.layout.small_native_layout, adFrame, false
+                        )
                 } else {
-
                     LayoutInflater.from(context)
-                        .inflate(R.layout.large_native_layout, adFrame, false)
+                        .inflate(
+                            adsCustomLayoutHelper.getBigNative()
+                                ?: R.layout.large_native_layout, adFrame, false
+                        )
 
                 }
                 try {
