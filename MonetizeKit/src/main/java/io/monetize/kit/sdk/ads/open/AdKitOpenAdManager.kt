@@ -15,16 +15,16 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
-import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
 import java.util.Date
 
-class AdSdkOpenAdManager(
+class AdKitOpenAdManager(
     private val mContext: Context,
-    private val internetController: AdSdkInternetController,
-    private val prefHelper: AdSdkPref
+    private val internetController: AdKitInternetController,
+    private val prefHelper: AdKitPref
 ) : DefaultLifecycleObserver {
     private var mAppOpenAd: AppOpenAd? = null
     private var loadTime: Long = 0

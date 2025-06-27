@@ -7,19 +7,19 @@ import android.content.Context
 import android.os.Bundle
 import com.test.compose.adslibrary.di.MainModule
 import com.test.compose.adslibrary.navigation.AppRoute
-import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
-import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
+import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
-import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
+import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
-    private val adSdkInitializer: AdSdkInitializer by inject()
-    private val adSdkInterHelper: AdSdkInterHelper by inject()
-    private val adSdkOpenAdManager: AdSdkOpenAdManager by inject()
+    private val adKitInitializer: AdKitInitializer by inject()
+    private val adKitInterHelper: AdKitInterHelper by inject()
+    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
     companion object {
         var appContext: Context? = null
@@ -37,7 +37,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             )
         }
 
-        adSdkInitializer.initMobileAds(
+        adKitInitializer.initMobileAds(
             adMobAppId = "ca-app-pub-9690615864092002~8960663430",
             onInit = {
 
@@ -45,12 +45,12 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             }
         )
 
-        adSdkInitializer.setNativeCustomLayouts(
+        adKitInitializer.setNativeCustomLayouts(
             bigNativeLayout = R.layout.large_native_layout_custom,
             bigNativeShimmer = R.layout.large_native_layout_shimmer,
         )
 
-        adSdkOpenAdManager.excludeComposeRoutesFromOpenAd(
+        adKitOpenAdManager.excludeComposeRoutesFromOpenAd(
             AppRoute.SplashRoute.route,
             AppRoute.SubscriptionRoute.route
         )
@@ -73,8 +73,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
     private fun handleCurrentActivity(activity: Activity) {
-        adSdkInterHelper.setAppInPause(false)
-        adSdkOpenAdManager.setActivity(activity)
+        adKitInterHelper.setAppInPause(false)
+        adKitOpenAdManager.setActivity(activity)
 //        canShowOpenAd =
 //            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
     }
@@ -85,13 +85,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivityPaused(activity: Activity) {
-        adSdkInterHelper.setAppInPause(true)
+        adKitInterHelper.setAppInPause(true)
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        adSdkOpenAdManager.setActivity(null)
-        adSdkInterHelper.setAppInPause(false)
+        adKitOpenAdManager.setActivity(null)
+        adKitInterHelper.setAppInPause(false)
     }
 }

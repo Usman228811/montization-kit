@@ -5,18 +5,18 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import io.monetize.kit.sdk.ads.interstitial.AdSdkInterHelper
+import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
-import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
+import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AdSdkInitializer(
+class AdKitInitializer(
     private val context: Context,
-    private val adSdkInterHelper: AdSdkInterHelper,
-    private val adSdkOpenAdManager: AdSdkOpenAdManager,
+    private val adKitInterHelper: AdKitInterHelper,
+    private val adKitOpenAdManager: AdKitOpenAdManager,
     private val customLayoutHelper: AdsCustomLayoutHelper
 ) {
 
@@ -80,16 +80,16 @@ class AdSdkInitializer(
     fun init(
         interControllerConfig: InterControllerConfig,
     ) {
-        adSdkInterHelper.setAdIds(
+        adKitInterHelper.setAdIds(
             splashId = interControllerConfig.splashId,
             appInterIds = interControllerConfig.appInterIds,
             interControllerConfig = interControllerConfig
         )
-        adSdkOpenAdManager.setOpenAdConfigs(
+        adKitOpenAdManager.setOpenAdConfigs(
             adId = interControllerConfig.openAdId,
             isAdEnable = interControllerConfig.openAdEnable,
             isLoadingEnable = interControllerConfig.openAdLoadingEnable
         )
-        adSdkOpenAdManager.initOpenAd()
+        adKitOpenAdManager.initOpenAd()
     }
 }

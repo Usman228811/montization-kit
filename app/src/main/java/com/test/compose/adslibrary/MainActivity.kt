@@ -1,7 +1,6 @@
 package com.test.compose.adslibrary
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -17,23 +16,23 @@ import com.test.compose.adslibrary.AppClass.Companion.appContext
 import com.test.compose.adslibrary.navigation.AppNavHost
 import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.open.AdSdkOpenAdManager
-import io.monetize.kit.sdk.core.utils.init.AdSdkInitializer
+import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
-    private val adSdkInitializer: AdSdkInitializer by inject()
-    private val adSdkOpenAdManager: AdSdkOpenAdManager by inject()
+    private val adKitInitializer: AdKitInitializer by inject()
+    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (appContext as AppClass).initializeAppClass()
-        adSdkOpenAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
+        adKitOpenAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
 
-        adSdkInitializer.init(
+        adKitInitializer.init(
             InterControllerConfig(
                 openAdId = "ca-app-pub-3940256099942544/9257395921",
                 splashId = "ca-app-pub-3940256099942544/1033173712",
@@ -57,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
                 navHostController.currentBackStackEntryFlow.collect { backStackEntry ->
                     val route = backStackEntry.destination.route
-                    adSdkOpenAdManager.setCurrentComposeRoute(route)
+                    adKitOpenAdManager.setCurrentComposeRoute(route)
                 }
             }
 

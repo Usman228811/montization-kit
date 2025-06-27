@@ -10,7 +10,7 @@ import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
 
-class AdSdkBannerAdViewXml @JvmOverloads constructor(
+class AdKitBannerAdViewXml @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0

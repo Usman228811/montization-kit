@@ -14,9 +14,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import io.monetize.kit.sdk.BuildConfig
-import kotlin.math.log
 
-class AdSdkConsentManager(context: Context) {
+class AdKitConsentManager(context: Context) {
     private val coroutineScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }

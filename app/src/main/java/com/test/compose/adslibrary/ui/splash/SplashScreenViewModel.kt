@@ -2,7 +2,6 @@ package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -12,15 +11,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.monetize.kit.sdk.ads.interstitial.AdSdkSplashAdController
+import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
-import io.monetize.kit.sdk.core.utils.AdSdkPref
-import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
-import io.monetize.kit.sdk.core.utils.in_app_update.AdSdkInAppUpdateManager
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
-import io.monetize.kit.sdk.core.utils.purchase.AdSdkPurchaseHelper
-import io.monetize.kit.sdk.core.utils.remoteconfig.AdSdkFirebaseRemoteConfigHelper
+import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
+import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -38,13 +37,13 @@ data class SplashScreenState(
 )
 
 class SplashScreenViewModel(
-    private val adSdkSplashAdController: AdSdkSplashAdController,
-    private val adSdkFirebaseRemoteConfigHelper: AdSdkFirebaseRemoteConfigHelper,
-    private val adSdkInAppUpdateManager: AdSdkInAppUpdateManager,
-    private val adSdkConsentManager: AdSdkConsentManager,
-    private val pref: AdSdkPref,
-    private val adSdkInternetController: AdSdkInternetController,
-    private val adSdkPurchaseHelper: AdSdkPurchaseHelper,
+    private val adKitSplashAdController: AdKitSplashAdController,
+    private val adKitFirebaseRemoteConfigHelper: AdKitFirebaseRemoteConfigHelper,
+    private val adKitInAppUpdateManager: AdKitInAppUpdateManager,
+    private val adKitConsentManager: AdKitConsentManager,
+    private val pref: AdKitPref,
+    private val adKitInternetController: AdKitInternetController,
+    private val adKitPurchaseHelper: AdKitPurchaseHelper,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -60,14 +59,14 @@ class SplashScreenViewModel(
         viewModelScope.apply {
 
             launch {
-                adSdkConsentManager.googleConsent.collectLatest {
+                adKitConsentManager.googleConsent.collectLatest {
                     runSplash()
                 }
             }
         }
 
 
-        adSdkPurchaseHelper.initBilling("one_time_purchase_id")
+        adKitPurchaseHelper.initBilling("one_time_purchase_id")
 
 
 
@@ -75,14 +74,14 @@ class SplashScreenViewModel(
 
             launch {
 
-                adSdkPurchaseHelper.appPurchased.collectLatest { isPurchased ->
+                adKitPurchaseHelper.appPurchased.collectLatest { isPurchased ->
 
                 }
             }
 
             launch {
 
-                adSdkPurchaseHelper.productPriceFlow.collectLatest {
+                adKitPurchaseHelper.productPriceFlow.collectLatest {
 
 
                 }
@@ -115,7 +114,7 @@ class SplashScreenViewModel(
 //        }
 
 
-        adSdkSplashAdController.resetSplash()
+        adKitSplashAdController.resetSplash()
         startProgressAnimation()
 
     }
@@ -128,9 +127,9 @@ class SplashScreenViewModel(
                         isConsentManager = true
                     )
                 }
-                if (!pref.isAppPurchased && adSdkInternetController.isConnected) {
-                    adSdkConsentManager.gatherConsent(activity)
-                    if (adSdkConsentManager.canRequestAds) {
+                if (!pref.isAppPurchased && adKitInternetController.isConnected) {
+                    adKitConsentManager.gatherConsent(activity)
+                    if (adKitConsentManager.canRequestAds) {
                         runSplash()
                     }
                 } else {
@@ -143,11 +142,11 @@ class SplashScreenViewModel(
 
     fun checkUpdate(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
 
-        adSdkInAppUpdateManager.setUpdateStateCallback { updateState ->
+        adKitInAppUpdateManager.setUpdateStateCallback { updateState ->
             when (updateState) {
                 UpdateState.Available -> {
 
-                    adSdkInAppUpdateManager.startUpdateFlow(launcher)
+                    adKitInAppUpdateManager.startUpdateFlow(launcher)
                 }
 
                 UpdateState.Downloaded -> {
@@ -169,7 +168,7 @@ class SplashScreenViewModel(
 
         }
 
-        adSdkInAppUpdateManager.checkUpdate()
+        adKitInAppUpdateManager.checkUpdate()
 
     }
 
@@ -198,7 +197,7 @@ class SplashScreenViewModel(
             animator?.pause()
         }
         if (!isInterAdShowed && isInterAdCalled) {
-            adSdkSplashAdController.pauseAd()
+            adKitSplashAdController.pauseAd()
         }
         viewModelScope.launch {
             _state.update {
@@ -263,7 +262,7 @@ class SplashScreenViewModel(
     fun showSplashAd(mContext: Activity) {
 
         animator?.cancel()
-        adSdkSplashAdController.initSplashAdmob(
+        adKitSplashAdController.initSplashAdmob(
             mContext,
             true,
             object : InterstitialControllerListener {

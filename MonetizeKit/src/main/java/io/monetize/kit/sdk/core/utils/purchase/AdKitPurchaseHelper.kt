@@ -5,7 +5,7 @@ import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.usecase.InitBillingUseCase
 import io.monetize.kit.sdk.domain.usecase.PurchaseProductUseCase
 
-class AdSdkPurchaseHelper(
+class AdKitPurchaseHelper(
     private val init: InitBillingUseCase,
     private val purchase: PurchaseProductUseCase,
     private val billingRepository: BillingRepository

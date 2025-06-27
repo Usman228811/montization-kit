@@ -13,9 +13,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
-import io.monetize.kit.sdk.core.utils.AdSdkPref
-import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,9 +35,9 @@ data class InterControllerConfig(
 
 
 class InterstitialController(
-    private val internetController: AdSdkInternetController,
-    private val mMyPref: AdSdkPref,
-    private val mConsent: AdSdkConsentManager,
+    private val internetController: AdKitInternetController,
+    private val mMyPref: AdKitPref,
+    private val mConsent: AdKitConsentManager,
 ) {
     private var interControllerConfig: InterControllerConfig? = null
     private var handlerAd = Handler(Looper.getMainLooper())

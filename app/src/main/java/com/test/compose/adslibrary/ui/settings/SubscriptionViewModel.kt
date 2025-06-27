@@ -3,7 +3,7 @@ package com.test.compose.adslibrary.ui.settings
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.monetize.kit.sdk.core.utils.purchase.AdSdkSubscriptionHelper
+import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -21,7 +21,7 @@ data class SettingScreenState(
 )
 
 class SubscriptionViewModel(
-    private val adSdkSubscriptionHelper: AdSdkSubscriptionHelper
+    private val adKitSubscriptionHelper: AdKitSubscriptionHelper
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SettingScreenState())
@@ -38,7 +38,7 @@ class SubscriptionViewModel(
     init {
         viewModelScope.apply {
             launch {
-                adSdkSubscriptionHelper.subscriptionProducts.collectLatest {
+                adKitSubscriptionHelper.subscriptionProducts.collectLatest {
                     _state.update {
                         it.copy(
                             weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
@@ -49,7 +49,7 @@ class SubscriptionViewModel(
                 }
             }
             launch {
-                adSdkSubscriptionHelper.subscribedId.collectLatest { subscribedId ->
+                adKitSubscriptionHelper.subscribedId.collectLatest { subscribedId ->
                     _state.update {
                         it.copy(
                             subscribedId = subscribedId
@@ -59,12 +59,12 @@ class SubscriptionViewModel(
             }
 
             launch {
-                adSdkSubscriptionHelper.historyFetched.collectLatest {
+                adKitSubscriptionHelper.historyFetched.collectLatest {
 
                     val buttonText = when {
                         state.value.subscribedId.isEmpty() -> "subscribe"
                         state.value.subscribedId == selectedId() -> "cancel subscription"
-                        adSdkSubscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
+                        adKitSubscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
                         else -> state.value.buttonText // fallback to existing text
                     }
 
@@ -77,12 +77,12 @@ class SubscriptionViewModel(
     }
 
     fun loadProducts(activity: Activity, list: List<String>) {
-        adSdkSubscriptionHelper.loadProducts(activity, list)
+        adKitSubscriptionHelper.loadProducts(activity, list)
     }
 
 
     private fun getBillingPrice(productId: String, billingPeriod: String): String {
-        return adSdkSubscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
+        return adKitSubscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
 
 
     }
@@ -93,10 +93,10 @@ class SubscriptionViewModel(
                 selectedButtonPos = selectedButtonPos
             )
         }
-        adSdkSubscriptionHelper.querySubscriptionProducts()
+        adKitSubscriptionHelper.querySubscriptionProducts()
     }
 
     fun purchase() {
-        adSdkSubscriptionHelper.purchase(selectedId())
+        adKitSubscriptionHelper.purchase(selectedId())
     }
 }

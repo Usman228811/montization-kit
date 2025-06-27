@@ -13,8 +13,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
-import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
@@ -32,8 +32,8 @@ import kotlinx.coroutines.launch
 
 class BillingRepositoryImpl(
     private val context: Context,
-    private val internetController: AdSdkInternetController,
-    private val myPref: AdSdkPref,
+    private val internetController: AdKitInternetController,
+    private val myPref: AdKitPref,
 ) : BillingRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())

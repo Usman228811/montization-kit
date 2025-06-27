@@ -11,7 +11,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
 
 sealed class UpdateState {
     data object Idle : UpdateState()
@@ -20,7 +20,7 @@ sealed class UpdateState {
     data object Available : UpdateState()
 }
 
-class AdSdkInAppUpdateManager(private val context: Context, private val internetController: AdSdkInternetController) {
+class AdKitInAppUpdateManager(private val context: Context, private val internetController: AdKitInternetController) {
 
     private var appUpdateManager: AppUpdateManager? = null
     private var updateListener: InstallStateUpdatedListener? = null
@@ -38,7 +38,7 @@ class AdSdkInAppUpdateManager(private val context: Context, private val internet
                 appUpdateManager?.let { appUpdateManager ->
                     appUpdateManager.appUpdateInfo.apply {
                         addOnSuccessListener { p0 ->
-                            this@AdSdkInAppUpdateManager.appUpdateInfo = p0
+                            this@AdKitInAppUpdateManager.appUpdateInfo = p0
                             if (p0 != null && p0.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && p0.isUpdateTypeAllowed(
                                     AppUpdateType.IMMEDIATE
                                 )

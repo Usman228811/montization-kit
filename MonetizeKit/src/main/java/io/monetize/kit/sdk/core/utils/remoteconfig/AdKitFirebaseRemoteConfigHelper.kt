@@ -12,7 +12,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class AdSdkFirebaseRemoteConfigHelper {
+class AdKitFirebaseRemoteConfigHelper {
 
     private val _configFetched = Channel<Boolean>()
     val configFetched = _configFetched.receiveAsFlow()

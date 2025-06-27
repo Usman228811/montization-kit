@@ -8,16 +8,16 @@ import android.widget.LinearLayout
 import com.google.android.gms.ads.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
-import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdSdkConsentManager
+import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 
 class BaseSingleBannerActivity(
-    private val prefs: AdSdkPref,
-    private val internetController: AdSdkInternetController,
-    private val consentManager: AdSdkConsentManager
+    private val prefs: AdKitPref,
+    private val internetController: AdKitInternetController,
+    private val consentManager: AdKitConsentManager
 ) {
     private var bannerAd: AdView? = null
     private var loadNewAd: Boolean = false

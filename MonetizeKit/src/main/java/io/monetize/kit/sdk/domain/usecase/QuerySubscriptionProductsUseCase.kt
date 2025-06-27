@@ -3,7 +3,7 @@ package io.monetize.kit.sdk.domain.usecase
 import android.app.Activity
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import io.monetize.kit.sdk.core.utils.AdSdkPref
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class QuerySubscriptionProductsUseCase(
 
-    private val pref: AdSdkPref,
+    private val pref: AdKitPref,
     private val repository: SubscriptionRepository
 ) {
 

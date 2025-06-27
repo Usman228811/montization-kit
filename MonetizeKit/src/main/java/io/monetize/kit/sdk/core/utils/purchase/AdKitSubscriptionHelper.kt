@@ -2,13 +2,13 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.content.Context
-import io.monetize.kit.sdk.core.utils.AdSdkInternetController
+import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
 
-class AdSdkSubscriptionHelper(
+class AdKitSubscriptionHelper(
     private val context: Context,
-    private val internetController: AdSdkInternetController,
+    private val internetController: AdKitInternetController,
     private val queryProducts: QuerySubscriptionProductsUseCase,
     private val purchaseProduct: PurchaseSubscriptionUseCase
 ) {
