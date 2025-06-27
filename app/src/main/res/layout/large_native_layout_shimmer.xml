@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/native_bg"
+    android:layoutDirection="ltr">
+
+    <io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_5sdp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/lll1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="@dimen/_3sdp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ad_app_icon"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:adjustViewBounds="true"
+                    android:background="@color/shimmer_grey"
+                    android:contentDescription="Image here"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="5dp"
+                    android:paddingBottom="5dp" />
+
+
+                <LinearLayout
+                    android:id="@+id/ll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_2sdp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/cvAdAttribution"
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_15sdp"
+                            android:layout_marginStart="@dimen/_5sdp"
+                            android:layout_marginTop="@dimen/_1sdp"
+                            android:background="@color/shimmer_grey">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tv_ad"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginHorizontal="@dimen/_3sdp"
+                                android:gravity="center"
+                                android:paddingBottom="0dp"
+                                android:text="AD"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_8ssp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/ad_headline"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_3sdp"
+                            android:background="@color/shimmer_grey"
+                            android:maxLines="2"
+                            android:paddingStart="@dimen/_2sdp"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/ad_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:background="@color/shimmer_grey"
+                        android:maxLines="2"
+                        android:textColor="@color/black_light"
+                        android:textSize="@dimen/_10ssp"
+                        android:visibility="visible" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <io.monetize.kit.sdk.ads.native_ad.custom.SdkMediaView
+                android:id="@+id/ad_media"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_130sdp"
+                android:layout_below="@+id/lll1"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:adjustViewBounds="true"
+                android:background="@color/shimmer_grey" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/ad_call_to_action"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_43sdp"
+                android:layout_below="@+id/ad_media"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_3sdp"
+                android:background="@color/shimmer_grey"
+                android:gravity="center"
+                android:padding="@dimen/_2sdp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14ssp"
+                app:backgroundTint="@null" />
+        </RelativeLayout>
+    </io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView>
+</FrameLayout>

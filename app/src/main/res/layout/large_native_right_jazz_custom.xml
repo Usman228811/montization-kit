@@ -6,7 +6,7 @@
     android:background="@drawable/native_bg"
     android:orientation="vertical">
 
-    <com.google.android.gms.ads.nativead.NativeAdView
+    <io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
         android:id="@+id/ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             android:padding="@dimen/_2sdp">
 
 
-            <com.google.android.gms.ads.nativead.MediaView
+            <io.monetize.kit.sdk.ads.native_ad.custom.SdkMediaView
                 android:id="@+id/ad_media"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_100sdp"
@@ -112,7 +112,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginHorizontal="@dimen/_5sdp"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:background="@drawable/ad_cta_bg"
+                    android:background="@color/black"
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
@@ -124,5 +124,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.google.android.gms.ads.nativead.NativeAdView>
+    </io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView>
 </androidx.constraintlayout.widget.ConstraintLayout>

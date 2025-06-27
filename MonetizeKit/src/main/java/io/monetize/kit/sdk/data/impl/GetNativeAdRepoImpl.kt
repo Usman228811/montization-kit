@@ -137,7 +137,10 @@ class GetNativeAdRepoImpl(
                                         ViewGroup.FOCUS_BLOCK_DESCENDANTS
                                     if (largeNativeAd == null) {
                                         addShimmerLayout(
-                                            mContext, adFrame, adType
+                                            context = mContext,
+                                            adFrame = adFrame,
+                                            adType = adType,
+                                            customLayoutHelper = customLayoutHelper
                                         )
                                     }
                                     nativeAdController.setNativeControllerListener(object :

@@ -76,7 +76,7 @@ class SplashScreenViewModel(
             launch {
 
                 adSdkPurchaseHelper.appPurchased.collectLatest { isPurchased ->
-                    Log.d("ioiioo", "isPurchased: $isPurchased")
+
                 }
             }
 
@@ -84,7 +84,6 @@ class SplashScreenViewModel(
 
                 adSdkPurchaseHelper.productPriceFlow.collectLatest {
 
-                    Log.d("ioiioo", "productPriceFlow: ${it.price.ifEmpty { "..." }}")
 
                 }
             }

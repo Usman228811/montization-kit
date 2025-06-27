@@ -45,6 +45,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             }
         )
 
+        adSdkInitializer.setNativeCustomLayouts(
+            bigNativeLayout = R.layout.large_native_layout_custom,
+            bigNativeShimmer = R.layout.large_native_layout_shimmer,
+        )
+
         adSdkOpenAdManager.excludeComposeRoutesFromOpenAd(
             AppRoute.SplashRoute.route,
             AppRoute.SubscriptionRoute.route

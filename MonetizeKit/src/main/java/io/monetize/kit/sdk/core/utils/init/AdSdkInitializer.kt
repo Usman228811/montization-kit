@@ -54,14 +54,26 @@ class AdSdkInitializer(
     }
 
     fun setNativeCustomLayouts(
-        bigNativeLayout: Int?,
-        smallNativeLayout: Int?,
-        splitNativeLayout: Int?,
+        bigNativeLayout: Int? = null,
+        smallNativeLayout: Int? = null,
+        splitNativeLayout: Int? = null,
+        bigNativeShimmer: Int? = null,
+        smallNativeShimmer: Int? = null,
+        splitNativeShimmer: Int? = null,
     ) {
         customLayoutHelper.apply {
-            setBigNative(bigNativeLayout)
-            setSmallNative(smallNativeLayout)
-            setSplitNative(splitNativeLayout)
+            setBigNative(
+                bigNative = bigNativeLayout,
+                bigNativeShimmer = bigNativeShimmer
+            )
+            setSmallNative(
+                smallNative = smallNativeLayout,
+                smallNativeShimmer = smallNativeShimmer
+            )
+            setSplitNative(
+                splitNative = splitNativeLayout,
+                splitNativeShimmer = splitNativeShimmer
+            )
         }
     }
 

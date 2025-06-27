@@ -14,43 +14,47 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import io.monetize.kit.sdk.R
+import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
 
 
 fun addShimmerLayout(
-    context: Context, adFrame: LinearLayout, adType: AdType
+    context: Context,
+    adFrame: LinearLayout, adType: AdType,
+    customLayoutHelper: AdsCustomLayoutHelper? = null
 ) {
-    val nativeAdView = adFrame.findViewById<NativeAdView>(R.id.nativeAdView)
-    val shimmerLayout =
-        adFrame.findViewById<ShimmerFrameLayout>(R.id.shimmerContainer)
-    if (nativeAdView == null && shimmerLayout == null) {
-        val shimmerLayoutId = when (adType) {
-            AdType.LARGE_NATIVE -> R.layout.large_native_layout
-            AdType.JAZZ_LEFT_BOTTOM_CTA -> R.layout.large_native_right_jazz
-            AdType.SMALL_BOTTOM_BUTTON -> R.layout.small_native_layout
-            AdType.BANNER -> R.layout.banner_layout
-        }
+    val shimmerLayoutId = when (adType) {
+        AdType.LARGE_NATIVE -> customLayoutHelper?.getBigNativeShimmer()
+            ?: R.layout.large_native_layout
 
-        val shimmerContainer = LayoutInflater.from(context)
-            .inflate(R.layout.shimmer_layout, adFrame, false) as ShimmerFrameLayout
-        try {
-            shimmerContainer.parent?.let { parent ->
-                (parent as ViewGroup).removeAllViews()
-            }
-        } catch (_: Exception) {
-        }
-        adFrame.visibility = View.VISIBLE
-        try {
-            adFrame.removeAllViews()
-        } catch (_: Exception) {
-        }
-        shimmerContainer.addView(
-            LayoutInflater.from(context)
-                .inflate(shimmerLayoutId, adFrame, false)
-        )
-        adFrame.addView(shimmerContainer)
+        AdType.JAZZ_LEFT_BOTTOM_CTA -> customLayoutHelper?.getBigNativeShimmer()
+            ?: R.layout.large_native_right_jazz
+
+        AdType.SMALL_BOTTOM_BUTTON -> customLayoutHelper?.getBigNativeShimmer()
+            ?: R.layout.small_native_layout
+
+        AdType.BANNER -> R.layout.banner_layout
     }
+
+    val shimmerContainer = LayoutInflater.from(context)
+        .inflate(R.layout.shimmer_layout, adFrame, false) as ShimmerFrameLayout
+    try {
+        shimmerContainer.parent?.let { parent ->
+            (parent as ViewGroup).removeAllViews()
+        }
+    } catch (_: Exception) {
+    }
+    adFrame.visibility = View.VISIBLE
+    try {
+        adFrame.removeAllViews()
+    } catch (_: Exception) {
+    }
+    shimmerContainer.addView(
+        LayoutInflater.from(context)
+            .inflate(shimmerLayoutId, adFrame, false)
+    )
+    adFrame.addView(shimmerContainer)
 }
 
 
@@ -65,12 +69,11 @@ fun addNativeAdView(
     try {
         when (adType) {
             AdType.JAZZ_LEFT_BOTTOM_CTA -> {
+                val isForCustom = adsCustomLayoutHelper.getSplitNative() != null
+                val layoutId =
+                    adsCustomLayoutHelper.getSplitNative() ?: R.layout.large_native_right_jazz
                 val adView =
-                    LayoutInflater.from(context)
-                        .inflate(
-                            adsCustomLayoutHelper.getSplitNative()
-                                ?: R.layout.large_native_right_jazz, adFrame, false
-                        )
+                    LayoutInflater.from(context).inflate(layoutId, adFrame, false)
 
                 try {
                     adView.parent?.let { parent ->
@@ -78,9 +81,22 @@ fun addNativeAdView(
                     }
                 } catch (_: Exception) {
                 }
-                populateUnifiedNativeJazzAdView(
-                    ad, adView.findViewById(R.id.nativeAdView)
-                )
+                if (isForCustom) {
+                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeJazzAdViewUnified(
+                        nativeAd = ad,
+                        adView = sdkLayout.nativeAdView,
+                        isCustom = true,
+                        sdkLayout = sdkLayout
+                    )
+                } else {
+                    val nativeAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeJazzAdViewUnified(
+                        nativeAd = ad,
+                        adView = nativeAdView
+                    )
+                }
+
                 adFrame.visibility = View.VISIBLE
                 try {
                     adFrame.removeAllViews()
@@ -92,29 +108,48 @@ fun addNativeAdView(
 
 
             else -> {
-                val adView = if (adType == AdType.SMALL_BOTTOM_BUTTON) {
-                    LayoutInflater.from(context)
-                        .inflate(
-                            adsCustomLayoutHelper.getSmallNative()
-                                ?: R.layout.small_native_layout, adFrame, false
-                        )
+                val isForSmall = adType == AdType.SMALL_BOTTOM_BUTTON
+                val isForCustom = if (isForSmall) {
+                    adsCustomLayoutHelper.getSmallNative() != null
                 } else {
-                    LayoutInflater.from(context)
-                        .inflate(
-                            adsCustomLayoutHelper.getBigNative()
-                                ?: R.layout.large_native_layout, adFrame, false
-                        )
-
+                    adsCustomLayoutHelper.getBigNative() != null
                 }
+
+                val adView = LayoutInflater.from(context).inflate(
+                    when {
+                        isForSmall && isForCustom -> adsCustomLayoutHelper.getSmallNative()!!
+                        !isForSmall && isForCustom -> adsCustomLayoutHelper.getBigNative()!!
+                        isForSmall -> R.layout.small_native_layout
+                        else -> R.layout.large_native_layout
+                    },
+                    adFrame,
+                    false
+                )
                 try {
                     adView.parent?.let { parent ->
                         (parent as ViewGroup).removeAllViews()
                     }
                 } catch (_: Exception) {
                 }
-                populateUnifiedNativeAdView(
-                    ad, adView.findViewById(R.id.ad_view), adType == AdType.SMALL_BOTTOM_BUTTON
-                )
+
+                if (isForCustom) {
+                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeAdViewUnified(
+                        nativeAd = ad,
+                        adView = sdkLayout.nativeAdView,
+                        isCustom = true,
+                        customLayout = sdkLayout,
+                        isForSmall = isForSmall
+                    )
+                } else {
+                    val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeAdViewUnified(
+                        nativeAd = ad,
+                        adView = defaultAdView,
+                        isForSmall = isForSmall
+                    )
+                }
+
                 adFrame.visibility = View.VISIBLE
                 try {
                     adFrame.removeAllViews()
@@ -130,115 +165,111 @@ fun addNativeAdView(
     }
 }
 
-
-fun populateUnifiedNativeAdView(
+fun populateUnifiedNativeAdViewUnified(
     nativeAd: NativeAd,
     adView: NativeAdView,
-    isForSmall: Boolean,
+    isCustom: Boolean = false,
+    customLayout: SdkNativeAdView? = null,
+    isForSmall: Boolean
 ) {
     if (!isForSmall) {
-        val mediaView = adView.findViewById<MediaView>(R.id.ad_media)
-        adView.mediaView = mediaView
-        mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewAdded(parent: View?, child: View?) {
-                try {
-                    if (child !is ImageView) {
-                        return
+        val mediaView = if (isCustom) {
+            customLayout?.mediaView?.setupMediaView() as? MediaView
+        } else {
+            adView.findViewById(R.id.ad_media)
+        }
+
+        if (mediaView != null) {
+            adView.mediaView = mediaView
+            mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewAdded(parent: View?, child: View?) {
+                    if (child is ImageView) {
+                        child.adjustViewBounds = true
+                        child.scaleType = ImageView.ScaleType.CENTER_CROP
                     }
-                    child.adjustViewBounds = true
-                    child.scaleType = ImageView.ScaleType.CENTER_CROP
-                } catch (_: Exception) {
                 }
-            }
 
-            override fun onChildViewRemoved(parent: View?, child: View?) {
-            }
-
-        })
-
+                override fun onChildViewRemoved(parent: View?, child: View?) {}
+            })
+        }
     }
+
     adView.headlineView = adView.findViewById(R.id.ad_headline)
     adView.bodyView = adView.findViewById(R.id.ad_body)
-    val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
-
-    adView.callToActionView = button
-
-
-
     adView.iconView = adView.findViewById(R.id.ad_app_icon)
+    val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
     adView.callToActionView = button
 
+    (adView.headlineView as? MaterialTextView)?.apply {
+        text = nativeAd.headline
+        setTextColor(Color.BLACK)
+    }
 
-    (adView.headlineView as MaterialTextView).text = nativeAd.headline
-    if (nativeAd.body == null) {
-        adView.bodyView?.visibility = View.GONE
-    } else {
-        adView.bodyView?.visibility = View.VISIBLE
-        (adView.bodyView as MaterialTextView).text = nativeAd.body
+    (adView.bodyView as? MaterialTextView)?.apply {
+        text = nativeAd.body ?: ""
+        visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
+        setTextColor(Color.BLACK)
     }
-    if (nativeAd.callToAction == null) {
-        adView.callToActionView?.visibility = View.GONE
-    } else {
-        adView.callToActionView?.visibility = View.VISIBLE
-        (adView.callToActionView as AppCompatButton).text = nativeAd.callToAction
+
+    (adView.callToActionView as? AppCompatButton)?.apply {
+        text = nativeAd.callToAction ?: ""
+        visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
     }
-    if (nativeAd.icon == null) {
-        adView.iconView?.visibility = View.GONE
-    } else {
-        (adView.iconView as ShapeableImageView).setImageDrawable(
-            nativeAd.icon!!.drawable
-        )
-        adView.iconView?.visibility = View.VISIBLE
+
+    (adView.iconView as? ShapeableImageView)?.apply {
+        visibility = if (nativeAd.icon == null) View.GONE else View.VISIBLE
+        setImageDrawable(nativeAd.icon?.drawable)
     }
+
     adView.setNativeAd(nativeAd)
 }
 
-fun populateUnifiedNativeJazzAdView(
-    nativeAd: NativeAd, adView: NativeAdView
+
+fun populateUnifiedNativeJazzAdViewUnified(
+    nativeAd: NativeAd,
+    adView: NativeAdView,
+    isCustom: Boolean = false,
+    sdkLayout: SdkNativeAdView? = null
 ) {
+    val mediaView: MediaView? = if (isCustom) {
+        sdkLayout?.mediaView?.setupMediaView() as? MediaView
+    } else {
+        adView.findViewById(R.id.ad_media)
+    }
 
-    val mediaView = adView.findViewById<MediaView>(R.id.ad_media)
-    adView.mediaView = mediaView
-    mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-        override fun onChildViewAdded(parent: View?, child: View?) {
-            try {
-                if (child !is ImageView) {
-                    return
+    if (mediaView != null) {
+        adView.mediaView = mediaView
+        mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+            override fun onChildViewAdded(parent: View?, child: View?) {
+                if (child is ImageView) {
+                    child.adjustViewBounds = true
                 }
-                child.adjustViewBounds = true
-            } catch (_: Exception) {
             }
-        }
 
-        override fun onChildViewRemoved(parent: View?, child: View?) {
-        }
-
-    })
-
-
+            override fun onChildViewRemoved(parent: View?, child: View?) {}
+        })
+    }
 
     adView.headlineView = adView.findViewById(R.id.ad_headline)
     adView.bodyView = adView.findViewById(R.id.ad_body)
     val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
-
     adView.callToActionView = button
 
-    adView.callToActionView = button
-    (adView.bodyView as MaterialTextView).setTextColor(Color.BLACK)
-    (adView.headlineView as MaterialTextView).setTextColor(Color.BLACK)
+    (adView.bodyView as? MaterialTextView)?.apply {
+        setTextColor(Color.BLACK)
+        text = nativeAd.body ?: ""
+        visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
+    }
 
-    (adView.headlineView as MaterialTextView).text = nativeAd.headline
-    if (nativeAd.body == null) {
-        adView.bodyView?.visibility = View.GONE
-    } else {
-        adView.bodyView?.visibility = View.VISIBLE
-        (adView.bodyView as MaterialTextView).text = nativeAd.body
+    (adView.headlineView as? MaterialTextView)?.apply {
+        setTextColor(Color.BLACK)
+        text = nativeAd.headline ?: ""
     }
-    if (nativeAd.callToAction == null) {
-        adView.callToActionView?.visibility = View.GONE
-    } else {
-        adView.callToActionView?.visibility = View.VISIBLE
-        (adView.callToActionView as AppCompatButton).text = nativeAd.callToAction
+
+    (adView.callToActionView as? AppCompatButton)?.apply {
+        text = nativeAd.callToAction ?: ""
+        visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
     }
+
     adView.setNativeAd(nativeAd)
 }

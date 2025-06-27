@@ -107,7 +107,6 @@ fun MainScreen(
                 interInstant = true,
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {
-                        Log.d("uiuiui", "onAdClosed: ")
                         gotoSubscription()
                     }
 
