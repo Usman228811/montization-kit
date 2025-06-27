@@ -36,6 +36,7 @@ class GetNativeAdRepoImpl(
     private var adType: AdType = AdType.SMALL_BOTTOM_BUTTON
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
+    private var canLoadAdAgain = true
 
 
     override fun init(
@@ -79,6 +80,7 @@ class GetNativeAdRepoImpl(
     }
 
     override fun onPause() {
+        canLoadAdAgain = true
         if (isRequesting) {
             model?.controller?.setNativeControllerListener(null)
         }
@@ -130,72 +132,76 @@ class GetNativeAdRepoImpl(
                 } else {
                     model?.controller?.let { nativeAdController ->
                         adFrame?.let { adFrame ->
-                            if (largeNativeAd == null || isForRefresh) {
-                                if (!isRequesting) {
-                                    isRequesting = true
-                                    adFrame.descendantFocusability =
-                                        ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                                    if (largeNativeAd == null) {
-                                        addShimmerLayout(
+                            if (canLoadAdAgain) {
+                                if (largeNativeAd == null || isForRefresh) {
+                                    if (!isRequesting) {
+                                        isRequesting = true
+                                        adFrame.descendantFocusability =
+                                            ViewGroup.FOCUS_BLOCK_DESCENDANTS
+                                        if (largeNativeAd == null) {
+                                            addShimmerLayout(
+                                                context = mContext,
+                                                adFrame = adFrame,
+                                                adType = adType,
+                                                customLayoutHelper = customLayoutHelper
+                                            )
+                                        }
+                                        nativeAdController.setNativeControllerListener(object :
+                                            AdControllerListener {
+
+                                            override fun onAdLoaded() {
+                                                isRequesting = false
+                                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                    return
+                                                }
+                                                if (largeNativeAd == null || isForRefresh) {
+                                                    loadSingleNativeAd(isForRefresh)
+                                                }
+                                            }
+
+                                            override fun onAdFailed() {
+                                                isRequesting = false
+                                                canLoadAdAgain = false
+                                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                    return
+                                                }
+                                                if (largeNativeAd == null) {
+                                                    hideAdFrame()
+                                                }
+
+                                            }
+
+                                            override fun resetRequesting() {
+                                                isRequesting = false
+                                            }
+                                        })
+                                        nativeAdController.populateNativeAd(
                                             context = mContext,
+                                            nativeControllerConfig = nativeControllerConfig,
                                             adFrame = adFrame,
-                                            adType = adType,
-                                            customLayoutHelper = customLayoutHelper
-                                        )
-                                    }
-                                    nativeAdController.setNativeControllerListener(object :
-                                        AdControllerListener {
-
-                                        override fun onAdLoaded() {
+                                            loadNewAd = loadNewAd,
+                                        ) { ad ->
                                             isRequesting = false
-                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                                return
-                                            }
-                                            if (largeNativeAd == null || isForRefresh) {
-                                                loadSingleNativeAd(isForRefresh)
-                                            }
-                                        }
-
-                                        override fun onAdFailed() {
-                                            isRequesting = false
-                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                                return
-                                            }
-                                            if (largeNativeAd == null) {
-                                                hideAdFrame()
-                                            }
-                                        }
-
-                                        override fun resetRequesting() {
-                                            isRequesting = false
-                                        }
-                                    })
-                                    nativeAdController.populateNativeAd(
-                                        context = mContext,
-                                        nativeControllerConfig = nativeControllerConfig,
-                                        adFrame = adFrame,
-                                        loadNewAd = loadNewAd,
-                                    ) { ad ->
-                                        isRequesting = false
-                                        if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                            nativeAdController.setNativeControllerListener(null)
-                                            largeNativeAd = ad
+                                            if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                                                nativeAdController.setNativeControllerListener(null)
+                                                largeNativeAd = ad
 //                                            event?.setFromScreen(
 //                                                adIdNativeReference.replace(
 //                                                    "_NATIVE_ID", ""
 //                                                )
 //                                            )
+                                            }
                                         }
                                     }
+                                } else {
+                                    addNativeAdView(
+                                        customLayoutHelper,
+                                        adType,
+                                        mContext,
+                                        adFrame,
+                                        largeNativeAd as NativeAd,
+                                    )
                                 }
-                            } else {
-                                addNativeAdView(
-                                    customLayoutHelper,
-                                    adType,
-                                    mContext,
-                                    adFrame,
-                                    largeNativeAd as NativeAd,
-                                )
                             }
                         }
                     }
