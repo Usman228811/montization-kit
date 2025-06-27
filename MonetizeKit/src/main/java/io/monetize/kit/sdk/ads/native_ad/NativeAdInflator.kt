@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
@@ -200,12 +201,12 @@ fun populateUnifiedNativeAdViewUnified(
     val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
     adView.callToActionView = button
 
-    (adView.headlineView as? MaterialTextView)?.apply {
+    (adView.headlineView as? TextView)?.apply {
         text = nativeAd.headline
         setTextColor(Color.BLACK)
     }
 
-    (adView.bodyView as? MaterialTextView)?.apply {
+    (adView.bodyView as? TextView)?.apply {
         text = nativeAd.body ?: ""
         visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
         setTextColor(Color.BLACK)
@@ -216,7 +217,7 @@ fun populateUnifiedNativeAdViewUnified(
         visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
     }
 
-    (adView.iconView as? ShapeableImageView)?.apply {
+    (adView.iconView as? ImageView)?.apply {
         visibility = if (nativeAd.icon == null) View.GONE else View.VISIBLE
         setImageDrawable(nativeAd.icon?.drawable)
     }
@@ -255,13 +256,13 @@ fun populateUnifiedNativeJazzAdViewUnified(
     val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
     adView.callToActionView = button
 
-    (adView.bodyView as? MaterialTextView)?.apply {
+    (adView.bodyView as? TextView)?.apply {
         setTextColor(Color.BLACK)
         text = nativeAd.body ?: ""
         visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
     }
 
-    (adView.headlineView as? MaterialTextView)?.apply {
+    (adView.headlineView as? TextView)?.apply {
         setTextColor(Color.BLACK)
         text = nativeAd.headline ?: ""
     }
