@@ -12,13 +12,15 @@ import androidx.appcompat.widget.AppCompatButton
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
-import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.textview.MaterialTextView
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
 
+private fun getFirstNonNull(vararg values: Int?): Int {
+    return values.firstOrNull { it != null }
+        ?: throw IllegalArgumentException("All layout values are null")
+}
 
 fun addShimmerLayout(
     context: Context,
@@ -26,14 +28,23 @@ fun addShimmerLayout(
     customLayoutHelper: AdsCustomLayoutHelper? = null
 ) {
     val shimmerLayoutId = when (adType) {
-        AdType.LARGE_NATIVE -> customLayoutHelper?.getBigNativeShimmer()
-            ?: R.layout.large_native_layout
+        AdType.LARGE_NATIVE -> getFirstNonNull(
+            customLayoutHelper?.getBigNativeShimmer(),
+            customLayoutHelper?.getBigNative(),
+            R.layout.large_native_layout
+        )
 
-        AdType.JAZZ_LEFT_BOTTOM_CTA -> customLayoutHelper?.getBigNativeShimmer()
-            ?: R.layout.large_native_right_jazz
+        AdType.JAZZ_LEFT_BOTTOM_CTA -> getFirstNonNull(
+            customLayoutHelper?.getSplitNativeShimmer(),
+            customLayoutHelper?.getSplitNative(),
+            R.layout.large_native_right_jazz
+        )
 
-        AdType.SMALL_BOTTOM_BUTTON -> customLayoutHelper?.getBigNativeShimmer()
-            ?: R.layout.small_native_layout
+        AdType.SMALL_BOTTOM_BUTTON -> getFirstNonNull(
+            customLayoutHelper?.getSmallNativeShimmer(),
+            customLayoutHelper?.getSmallNative(),
+            R.layout.small_native_layout
+        )
 
         AdType.BANNER -> R.layout.banner_layout
     }
