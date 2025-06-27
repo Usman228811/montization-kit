@@ -6,7 +6,7 @@ import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 
-class AdSdkNativePreloadHelper(
+class AdKitNativePreloadHelper(
     private val internetController: AdKitInternetController,
     private val mySharedPreference: AdKitPref,
     private val mConsent: AdKitConsentManager,
