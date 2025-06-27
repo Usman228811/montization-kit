@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import com.google.android.play.core.install.model.ActivityResult
 
 @Composable
-fun AdSdkInAppUpdateFlowResultLauncher(
+fun AdKitInAppUpdateFlowResultLauncher(
     onFail: () -> Unit,
 ): ManagedActivityResultLauncher<IntentSenderRequest, androidx.activity.result.ActivityResult> {
     return rememberLauncherForActivityResult(
