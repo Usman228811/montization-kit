@@ -18,7 +18,7 @@ val dataModule = module {
     factory { BaseCollapsableBannerActivity(get(), get(), get()) }
     factory { BaseSingleBannerActivity(get(), get(), get()) }
     factory<GetBannerAdRepo> { GetBannerAdRepoImpl(get(), get()) }
-    factory<GetNativeAdRepo> { GetNativeAdRepoImpl(get(), get(), get(),get()) }
+    factory<GetNativeAdRepo> { GetNativeAdRepoImpl(get(), get(), get(),get(),get()) }
 
     single<BillingRepository> { BillingRepositoryImpl(get(), get(), get()) }
 
