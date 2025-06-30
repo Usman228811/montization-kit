@@ -28,6 +28,7 @@ class NativeAdSingleController(
     private val internetController: AdKitInternetController,
     private val consentManager: AdKitConsentManager,
     private val customLayoutHelper: AdsCustomLayoutHelper,
+    private val nativeCommonHelper: AdKitNativeCommonHelper,
 ) {
     private var canRequestLargeAd = true
     private var largeAndSmallNativeAd: NativeAd? = null
@@ -62,7 +63,11 @@ class NativeAdSingleController(
 //                    }
 
                     val builder = AdLoader.Builder(
-                        context, nativeControllerConfig.adId
+                        context, if (nativeControllerConfig.key == "native_common") {
+                            nativeCommonHelper.getNativeAdId()
+                        } else {
+                            nativeControllerConfig.adId
+                        }
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
                         canRequestLargeAd = true

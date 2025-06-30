@@ -7,6 +7,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,8 @@ class AdKitInitializer(
     private val context: Context,
     private val adKitInterHelper: AdKitInterHelper,
     private val adKitOpenAdManager: AdKitOpenAdManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper
+    private val customLayoutHelper: AdsCustomLayoutHelper,
+    private val nativeCommonHelper: AdKitNativeCommonHelper,
 ) {
 
     fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
@@ -79,6 +81,7 @@ class AdKitInitializer(
 
     fun init(
         interControllerConfig: InterControllerConfig,
+        nativeCommonIds: List<String>? = null
     ) {
         adKitInterHelper.setAdIds(
             splashId = interControllerConfig.splashId,
@@ -90,6 +93,9 @@ class AdKitInitializer(
             isAdEnable = interControllerConfig.openAdEnable,
             isLoadingEnable = interControllerConfig.openAdLoadingEnable
         )
+        nativeCommonHelper.setNativeAdIds(nativeCommonIds)
         adKitOpenAdManager.initOpenAd()
+
+
     }
 }
