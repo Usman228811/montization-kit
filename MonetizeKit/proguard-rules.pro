@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Keep all public classes/methods in a specific package
--keep public class com.test.compose.adslibrary.** { public *; }
+-keep public class io.monetize.kit.sdk.** { public *; }
 
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
