@@ -4,13 +4,14 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.text.TextUtils
+import androidx.core.net.toUri
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResponseListener
@@ -19,7 +20,6 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
-import androidx.core.net.toUri
 
 
 class SubscriptionRepositoryImpl(
@@ -47,7 +47,7 @@ class SubscriptionRepositoryImpl(
                 return
             }
             val offerToken = skuDetails.subscriptionOfferDetails?.get(0)!!.offerToken
-            val responseCode = subscriptionClient.launchBillingFlow(
+            subscriptionClient.launchBillingFlow(
                 mActivity!!,
                 BillingFlowParams.newBuilder().setProductDetailsParamsList(
                     listOf(
@@ -58,9 +58,6 @@ class SubscriptionRepositoryImpl(
                     )
                 ).build()
             ).responseCode
-//            if (responseCode == BillingClient.BillingResponseCode.OK) {
-//                JavaUtils.sendAnalytics(context, "SUBSCRIBE_NOW_CLICK")
-//            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -91,12 +88,6 @@ class SubscriptionRepositoryImpl(
                 )
                 .setProductDetailsParamsList(list)
                 .build()
-            if (subscriptionClient.launchBillingFlow(
-                    mActivity!!, flowParams
-                ).responseCode == BillingClient.BillingResponseCode.OK
-            ) {
-//                JavaUtils.sendAnalytics(context, "SUBSCRIBE_UPDATE_CLICK")
-            }
         } catch (ignored: Exception) {
         }
     }
@@ -118,27 +109,6 @@ class SubscriptionRepositoryImpl(
         if (isSubscriptionSupported()) {
 
             val list = buildSubscriptionProductList(productIds)
-//            val list: MutableList<QueryProductDetailsParams.Product> =
-//                ArrayList<QueryProductDetailsParams.Product>().apply {
-//                    add(
-//                        QueryProductDetailsParams.Product.newBuilder()
-//                            .setProductId(WEEKLY_SUBSCRIPTION_ID_NEW)
-//                            .setProductType(BillingClient.ProductType.SUBS)
-//                            .build()
-//                    )
-//                    add(
-//                        QueryProductDetailsParams.Product.newBuilder()
-//                            .setProductId(MONTHLY_SUBSCRIPTION_ID_NEW)
-//                            .setProductType(BillingClient.ProductType.SUBS)
-//                            .build()
-//                    )
-//                    add(
-//                        QueryProductDetailsParams.Product.newBuilder()
-//                            .setProductId(YEARLY_SUBSCRIPTION_ID_NEW)
-//                            .setProductType(BillingClient.ProductType.SUBS)
-//                            .build()
-//                    )
-//                }
 
             val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
                 .setProductList(list)
@@ -146,8 +116,9 @@ class SubscriptionRepositoryImpl(
             if (isBillingClientDead) {
                 return
             }
-            subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, p1 ->
+            subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
                 if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
+                    val p1 = details.productDetailsList
                     mActivity?.runOnUiThread {
                         if (p1.isNotEmpty()) {
                             subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1))
@@ -175,7 +146,6 @@ class SubscriptionRepositoryImpl(
         }
         return skuDetailList
     }
-
 
 
     private fun resetAllPurchases() {
@@ -316,10 +286,7 @@ class SubscriptionRepositoryImpl(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 setSubscribed(purchase)
                 mActivity?.runOnUiThread {
-                    subscriptionListener?.let {
-                        it.onSubscriptionPurchasedFetched()
-//                        JavaUtils.sendAnalytics(context, "APP_SUBSCRIBED")
-                    }
+                    subscriptionListener?.onSubscriptionPurchasedFetched()
                 }
             }
         }
@@ -348,7 +315,9 @@ class SubscriptionRepositoryImpl(
             if (!::subscriptionClient.isInitialized) {
                 subscriptionClient = BillingClient
                     .newBuilder(context)
-                    .enablePendingPurchases()
+                    .enablePendingPurchases(
+                        PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
+                    )
                     .setListener(this)
                     .build()
             }
@@ -377,7 +346,7 @@ class SubscriptionRepositoryImpl(
         }
     }
 
-    override fun viewUrl( url: String) {
+    override fun viewUrl(url: String) {
         try {
             Intent().apply {
                 action = Intent.ACTION_VIEW

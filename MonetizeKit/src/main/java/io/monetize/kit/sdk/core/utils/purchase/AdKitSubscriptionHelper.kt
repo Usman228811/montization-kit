@@ -13,6 +13,8 @@ class AdKitSubscriptionHelper(
     private val purchaseProduct: PurchaseSubscriptionUseCase
 ) {
 
+
+
     val subscriptionProducts = queryProducts.products
     val historyFetched = queryProducts.historyFetched
     val subscribedId = queryProducts.subscribedId

@@ -9,6 +9,7 @@ import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
@@ -36,6 +37,7 @@ val AppKitModule = module {
     singleOf(::AdKitSubscriptionHelper)
     singleOf(::AdsCustomLayoutHelper)
     singleOf(::AdKitNativeCommonHelper)
+    singleOf(::AdKitAnalytics)
 
 
 }

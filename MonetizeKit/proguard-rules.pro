@@ -19,3 +19,25 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep all public classes/methods in a specific package
+-keep public class com.test.compose.adslibrary.** { public *; }
+
+-keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
+-keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+
+# Firebase Crashlytics
+-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @com.google.firebase.crashlytics.* <fields>;
+    @com.google.firebase.crashlytics.* <methods>;
+}
+-keepnames class com.google.firebase.crashlytics.** { *; }
+-keep class com.google.firebase.crashlytics.** { *; }
+# Google Play Billing
+-keep class com.android.billingclient.** { *; }
+-keep class com.android.billingclient.api.** { *; }
+
+# Keep Google Play Services classes
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.android.gms.ads.** { *; }

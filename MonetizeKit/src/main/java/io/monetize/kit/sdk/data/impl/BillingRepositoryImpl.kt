@@ -110,11 +110,14 @@ class BillingRepositoryImpl(
             )
             .build()
 
-        billingClient.queryProductDetailsAsync(queryParams) { result, productList ->
-            if (result.responseCode == BillingClient.BillingResponseCode.OK && productList.isNotEmpty()) {
-                purchaseSku = productList.find { it.productId == productId }
-                _productPriceFlow.update {
-                    it.copy(price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: "")
+        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult  ->
+            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                val productList = queryProductDetailsResult.productDetailsList
+                if (productList.isNotEmpty()) {
+                    purchaseSku = productList.find { it.productId == productId }
+                    _productPriceFlow.update {
+                        it.copy(price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: "")
+                    }
                 }
             } else {
 //                "Product Query Failed: ${result.responseCode}".logIt(BILLING_TAG)
