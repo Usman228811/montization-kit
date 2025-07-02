@@ -23,6 +23,7 @@
 # Keep all public classes/methods in a specific package
 -keep public class io.monetize.kit.sdk.** { public *; }
 
+
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
 
