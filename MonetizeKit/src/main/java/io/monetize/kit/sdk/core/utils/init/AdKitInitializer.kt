@@ -10,12 +10,14 @@ import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AdKitInitializer(
     private val context: Context,
+    private val adKitPref: AdKitPref,
     private val adKitInterHelper: AdKitInterHelper,
     private val adKitOpenAdManager: AdKitOpenAdManager,
     private val customLayoutHelper: AdsCustomLayoutHelper,
@@ -81,7 +83,8 @@ class AdKitInitializer(
 
     fun init(
         interControllerConfig: InterControllerConfig,
-        nativeCommonIds: List<String>? = null
+        nativeCommonIds: List<String>? = null,
+        resetInterKeyForCommonAds: String? = null
     ) {
         adKitInterHelper.setAdIds(
             splashId = interControllerConfig.splashId,
@@ -95,6 +98,9 @@ class AdKitInitializer(
         )
         nativeCommonHelper.setNativeAdIds(nativeCommonIds)
         adKitOpenAdManager.initOpenAd()
+        resetInterKeyForCommonAds?.let {
+            adKitPref.putInterInt(it, 0)
+        }
 
 
     }
