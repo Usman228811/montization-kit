@@ -10,34 +10,38 @@ import androidx.lifecycle.ViewModel
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetBannerAdUseCase
 
-class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : ViewModel() {
+class BannerAdViewModel : ViewModel() {
 
+    private var getBannerAdUseCase: GetBannerAdUseCase? = null
 
     fun initSingleBannerData(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig
     ) {
-        getBannerAdUseCase(
-            mContext,
-            adFrame,
-            bannerControllerConfig
-        )
+
+        getBannerAdUseCase = GetBannerAdUseCase.getInstance(mContext).apply {
+            invoke(
+                mContext,
+                adFrame,
+                bannerControllerConfig
+            )
+        }
     }
 
 
     fun onResume() {
-        getBannerAdUseCase.onResume()
+        getBannerAdUseCase?.onResume()
     }
 
     fun onPause() {
 
-        getBannerAdUseCase.onPause()
+        getBannerAdUseCase?.onPause()
     }
 
     fun onDestroy() {
 
-        getBannerAdUseCase.onDestroy()
+        getBannerAdUseCase?.onDestroy()
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {

@@ -6,13 +6,33 @@ import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
 
-class AdKitSubscriptionHelper(
-    private val context: Context,
+class AdKitSubscriptionHelper private constructor(
+    mContext: Context,
     private val internetController: AdKitInternetController,
     private val queryProducts: QuerySubscriptionProductsUseCase,
     private val purchaseProduct: PurchaseSubscriptionUseCase
 ) {
+    private val context = mContext.applicationContext
 
+    companion object {
+        @Volatile
+        private var instance: AdKitSubscriptionHelper? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): AdKitSubscriptionHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitSubscriptionHelper(
+                    context,
+                    AdKitInternetController.getInstance(context),
+                    QuerySubscriptionProductsUseCase.getInstance(context),
+                    PurchaseSubscriptionUseCase.getInstance(context),
+
+                    ).also { instance = it }
+            }
+        }
+    }
 
 
     val subscriptionProducts = queryProducts.products
@@ -36,9 +56,10 @@ class AdKitSubscriptionHelper(
     fun purchase(productId: String?) {
 
         when {
-            internetController.isConnected.not() || productId == null-> {
+            internetController.isConnected.not() || productId == null -> {
 
             }
+
             subscribedId.value == productId -> {
                 purchaseProduct.viewUrl("https://play.google.com/store/account/subscriptions?sku=${productId}&package=${context.packageName}")
             }

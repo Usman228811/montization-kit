@@ -10,11 +10,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,20 +24,41 @@ data class InterControllerConfig(
     val openAdId: String,
     val splashId: String,
     val appInterIds: List<String>,
-    val splashInterEnable:Boolean = false,
-    val openAdEnable:Boolean = false,
-    val splashTime :Long = 16L,
+    val splashInterEnable: Boolean = false,
+    val openAdEnable: Boolean = false,
+    val splashTime: Long = 16L,
     val instantInterTime: Long = 8L,
     val interLoadingEnable: Boolean = false,
     val openAdLoadingEnable: Boolean = false,
 )
 
 
-class InterstitialController(
+class InterstitialController private constructor(
     private val internetController: AdKitInternetController,
     private val mMyPref: AdKitPref,
     private val mConsent: AdKitConsentManager,
 ) {
+
+
+    companion object {
+        @Volatile
+        private var instance: InterstitialController? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): InterstitialController {
+            return instance ?: synchronized(this) {
+                instance ?: InterstitialController(
+                    AdKitInternetController.getInstance(context),
+                    AdKitPref.getInstance(context),
+                    AdKitConsentManager.getInstance(context),
+                ).also { instance = it }
+            }
+        }
+    }
+
+
     private var interControllerConfig: InterControllerConfig? = null
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true

@@ -22,15 +22,35 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 
 
-class SubscriptionRepositoryImpl(
-    private val context: Context
+class SubscriptionRepositoryImpl private constructor(
+    mContext: Context
 ) : SubscriptionRepository, PurchasesUpdatedListener {
+
+    private val context = mContext.applicationContext
+
+    companion object {
+        @Volatile
+        private var instance: SubscriptionRepositoryImpl? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): SubscriptionRepositoryImpl {
+            return instance ?: synchronized(this) {
+                instance ?: SubscriptionRepositoryImpl(
+                    context
+                ).also { instance = it }
+            }
+        }
+    }
+
     private var isBillingReady: Boolean = false
     private lateinit var subscriptionClient: BillingClient
     private var subscriptionListener: SubscriptionListener? = null
     private var mActivity: Activity? = null
     private var productIds: List<String>? = null
     private var subscribeProductToken = ""
+
     private val isBillingClientDead: Boolean
         get() = !::subscriptionClient.isInitialized
     val isBillingClientReady: Boolean

@@ -1,9 +1,22 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import android.content.Context
 import java.util.concurrent.atomic.AtomicInteger
 
-class AdKitNativeCommonHelper {
+class AdKitNativeCommonHelper private constructor(){
+
+    companion object {
+        @Volatile
+        private var instance: AdKitNativeCommonHelper? = null
+
+
+        fun getInstance(
+        ): AdKitNativeCommonHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitNativeCommonHelper().also { instance = it }
+            }
+        }
+    }
 
     private val adIdIndex = AtomicInteger(0)
     private var idsList: List<String> = emptyList()

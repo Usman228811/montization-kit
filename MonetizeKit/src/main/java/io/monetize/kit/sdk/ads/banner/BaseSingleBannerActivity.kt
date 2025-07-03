@@ -2,6 +2,7 @@ package io.monetize.kit.sdk.ads.banner
 
 
 import android.app.Activity
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -14,7 +15,7 @@ import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 
-class BaseSingleBannerActivity(
+class BaseSingleBannerActivity private constructor(
     private val prefs: AdKitPref,
     private val internetController: AdKitInternetController,
     private val consentManager: AdKitConsentManager
@@ -28,6 +29,20 @@ class BaseSingleBannerActivity(
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
+
+    companion object {
+
+        fun getInstance(
+            context: Context
+        ): BaseSingleBannerActivity {
+            return BaseSingleBannerActivity(
+                AdKitPref.getInstance(context),
+                AdKitInternetController.getInstance(context),
+                AdKitConsentManager.getInstance(context)
+            )
+        }
+    }
+
 
     fun initSingleBannerData(
         mContext: Activity,

@@ -12,20 +12,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
-import org.koin.androidx.compose.koinViewModel
 
 
 
 
 @Composable
 fun AdKitBannerAdView(
-    bannerAdViewModel: BannerAdViewModel = koinViewModel(),
+
     bannerControllerConfig: BannerControllerConfig
 ) {
+
+    val bannerAdViewModel: BannerAdViewModel = viewModel()
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

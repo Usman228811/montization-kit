@@ -8,10 +8,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
@@ -19,77 +20,21 @@ import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    adKitInterHelper: AdKitInterHelper = koinInject(),
-    gotoSubscription:()->Unit
+    gotoSubscription: () -> Unit
 ) {
+    val context = LocalContext.current
+    val adKitInterHelper = remember { AdKitInterHelper.getInstance(context) }
 
     val activity = LocalActivity.current as Activity
-
-
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-
-//        AdSdkGeneralBottomSheet(
-//            onDismissRequest = {
-//
-//            },
-//            titleComposable = {
-//                Text(
-//                    text = "title",
-//                    fontSize = 18.ssp,
-//                    color = Color.Red
-//                )
-//            },
-//
-//            descriptionComposable = {
-//                Text(
-//                    text = "description"
-//                )
-//            },
-//            negativeButtonComposable = {
-//                Button(
-//                    modifier = Modifier
-//                        .width(width = 130.sdp)
-//                        .height(height = 40.sdp),
-//                    onClick = {
-//
-//                    },
-//                ) {
-//                    Text(
-//                        text = "cancel"
-//                    )
-//                }
-//            },
-//            positiveButtonComposable = {
-//                Button(
-//                    modifier = Modifier
-//                        .width(width = 130.sdp)
-//                        .height(height = 40.sdp),
-//                    onClick = {
-//
-//                    },
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.LightGray,
-//                        contentColor = Color.Gray
-//                    )
-//                ) {
-//                    Text(
-//                        text = "exit"
-//                    )
-//                }
-//            }
-//        )
-
-
 
         Button(onClick = {
             adKitInterHelper.showInterAd(

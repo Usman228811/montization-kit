@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.interstitial
 
 import android.app.Activity
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.google.android.gms.ads.AdError
@@ -10,13 +11,13 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 
 
-class AdKitSplashAdController(
+class AdKitSplashAdController private constructor(
     private val internetController: AdKitInternetController,
     private val myPref: AdKitPref,
     private val mConsent: AdKitConsentManager,
@@ -32,6 +33,24 @@ class AdKitSplashAdController(
     private var isAppPause = false
     private var adId: String = ""
     private var interControllerConfig: InterControllerConfig? = null
+
+    companion object {
+        @Volatile
+        private var instance: AdKitSplashAdController? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): AdKitSplashAdController {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitSplashAdController(
+                    AdKitInternetController.getInstance(context),
+                    AdKitPref.getInstance(context),
+                    AdKitConsentManager.getInstance(context),
+                ).also { instance = it }
+            }
+        }
+    }
 
 
     fun setAppInPause(isAppPause: Boolean) {
@@ -247,11 +266,11 @@ class AdKitSplashAdController(
 
 
     private fun startHandler() {
-        val splashTime = interControllerConfig?.splashTime?: 16L
+        val splashTime = interControllerConfig?.splashTime ?: 16L
         if (!isHandlerRunning) {
             isHandlerRunning = true
             runnableSplash?.let {
-                handlerAd.postDelayed(it,  splashTime* 1000)
+                handlerAd.postDelayed(it, splashTime * 1000)
             }
         }
     }

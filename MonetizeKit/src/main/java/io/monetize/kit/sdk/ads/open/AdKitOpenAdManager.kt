@@ -19,13 +19,17 @@ import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import java.util.Date
 
-class AdKitOpenAdManager(
-    private val mContext: Context,
+class AdKitOpenAdManager private constructor(
+    context: Context,
     private val internetController: AdKitInternetController,
     private val prefHelper: AdKitPref
 ) : DefaultLifecycleObserver {
+
+    private val mContext = context.applicationContext
+
     private var mAppOpenAd: AppOpenAd? = null
     private var loadTime: Long = 0
     private var canRequestAd = true
@@ -38,6 +42,26 @@ class AdKitOpenAdManager(
     private var currentActivity: Activity? = null
 
     private var currentRoute: String? = null
+
+    companion object {
+        @Volatile
+        private var instance: AdKitOpenAdManager? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): AdKitOpenAdManager {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitOpenAdManager(
+                    context,
+                    AdKitInternetController.getInstance(context),
+                    AdKitPref.getInstance(context)
+
+                ).also { instance = it }
+            }
+        }
+
+    }
 
     fun setCurrentComposeRoute(route: String?) {
         currentRoute = route

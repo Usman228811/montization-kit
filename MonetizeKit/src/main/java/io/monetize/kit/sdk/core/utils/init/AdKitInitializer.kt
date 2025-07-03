@@ -15,8 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AdKitInitializer(
-    private val context: Context,
+
+class AdKitInitializer private constructor(
     private val adKitPref: AdKitPref,
     private val adKitInterHelper: AdKitInterHelper,
     private val adKitOpenAdManager: AdKitOpenAdManager,
@@ -24,7 +24,27 @@ class AdKitInitializer(
     private val nativeCommonHelper: AdKitNativeCommonHelper,
 ) {
 
-    fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
+    companion object {
+        @Volatile
+        private var instance: AdKitInitializer? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): AdKitInitializer {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInitializer(
+                    AdKitPref.getInstance(context),
+                    AdKitInterHelper.getInstance(context),
+                    AdKitOpenAdManager.getInstance(context),
+                    AdsCustomLayoutHelper.getInstance(),
+                    AdKitNativeCommonHelper.getInstance(),
+                ).also { instance = it }
+            }
+        }
+    }
+
+    fun initMobileAds(context: Context, adMobAppId: String, onInit: () -> Unit) {
         try {
             val applicationInfo = context.packageManager.getApplicationInfo(
                 context.packageName,
@@ -105,3 +125,95 @@ class AdKitInitializer(
 
     }
 }
+
+//
+//class AdKitInitializer2(
+//    private val context: Context,
+//    private val adKitPref: AdKitPref,
+//    private val adKitInterHelper: AdKitInterHelper,
+//    private val adKitOpenAdManager: AdKitOpenAdManager,
+//    private val customLayoutHelper: AdsCustomLayoutHelper,
+//    private val nativeCommonHelper: AdKitNativeCommonHelper,
+//) {
+//
+//    fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
+//        try {
+//            val applicationInfo = context.packageManager.getApplicationInfo(
+//                context.packageName,
+//                PackageManager.GET_META_DATA
+//            )
+//            applicationInfo.metaData?.putString(
+//                "com.google.android.gms.ads.APPLICATION_ID",
+//                adMobAppId
+//            )
+//        } catch (e: PackageManager.NameNotFoundException) {
+//            Log.i("APPLICATION_ID", "ApplicationID not found")
+//            e.printStackTrace()
+//        }
+//
+//
+//        try {
+//            FirebaseApp.initializeApp(context)
+//        } catch (ex: Exception) {
+//            ex.printStackTrace()
+//        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
+//                MobileAds.initialize(context) {
+//                    Log.d("AdKit_Logs", "initMobileAds: app-id =: $adMobAppId")
+//                }
+//            } catch (_: Exception) {
+//            } catch (_: NoClassDefFoundError) {
+//            }
+//        }
+//        onInit()
+//    }
+//
+//    fun setNativeCustomLayouts(
+//        bigNativeLayout: Int? = null,
+//        smallNativeLayout: Int? = null,
+//        splitNativeLayout: Int? = null,
+//        bigNativeShimmer: Int? = null,
+//        smallNativeShimmer: Int? = null,
+//        splitNativeShimmer: Int? = null,
+//    ) {
+//        customLayoutHelper.apply {
+//            setBigNative(
+//                bigNative = bigNativeLayout,
+//                bigNativeShimmer = bigNativeShimmer
+//            )
+//            setSmallNative(
+//                smallNative = smallNativeLayout,
+//                smallNativeShimmer = smallNativeShimmer
+//            )
+//            setSplitNative(
+//                splitNative = splitNativeLayout,
+//                splitNativeShimmer = splitNativeShimmer
+//            )
+//        }
+//    }
+//
+//    fun init(
+//        interControllerConfig: InterControllerConfig,
+//        nativeCommonIds: List<String>? = null,
+//        resetInterKeyForCommonAds: String? = null
+//    ) {
+//        adKitInterHelper.setAdIds(
+//            splashId = interControllerConfig.splashId,
+//            appInterIds = interControllerConfig.appInterIds,
+//            interControllerConfig = interControllerConfig
+//        )
+//        adKitOpenAdManager.setOpenAdConfigs(
+//            adId = interControllerConfig.openAdId,
+//            isAdEnable = interControllerConfig.openAdEnable,
+//            isLoadingEnable = interControllerConfig.openAdLoadingEnable
+//        )
+//        nativeCommonHelper.setNativeAdIds(nativeCommonIds)
+//        adKitOpenAdManager.initOpenAd()
+//        resetInterKeyForCommonAds?.let {
+//            adKitPref.putInterInt(it, 0)
+//        }
+//
+//
+//    }
+//}

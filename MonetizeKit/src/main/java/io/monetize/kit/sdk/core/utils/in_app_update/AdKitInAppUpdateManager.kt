@@ -20,7 +20,28 @@ sealed class UpdateState {
     data object Available : UpdateState()
 }
 
-class AdKitInAppUpdateManager(private val context: Context, private val internetController: AdKitInternetController) {
+class AdKitInAppUpdateManager private constructor(
+    context: Context,
+    private val internetController: AdKitInternetController
+) {
+    private val mContext = context.applicationContext
+
+    companion object {
+        @Volatile
+        private var instance: AdKitInAppUpdateManager? = null
+
+        fun getInstance(
+            context: Context,
+        ): AdKitInAppUpdateManager {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInAppUpdateManager(
+                    context = context,
+                    internetController = AdKitInternetController.getInstance(context)
+
+                ).also { instance = it }
+            }
+        }
+    }
 
     private var appUpdateManager: AppUpdateManager? = null
     private var updateListener: InstallStateUpdatedListener? = null
@@ -34,7 +55,7 @@ class AdKitInAppUpdateManager(private val context: Context, private val internet
     fun checkUpdate() {
         if (internetController.isConnected) {
             try {
-                appUpdateManager = AppUpdateManagerFactory.create(context)
+                appUpdateManager = AppUpdateManagerFactory.create(mContext)
                 appUpdateManager?.let { appUpdateManager ->
                     appUpdateManager.appUpdateInfo.apply {
                         addOnSuccessListener { p0 ->
@@ -80,13 +101,13 @@ class AdKitInAppUpdateManager(private val context: Context, private val internet
         updateListener?.let {
             appUpdateManager?.unregisterListener(it)
         }
-        
+
         updateStateCallback = null
         updateListener = null
         appUpdateInfo = null
     }
 
-    fun updateComplete(){
+    fun updateComplete() {
         appUpdateManager?.completeUpdate()
     }
 

@@ -30,11 +30,33 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class BillingRepositoryImpl(
-    private val context: Context,
+class BillingRepositoryImpl private constructor(
+    mContext: Context,
     private val internetController: AdKitInternetController,
     private val myPref: AdKitPref,
 ) : BillingRepository {
+
+    private val context = mContext.applicationContext
+
+    companion object {
+        @Volatile
+        private var instance: BillingRepositoryImpl? = null
+
+
+        fun getInstance(
+            context: Context,
+            internetController: AdKitInternetController,
+            myPref: AdKitPref,
+        ): BillingRepositoryImpl {
+            return instance ?: synchronized(this) {
+                instance ?: BillingRepositoryImpl(
+                    context,
+                    internetController,
+                    myPref,
+                ).also { instance = it }
+            }
+        }
+    }
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -110,13 +132,15 @@ class BillingRepositoryImpl(
             )
             .build()
 
-        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult  ->
+        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 val productList = queryProductDetailsResult.productDetailsList
                 if (productList.isNotEmpty()) {
                     purchaseSku = productList.find { it.productId == productId }
                     _productPriceFlow.update {
-                        it.copy(price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: "")
+                        it.copy(
+                            price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: ""
+                        )
                     }
                 }
             } else {

@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.play.services.ads)
-    implementation(libs.koin)
+//    implementation(libs.koin)
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
 
@@ -64,8 +64,11 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+
 }

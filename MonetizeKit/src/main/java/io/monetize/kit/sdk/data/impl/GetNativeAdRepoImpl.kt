@@ -1,10 +1,12 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.nativead.NativeAd
+import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
@@ -21,7 +23,7 @@ import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
-class GetNativeAdRepoImpl(
+class GetNativeAdRepoImpl private constructor(
     private val prefs: AdKitPref,
     private val internetController: AdKitInternetController,
     private val consentManager: AdKitConsentManager,
@@ -39,6 +41,22 @@ class GetNativeAdRepoImpl(
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
+
+
+    companion object {
+
+        fun getInstance(
+            context: Context
+        ): GetNativeAdRepoImpl {
+            return GetNativeAdRepoImpl(
+                AdKitPref.getInstance(context),
+                AdKitInternetController.getInstance(context),
+                AdKitConsentManager.getInstance(context),
+                AdsCustomLayoutHelper.getInstance(),
+                AdKitNativeCommonHelper.getInstance(),
+            )
+        }
+    }
 
 
     override fun init(

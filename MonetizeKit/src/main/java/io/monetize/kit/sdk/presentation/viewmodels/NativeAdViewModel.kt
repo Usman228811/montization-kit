@@ -10,8 +10,9 @@ import androidx.lifecycle.ViewModel
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetNativeAdUseCase
 
-class NativeAdViewModel(private val getNativeAdUseCase: GetNativeAdUseCase) : ViewModel() {
+class NativeAdViewModel : ViewModel() {
 
+    private var getNativeAdUseCase: GetNativeAdUseCase? = null
 
     fun initNativeSingleAdData(
         mContext: Activity,
@@ -19,25 +20,27 @@ class NativeAdViewModel(private val getNativeAdUseCase: GetNativeAdUseCase) : Vi
         nativeControllerConfig: NativeControllerConfig,
         loadNewAd: Boolean = false
     ) {
-        getNativeAdUseCase(
-            mContext = mContext,
-            nativeControllerConfig = nativeControllerConfig,
-            adFrame = adFrame,
-            loadNewAd = loadNewAd,
-        )
+        getNativeAdUseCase = GetNativeAdUseCase.getInstance(mContext).apply {
+            invoke(
+                mContext = mContext,
+                nativeControllerConfig = nativeControllerConfig,
+                adFrame = adFrame,
+                loadNewAd = loadNewAd,
+            )
+        }
     }
 
 
     fun onResume() {
-        getNativeAdUseCase.onResume()
+        getNativeAdUseCase?.onResume()
     }
 
     fun onPause() {
-        getNativeAdUseCase.onPause()
+        getNativeAdUseCase?.onPause()
     }
 
     fun onDestroy() {
-        getNativeAdUseCase.onDestroy()
+        getNativeAdUseCase?.onDestroy()
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {

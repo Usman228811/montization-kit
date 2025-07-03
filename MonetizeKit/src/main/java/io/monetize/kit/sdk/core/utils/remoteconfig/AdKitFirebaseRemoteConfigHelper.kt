@@ -9,10 +9,27 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
+import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class AdKitFirebaseRemoteConfigHelper {
+class AdKitFirebaseRemoteConfigHelper private constructor(){
+
+    companion object {
+        @Volatile
+        private var instance: AdKitFirebaseRemoteConfigHelper? = null
+
+
+        fun getInstance(
+        ): AdKitFirebaseRemoteConfigHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitFirebaseRemoteConfigHelper(
+
+                ).also { instance = it }
+            }
+        }
+    }
 
     private val _configFetched = Channel<Boolean>()
     val configFetched = _configFetched.receiveAsFlow()

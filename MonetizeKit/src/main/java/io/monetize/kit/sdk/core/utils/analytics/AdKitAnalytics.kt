@@ -7,8 +7,20 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import io.monetize.kit.sdk.BuildConfig
 
-class AdKitAnalytics {
+class AdKitAnalytics private constructor() {
 
+    companion object {
+        @Volatile
+        private var instance: AdKitAnalytics? = null
+
+
+        fun getInstance(
+        ): AdKitAnalytics {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitAnalytics().also { instance = it }
+            }
+        }
+    }
 
 
     private val firebaseAnalytics: FirebaseAnalytics by lazy {

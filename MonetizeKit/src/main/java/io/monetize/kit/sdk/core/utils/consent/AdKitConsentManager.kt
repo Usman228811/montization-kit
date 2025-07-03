@@ -8,14 +8,14 @@ import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
+import io.monetize.kit.sdk.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import io.monetize.kit.sdk.BuildConfig
 
-class AdKitConsentManager(context: Context) {
+class AdKitConsentManager private constructor(context: Context) {
     private val coroutineScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }
@@ -27,6 +27,23 @@ class AdKitConsentManager(context: Context) {
     val canRequestAds: Boolean
         get() = consentInformation.canRequestAds()
     private var isRequestingConsent = false
+
+
+    companion object {
+        @Volatile
+        private var instance: AdKitConsentManager? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): AdKitConsentManager {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitConsentManager(
+                    context.applicationContext,
+                ).also { instance = it }
+            }
+        }
+    }
 
     fun gatherConsent(activity: Activity) {
 

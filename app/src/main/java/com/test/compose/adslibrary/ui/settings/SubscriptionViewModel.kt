@@ -1,7 +1,9 @@
 package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,16 @@ data class SettingScreenState(
     val selectedButtonPos: Int = 0,
     val buttonText: String = "subscribe",
 )
+
+class SubscriptionViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        val helper = AdKitSubscriptionHelper.getInstance(context.applicationContext)
+        return SubscriptionViewModel(helper) as T
+    }
+}
 
 class SubscriptionViewModel(
     private val adKitSubscriptionHelper: AdKitSubscriptionHelper

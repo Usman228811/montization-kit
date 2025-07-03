@@ -5,21 +5,16 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
-import com.test.compose.adslibrary.di.MainModule
 import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
-import org.koin.android.ext.android.inject
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
-    private val adKitInitializer: AdKitInitializer by inject()
-    private val adKitInterHelper: AdKitInterHelper by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+    private var adKitInitializer: AdKitInitializer? = null
+    private var adKitInterHelper: AdKitInterHelper? = null
+    private var adKitOpenAdManager: AdKitOpenAdManager? = null
 
     companion object {
         var appContext: Context? = null
@@ -29,15 +24,21 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         super.onCreate()
         appContext = this
 
-        startKoin {
-            androidContext(this@AppClass)
-            modules(MainModule)
-            modules(
-                provideMonetizationKitModules()
-            )
-        }
+        adKitInitializer = AdKitInitializer.getInstance(context = this)
+        adKitInterHelper = AdKitInterHelper.getInstance(context = this)
+        adKitOpenAdManager = AdKitOpenAdManager.getInstance(context = this)
 
-        adKitInitializer.initMobileAds(
+
+//        startKoin {
+//            androidContext(this@AppClass)
+//            modules(MainModule)
+//            modules(
+//                provideMonetizationKitModules()
+//            )
+//        }
+
+        adKitInitializer?.initMobileAds(
+            context = this,
             adMobAppId = "ca-app-pub-9690615864092002~8960663430",
             onInit = {
 
@@ -45,12 +46,12 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             }
         )
 
-        adKitInitializer.setNativeCustomLayouts(
+        adKitInitializer?.setNativeCustomLayouts(
             bigNativeLayout = R.layout.large_native_layout_custom,
             bigNativeShimmer = R.layout.large_native_layout_shimmer,
         )
 
-        adKitOpenAdManager.excludeComposeRoutesFromOpenAd(
+        adKitOpenAdManager?.excludeComposeRoutesFromOpenAd(
             AppRoute.SplashRoute.route,
             AppRoute.SubscriptionRoute.route
         )
@@ -73,8 +74,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
     private fun handleCurrentActivity(activity: Activity) {
-        adKitInterHelper.setAppInPause(false)
-        adKitOpenAdManager.setActivity(activity)
+        adKitInterHelper?.setAppInPause(false)
+        adKitOpenAdManager?.setActivity(activity)
 //        canShowOpenAd =
 //            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
     }
@@ -85,13 +86,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivityPaused(activity: Activity) {
-        adKitInterHelper.setAppInPause(true)
+        adKitInterHelper?.setAppInPause(true)
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        adKitOpenAdManager.setActivity(null)
-        adKitInterHelper.setAppInPause(false)
+        adKitOpenAdManager?.setActivity(null)
+        adKitInterHelper?.setAppInPause(false)
     }
 }

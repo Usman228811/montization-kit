@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -10,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
@@ -35,6 +37,37 @@ data class SplashScreenState(
     val progress: Int = 0,
     val updateState: UpdateState = UpdateState.Idle,
 )
+
+class SplashScreenViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+        val adKitSplashAdController: AdKitSplashAdController =
+            AdKitSplashAdController.getInstance(context)
+        val adKitFirebaseRemoteConfigHelper: AdKitFirebaseRemoteConfigHelper =
+            AdKitFirebaseRemoteConfigHelper.getInstance()
+        val adKitInAppUpdateManager: AdKitInAppUpdateManager =
+            AdKitInAppUpdateManager.getInstance(context)
+        val adKitConsentManager: AdKitConsentManager = AdKitConsentManager.getInstance(context)
+        val pref: AdKitPref = AdKitPref.getInstance(context)
+        val adKitInternetController: AdKitInternetController =
+            AdKitInternetController.getInstance(context)
+        val adKitPurchaseHelper: AdKitPurchaseHelper = AdKitPurchaseHelper.getInstance(context)
+
+        return SplashScreenViewModel(
+            adKitSplashAdController,
+            adKitFirebaseRemoteConfigHelper,
+            adKitInAppUpdateManager,
+            adKitConsentManager,
+            pref,
+            adKitInternetController,
+            adKitPurchaseHelper,
+
+            ) as T
+    }
+}
 
 class SplashScreenViewModel(
     private val adKitSplashAdController: AdKitSplashAdController,

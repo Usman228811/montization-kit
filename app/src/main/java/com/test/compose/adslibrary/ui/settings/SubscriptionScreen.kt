@@ -11,13 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun SubscriptionScreen(
-    subscriptionViewModel: SubscriptionViewModel = koinViewModel()
+
 ) {
+
+    val context = LocalContext.current
+    val factory  = remember { SubscriptionViewModelFactory(context) }
+    val subscriptionViewModel: SubscriptionViewModel = viewModel(factory = factory)
 
     val activity = LocalActivity.current as Activity
 
@@ -36,7 +42,8 @@ fun SubscriptionScreen(
             )
         }
 
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 subscriptionViewModel.updateSelectedButtonPos(0)
 
@@ -46,7 +53,8 @@ fun SubscriptionScreen(
                 text = "weekly ${state.weeklyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
 
                 subscriptionViewModel.updateSelectedButtonPos(1)
@@ -56,7 +64,8 @@ fun SubscriptionScreen(
                 text = "monthly ${state.monthlyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
 
                 subscriptionViewModel.updateSelectedButtonPos(2)
@@ -66,7 +75,8 @@ fun SubscriptionScreen(
                 text = "yearly ${state.yearlyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 subscriptionViewModel.purchase()
             }

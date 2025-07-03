@@ -18,21 +18,22 @@ import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
-import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
-    private val adKitInitializer: AdKitInitializer by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
+    private var adKitInitializer: AdKitInitializer? = null
+    private var adKitOpenAdManager: AdKitOpenAdManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        adKitInitializer = AdKitInitializer.getInstance(this)
+        adKitOpenAdManager = AdKitOpenAdManager.getInstance(this)
 
         (appContext as AppClass).initializeAppClass()
-        adKitOpenAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
+        adKitOpenAdManager?.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
 
-        adKitInitializer.init(
+        adKitInitializer?.init(
             InterControllerConfig(
                 openAdId = "ca-app-pub-3940256099942544/9257395921",
                 splashId = "ca-app-pub-3940256099942544/1033173712",
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
                 navHostController.currentBackStackEntryFlow.collect { backStackEntry ->
                     val route = backStackEntry.destination.route
-                    adKitOpenAdManager.setCurrentComposeRoute(route)
+                    adKitOpenAdManager?.setCurrentComposeRoute(route)
                 }
             }
 

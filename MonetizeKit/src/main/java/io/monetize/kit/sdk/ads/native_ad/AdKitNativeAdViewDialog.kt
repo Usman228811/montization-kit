@@ -12,20 +12,20 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
-import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun AdKitNativeAdViewDialog(
-    nativeAdViewModel: NativeAdViewModelDialog = koinViewModel(),
     loadNewAd: Boolean = false,
     nativeControllerConfig: NativeControllerConfig
 
 ) {
 
+    val nativeAdViewModel: NativeAdViewModelDialog = viewModel()
     val tet = LocalActivity.current as Activity
     val lifecycleOwner = LocalLifecycleOwner.current
 

@@ -11,30 +11,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun SplashScreen(
-    viewModel: SplashScreenViewModel = koinViewModel(),
     moveToNext: () -> Unit,
 ) {
     val activity = LocalActivity.current as Activity
-    val state by viewModel.state.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
+    val factory = remember { SplashScreenViewModelFactory(context) }
+    val viewModel: SplashScreenViewModel = viewModel(factory = factory)
+    val state by viewModel.state.collectAsState()
 
 //    val launcher = AdSdkInAppUpdateFlowResultLauncher (onFail = {
 //        viewModel.initConsent(activity)
 //    })
 
 
-
     LaunchedEffect(Unit) {
         viewModel.observeLifecycle(lifecycleOwner)
         viewModel.initConsent(activity)
-
 
 
 //        viewModel.checkUpdate(launcher)

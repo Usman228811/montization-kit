@@ -2,10 +2,12 @@ package io.monetize.kit.sdk.ads.collapsable
 
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -13,8 +15,8 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
@@ -31,6 +33,20 @@ class BaseCollapsableBannerActivity(
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
+
+
+    companion object {
+
+        fun getInstance(
+            context: Context
+        ): BaseCollapsableBannerActivity {
+            return BaseCollapsableBannerActivity(
+                AdKitPref.getInstance(context),
+                AdKitInternetController.getInstance(context),
+                AdKitConsentManager.getInstance(context)
+            )
+        }
+    }
 
     private fun destroyCollapsableBannerAd() {
         bannerAd?.destroy()
