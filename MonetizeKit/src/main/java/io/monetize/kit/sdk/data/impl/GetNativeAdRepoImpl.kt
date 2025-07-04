@@ -2,6 +2,7 @@ package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -147,6 +148,7 @@ class GetNativeAdRepoImpl private constructor(
 
     private fun loadSingleNativeAd(isForRefresh: Boolean = false) {
         try {
+            Log.d("uuu", "loadSingleNativeAd: ${nativeControllerConfig.key}")
             if (isAdLoadCalled) {
                 if (adFrame == null || !nativeControllerConfig.isAdEnable || prefs.isAppPurchased) {
                     hideAdFrame()

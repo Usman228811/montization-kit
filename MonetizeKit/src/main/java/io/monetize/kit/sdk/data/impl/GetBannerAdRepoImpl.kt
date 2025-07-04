@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.widget.LinearLayout
+import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
 import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
@@ -15,19 +16,14 @@ class GetBannerAdRepoImpl private constructor(
 
 
     companion object {
-        @Volatile
-        private var instance: GetBannerAdRepoImpl? = null
-
 
         fun getInstance(
             context: Context
         ): GetBannerAdRepoImpl {
-            return instance ?: synchronized(this) {
-                instance ?: GetBannerAdRepoImpl(
-                    baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(context),
-                    baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(context),
-                ).also { instance = it }
-            }
+            return GetBannerAdRepoImpl(
+                baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(context),
+                baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(context),
+            )
         }
     }
 

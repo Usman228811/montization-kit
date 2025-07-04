@@ -16,7 +16,6 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
-    private lateinit var bannerAdViewModel: BannerAdViewModel
     private var bannerControllerConfig: BannerControllerConfig? = null
 
     init {
@@ -25,15 +24,14 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
     fun loadBanner(
         context: Context,
-        viewModel: BannerAdViewModel,
+        viewModel: BannerAdViewModel?,
         bannerControllerConfig: BannerControllerConfig
     ) {
-        bannerAdViewModel = viewModel
         this.bannerControllerConfig = bannerControllerConfig
 
         if (context is Activity) {
             visibility = View.VISIBLE
-            bannerAdViewModel.initSingleBannerData(
+            viewModel?.initSingleBannerData(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = this
@@ -41,7 +39,7 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
             // Optional lifecycle observe
             if (context is LifecycleOwner) {
-                bannerAdViewModel.observeLifecycle(context)
+                viewModel?.observeLifecycle(context)
             }
         }
     }

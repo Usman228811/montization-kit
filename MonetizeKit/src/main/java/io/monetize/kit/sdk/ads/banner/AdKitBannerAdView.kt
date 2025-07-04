@@ -17,8 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
-
-
+import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
 
 @Composable
@@ -27,9 +26,11 @@ fun AdKitBannerAdView(
     bannerControllerConfig: BannerControllerConfig
 ) {
 
-    val bannerAdViewModel: BannerAdViewModel = viewModel()
-
     val context = LocalContext.current
+    val bannerAdViewModel: BannerAdViewModel = viewModel(
+        factory = BannerAdViewModelFactory(context)
+    )
+
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {

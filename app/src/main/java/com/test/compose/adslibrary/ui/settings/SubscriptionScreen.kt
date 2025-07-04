@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
+import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
+import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 
 @Composable
 fun SubscriptionScreen(
@@ -83,6 +89,27 @@ fun SubscriptionScreen(
         ) {
             Text(
                 text = state.buttonText
+            )
+        }
+
+
+        AdKitNativeAdView(
+            nativeControllerConfig = NativeControllerConfig(
+                key = "home_native",
+                adId = "ca-app-pub-3940256099942544/2247696110",
+                isAdEnable = true,
+                adType = 0
+            )
+        )
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+
+            AdKitBannerAdView(
+                bannerControllerConfig = BannerControllerConfig(
+                    key = "home_banner",
+                    adId = "ca-app-pub-3940256099942544/9214589741",
+                    isAdEnable = true,
+                )
             )
         }
     }

@@ -70,11 +70,8 @@ fun MainScreen(
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     key = "home_banner",
-                    adId = "ca-app-pub-3940256099942544/2014213617",
+                    adId = "ca-app-pub-3940256099942544/9214589741",
                     isAdEnable = true,
-                    collapsableConfig = CollapsableConfig(
-                        isBottom = true
-                    )
                 )
             )
         }

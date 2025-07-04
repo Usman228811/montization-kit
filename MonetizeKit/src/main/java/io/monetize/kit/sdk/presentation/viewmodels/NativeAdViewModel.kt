@@ -1,18 +1,31 @@
 package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
+import android.content.Context
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetNativeAdUseCase
 
-class NativeAdViewModel : ViewModel() {
+class NativeAdViewModelFactory(
+    val context: Context
+) : ViewModelProvider.Factory {
 
-    private var getNativeAdUseCase: GetNativeAdUseCase? = null
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return NativeAdViewModel(
+            GetNativeAdUseCase.getInstance(context = context)
+        ) as T
+    }
+}
+
+
+class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : ViewModel() {
 
     fun initNativeSingleAdData(
         mContext: Activity,
@@ -20,27 +33,25 @@ class NativeAdViewModel : ViewModel() {
         nativeControllerConfig: NativeControllerConfig,
         loadNewAd: Boolean = false
     ) {
-        getNativeAdUseCase = GetNativeAdUseCase.getInstance(mContext).apply {
-            invoke(
-                mContext = mContext,
-                nativeControllerConfig = nativeControllerConfig,
-                adFrame = adFrame,
-                loadNewAd = loadNewAd,
-            )
-        }
+        getNativeAdUseCase.invoke(
+            mContext = mContext,
+            nativeControllerConfig = nativeControllerConfig,
+            adFrame = adFrame,
+            loadNewAd = loadNewAd,
+        )
     }
 
 
     fun onResume() {
-        getNativeAdUseCase?.onResume()
+        getNativeAdUseCase.onResume()
     }
 
     fun onPause() {
-        getNativeAdUseCase?.onPause()
+        getNativeAdUseCase.onPause()
     }
 
     fun onDestroy() {
-        getNativeAdUseCase?.onDestroy()
+        getNativeAdUseCase.onDestroy()
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {

@@ -5,8 +5,10 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 
@@ -65,6 +67,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         } catch (_: Exception) {
         }
     }
+
+
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 

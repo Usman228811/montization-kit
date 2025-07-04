@@ -16,7 +16,6 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
-    private var nativeAdViewModel: NativeAdViewModel? = null
     private var nativeControllerConfig: NativeControllerConfig? = null
     private var loadNewAd: Boolean = false
 
@@ -26,17 +25,16 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
     fun loadNative(
         context: Context,
-        viewModel: NativeAdViewModel,
+        viewModel: NativeAdViewModel?,
         nativeControllerConfig: NativeControllerConfig,
         loadNewAd: Boolean = false
     ) {
-        this.nativeAdViewModel = viewModel
         this.nativeControllerConfig = nativeControllerConfig
         this.loadNewAd = loadNewAd
 
         if (context is Activity) {
             visibility = View.VISIBLE
-            nativeAdViewModel?.initNativeSingleAdData(
+            viewModel?.initNativeSingleAdData(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
@@ -44,7 +42,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
             )
 
             if (context is LifecycleOwner) {
-                nativeAdViewModel?.observeLifecycle(context)
+                viewModel?.observeLifecycle(context)
             }
         }
     }
