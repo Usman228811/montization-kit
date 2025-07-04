@@ -2,12 +2,10 @@ package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.nativead.NativeAd
-import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
@@ -146,9 +144,8 @@ class GetNativeAdRepoImpl private constructor(
         }
     }
 
-    private fun loadSingleNativeAd(isForRefresh: Boolean = false) {
+    private fun loadSingleNativeAd() {
         try {
-            Log.d("uuu", "loadSingleNativeAd: ${nativeControllerConfig.key}")
             if (isAdLoadCalled) {
                 if (adFrame == null || !nativeControllerConfig.isAdEnable || prefs.isAppPurchased) {
                     hideAdFrame()
@@ -156,7 +153,8 @@ class GetNativeAdRepoImpl private constructor(
                     model?.controller?.let { nativeAdController ->
                         adFrame?.let { adFrame ->
                             if (canLoadAdAgain) {
-                                if (largeNativeAd == null || isForRefresh) {
+                                if (largeNativeAd == null) {
+
                                     if (!isRequesting) {
                                         isRequesting = true
                                         adFrame.descendantFocusability =
@@ -177,8 +175,8 @@ class GetNativeAdRepoImpl private constructor(
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                                     return
                                                 }
-                                                if (largeNativeAd == null || isForRefresh) {
-                                                    loadSingleNativeAd(isForRefresh)
+                                                if (largeNativeAd == null) {
+                                                    loadSingleNativeAd()
                                                 }
                                             }
 
@@ -239,7 +237,7 @@ class GetNativeAdRepoImpl private constructor(
         if (nativeControllerConfig.isAdEnable) {
             loadNewAd = !stopNextRequest
             if (!isRequesting) {
-                loadSingleNativeAd(true)
+                loadSingleNativeAd()
             }
         }
     }
