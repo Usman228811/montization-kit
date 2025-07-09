@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nas.internet.speedtest.meter.speed.test.meter.app"
+        applicationId = "com.test.ads"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
