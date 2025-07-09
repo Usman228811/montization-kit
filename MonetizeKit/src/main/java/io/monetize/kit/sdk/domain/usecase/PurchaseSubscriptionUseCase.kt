@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.domain.usecase
 
+import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.ProductDetails
 import io.monetize.kit.sdk.data.impl.SubscriptionRepositoryImpl
@@ -16,7 +17,7 @@ class PurchaseSubscriptionUseCase private constructor(
 
 
         fun getInstance(
-            context: Context,
+            context: Context
         ): PurchaseSubscriptionUseCase {
             val repo = SubscriptionRepositoryImpl.getInstance(context)
             return instance ?: synchronized(this) {
@@ -34,8 +35,8 @@ class PurchaseSubscriptionUseCase private constructor(
         repository.changeSubscriptionPlan(product)
     }
 
-    fun viewUrl(url: String) {
-        repository.viewUrl(url)
+    fun viewUrl(activity: Activity, url: String) {
+        repository.viewUrl(activity, url)
     }
 
 }

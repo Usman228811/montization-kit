@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.native_ad
+package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,13 +21,13 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 
 @Composable
 fun AdKitNativeAdView(
-    loadNewAd: Boolean = false,
-    nativeControllerConfig: NativeControllerConfig
+    nativeControllerConfig: NativeControllerConfig,
+    onFail: () -> Unit = {}
 
 ) {
-    val context = LocalContext.current
+
     val nativeAdViewModel: NativeAdViewModel = viewModel(
-        factory = NativeAdViewModelFactory(context)
+        factory = NativeAdViewModelFactory()
     )
 
     val tet = LocalActivity.current as Activity
@@ -56,7 +55,7 @@ fun AdKitNativeAdView(
                     mContext = tet,
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
-                    loadNewAd = loadNewAd,
+                    onFail = onFail,
                 )
             }
         )

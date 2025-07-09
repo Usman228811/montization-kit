@@ -9,11 +9,13 @@ import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCommonIdsHelper
 
 
 data class NativeAdSingleModel(
@@ -23,13 +25,7 @@ data class NativeAdSingleModel(
 
 val singleNativeList = ArrayList<NativeAdSingleModel>()
 
-class NativeAdSingleController(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper,
-    private val nativeCommonHelper: AdKitNativeCommonHelper,
-) {
+class NativeAdSingleController {
     private var canRequestLargeAd = true
     private var largeAndSmallNativeAd: NativeAd? = null
     private var adControllerListener: AdControllerListener? = null
@@ -51,7 +47,7 @@ class NativeAdSingleController(
     ) {
 
         try {
-            if (enable && !prefs.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
+            if (enable && !adKitPref.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
                 if (largeAndSmallNativeAd == null) {
                     if (!canRequestLargeAd) {
                         return
@@ -64,7 +60,7 @@ class NativeAdSingleController(
 
                     val builder = AdLoader.Builder(
                         context, if (nativeControllerConfig.key == "native_common") {
-                            nativeCommonHelper.getNativeAdId()
+                            nativeCommonIdsHelper.getNativeAdId()
                         } else {
                             nativeControllerConfig.adId
                         }
@@ -118,12 +114,12 @@ class NativeAdSingleController(
 
     ) {
         this.nativeControllerConfig = nativeControllerConfig
-        if (nativeControllerConfig.isAdEnable && !prefs.isAppPurchased && largeAndSmallNativeAd != null) {
+        if (nativeControllerConfig.isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
                 try {
                     try {
                         addNativeAdView(
-                            adsCustomLayoutHelper = customLayoutHelper,
+                            adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
                             adType = AdType.entries.filter { entries -> entries.type == nativeControllerConfig.adType.toInt() }[0],
                             context = context,
                             adFrame = adFrame,

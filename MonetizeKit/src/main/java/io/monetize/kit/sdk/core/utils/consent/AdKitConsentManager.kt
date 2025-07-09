@@ -34,7 +34,7 @@ class AdKitConsentManager private constructor(context: Context) {
         private var instance: AdKitConsentManager? = null
 
 
-        fun getInstance(
+        internal   fun getInstance(
             context: Context,
         ): AdKitConsentManager {
             return instance ?: synchronized(this) {

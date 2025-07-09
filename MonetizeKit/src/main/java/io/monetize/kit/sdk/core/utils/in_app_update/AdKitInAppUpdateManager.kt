@@ -12,6 +12,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 
 sealed class UpdateState {
     data object Idle : UpdateState()
@@ -21,24 +22,17 @@ sealed class UpdateState {
 }
 
 class AdKitInAppUpdateManager private constructor(
-    context: Context,
-    private val internetController: AdKitInternetController
 ) {
-    private val mContext = context.applicationContext
 
     companion object {
         @Volatile
         private var instance: AdKitInAppUpdateManager? = null
 
-        fun getInstance(
+        internal  fun getInstance(
             context: Context,
         ): AdKitInAppUpdateManager {
             return instance ?: synchronized(this) {
-                instance ?: AdKitInAppUpdateManager(
-                    context = context,
-                    internetController = AdKitInternetController.getInstance(context)
-
-                ).also { instance = it }
+                instance ?: AdKitInAppUpdateManager().also { instance = it }
             }
         }
     }
@@ -52,7 +46,7 @@ class AdKitInAppUpdateManager private constructor(
         updateStateCallback = callback
     }
 
-    fun checkUpdate() {
+    fun checkUpdate(mContext: Context) {
         if (internetController.isConnected) {
             try {
                 appUpdateManager = AppUpdateManagerFactory.create(mContext)

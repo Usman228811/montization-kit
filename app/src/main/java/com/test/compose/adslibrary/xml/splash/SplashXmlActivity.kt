@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.test.compose.adslibrary.R
 import com.test.compose.adslibrary.xml.MainXmlActivity
 import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -17,11 +18,10 @@ import kotlinx.coroutines.launch
 class SplashXmlActivity : AppCompatActivity() {
 
     private var splashXmlViewModel: SplashXmlViewModel? = null
-    private var adKitInitializer: AdKitInitializer? = null
 
 
     private fun initAdsConfigs() {
-        adKitInitializer?.init(
+        AdKit.initializer.initAdsConfigs(
             InterControllerConfig(
                 openAdId = "ca-app-pub-3940256099942544/9257395921",
                 splashId = "ca-app-pub-3940256099942544/1033173712",
@@ -42,12 +42,11 @@ class SplashXmlActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_xml)
-        adKitInitializer = AdKitInitializer.getInstance(this)
 
         initAdsConfigs()
 
         splashXmlViewModel =
-            ViewModelProvider(this, SplashXmlViewModelFactory(this))[SplashXmlViewModel::class]
+            ViewModelProvider(this, SplashXmlViewModelFactory())[SplashXmlViewModel::class]
 
         lifecycleScope.launch {
 

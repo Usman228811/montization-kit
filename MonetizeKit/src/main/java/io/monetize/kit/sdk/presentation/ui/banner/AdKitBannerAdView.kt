@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.banner
+package io.monetize.kit.sdk.presentation.ui.banner
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -22,13 +22,13 @@ import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
 @Composable
 fun AdKitBannerAdView(
-
-    bannerControllerConfig: BannerControllerConfig
+    bannerControllerConfig: BannerControllerConfig,
+    onFail: () -> Unit = {}
 ) {
 
     val context = LocalContext.current
     val bannerAdViewModel: BannerAdViewModel = viewModel(
-        factory = BannerAdViewModelFactory(context)
+        factory = BannerAdViewModelFactory()
     )
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -54,7 +54,8 @@ fun AdKitBannerAdView(
                 bannerAdViewModel.initSingleBannerData(
                     mContext = context as Activity,
                     bannerControllerConfig = bannerControllerConfig,
-                    adFrame = adFrame
+                    adFrame = adFrame,
+                    onFail = onFail,
                 )
             }
         )

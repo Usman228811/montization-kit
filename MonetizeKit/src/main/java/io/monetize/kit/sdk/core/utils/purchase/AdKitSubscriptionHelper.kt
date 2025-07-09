@@ -3,29 +3,25 @@ package io.monetize.kit.sdk.core.utils.purchase
 import android.app.Activity
 import android.content.Context
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
 
 class AdKitSubscriptionHelper private constructor(
-    mContext: Context,
-    private val internetController: AdKitInternetController,
     private val queryProducts: QuerySubscriptionProductsUseCase,
     private val purchaseProduct: PurchaseSubscriptionUseCase
 ) {
-    private val context = mContext.applicationContext
 
     companion object {
         @Volatile
         private var instance: AdKitSubscriptionHelper? = null
 
 
-        fun getInstance(
-            context: Context,
+        internal fun getInstance(
+            context: Context
         ): AdKitSubscriptionHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdKitSubscriptionHelper(
-                    context,
-                    AdKitInternetController.getInstance(context),
                     QuerySubscriptionProductsUseCase.getInstance(context),
                     PurchaseSubscriptionUseCase.getInstance(context),
 
@@ -53,7 +49,10 @@ class AdKitSubscriptionHelper private constructor(
         return queryProducts.getBillingPrice(productId, billingPeriod)
     }
 
-    fun purchase(productId: String?) {
+    fun purchase(
+        activity: Activity,
+        productId: String?
+    ) {
 
         when {
             internetController.isConnected.not() || productId == null -> {
@@ -61,7 +60,7 @@ class AdKitSubscriptionHelper private constructor(
             }
 
             subscribedId.value == productId -> {
-                purchaseProduct.viewUrl("https://play.google.com/store/account/subscriptions?sku=${productId}&package=${context.packageName}")
+                purchaseProduct.viewUrl(activity,"https://play.google.com/store/account/subscriptions?sku=${productId}&package=${activity.packageName}")
             }
 
             subscribedId.value == "" -> {

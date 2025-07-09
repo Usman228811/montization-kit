@@ -16,7 +16,7 @@ interface SubscriptionRepository {
     fun isSubscriptionUpdateSupported(): Boolean
     fun setSubscribed(purchase: Purchase)
     fun acknowledgedPurchase(purchase: Purchase)
-    fun viewUrl( url: String)
+    fun viewUrl( activity: Activity, url: String)
 
 }
 

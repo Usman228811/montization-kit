@@ -16,10 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
+import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 
 @Composable
@@ -28,7 +27,7 @@ fun SubscriptionScreen(
 ) {
 
     val context = LocalContext.current
-    val factory  = remember { SubscriptionViewModelFactory(context) }
+    val factory = remember { SubscriptionViewModelFactory() }
     val subscriptionViewModel: SubscriptionViewModel = viewModel(factory = factory)
 
     val activity = LocalActivity.current as Activity
@@ -84,7 +83,7 @@ fun SubscriptionScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                subscriptionViewModel.purchase()
+                subscriptionViewModel.purchase(activity)
             }
         ) {
             Text(

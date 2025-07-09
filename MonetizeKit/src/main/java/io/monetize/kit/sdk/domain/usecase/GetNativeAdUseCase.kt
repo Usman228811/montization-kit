@@ -12,9 +12,8 @@ class GetNativeAdUseCase private constructor(private val repo: GetNativeAdRepo) 
     companion object {
 
         fun getInstance(
-            context: Context
         ): GetNativeAdUseCase {
-            val repo = GetNativeAdRepoImpl.getInstance(context)
+            val repo = GetNativeAdRepoImpl.getInstance()
             return GetNativeAdUseCase(
                 repo
             )
@@ -25,14 +24,14 @@ class GetNativeAdUseCase private constructor(private val repo: GetNativeAdRepo) 
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit
     ) {
 
         repo.init(
             mContext = mContext,
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
-            loadNewAd = loadNewAd
+            onFail = onFail,
         )
 
     }

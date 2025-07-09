@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.banner
+package io.monetize.kit.sdk.presentation.ui.banner
 
 import android.app.Activity
 import android.content.Context

@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.data.impl.SubscriptionRepositoryImpl
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 
 class QuerySubscriptionProductsUseCase private constructor(
-    private val pref: AdKitPref,
     private val repository: SubscriptionRepository
 ) {
 
@@ -24,12 +23,11 @@ class QuerySubscriptionProductsUseCase private constructor(
 
 
         fun getInstance(
-            context: Context,
+            context: Context
         ): QuerySubscriptionProductsUseCase {
             val repo = SubscriptionRepositoryImpl.getInstance(context)
             return instance ?: synchronized(this) {
                 instance ?: QuerySubscriptionProductsUseCase(
-                    AdKitPref.getInstance(context),
                     repo
                 ).also { instance = it }
             }
@@ -79,7 +77,7 @@ class QuerySubscriptionProductsUseCase private constructor(
                 override fun updatePref(subscribedId: String) {
                     try {
                         _subscribedId.value = subscribedId
-                        pref.isAppPurchased = subscribedId.isNotEmpty()
+                        adKitPref.isAppPurchased = subscribedId.isNotEmpty()
                     } catch (_: Exception) {
                     }
                 }

@@ -10,9 +10,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 val singleBannerList = ArrayList<BannerSingleAdControllerModel>()
 
@@ -23,9 +21,6 @@ data class BannerSingleAdControllerModel(
 )
 
 class AdKitBannerController(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager
 ) {
     private var key: String = ""
     private var bannerAdId: String = ""
@@ -56,7 +51,7 @@ class AdKitBannerController(
         try {
 //            val adId = 0
 //            if (adId != -1) {
-            if (enable && !prefs.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
+            if (enable && !AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds) {
                 if (adView == null) {
                     if (!canRequestBannerAd) {
                         return
@@ -121,7 +116,7 @@ class AdKitBannerController(
         try {
             this.key = key
             this.bannerAdId = bannerAdId
-            if (enable && !prefs.isAppPurchased && adView != null) {
+            if (enable && !AdKit.adKitPref.isAppPurchased && adView != null) {
                 adView?.let {
                     try {
                         adFrame.visibility = View.VISIBLE

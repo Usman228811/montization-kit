@@ -10,7 +10,7 @@ class AdKitNativeCommonHelper private constructor(){
         private var instance: AdKitNativeCommonHelper? = null
 
 
-        fun getInstance(
+        internal  fun getInstance(
         ): AdKitNativeCommonHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdKitNativeCommonHelper().also { instance = it }

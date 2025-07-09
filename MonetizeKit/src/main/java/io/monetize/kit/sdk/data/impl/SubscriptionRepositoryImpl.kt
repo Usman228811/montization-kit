@@ -366,7 +366,7 @@ class SubscriptionRepositoryImpl private constructor(
         }
     }
 
-    override fun viewUrl(url: String) {
+    override fun viewUrl(activity: Activity, url: String) {
         try {
             Intent().apply {
                 action = Intent.ACTION_VIEW
@@ -374,8 +374,8 @@ class SubscriptionRepositoryImpl private constructor(
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 addCategory(Intent.CATEGORY_BROWSABLE)
             }.also {
-                if (it.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(it)
+                if (it.resolveActivity(activity.packageManager) != null) {
+                    activity.startActivity(it)
                 }
             }
         } catch (ignored: Exception) {

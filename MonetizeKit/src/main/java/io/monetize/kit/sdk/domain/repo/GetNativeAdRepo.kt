@@ -10,7 +10,7 @@ interface GetNativeAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit
     )
 
 

@@ -2,12 +2,10 @@ package io.monetize.kit.sdk.ads.collapsable
 
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -15,16 +13,11 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class BaseCollapsableBannerActivity(
-    private val mPrefHelper: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
@@ -34,17 +27,13 @@ class BaseCollapsableBannerActivity(
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
+    private var onFail: (() -> Unit)? = null
 
     companion object {
 
         fun getInstance(
-            context: Context
         ): BaseCollapsableBannerActivity {
-            return BaseCollapsableBannerActivity(
-                AdKitPref.getInstance(context),
-                AdKitInternetController.getInstance(context),
-                AdKitConsentManager.getInstance(context)
-            )
+            return BaseCollapsableBannerActivity()
         }
     }
 
@@ -60,10 +49,12 @@ class BaseCollapsableBannerActivity(
     fun initCollapsableBannerAd(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit,
     ) {
         this.bannerControllerConfig = bannerControllerConfig
         isBottom = bannerControllerConfig.collapsableConfig?.isBottom ?: true
+        this.onFail = onFail
         this.mContext = mContext
         this.adFrame = adFrame
         this.isAdLoadCalled = true
@@ -72,7 +63,7 @@ class BaseCollapsableBannerActivity(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (!bannerControllerConfig.isAdEnable || consentManager.canRequestAds.not() || mPrefHelper.isAppPurchased || (!internetController.isConnected && bannerAd == null)) {
+            if (!bannerControllerConfig.isAdEnable || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -135,6 +126,7 @@ class BaseCollapsableBannerActivity(
                                     collapseBannerAd.destroy()
                                     return
                                 }
+                                onFail?.invoke()
                                 isRequesting = false
                                 bannerAd = null
                                 adFrame.removeAllViews()

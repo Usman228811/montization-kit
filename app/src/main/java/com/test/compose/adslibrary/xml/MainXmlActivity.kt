@@ -32,10 +32,10 @@ class MainXmlActivity : AppCompatActivity() {
 
 
         nativeAdViewModel =
-            ViewModelProvider(this, NativeAdViewModelFactory(this))[NativeAdViewModel::class.java]
+            ViewModelProvider(this, NativeAdViewModelFactory())[NativeAdViewModel::class.java]
 
         bannerAdViewModel =
-            ViewModelProvider(this, BannerAdViewModelFactory(this))[BannerAdViewModel::class.java]
+            ViewModelProvider(this, BannerAdViewModelFactory())[BannerAdViewModel::class.java]
 
 
         binding.btnSettings.setOnClickListener {

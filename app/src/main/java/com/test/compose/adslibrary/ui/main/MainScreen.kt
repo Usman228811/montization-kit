@@ -10,23 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import io.monetize.kit.sdk.ads.banner.AdKitBannerAdView
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdView
+import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.adtype.CollapsableConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 @Composable
 fun MainScreen(
     gotoSubscription: () -> Unit
 ) {
     val context = LocalContext.current
-    val adKitInterHelper = remember { AdKitInterHelper.getInstance(context) }
 
     val activity = LocalActivity.current as Activity
 
@@ -37,7 +34,7 @@ fun MainScreen(
     ) {
 
         Button(onClick = {
-            adKitInterHelper.showInterAd(
+            AdKit.interHelper.showInterAd(
                 activity = activity,
                 enable = false,
                 interInstant = true,
@@ -72,7 +69,7 @@ fun MainScreen(
                     key = "home_banner",
                     adId = "ca-app-pub-3940256099942544/9214589741",
                     isAdEnable = true,
-                )
+                ),
             )
         }
     }

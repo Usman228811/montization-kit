@@ -3,11 +3,10 @@ package io.monetize.kit.sdk.ads.interstitial
 import android.app.Activity
 import android.content.Context
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AdKitInterHelper private constructor(
-    private val splashController: AdKitSplashAdController,
     private val interstitialController: InterstitialController,
-    private val adKitOpenAdManager: AdKitOpenAdManager
 ) {
 
 
@@ -16,14 +15,12 @@ class AdKitInterHelper private constructor(
         private var instance: AdKitInterHelper? = null
 
 
-        fun getInstance(
+        internal fun getInstance(
             context: Context,
         ): AdKitInterHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdKitInterHelper(
-                    AdKitSplashAdController.getInstance(context),
-                    InterstitialController.getInstance(context),
-                    AdKitOpenAdManager.getInstance(context),
+                    InterstitialController.getInstance(),
                 ).also { instance = it }
             }
         }
@@ -35,15 +32,15 @@ class AdKitInterHelper private constructor(
         appInterIds: List<String>,
         interControllerConfig: InterControllerConfig
     ) {
-        splashController.setSplashId(splashId, interControllerConfig)
+        AdKit.splashAdController.setSplashId(splashId, interControllerConfig)
         interstitialController.setAdIds(appInterIds, interControllerConfig)
     }
 
 
     fun setAppInPause(isPause: Boolean) {
-        splashController.setAppInPause(isPause)
+        AdKit.splashAdController.setAppInPause(isPause)
         interstitialController.setAppInPause(isPause)
-        adKitOpenAdManager.setAppInPause(isPause)
+        AdKit.openAdManager.setAppInPause(isPause)
     }
 
 
@@ -58,8 +55,8 @@ class AdKitInterHelper private constructor(
             return
         }
 
-        if (splashController.hasAd()) {
-            splashController.showInterstitial(
+        if (AdKit.splashAdController.hasAd()) {
+            AdKit.splashAdController.showInterstitial(
                 activity, true, object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         listener.onAdClosed()

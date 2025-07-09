@@ -1,33 +1,24 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.nativead.NativeAd
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
-import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
 class GetNativeAdRepoImpl private constructor(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper,
-    private val nativeCommonHelper: AdKitNativeCommonHelper,
 ) : GetNativeAdRepo {
 
     private var largeNativeAd: Any? = null
@@ -40,20 +31,14 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
+    private var onFail: (() -> Unit)? = null
 
 
     companion object {
 
         fun getInstance(
-            context: Context
         ): GetNativeAdRepoImpl {
-            return GetNativeAdRepoImpl(
-                AdKitPref.getInstance(context),
-                AdKitInternetController.getInstance(context),
-                AdKitConsentManager.getInstance(context),
-                AdsCustomLayoutHelper.getInstance(),
-                AdKitNativeCommonHelper.getInstance(),
-            )
+            return GetNativeAdRepoImpl()
         }
     }
 
@@ -62,12 +47,13 @@ class GetNativeAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean
+        onFail: () -> Unit
     ) {
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
+        this.onFail = onFail
         this.adType = AdType.entries.filter { it.type == nativeControllerConfig.adType.toInt() }[0]
-        this.loadNewAd = loadNewAd
+        this.loadNewAd = nativeControllerConfig.loadNewAd
         this.adFrame = adFrame
         isAdLoadCalled = true
 
@@ -77,13 +63,7 @@ class GetNativeAdRepoImpl private constructor(
                 add(
                     NativeAdSingleModel(
                         nativeControllerConfig.key,
-                        NativeAdSingleController(
-                            prefs = prefs,
-                            internetController = internetController,
-                            consentManager = consentManager,
-                            customLayoutHelper = customLayoutHelper,
-                            nativeCommonHelper = nativeCommonHelper
-                        )
+                        NativeAdSingleController()
                     )
                 )
             }
@@ -147,7 +127,7 @@ class GetNativeAdRepoImpl private constructor(
     private fun loadSingleNativeAd() {
         try {
             if (isAdLoadCalled) {
-                if (adFrame == null || !nativeControllerConfig.isAdEnable || prefs.isAppPurchased) {
+                if (adFrame == null || !nativeControllerConfig.isAdEnable || adKitPref.isAppPurchased) {
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
@@ -164,7 +144,7 @@ class GetNativeAdRepoImpl private constructor(
                                                 context = mContext,
                                                 adFrame = adFrame,
                                                 adType = adType,
-                                                customLayoutHelper = customLayoutHelper
+                                                customLayoutHelper = nativeCustomLayoutHelper
                                             )
                                         }
                                         nativeAdController.setNativeControllerListener(object :
@@ -181,6 +161,7 @@ class GetNativeAdRepoImpl private constructor(
                                             }
 
                                             override fun onAdFailed() {
+                                                onFail?.invoke()
                                                 isRequesting = false
                                                 canLoadAdAgain = false
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
@@ -216,7 +197,7 @@ class GetNativeAdRepoImpl private constructor(
                                     }
                                 } else {
                                     addNativeAdView(
-                                        customLayoutHelper,
+                                        nativeCustomLayoutHelper,
                                         adType,
                                         mContext,
                                         adFrame,

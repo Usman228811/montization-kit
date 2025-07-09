@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.ads.interstitial
 
 import android.app.Activity
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.google.android.gms.ads.AdError
@@ -11,16 +10,11 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
 class AdKitSplashAdController private constructor(
-    private val internetController: AdKitInternetController,
-    private val myPref: AdKitPref,
-    private val mConsent: AdKitConsentManager,
 ) {
     private val handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
@@ -39,14 +33,10 @@ class AdKitSplashAdController private constructor(
         private var instance: AdKitSplashAdController? = null
 
 
-        fun getInstance(
-            context: Context,
+        internal fun getInstance(
         ): AdKitSplashAdController {
             return instance ?: synchronized(this) {
                 instance ?: AdKitSplashAdController(
-                    AdKitInternetController.getInstance(context),
-                    AdKitPref.getInstance(context),
-                    AdKitConsentManager.getInstance(context),
                 ).also { instance = it }
             }
         }
@@ -173,7 +163,7 @@ class AdKitSplashAdController private constructor(
         interstitialControllerListener: InterstitialControllerListener,
     ) {
         mInterstitialControllerListener = interstitialControllerListener
-        if (myPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             interstitialControllerListener.onAdClosed()
         } else if (interstitialAd != null) {
             adLoadingCheck(activity)
@@ -248,8 +238,8 @@ class AdKitSplashAdController private constructor(
             }
         }
         try {
-            if (!myPref.isAppPurchased && enable && mConsent.canRequestAds) {
-                if (!internetController.isConnected) {
+            if (!AdKit.adKitPref.isAppPurchased && enable && AdKit.consentManager.canRequestAds) {
+                if (!AdKit.internetController.isConnected) {
                     handlerAd.postDelayed({ mInterstitialControllerListener?.onAdClosed() }, 5000)
                     return
                 }

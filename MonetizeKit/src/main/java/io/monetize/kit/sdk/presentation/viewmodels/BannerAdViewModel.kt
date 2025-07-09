@@ -13,11 +13,11 @@ import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetBannerAdUseCase
 
 
-class BannerAdViewModelFactory(val context: Context) : ViewModelProvider.Factory {
+class BannerAdViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         return BannerAdViewModel(
-            GetBannerAdUseCase.getInstance(context)
+            GetBannerAdUseCase.getInstance()
         ) as T
     }
 }
@@ -28,12 +28,14 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
     fun initSingleBannerData(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     ) {
         getBannerAdUseCase.invoke(
-            mContext,
-            adFrame,
-            bannerControllerConfig
+            mContext = mContext,
+            adFrame = adFrame,
+            bannerControllerConfig = bannerControllerConfig,
+            onFail = onFail
         )
     }
 

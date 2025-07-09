@@ -26,7 +26,7 @@ fun SplashScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val context = LocalContext.current
-    val factory = remember { SplashScreenViewModelFactory(context) }
+    val factory = remember { SplashScreenViewModelFactory() }
     val viewModel: SplashScreenViewModel = viewModel(factory = factory)
     val state by viewModel.state.collectAsState()
 

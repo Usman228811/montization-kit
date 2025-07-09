@@ -18,14 +18,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <io.monetize.kit.sdk.ads.native_ad.AdKitNativeAdViewXml
+    <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
         android:id="@+id/adFrameNative"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_50sdp"
         app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
 
-    <io.monetize.kit.sdk.ads.banner.AdKitBannerAdViewXml
+    <io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
         android:id="@+id/adFrame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

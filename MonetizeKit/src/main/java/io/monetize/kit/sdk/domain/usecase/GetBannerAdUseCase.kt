@@ -12,10 +12,9 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
     companion object {
 
         fun getInstance(
-            context: Context
         ): GetBannerAdUseCase {
 
-            val repo = GetBannerAdRepoImpl.getInstance(context)
+            val repo = GetBannerAdRepoImpl.getInstance()
 
 
             return GetBannerAdUseCase(
@@ -27,7 +26,8 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
     operator fun invoke(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
 
     ) {
 
@@ -35,6 +35,7 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
             mContext = mContext,
             bannerControllerConfig = bannerControllerConfig,
             adFrame = adFrame,
+            onFail = onFail,
         )
 
     }

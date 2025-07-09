@@ -15,6 +15,8 @@ import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
@@ -32,8 +34,6 @@ import kotlinx.coroutines.launch
 
 class BillingRepositoryImpl private constructor(
     mContext: Context,
-    private val internetController: AdKitInternetController,
-    private val myPref: AdKitPref,
 ) : BillingRepository {
 
     private val context = mContext.applicationContext
@@ -45,14 +45,10 @@ class BillingRepositoryImpl private constructor(
 
         fun getInstance(
             context: Context,
-            internetController: AdKitInternetController,
-            myPref: AdKitPref,
         ): BillingRepositoryImpl {
             return instance ?: synchronized(this) {
                 instance ?: BillingRepositoryImpl(
                     context,
-                    internetController,
-                    myPref,
                 ).also { instance = it }
             }
         }
@@ -192,7 +188,7 @@ class BillingRepositoryImpl private constructor(
     }
 
     private fun updatePurchaseStatus(isPurchased: Boolean) {
-        myPref.isAppPurchased = isPurchased
+        adKitPref.isAppPurchased = isPurchased
         if (isPurchased) {
 //            context.userAnalytics("Premium_buy_successful")
             coroutineScope.launch { _appPurchased.send(true) }

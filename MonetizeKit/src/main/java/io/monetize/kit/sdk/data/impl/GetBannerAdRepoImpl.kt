@@ -18,11 +18,10 @@ class GetBannerAdRepoImpl private constructor(
     companion object {
 
         fun getInstance(
-            context: Context
         ): GetBannerAdRepoImpl {
             return GetBannerAdRepoImpl(
-                baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(context),
-                baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(context),
+                baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(),
+                baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(),
             )
         }
     }
@@ -33,7 +32,8 @@ class GetBannerAdRepoImpl private constructor(
     override fun init(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     ) {
         this.isForCollapse = bannerControllerConfig.collapsableConfig != null
         if (isForCollapse) {
@@ -41,13 +41,15 @@ class GetBannerAdRepoImpl private constructor(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
+                onFail = onFail,
             )
 
         } else {
             baseSingleBannerActivity.initSingleBannerData(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
-                adFrame = adFrame
+                adFrame = adFrame,
+                onFail = onFail,
             )
         }
     }

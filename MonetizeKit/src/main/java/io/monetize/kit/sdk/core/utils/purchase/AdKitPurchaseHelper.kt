@@ -26,13 +26,11 @@ class AdKitPurchaseHelper private constructor(
         @Volatile
         private var instance: AdKitPurchaseHelper? = null
 
-        fun getInstance(
+        internal  fun getInstance(
             context: Context,
         ): AdKitPurchaseHelper {
             val billingRepo = BillingRepositoryImpl.getInstance(
                 context,
-                AdKitInternetController.getInstance(context),
-                AdKitPref.getInstance(context)
             )
 
             return instance ?: synchronized(this) {

@@ -11,10 +11,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,25 +32,16 @@ data class InterControllerConfig(
 
 
 class InterstitialController private constructor(
-    private val internetController: AdKitInternetController,
-    private val mMyPref: AdKitPref,
-    private val mConsent: AdKitConsentManager,
 ) {
-
-
     companion object {
         @Volatile
         private var instance: InterstitialController? = null
 
 
         fun getInstance(
-            context: Context,
         ): InterstitialController {
             return instance ?: synchronized(this) {
                 instance ?: InterstitialController(
-                    AdKitInternetController.getInstance(context),
-                    AdKitPref.getInstance(context),
-                    AdKitConsentManager.getInstance(context),
                 ).also { instance = it }
             }
         }
@@ -144,7 +133,7 @@ class InterstitialController private constructor(
     ) {
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
@@ -166,7 +155,7 @@ class InterstitialController private constructor(
         listener: InterstitialControllerListener
     ) {
         mInterstitialControllerListener = listener
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else {
             if (admobInterAd != null) {
@@ -183,7 +172,7 @@ class InterstitialController private constructor(
     ) {
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
@@ -211,8 +200,8 @@ class InterstitialController private constructor(
     }
 
     private fun initAdMobCounter(context: Context, key: String, counter: Long) {
-        val canLoad = internetController.isConnected && !mMyPref.isAppPurchased
-        if (mConsent.canRequestAds && canLoad) {
+        val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
+        if (AdKit.consentManager.canRequestAds && canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
                 preLoadInter(context)
@@ -228,8 +217,8 @@ class InterstitialController private constructor(
         if (isForCounter) {
             initAdMobCounter(context, counterKey, counter)
         } else {
-            val canLoad = internetController.isConnected && !mMyPref.isAppPurchased
-            if (mConsent.canRequestAds && canLoad) {
+            val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
+            if (AdKit.consentManager.canRequestAds && canLoad) {
                 preLoadInter(context)
             }
         }
@@ -237,8 +226,8 @@ class InterstitialController private constructor(
 
     private fun preLoadInter(context: Context) {
         try {
-            val canGo = internetController.isConnected && mConsent.canRequestAds
-            if (!mMyPref.isAppPurchased && !hasAd && canGo) {
+            val canGo = AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds
+            if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
                 if (!canRequestAd) {
                     return
                 }
@@ -286,7 +275,7 @@ class InterstitialController private constructor(
     ) {
         mInterstitialControllerListener = listener
         try {
-            if (!mMyPref.isAppPurchased && internetController.isConnected && enable && mConsent.canRequestAds) {
+            if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
                 if (!canRequestAd) {
                     mInterstitialControllerListener?.onAdClosed()
                     return
@@ -414,12 +403,12 @@ class InterstitialController private constructor(
     }
 
     private fun getInterCount(key: String, defValue: Int = 0): Int {
-        return mMyPref.getInterInt(key, defValue)
+        return AdKit.adKitPref.getInterInt(key, defValue)
     }
 
     private fun setInterCount(key: String = "APP_INTER_COUNTER", count: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            mMyPref.putInterInt(key, count)
+            AdKit.adKitPref.putInterInt(key, count)
         }
     }
 

@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.native_ad
+package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
 import android.content.Context
@@ -17,7 +17,6 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyle) {
 
     private var nativeControllerConfig: NativeControllerConfig? = null
-    private var loadNewAd: Boolean = false
 
     init {
         inflate(context, R.layout.ad_inflator, this)
@@ -27,10 +26,9 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
         context: Context,
         viewModel: NativeAdViewModel?,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit = {}
     ) {
         this.nativeControllerConfig = nativeControllerConfig
-        this.loadNewAd = loadNewAd
 
         if (context is Activity) {
             visibility = View.VISIBLE
@@ -38,7 +36,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                loadNewAd = loadNewAd
+                onFail = onFail
             )
 
             if (context is LifecycleOwner) {

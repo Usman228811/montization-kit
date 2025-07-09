@@ -12,7 +12,7 @@ class AdKitInternetController private constructor(context: Context) {
         private var instance: AdKitInternetController? = null
 
 
-        fun getInstance(
+        internal   fun getInstance(
             context: Context,
         ): AdKitInternetController {
             return instance ?: synchronized(this) {

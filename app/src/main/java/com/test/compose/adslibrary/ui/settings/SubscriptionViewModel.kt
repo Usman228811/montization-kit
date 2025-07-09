@@ -1,11 +1,10 @@
 package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -23,17 +22,14 @@ data class SettingScreenState(
 )
 
 class SubscriptionViewModelFactory(
-    private val context: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val helper = AdKitSubscriptionHelper.getInstance(context.applicationContext)
-        return SubscriptionViewModel(helper) as T
+        return SubscriptionViewModel() as T
     }
 }
 
 class SubscriptionViewModel(
-    private val adKitSubscriptionHelper: AdKitSubscriptionHelper
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SettingScreenState())
@@ -50,7 +46,7 @@ class SubscriptionViewModel(
     init {
         viewModelScope.apply {
             launch {
-                adKitSubscriptionHelper.subscriptionProducts.collectLatest {
+                AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
                     _state.update {
                         it.copy(
                             weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
@@ -61,7 +57,7 @@ class SubscriptionViewModel(
                 }
             }
             launch {
-                adKitSubscriptionHelper.subscribedId.collectLatest { subscribedId ->
+                AdKit.subscriptionHelper.subscribedId.collectLatest { subscribedId ->
                     _state.update {
                         it.copy(
                             subscribedId = subscribedId
@@ -71,12 +67,12 @@ class SubscriptionViewModel(
             }
 
             launch {
-                adKitSubscriptionHelper.historyFetched.collectLatest {
+                AdKit.subscriptionHelper.historyFetched.collectLatest {
 
                     val buttonText = when {
                         state.value.subscribedId.isEmpty() -> "subscribe"
                         state.value.subscribedId == selectedId() -> "cancel subscription"
-                        adKitSubscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
+                        AdKit.subscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
                         else -> state.value.buttonText // fallback to existing text
                     }
 
@@ -89,12 +85,12 @@ class SubscriptionViewModel(
     }
 
     fun loadProducts(activity: Activity, list: List<String>) {
-        adKitSubscriptionHelper.loadProducts(activity, list)
+        AdKit.subscriptionHelper.loadProducts(activity, list)
     }
 
 
     private fun getBillingPrice(productId: String, billingPeriod: String): String {
-        return adKitSubscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
+        return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
 
 
     }
@@ -105,10 +101,10 @@ class SubscriptionViewModel(
                 selectedButtonPos = selectedButtonPos
             )
         }
-        adKitSubscriptionHelper.querySubscriptionProducts()
+        AdKit.subscriptionHelper.querySubscriptionProducts()
     }
 
-    fun purchase() {
-        adKitSubscriptionHelper.purchase(selectedId())
+    fun purchase(activity: Activity) {
+        AdKit.subscriptionHelper.purchase(activity, selectedId())
     }
 }

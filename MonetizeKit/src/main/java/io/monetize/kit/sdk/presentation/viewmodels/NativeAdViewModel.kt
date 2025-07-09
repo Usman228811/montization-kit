@@ -13,13 +13,12 @@ import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetNativeAdUseCase
 
 class NativeAdViewModelFactory(
-    val context: Context
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         return NativeAdViewModel(
-            GetNativeAdUseCase.getInstance(context = context)
+            GetNativeAdUseCase.getInstance()
         ) as T
     }
 }
@@ -31,13 +30,13 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit
     ) {
         getNativeAdUseCase.invoke(
             mContext = mContext,
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
-            loadNewAd = loadNewAd,
+            onFail = onFail,
         )
     }
 

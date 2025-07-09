@@ -1,7 +1,5 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
-
 class AdsCustomLayoutHelper private constructor() {
 
     companion object {
@@ -9,8 +7,8 @@ class AdsCustomLayoutHelper private constructor() {
         private var instance: AdsCustomLayoutHelper? = null
 
 
-        fun getInstance(
-        ):AdsCustomLayoutHelper {
+        internal  fun getInstance(
+        ): AdsCustomLayoutHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdsCustomLayoutHelper(
                 ).also { instance = it }

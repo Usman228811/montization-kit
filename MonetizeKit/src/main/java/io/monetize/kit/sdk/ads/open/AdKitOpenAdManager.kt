@@ -19,13 +19,13 @@ import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import java.util.Date
 
 class AdKitOpenAdManager private constructor(
     context: Context,
-    private val internetController: AdKitInternetController,
-    private val prefHelper: AdKitPref
 ) : DefaultLifecycleObserver {
 
     private val mContext = context.applicationContext
@@ -48,14 +48,12 @@ class AdKitOpenAdManager private constructor(
         private var instance: AdKitOpenAdManager? = null
 
 
-        fun getInstance(
+        internal  fun getInstance(
             context: Context,
         ): AdKitOpenAdManager {
             return instance ?: synchronized(this) {
                 instance ?: AdKitOpenAdManager(
                     context,
-                    AdKitInternetController.getInstance(context),
-                    AdKitPref.getInstance(context)
 
                 ).also { instance = it }
             }
@@ -112,7 +110,7 @@ class AdKitOpenAdManager private constructor(
 
     private fun showAd() {
         try {
-            if (canShowOpenAd && !prefHelper.isAppPurchased && isAdEnable) {
+            if (canShowOpenAd && !adKitPref.isAppPurchased && isAdEnable) {
                 showAdIfAvailable()
             }
         } catch (ignored: Exception) {
@@ -127,7 +125,7 @@ class AdKitOpenAdManager private constructor(
 
         if (adId.isNotEmpty()) {
             // Have unused ad, no need to fetch another.
-            if (isAdAvailable || !internetController.isConnected || prefHelper.isAppPurchased || isPause) {
+            if (isAdAvailable || !internetController.isConnected || adKitPref.isAppPurchased || isPause) {
                 return
             }
             if (!canRequestAd) {
