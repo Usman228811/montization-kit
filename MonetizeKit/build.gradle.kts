@@ -41,22 +41,22 @@ android {
     }
 }
 
-//group = "com.github.Usman228811"
-//version = "v1.4.7"
-//
-//
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            create<MavenPublication>("release") {
-//                from(components["release"])
-//                groupId = "com.github.Usman228811"
-//                artifactId = "MonetizeKit"
-//                version = "v1.4.7"
-//            }
-//        }
-//    }
-//}
+group = "com.github.Usman228811"
+version = "v1.5.0"
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.Usman228811"
+                artifactId = "MonetizeKit"
+                version = "v1.5.0"
+            }
+        }
+    }
+}
 
 dependencies {
 
