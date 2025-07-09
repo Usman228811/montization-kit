@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "v1.4.6"
+version = "v1.4.7"
 
 
 afterEvaluate {
@@ -51,8 +51,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
-                artifactId = "montization-kit"
-                version = "v1.4.6"
+                artifactId = "MonetizeKit"
+                version = "v1.4.7"
             }
         }
     }
