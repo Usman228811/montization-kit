@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811" // Your GitHub username
-version = "1.4.4" // Must match your git tag
+version = "v1.4.5" // Must match your git tag
 
 
 afterEvaluate {
@@ -52,7 +52,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "montization-kit"
-                version = "1.4.4"
+                version = "v1.4.5"
             }
         }
     }
