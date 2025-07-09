@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("maven-publish")
 
 
 }
@@ -37,6 +38,20 @@ android {
     buildFeatures{
         compose = true
         buildConfig = true
+    }
+}
+
+version = "1.4.3"
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                artifactId = "MonetizeKit"
+                version = project.version.toString()
+            }
+        }
     }
 }
 
