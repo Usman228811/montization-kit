@@ -7,7 +7,7 @@ class AdsCustomLayoutHelper private constructor() {
         private var instance: AdsCustomLayoutHelper? = null
 
 
-        internal  fun getInstance(
+        internal fun getInstance(
         ): AdsCustomLayoutHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdsCustomLayoutHelper(

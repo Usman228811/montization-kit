@@ -9,6 +9,7 @@ import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
@@ -71,6 +72,9 @@ object AdKit {
 
     lateinit var nativeCustomLayoutHelper: AdsCustomLayoutHelper
         private set
+
+    lateinit var analytics: AdKitAnalytics
+        private set
         
 
     fun init(context: Context,admobId:String, onInitSdk:()->Unit) {
@@ -88,6 +92,7 @@ object AdKit {
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCommonIdsHelper = AdKitNativeCommonHelper.getInstance()
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
+        analytics = AdKitAnalytics.getInstance()
 
         initializer.initMobileAds(
             context = context,

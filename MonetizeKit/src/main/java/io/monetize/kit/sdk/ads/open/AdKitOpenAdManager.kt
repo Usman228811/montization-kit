@@ -15,13 +15,10 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import java.util.Date
 
 class AdKitOpenAdManager private constructor(
@@ -48,14 +45,14 @@ class AdKitOpenAdManager private constructor(
         private var instance: AdKitOpenAdManager? = null
 
 
-        internal  fun getInstance(
+        internal fun getInstance(
             context: Context,
         ): AdKitOpenAdManager {
             return instance ?: synchronized(this) {
                 instance ?: AdKitOpenAdManager(
                     context,
 
-                ).also { instance = it }
+                    ).also { instance = it }
             }
         }
 

@@ -2,8 +2,6 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.content.Context
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.data.impl.BillingRepositoryImpl
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.usecase.InitBillingUseCase
@@ -26,7 +24,7 @@ class AdKitPurchaseHelper private constructor(
         @Volatile
         private var instance: AdKitPurchaseHelper? = null
 
-        internal  fun getInstance(
+        internal fun getInstance(
             context: Context,
         ): AdKitPurchaseHelper {
             val billingRepo = BillingRepositoryImpl.getInstance(
