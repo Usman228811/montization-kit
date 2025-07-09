@@ -14,6 +14,7 @@ interface GetBannerAdRepo {
     )
 
 
+
     fun onResume()
     fun onPause()
     fun onDestroy()
