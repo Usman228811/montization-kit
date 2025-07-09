@@ -41,15 +41,18 @@ android {
     }
 }
 
-version = "1.4.3"
+group = "com.github.Usman228811" // Your GitHub username
+version = "1.4.4" // Must match your git tag
+
 
 afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                artifactId = "MonetizeKit"
-                version = project.version.toString()
+                groupId = "com.github.Usman228811"
+                artifactId = "montization-kit"
+                version = "1.4.4"
             }
         }
     }
