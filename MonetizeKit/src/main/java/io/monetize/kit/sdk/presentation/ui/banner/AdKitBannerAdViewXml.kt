@@ -25,7 +25,8 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     fun loadBanner(
         context: Context,
         viewModel: BannerAdViewModel?,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit = {}
     ) {
         this.bannerControllerConfig = bannerControllerConfig
 
@@ -34,7 +35,8 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
             viewModel?.initSingleBannerData(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
-                adFrame = this
+                adFrame = this,
+                onFail = onFail
             )
 
             // Optional lifecycle observe
