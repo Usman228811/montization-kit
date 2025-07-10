@@ -58,12 +58,9 @@ class NativeAdSingleController {
 //                    }
 
                     val builder = AdLoader.Builder(
-                        context, if (nativeControllerConfig.key == "native_common") {
-                            AdKit.nativeCommonHelper.getNativeAdId()
-                        } else {
-                            AdKit.nativeHelper.getAdIds()?.get(key = nativeControllerConfig.key)
-                                ?.get(0) ?: ""
-                        }
+                        context,
+                        AdKit.nativeIdManager.getNextInterId(placement = nativeControllerConfig.key)
+                            ?: ""
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
                         canRequestLargeAd = true

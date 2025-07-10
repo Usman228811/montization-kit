@@ -7,11 +7,10 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
-import io.monetize.kit.sdk.core.utils.init.AdKit.interCommonHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCommonHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit.interIdManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeIdManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -96,8 +95,8 @@ class AdKitInitializer private constructor(
     fun initAdsConfigs(
         adsControllerConfig: AdsControllerConfig,
         openAdId:String,
-        mapOfInterIds: Map<String, List<String>>,
-        mapOfNativeIds: Map<String, List<String>>,
+        mapOfInterIds: Map<String, Any>,
+        mapOfNativeIds: Map<String, Any>,
         resetInterKeyForCommonAds: String? = null
     ) {
         openAdManager.setOpenAdConfigs(
@@ -107,12 +106,10 @@ class AdKitInitializer private constructor(
         )
         interHelper.setAdConfig(
             adsControllerConfig = adsControllerConfig,
-            mapOfInterIds = mapOfInterIds
         )
 
-        interCommonHelper.setInterCommonAdIds(mapOfInterIds["inter_common"])
-        nativeHelper.setNativeAdIds(mapOfNativeIds)
-        nativeCommonHelper.setNativeAdIds(mapOfNativeIds["native_common"])
+        interIdManager.setInterIds(mapOfInterIds)
+        nativeIdManager.setNativeIds(mapOfNativeIds)
         openAdManager.initOpenAd()
         resetInterKeyForCommonAds?.let {
             adKitPref.putInterInt(it, 0)

@@ -1,13 +1,12 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterCommonHelper
+import io.monetize.kit.sdk.ads.interstitial.InterIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
-import io.monetize.kit.sdk.ads.native_ad.NativeHelper
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativePreloadHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
-import io.monetize.kit.sdk.ads.native_ad.NativeCommonHelper
+import io.monetize.kit.sdk.ads.native_ad.NativeIdManager
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
@@ -68,10 +67,8 @@ object AdKit {
         private set
         
 
-    lateinit var nativeHelper: NativeHelper
-        private set
 
-    lateinit var nativeCommonHelper: NativeCommonHelper
+    lateinit var nativeIdManager: NativeIdManager
         private set
         
 
@@ -82,7 +79,7 @@ object AdKit {
         private set
 
 
-    lateinit var interCommonHelper: AdKitInterCommonHelper
+    lateinit var interIdManager: InterIdManager
         private set
         
 
@@ -99,11 +96,10 @@ object AdKit {
         openAdManager = AdKitOpenAdManager.getInstance(context)
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
-        nativeHelper = NativeHelper.getInstance()
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
         analytics = AdKitAnalytics.getInstance()
-        interCommonHelper = AdKitInterCommonHelper.getInstance()
-        nativeCommonHelper = NativeCommonHelper.getInstance()
+        interIdManager = InterIdManager.getInstance()
+        nativeIdManager = NativeIdManager.getInstance()
 
         initializer.initMobileAds(
             context = context,

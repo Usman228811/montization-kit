@@ -37,7 +37,7 @@ fun MainScreen(
             AdKit.interHelper.showInterAd(
                 placementKey = "inter_common",
                 activity = activity,
-                enable = false,
+                enable = true,
                 interInstant = true,
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {

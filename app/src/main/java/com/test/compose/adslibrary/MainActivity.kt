@@ -38,8 +38,8 @@ class MainActivity : ComponentActivity() {
             ),
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to listOf("ca-app-pub-3940256099942544/1033173712"),
-                "home_inter" to listOf("ca-app-pub-3940256099942544/1033173712"),
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
                     "ca-app-pub-3940256099942544/1033173712",
                     "ca-app-pub-3940256099942544/1033173712",
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                 )
             ),
             mapOfNativeIds = mapOf(
-                "home_native" to listOf("ca-app-pub-3940256099942544/2247696110"),
+                "home_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
         )
 

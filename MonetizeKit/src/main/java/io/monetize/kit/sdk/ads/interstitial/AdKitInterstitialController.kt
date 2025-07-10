@@ -38,17 +38,6 @@ data class AdsControllerConfig(
 class InterstitialController private constructor(
 ) {
     companion object {
-//        @Volatile
-//        private var instance: InterstitialController? = null
-
-
-        //        fun getInstance(
-//        ): InterstitialController {
-//            return instance ?: synchronized(this) {
-//                instance ?: InterstitialController(
-//                ).also { instance = it }
-//            }
-//        }
         fun getInstance(
         ): InterstitialController {
             return InterstitialController()
@@ -232,11 +221,7 @@ class InterstitialController private constructor(
 //                }
 //                "Common Inter Called".logIt()
                 InterstitialAd.load(
-                    context, if (placementKey == "inter_common") {
-                        AdKit.interCommonHelper.getInterCommonAdId()
-                    } else {
-                        AdKit.interHelper.getMapOfInterIds()?.get(placementKey)?.get(0) ?: ""
-                    },
+                    context, AdKit.interIdManager.getNextInterId(placementKey) ?: "",
                     AdRequest.Builder().build(),
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -292,11 +277,7 @@ class InterstitialController private constructor(
 //                    context.showToast("Inter Ad Called")
 //                }
                 InterstitialAd.load(
-                    context, if (placementKey == "inter_common") {
-                        AdKit.interCommonHelper.getInterCommonAdId()
-                    } else {
-                        AdKit.interHelper.getMapOfInterIds()?.get(placementKey)?.get(0) ?: ""
-                    },
+                    context, AdKit.interIdManager.getNextInterId(placementKey) ?: "",
                     AdRequest.Builder().build(),
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(p0: InterstitialAd) {

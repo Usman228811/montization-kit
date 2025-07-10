@@ -8,12 +8,6 @@ class AdKitInterHelper private constructor(
 
     private var isAppInPause = false
     private var interAdsControllerConfig: AdsControllerConfig? = null
-    private var mapOfInterIds: Map<String, List<String>>? = null
-
-
-    fun getMapOfInterIds(): Map<String, List<String>>? {
-        return mapOfInterIds
-    }
 
 
     fun getInterAdsControllerConfig(): AdsControllerConfig? {
@@ -37,9 +31,7 @@ class AdKitInterHelper private constructor(
 
     fun setAdConfig(
         adsControllerConfig: AdsControllerConfig,
-        mapOfInterIds: Map<String, List<String>>
     ) {
-        this.mapOfInterIds = mapOfInterIds
         this.interAdsControllerConfig = adsControllerConfig
     }
 

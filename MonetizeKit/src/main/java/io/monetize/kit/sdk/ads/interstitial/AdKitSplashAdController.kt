@@ -91,7 +91,7 @@ class AdKitSplashAdController private constructor(
 //                    context.showToast("Splash Ad Calling")
 //
 //                }
-                val adId = AdKit.interHelper.getMapOfInterIds()?.get(placementKey)?.get(0)
+                val adId = AdKit.interIdManager.getNextInterId(placementKey)
                 if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
