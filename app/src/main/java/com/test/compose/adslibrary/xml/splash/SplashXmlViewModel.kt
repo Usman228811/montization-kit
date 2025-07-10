@@ -66,6 +66,7 @@ class SplashXmlViewModel : ViewModel() {
         if (state.value.moveNext.not()) {
             splashAdController.initSplashAdmob(
                 activity,
+                "splash_inter",
                 true,
                 object : InterstitialControllerListener {
                     override fun onAdClosed() {

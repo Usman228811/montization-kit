@@ -15,7 +15,6 @@ import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCommonIdsHelper
 
 
 data class NativeAdSingleModel(
@@ -60,9 +59,10 @@ class NativeAdSingleController {
 
                     val builder = AdLoader.Builder(
                         context, if (nativeControllerConfig.key == "native_common") {
-                            nativeCommonIdsHelper.getNativeAdId()
+                            AdKit.nativeCommonHelper.getNativeAdId()
                         } else {
-                            nativeControllerConfig.adId
+                            AdKit.nativeHelper.getAdIds()?.get(key = nativeControllerConfig.key)
+                                ?.get(0) ?: ""
                         }
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->

@@ -2,15 +2,13 @@ package com.test.compose.adslibrary.xml.splash
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.test.compose.adslibrary.R
 import com.test.compose.adslibrary.xml.MainXmlActivity
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
-import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -21,21 +19,21 @@ class SplashXmlActivity : AppCompatActivity() {
 
 
     private fun initAdsConfigs() {
-        AdKit.initializer.initAdsConfigs(
-            InterControllerConfig(
-                openAdId = "ca-app-pub-3940256099942544/9257395921",
-                splashId = "ca-app-pub-3940256099942544/1033173712",
-                appInterIds = listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
-                ),
-                splashInterEnable = true,
-                openAdEnable = true,
-                splashTime = 16L,
-                interLoadingEnable = true,
-                openAdLoadingEnable = true
-            )
-        )
+//        AdKit.initializer.initAdsConfigs(
+//            AdsControllerConfig(
+//                openAdId = "ca-app-pub-3940256099942544/9257395921",
+//                splashId = "ca-app-pub-3940256099942544/1033173712",
+//                appInterIds = listOf(
+//                    "ca-app-pub-3940256099942544/1033173712",
+//                    "ca-app-pub-3940256099942544/1033173712"
+//                ),
+//                splashInterEnable = true,
+//                openAdEnable = true,
+//                splashTime = 16L,
+//                interLoadingEnable = true,
+//                openAdLoadingEnable = true
+//            )
+//        )
     }
 
 

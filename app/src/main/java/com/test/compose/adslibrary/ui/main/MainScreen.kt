@@ -35,6 +35,7 @@ fun MainScreen(
 
         Button(onClick = {
             AdKit.interHelper.showInterAd(
+                placementKey = "inter_common",
                 activity = activity,
                 enable = false,
                 interInstant = true,
@@ -53,7 +54,6 @@ fun MainScreen(
         AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
                 key = "home_native",
-                adId = "ca-app-pub-3940256099942544/2247696110",
                 isAdEnable = true,
                 adType = 0
             )

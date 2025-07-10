@@ -277,6 +277,7 @@ class SplashScreenViewModel(
         animator?.cancel()
         AdKit.splashAdController.initSplashAdmob(
             mContext,
+            placementKey = "splash_inter",
             true,
             object : InterstitialControllerListener {
                 override fun onAdClosed() {

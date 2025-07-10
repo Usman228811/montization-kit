@@ -25,8 +25,6 @@ class AdKitSplashAdController private constructor(
     private var isHandlerRunning = false
     private var isPauseDone = false
     private var isAppPause = false
-    private var adId: String = ""
-    private var interControllerConfig: InterControllerConfig? = null
 
     companion object {
         @Volatile
@@ -47,11 +45,6 @@ class AdKitSplashAdController private constructor(
         this.isAppPause = isAppPause
     }
 
-
-    fun setSplashId(id: String, interControllerConfig: InterControllerConfig) {
-        adId = id
-        this.interControllerConfig = interControllerConfig
-    }
 
     fun resetSplash() {
         interstitialAd = null
@@ -98,7 +91,8 @@ class AdKitSplashAdController private constructor(
 //                    context.showToast("Splash Ad Calling")
 //
 //                }
-                if (adId.isEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
+                val adId = AdKit.interHelper.getMapOfInterIds()?.get(placementKey)?.get(0)
+                if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
                     context, adId,
@@ -175,7 +169,7 @@ class AdKitSplashAdController private constructor(
     private fun adLoadingCheck(
         activity: Activity,
     ) {
-        if (interControllerConfig?.interLoadingEnable == true) {
+        if (AdKit.interHelper.getInterAdsControllerConfig()?.interLoadingEnable == true) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 adLoadingDialog = AdLoadingDialog(activity)
@@ -223,11 +217,16 @@ class AdKitSplashAdController private constructor(
         }
     }
 
+    private var placementKey: String = ""
+
     fun initSplashAdmob(
-        activity: Activity, enable: Boolean,
+        activity: Activity,
+        placementKey: String,
+        enable: Boolean,
         listener: InterstitialControllerListener?,
     ) {
         mInterstitialControllerListener = listener
+        this.placementKey = placementKey
         canRequestAd = true
         interstitialAd = null
         isHandlerRunning = false
@@ -256,7 +255,7 @@ class AdKitSplashAdController private constructor(
 
 
     private fun startHandler() {
-        val splashTime = interControllerConfig?.splashTime ?: 16L
+        val splashTime = AdKit.interHelper.getInterAdsControllerConfig()?.splashTime ?: 16L
         if (!isHandlerRunning) {
             isHandlerRunning = true
             runnableSplash?.let {
@@ -268,7 +267,7 @@ class AdKitSplashAdController private constructor(
 
     private fun showSplashAd(activity: Activity) {
         if (!isPauseDone) {
-            if (!IS_INTERSTITIAL_Ad_SHOWING && interControllerConfig?.splashInterEnable == true) {
+            if (!IS_INTERSTITIAL_Ad_SHOWING && AdKit.interHelper.getInterAdsControllerConfig()?.splashInterEnable == true) {
                 if (interstitialAd != null) {
                     adLoadingCheck(activity)
                 } else {

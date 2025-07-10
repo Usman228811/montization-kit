@@ -15,7 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.test.compose.adslibrary.AppClass.Companion.appContext
 import com.test.compose.adslibrary.navigation.AppNavHost
 import com.test.compose.adslibrary.navigation.AppRoute
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
+import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class MainActivity : ComponentActivity() {
@@ -29,19 +29,26 @@ class MainActivity : ComponentActivity() {
 
 
         AdKit.initializer.initAdsConfigs(
-            InterControllerConfig(
-                openAdId = "ca-app-pub-3940256099942544/9257395921",
-                splashId = "ca-app-pub-3940256099942544/1033173712",
-                appInterIds = listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
-                ),
+            adsControllerConfig = AdsControllerConfig(
                 splashInterEnable = true,
                 openAdEnable = true,
                 splashTime = 16L,
                 interLoadingEnable = true,
-                openAdLoadingEnable = true
-            )
+                openAdLoadingEnable = true,
+            ),
+            openAdId = "ca-app-pub-3940256099942544/9257395921",
+            mapOfInterIds = mapOf(
+                "splash_inter" to listOf("ca-app-pub-3940256099942544/1033173712"),
+                "home_inter" to listOf("ca-app-pub-3940256099942544/1033173712"),
+                "inter_common" to listOf(
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
+                )
+            ),
+            mapOfNativeIds = mapOf(
+                "home_native" to listOf("ca-app-pub-3940256099942544/2247696110"),
+            ),
         )
 
         setContent {

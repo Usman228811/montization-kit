@@ -5,16 +5,13 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
-import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.interCommonHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCommonIdsHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCommonHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -97,21 +94,25 @@ class AdKitInitializer private constructor(
     }
 
     fun initAdsConfigs(
-        interControllerConfig: InterControllerConfig,
-        nativeCommonIds: List<String>? = null,
+        adsControllerConfig: AdsControllerConfig,
+        openAdId:String,
+        mapOfInterIds: Map<String, List<String>>,
+        mapOfNativeIds: Map<String, List<String>>,
         resetInterKeyForCommonAds: String? = null
     ) {
-        interHelper.setAdIds(
-            splashId = interControllerConfig.splashId,
-            appInterIds = interControllerConfig.appInterIds,
-            interControllerConfig = interControllerConfig
-        )
         openAdManager.setOpenAdConfigs(
-            adId = interControllerConfig.openAdId,
-            isAdEnable = interControllerConfig.openAdEnable,
-            isLoadingEnable = interControllerConfig.openAdLoadingEnable
+            adId = openAdId,
+            isAdEnable = adsControllerConfig.openAdEnable,
+            isLoadingEnable = adsControllerConfig.openAdLoadingEnable
         )
-        nativeCommonIdsHelper.setNativeAdIds(nativeCommonIds)
+        interHelper.setAdConfig(
+            adsControllerConfig = adsControllerConfig,
+            mapOfInterIds = mapOfInterIds
+        )
+
+        interCommonHelper.setInterCommonAdIds(mapOfInterIds["inter_common"])
+        nativeHelper.setNativeAdIds(mapOfNativeIds)
+        nativeCommonHelper.setNativeAdIds(mapOfNativeIds["native_common"])
         openAdManager.initOpenAd()
         resetInterKeyForCommonAds?.let {
             adKitPref.putInterInt(it, 0)

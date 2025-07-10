@@ -1,19 +1,19 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-import android.content.Context
 import java.util.concurrent.atomic.AtomicInteger
 
-class AdKitNativeCommonHelper private constructor(){
+class NativeCommonHelper private constructor() {
+
 
     companion object {
         @Volatile
-        private var instance: AdKitNativeCommonHelper? = null
+        private var instance: NativeCommonHelper? = null
 
 
-        internal  fun getInstance(
-        ): AdKitNativeCommonHelper {
+        internal fun getInstance(
+        ): NativeCommonHelper {
             return instance ?: synchronized(this) {
-                instance ?: AdKitNativeCommonHelper().also { instance = it }
+                instance ?: NativeCommonHelper().also { instance = it }
             }
         }
     }

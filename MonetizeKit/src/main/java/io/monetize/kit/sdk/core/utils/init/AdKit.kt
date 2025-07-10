@@ -1,11 +1,13 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import io.monetize.kit.sdk.ads.interstitial.AdKitInterCommonHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
+import io.monetize.kit.sdk.ads.native_ad.NativeHelper
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativePreloadHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
+import io.monetize.kit.sdk.ads.native_ad.NativeCommonHelper
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
@@ -66,7 +68,10 @@ object AdKit {
         private set
         
 
-    lateinit var nativeCommonIdsHelper: AdKitNativeCommonHelper
+    lateinit var nativeHelper: NativeHelper
+        private set
+
+    lateinit var nativeCommonHelper: NativeCommonHelper
         private set
         
 
@@ -75,12 +80,16 @@ object AdKit {
 
     lateinit var analytics: AdKitAnalytics
         private set
+
+
+    lateinit var interCommonHelper: AdKitInterCommonHelper
+        private set
         
 
     fun init(context: Context,admobId:String, onInitSdk:()->Unit) {
         initializer = AdKitInitializer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
-        interHelper = AdKitInterHelper.getInstance(context)
+        interHelper = AdKitInterHelper.getInstance()
         inAppUpdateManager = AdKitInAppUpdateManager.getInstance(context)
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
@@ -90,9 +99,11 @@ object AdKit {
         openAdManager = AdKitOpenAdManager.getInstance(context)
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
-        nativeCommonIdsHelper = AdKitNativeCommonHelper.getInstance()
+        nativeHelper = NativeHelper.getInstance()
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
         analytics = AdKitAnalytics.getInstance()
+        interCommonHelper = AdKitInterCommonHelper.getInstance()
+        nativeCommonHelper = NativeCommonHelper.getInstance()
 
         initializer.initMobileAds(
             context = context,
