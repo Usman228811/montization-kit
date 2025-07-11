@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
 import io.monetize.kit.sdk.ads.interstitial.InterIdManager
@@ -68,6 +69,9 @@ object AdKit {
     lateinit var nativeIdManager: NativeIdManager
         private set
 
+    lateinit var bannerIdManager: BannerIdManager
+        private set
+
 
     lateinit var nativeCustomLayoutHelper: AdsCustomLayoutHelper
         private set
@@ -85,6 +89,7 @@ object AdKit {
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
         mapOfNativeIds: Map<String, Any>,
+        mapOfBannerIds: Map<String, Any>,
         resetInterKeyForCommonAds: String? = null, onInitSdk: () -> Unit
     ) {
         initializer = AdKitInitializer.getInstance()
@@ -103,12 +108,14 @@ object AdKit {
         analytics = AdKitAnalytics.getInstance()
         interIdManager = InterIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
+        bannerIdManager = BannerIdManager.getInstance()
         openAdManager.setOpenAdId(
             adId = openAdId
         )
 
         interIdManager.setInterIds(mapOfInterIds)
         nativeIdManager.setNativeIds(mapOfNativeIds)
+        bannerIdManager.setBannerIds(mapOfBannerIds)
         resetInterKeyForCommonAds?.let {
             adKitPref.putInterInt(it, 0)
         }

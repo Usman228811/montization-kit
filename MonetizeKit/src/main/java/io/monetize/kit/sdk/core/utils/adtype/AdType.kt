@@ -7,11 +7,11 @@ enum class AdType(val type: Int) {
     BANNER(3),
 }
 
-data class BannerControllerConfig(
-    val key: String = "",
-    val adId: String = "",
+data class BannerControllerConfig constructor(
+    val placementKey: String = "",
     val isAdEnable: Boolean = false,
     val collapsableConfig: CollapsableConfig? = null,
+    val loadNewAd:Boolean = false
 
 )
 

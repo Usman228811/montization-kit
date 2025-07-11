@@ -66,8 +66,7 @@ fun MainScreen(
 
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
-                    key = "home_banner",
-                    adId = "ca-app-pub-3940256099942544/9214589741",
+                    placementKey = "home_banner",
                     isAdEnable = true,
                 ),
             )

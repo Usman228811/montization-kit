@@ -17,7 +17,6 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 class BaseSingleBannerActivity private constructor(
 ) {
     private var bannerAd: AdView? = null
-    private var loadNewAd: Boolean = false
     private var adFrame: LinearLayout? = null
     private var model: BannerSingleAdControllerModel? = null
 
@@ -53,16 +52,16 @@ class BaseSingleBannerActivity private constructor(
         this.adFrame = adFrame
         isAdLoadCalled = true
 
-        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.key }
+        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.placementKey }
         if (index == -1) {
             singleBannerList.add(
                 BannerSingleAdControllerModel(
                     AdKitBannerController(
-                    ), bannerControllerConfig.key
+                    ), bannerControllerConfig.placementKey
                 )
             )
 
-            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.key }
+            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.placementKey }
         }
 
         if (index != -1) {
@@ -138,11 +137,10 @@ class BaseSingleBannerActivity private constructor(
                                 })
                                 controller.populateBannerAd(
                                     context = mContext,
-                                    key = bannerControllerConfig.key,
+                                    key = bannerControllerConfig.placementKey,
                                     enable = bannerControllerConfig.isAdEnable,
-                                    bannerAdId = bannerControllerConfig.adId,
                                     adFrame = adFrame,
-                                    loadNewAd = loadNewAd
+                                    loadNewAd = bannerControllerConfig.loadNewAd
                                 ) { ad ->
                                     isRequesting = false
                                     if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {

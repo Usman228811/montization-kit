@@ -59,7 +59,7 @@ class NativeAdSingleController {
 
                     val builder = AdLoader.Builder(
                         context,
-                        AdKit.nativeIdManager.getNextInterId(placement = nativeControllerConfig.key)
+                        AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.key)
                             ?: ""
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->

@@ -17,7 +17,7 @@ import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
-class BaseCollapsableBannerActivity(
+class BaseCollapsableBannerActivity private constructor(
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
@@ -84,7 +84,9 @@ class BaseCollapsableBannerActivity(
                             Constants.showToast(mContext, "collapse banner ad calling")
                         }*/
                         val collapseBannerAd = AdView(mContext).apply {
-                            this.adUnitId = bannerControllerConfig.adId
+                            this.adUnitId =
+                                AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
+                                    ?: ""
                             this.setAdSize(getAdSize(mContext))
                             this.loadAd(
                                 AdRequest.Builder()

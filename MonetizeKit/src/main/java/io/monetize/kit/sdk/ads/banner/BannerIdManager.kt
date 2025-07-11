@@ -1,17 +1,16 @@
-package io.monetize.kit.sdk.ads.native_ad
+package io.monetize.kit.sdk.ads.banner
 
-class NativeIdManager private constructor() {
-
+class BannerIdManager private constructor() {
 
     companion object {
         @Volatile
-        private var instance: NativeIdManager? = null
+        private var instance: BannerIdManager? = null
 
 
         internal fun getInstance(
-        ): NativeIdManager {
+        ): BannerIdManager {
             return instance ?: synchronized(this) {
-                instance ?: NativeIdManager().also { instance = it }
+                instance ?: BannerIdManager().also { instance = it }
             }
         }
     }
@@ -20,7 +19,7 @@ class NativeIdManager private constructor() {
 
     private val currentIndexMap: MutableMap<String, Int> = mutableMapOf()
 
-    fun setNativeIds(map: Map<String, Any>) {
+    fun setBannerIds(map: Map<String, Any>) {
         normalizedMap.clear()
         currentIndexMap.clear()
 
@@ -34,7 +33,8 @@ class NativeIdManager private constructor() {
         }
     }
 
-    fun getNextNativeId(placement: String): String? {
+    // Call this to get the next interstitial ID for a placement
+    fun getNextBannerId(placement: String): String? {
         val list = normalizedMap[placement] ?: return null
         if (list.isEmpty()) return null
 

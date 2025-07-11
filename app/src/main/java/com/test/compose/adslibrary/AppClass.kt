@@ -37,6 +37,9 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             mapOfNativeIds = mapOf(
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
+            mapOfBannerIds = mapOf(
+                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
+            ),
             onInitSdk = {
                 initializer.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,

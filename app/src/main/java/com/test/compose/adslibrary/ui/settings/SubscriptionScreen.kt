@@ -16,10 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
+import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
 @Composable
 fun SubscriptionScreen(
@@ -104,8 +104,7 @@ fun SubscriptionScreen(
 
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
-                    key = "home_banner",
-                    adId = "ca-app-pub-3940256099942544/9214589741",
+                    placementKey = "premium_banner",
                     isAdEnable = true,
                 )
             )
