@@ -5,11 +5,8 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
-import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
-import io.monetize.kit.sdk.core.utils.init.AdKit.interIdManager
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeIdManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
@@ -93,26 +90,17 @@ class AdKitInitializer private constructor(
     }
 
     fun initAdsConfigs(
-        adsControllerConfig: AdsControllerConfig,
-        openAdId:String,
-        mapOfInterIds: Map<String, Any>,
-        mapOfNativeIds: Map<String, Any>,
-        resetInterKeyForCommonAds: String? = null
+        interAdsConfigs: InterAdsConfigs,
     ) {
+        interHelper.setInterAdsConfigs(
+            interAdsConfigs = interAdsConfigs,
+        )
         openAdManager.setOpenAdConfigs(
-            adId = openAdId,
-            isAdEnable = adsControllerConfig.openAdEnable,
-            isLoadingEnable = adsControllerConfig.openAdLoadingEnable
+            isAdEnable = interAdsConfigs.openAdEnable,
+            isLoadingEnable = interAdsConfigs.openAdLoadingEnable
         )
-        interHelper.setAdConfig(
-            adsControllerConfig = adsControllerConfig,
-        )
-
-        interIdManager.setInterIds(mapOfInterIds)
-        nativeIdManager.setNativeIds(mapOfNativeIds)
         openAdManager.initOpenAd()
-        resetInterKeyForCommonAds?.let {
-            adKitPref.putInterInt(it, 0)
-        }
     }
+
+
 }

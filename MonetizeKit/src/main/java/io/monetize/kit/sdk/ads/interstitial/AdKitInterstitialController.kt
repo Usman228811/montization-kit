@@ -25,14 +25,21 @@ data class InterAdSingleModel(
 
 val singleInterList = ArrayList<InterAdSingleModel>()
 
-data class AdsControllerConfig(
-    val splashInterEnable: Boolean = false,
-    val openAdEnable: Boolean = false,
-    val splashTime: Long = 16L,
+data class InterAdsConfigs(
+    val openAdEnable:Boolean,
     val instantInterTime: Long = 8L,
     val interLoadingEnable: Boolean = false,
     val openAdLoadingEnable: Boolean = false,
 )
+
+//data class AdsControllerConfig(
+//    val splashInterEnable: Boolean = false,
+//    val openAdEnable: Boolean = false,
+//    val splashTime: Long = 16L,
+//    val instantInterTime: Long = 8L,
+//    val interLoadingEnable: Boolean = false,
+//    val openAdLoadingEnable: Boolean = false,
+//)
 
 
 class InterstitialController private constructor(
@@ -67,7 +74,7 @@ class InterstitialController private constructor(
 
 
     private fun startDelayHandler() {
-        val instantTime = AdKit.interHelper.getInterAdsControllerConfig()?.instantInterTime ?: 8L
+        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantInterTime ?: 8L
         if (!isHandlerAdDelayRunning) {
             isHandlerAdDelayRunning = true
             handlerAdDelay.postDelayed(
@@ -89,7 +96,7 @@ class InterstitialController private constructor(
             if (admobInterAd != null && !AdKit.interHelper.getAppInPause() && !IS_INTERSTITIAL_Ad_SHOWING) {
                 mInterstitialControllerListener?.onAdShow()
                 if (admobInterAd != null) {
-                    setAdmobFullScreen()
+                    setAdmobFullScreen(activity, key)
                     admobInterAd?.show(activity)
                 }
                 if (key != "") {
@@ -335,7 +342,7 @@ class InterstitialController private constructor(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
-        if (AdKit.interHelper.getInterAdsControllerConfig()?.interLoadingEnable != false) {
+        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable != false) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 val adLoadingDialog = AdLoadingDialog(activity)
@@ -353,7 +360,7 @@ class InterstitialController private constructor(
     }
 
 
-    private fun setAdmobFullScreen() {
+    private fun setAdmobFullScreen(activity: Activity, key: String) {
         admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 dismissLoadingDialog()
@@ -362,9 +369,9 @@ class InterstitialController private constructor(
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null
 //                activity.userAnalytics("${fromScreen}_Inter_Close")
-//                if (loadNewNextAd && key.isEmpty()) {
-//                    preLoadInter(activity)
-//                }
+                if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
+                    preLoadInter(activity)
+                }
             }
 
             override fun onAdShowedFullScreenContent() {

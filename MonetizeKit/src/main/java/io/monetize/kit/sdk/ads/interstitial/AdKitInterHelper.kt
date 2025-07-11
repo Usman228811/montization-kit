@@ -7,13 +7,18 @@ class AdKitInterHelper private constructor(
 ) {
 
     private var isAppInPause = false
-    private var interAdsControllerConfig: AdsControllerConfig? = null
+    private var isInterInstant = false
+    private var interAdsConfigs: InterAdsConfigs? = null
 
 
-    fun getInterAdsControllerConfig(): AdsControllerConfig? {
-        return interAdsControllerConfig
+    fun getInterAdsConfigs(): InterAdsConfigs? {
+        return interAdsConfigs
     }
 
+    fun getInterInstant(): Boolean {
+        return isInterInstant
+
+    }
 
     companion object {
         @Volatile
@@ -29,10 +34,10 @@ class AdKitInterHelper private constructor(
     }
 
 
-    fun setAdConfig(
-        adsControllerConfig: AdsControllerConfig,
+    fun setInterAdsConfigs(
+        interAdsConfigs: InterAdsConfigs,
     ) {
-        this.interAdsControllerConfig = adsControllerConfig
+        this.interAdsConfigs = interAdsConfigs
     }
 
     fun getAppInPause() = isAppInPause
@@ -52,6 +57,7 @@ class AdKitInterHelper private constructor(
         interInstant: Boolean = false,
         listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
+        this.isInterInstant = interInstant
         if (!enable) {
             listener.onAdClosed()
             return

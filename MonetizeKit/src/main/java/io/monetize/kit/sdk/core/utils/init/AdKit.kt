@@ -1,9 +1,9 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
-import io.monetize.kit.sdk.ads.interstitial.InterIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
+import io.monetize.kit.sdk.ads.interstitial.InterIdManager
 import io.monetize.kit.sdk.ads.native_ad.AdKitNativePreloadHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.native_ad.NativeIdManager
@@ -27,50 +27,47 @@ object AdKit {
 
     lateinit var inAppUpdateManager: AdKitInAppUpdateManager
         private set
-        
+
 
     lateinit var interHelper: AdKitInterHelper
         private set
-        
 
 
     lateinit var internetController: AdKitInternetController
         private set
-        
+
 
     lateinit var consentManager: AdKitConsentManager
         private set
-        
+
 
     lateinit var firebaseHelper: AdKitFirebaseRemoteConfigHelper
         private set
-        
+
 
     lateinit var preLoadNative: AdKitNativePreloadHelper
         private set
-        
+
 
     lateinit var splashAdController: AdKitSplashAdController
         private set
-        
+
 
     lateinit var openAdManager: AdKitOpenAdManager
         private set
-        
+
 
     lateinit var purchaseHelper: AdKitPurchaseHelper
         private set
-        
 
 
     lateinit var subscriptionHelper: AdKitSubscriptionHelper
         private set
-        
 
 
     lateinit var nativeIdManager: NativeIdManager
         private set
-        
+
 
     lateinit var nativeCustomLayoutHelper: AdsCustomLayoutHelper
         private set
@@ -81,9 +78,15 @@ object AdKit {
 
     lateinit var interIdManager: InterIdManager
         private set
-        
 
-    fun init(context: Context,admobId:String, onInitSdk:()->Unit) {
+
+    fun init(
+        context: Context, admobId: String,
+        openAdId: String,
+        mapOfInterIds: Map<String, Any>,
+        mapOfNativeIds: Map<String, Any>,
+        resetInterKeyForCommonAds: String? = null, onInitSdk: () -> Unit
+    ) {
         initializer = AdKitInitializer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
         interHelper = AdKitInterHelper.getInstance()
@@ -100,11 +103,23 @@ object AdKit {
         analytics = AdKitAnalytics.getInstance()
         interIdManager = InterIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
+        openAdManager.setOpenAdId(
+            adId = openAdId
+        )
+
+        interIdManager.setInterIds(mapOfInterIds)
+        nativeIdManager.setNativeIds(mapOfNativeIds)
+        resetInterKeyForCommonAds?.let {
+            adKitPref.putInterInt(it, 0)
+        }
 
         initializer.initMobileAds(
             context = context,
             adMobAppId = admobId,
-            onInit = onInitSdk
+            onInit = {
+
+            }
         )
+        onInitSdk()
     }
 }

@@ -25,6 +25,8 @@ class AdKitSplashAdController private constructor(
     private var isHandlerRunning = false
     private var isPauseDone = false
     private var isAppPause = false
+    private var splashTime :Long = 16L
+    private var isAdEnable :Boolean = false
 
     companion object {
         @Volatile
@@ -169,7 +171,7 @@ class AdKitSplashAdController private constructor(
     private fun adLoadingCheck(
         activity: Activity,
     ) {
-        if (AdKit.interHelper.getInterAdsControllerConfig()?.interLoadingEnable == true) {
+        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable == true) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 adLoadingDialog = AdLoadingDialog(activity)
@@ -223,8 +225,11 @@ class AdKitSplashAdController private constructor(
         activity: Activity,
         placementKey: String,
         enable: Boolean,
+        splashTime:Long,
         listener: InterstitialControllerListener?,
     ) {
+        this.isAdEnable = enable
+        this.splashTime = splashTime
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         canRequestAd = true
@@ -255,7 +260,7 @@ class AdKitSplashAdController private constructor(
 
 
     private fun startHandler() {
-        val splashTime = AdKit.interHelper.getInterAdsControllerConfig()?.splashTime ?: 16L
+        val splashTime = splashTime
         if (!isHandlerRunning) {
             isHandlerRunning = true
             runnableSplash?.let {
@@ -267,7 +272,7 @@ class AdKitSplashAdController private constructor(
 
     private fun showSplashAd(activity: Activity) {
         if (!isPauseDone) {
-            if (!IS_INTERSTITIAL_Ad_SHOWING && AdKit.interHelper.getInterAdsControllerConfig()?.splashInterEnable == true) {
+            if (!IS_INTERSTITIAL_Ad_SHOWING && isAdEnable) {
                 if (interstitialAd != null) {
                     adLoadingCheck(activity)
                 } else {

@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.test.compose.adslibrary.R
 import com.test.compose.adslibrary.xml.MainXmlActivity
-import io.monetize.kit.sdk.ads.interstitial.AdsControllerConfig
-import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

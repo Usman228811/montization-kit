@@ -21,30 +21,33 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         super.onCreate()
         appContext = this
 
+        AdKit.init(
+            context = this,
+            admobId = "ca-app-pub-3940256099942544~3347511713",
+            openAdId = "ca-app-pub-3940256099942544/9257395921",
+            mapOfInterIds = mapOf(
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "inter_common" to listOf(
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
+                )
+            ),
+            mapOfNativeIds = mapOf(
+                "home_native" to "ca-app-pub-3940256099942544/2247696110",
+            ),
+            onInitSdk = {
+                initializer.setNativeCustomLayouts(
+                    bigNativeLayout = R.layout.large_native_layout_custom,
+                    bigNativeShimmer = R.layout.large_native_layout_shimmer,
+                )
 
-//        startKoin {
-//            androidContext(this@AppClass)
-//            modules(MainModule)
-//            modules(
-//                provideMonetizationKitModules()
-//            )
-//        }
-
-        AdKit.init(this,"cca-app-pub-3940256099942544~3347511713", onInitSdk = {
-
-
-            initializer.setNativeCustomLayouts(
-                bigNativeLayout = R.layout.large_native_layout_custom,
-                bigNativeShimmer = R.layout.large_native_layout_shimmer,
-            )
-
-            openAdManager.excludeComposeRoutesFromOpenAd(
-                AppRoute.SplashRoute.route,
-                AppRoute.SubscriptionRoute.route
-            )
-        })
-
-
+                openAdManager.excludeComposeRoutesFromOpenAd(
+                    AppRoute.SplashRoute.route,
+                    AppRoute.SubscriptionRoute.route
+                )
+            })
     }
 
     fun initializeAppClass() {
@@ -64,9 +67,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     private fun handleCurrentActivity(activity: Activity) {
         AdKit.interHelper.setAppInPause(false)
-        AdKit.openAdManager.setActivity(activity)
-//        canShowOpenAd =
-//            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
+        openAdManager.setActivity(activity)
     }
 
     override fun onActivityResumed(activity: Activity) {
@@ -81,7 +82,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        AdKit.openAdManager.setActivity(null)
+        openAdManager.setActivity(null)
         AdKit.interHelper.setAppInPause(false)
     }
 }

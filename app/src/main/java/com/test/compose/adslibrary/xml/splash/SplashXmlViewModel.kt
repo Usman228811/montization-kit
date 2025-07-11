@@ -68,6 +68,7 @@ class SplashXmlViewModel : ViewModel() {
                 activity,
                 "splash_inter",
                 true,
+                splashTime = 16L,
                 object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         _state.update {

@@ -34,7 +34,6 @@ class AdKitOpenAdManager private constructor(
     private var isAdEnable = true
     private var isPause = false
     private var isLoadingEnable = true
-    private var canShowOpenAd = true
     private var adId = ""
     private var currentActivity: Activity? = null
 
@@ -77,18 +76,17 @@ class AdKitOpenAdManager private constructor(
         this.isPause = isPause
     }
 
-    fun setCanShowOpenAd(canShowOpenAd: Boolean) {
-        this.canShowOpenAd = canShowOpenAd
+
+    fun setOpenAdId(adId:String){
+        this.adId = adId
     }
 
     fun setOpenAdConfigs(
-        adId: String,
         isAdEnable: Boolean,
         isLoadingEnable: Boolean,
     ) {
         this.isAdEnable = isAdEnable
         this.isLoadingEnable = isLoadingEnable
-        this.adId = adId
     }
 
     fun initOpenAd() {
@@ -107,7 +105,7 @@ class AdKitOpenAdManager private constructor(
 
     private fun showAd() {
         try {
-            if (canShowOpenAd && !adKitPref.isAppPurchased && isAdEnable) {
+            if (!adKitPref.isAppPurchased && isAdEnable) {
                 showAdIfAvailable()
             }
         } catch (ignored: Exception) {

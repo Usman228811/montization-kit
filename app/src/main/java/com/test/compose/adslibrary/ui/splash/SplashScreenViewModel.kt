@@ -279,6 +279,7 @@ class SplashScreenViewModel(
             mContext,
             placementKey = "splash_inter",
             true,
+            splashTime = 16L,
             object : InterstitialControllerListener {
                 override fun onAdClosed() {
                     _state.update {
