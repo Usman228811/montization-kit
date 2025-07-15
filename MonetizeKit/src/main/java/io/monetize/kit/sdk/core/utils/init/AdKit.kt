@@ -106,7 +106,7 @@ object AdKit {
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        analytics = AdKitAnalytics.getInstance()
+        analytics = AdKitAnalytics.getInstance(context)
         interIdManager = InterIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
         bannerIdManager = BannerIdManager.getInstance()

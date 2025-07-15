@@ -40,6 +40,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "home_banner" to "ca-app-pub-3940256099942544/2014213617",
             ),
             onInitSdk = {
+                AdKit.analytics.showToast(true)
                 AdKit.initializer.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,
                     bigNativeShimmer = R.layout.large_native_layout_shimmer,
