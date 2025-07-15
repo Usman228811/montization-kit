@@ -46,11 +46,14 @@ class AdKitAnalytics private constructor(private val context: Context) {
                 }
                 firebaseAnalytics.logEvent(event.trim(), Bundle())
             }
+
+        } catch (_: Exception) {
+        } catch (_: OutOfMemoryError) {
+        }
+        finally {
             if (showToast){
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
-        } catch (_: Exception) {
-        } catch (_: OutOfMemoryError) {
         }
     }
 }
