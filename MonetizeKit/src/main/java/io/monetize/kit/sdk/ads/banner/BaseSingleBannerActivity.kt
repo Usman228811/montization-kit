@@ -52,16 +52,16 @@ class BaseSingleBannerActivity private constructor(
         this.adFrame = adFrame
         isAdLoadCalled = true
 
-        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.placementKey }
+        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
         if (index == -1) {
             singleBannerList.add(
                 BannerSingleAdControllerModel(
                     AdKitBannerController(
-                    ), bannerControllerConfig.placementKey
+                    ), bannerControllerConfig.adIdKey
                 )
             )
 
-            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.placementKey }
+            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
         }
 
         if (index != -1) {
@@ -137,7 +137,8 @@ class BaseSingleBannerActivity private constructor(
                                 })
                                 controller.populateBannerAd(
                                     context = mContext,
-                                    key = bannerControllerConfig.placementKey,
+                                    placementKey = bannerControllerConfig.placementKey,
+                                    adIdKey = bannerControllerConfig.adIdKey,
                                     enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
                                     adFrame = adFrame,
                                     loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false)

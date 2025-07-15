@@ -89,7 +89,7 @@ class AdKitInitializer private constructor(
         }
     }
 
-    fun initAdsConfigs(
+   internal fun initAdsConfigs(
         interAdsConfigs: InterAdsConfigs,
     ) {
         interHelper.setInterAdsConfigs(

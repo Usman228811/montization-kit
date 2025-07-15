@@ -46,7 +46,8 @@ class MainXmlActivity : AppCompatActivity() {
             this@MainXmlActivity,
             nativeAdViewModel,
             nativeControllerConfig = NativeControllerConfig(
-                key = "home_native",
+                placementKey = "home_native",
+                adIdKey = "home_native"
             )
         )
 
@@ -55,6 +56,7 @@ class MainXmlActivity : AppCompatActivity() {
             bannerAdViewModel,
             bannerControllerConfig = BannerControllerConfig(
                 placementKey = "home_banner",
+                adIdKey = "home_banner",
             )
         )
 

@@ -33,7 +33,7 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var onFail: (() -> Unit)? = null
-    private var isAdEnable:Boolean = true
+    private var isAdEnable: Boolean = true
 
 
     companion object {
@@ -57,23 +57,28 @@ class GetNativeAdRepoImpl private constructor(
         this.onFail = onFail
         this.adFrame = adFrame
         AdKit.firebaseHelper.apply {
-             adType = AdType.entries.filter { it.type == getLong("${nativeControllerConfig.key}_adType", 2L).toInt() }[0]
-            loadNewAd = getBoolean("${nativeControllerConfig.key}_loadNewAd", false)
-            isAdEnable = getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
+            adType = AdType.entries.filter {
+                it.type == getLong(
+                    "${nativeControllerConfig.placementKey}_adType",
+                    2L
+                ).toInt()
+            }[0]
+            loadNewAd = getBoolean("${nativeControllerConfig.placementKey}_loadNewAd", false)
+            isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         }
         isAdLoadCalled = true
 
-        var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+        var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
         if (index == -1) {
             singleNativeList.apply {
                 add(
                     NativeAdSingleModel(
-                        nativeControllerConfig.key,
+                        nativeControllerConfig.adIdKey,
                         NativeAdSingleController()
                     )
                 )
             }
-            index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+            index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
         }
         if (index != -1) {
             model = singleNativeList[index]

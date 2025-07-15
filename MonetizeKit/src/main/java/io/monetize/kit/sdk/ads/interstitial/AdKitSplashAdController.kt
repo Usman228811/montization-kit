@@ -224,12 +224,17 @@ class AdKitSplashAdController private constructor(
     fun initSplashAdmob(
         activity: Activity,
         placementKey: String,
-        enable: Boolean,
-        splashTime:Long,
+        interAdsConfigs: InterAdsConfigs,
         listener: InterstitialControllerListener?,
     ) {
-        this.isAdEnable = enable
-        this.splashTime = splashTime
+
+
+        AdKit.initializer.initAdsConfigs(
+            interAdsConfigs = interAdsConfigs
+        )
+
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+        this.splashTime = AdKit.firebaseHelper.getLong("SPLASH_TIME", 16)
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         canRequestAd = true
@@ -242,7 +247,7 @@ class AdKitSplashAdController private constructor(
             }
         }
         try {
-            if (!AdKit.adKitPref.isAppPurchased && enable && AdKit.consentManager.canRequestAds) {
+            if (!AdKit.adKitPref.isAppPurchased && isAdEnable && AdKit.consentManager.canRequestAds) {
                 if (!AdKit.internetController.isConnected) {
                     handlerAd.postDelayed({ mInterstitialControllerListener?.onAdClosed() }, 5000)
                     return

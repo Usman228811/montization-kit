@@ -60,7 +60,7 @@ class NativeAdSingleController {
 
                     val builder = AdLoader.Builder(
                         context,
-                        AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.key)
+                        AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
                             ?: ""
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
@@ -112,7 +112,7 @@ class NativeAdSingleController {
 
     ) {
         this.isAdEnable =
-            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
+            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
         if (isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
@@ -122,7 +122,7 @@ class NativeAdSingleController {
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
                             adType = AdType.entries.filter { entries ->
                                 entries.type == AdKit.firebaseHelper.getLong(
-                                    "${nativeControllerConfig.key}_adType",
+                                    "${nativeControllerConfig.placementKey}_adType",
                                     2L
                                 ).toInt()
                             }[0],
@@ -153,7 +153,7 @@ class NativeAdSingleController {
         nativeControllerConfig: NativeControllerConfig, context: Context
     ) {
         this.isAdEnable =
-            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
+            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
         setNativeControllerListener(null)
         loadNativeAd(context, isAdEnable)

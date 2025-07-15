@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -283,8 +284,11 @@ class SplashScreenViewModel(
         AdKit.splashAdController.initSplashAdmob(
             mContext,
             placementKey = "splash_inter",
-            true,
-            splashTime = 16L,
+            interAdsConfigs = InterAdsConfigs(
+                openAdEnable = true,
+                interLoadingEnable = true,
+                openAdLoadingEnable = true,
+            ),
             object : InterstitialControllerListener {
                 override fun onAdClosed() {
                     _state.update {

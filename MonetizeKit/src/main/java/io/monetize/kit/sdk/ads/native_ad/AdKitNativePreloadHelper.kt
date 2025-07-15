@@ -22,18 +22,18 @@ class AdKitNativePreloadHelper private constructor(
 
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
 
-        if (AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.key}_isAdEnable", true) && AdKit.consentManager.canRequestAds) {
-            var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+        if (AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true) && AdKit.consentManager.canRequestAds) {
+            var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             if (index == -1) {
                 singleNativeList.apply {
                     add(
                         NativeAdSingleModel(
-                            nativeControllerConfig.key,
+                            nativeControllerConfig.adIdKey,
                             NativeAdSingleController()
                         )
                     )
                 }
-                index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+                index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             }
             if (index in singleNativeList.indices) {
                 singleNativeList[index].controller?.loadNewNativeAd(

@@ -22,6 +22,7 @@ data class BannerSingleAdControllerModel(
 
 class AdKitBannerController {
     private var placementKey: String = ""
+    private var adIdKey: String = ""
     private var canRequestBannerAd = true
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
@@ -62,7 +63,7 @@ class AdKitBannerController {
                         bannerSize = getAdSize(context)
                     }
                     val bannerAd = AdView(context).apply {
-                        this.adUnitId = AdKit.bannerIdManager.getNextBannerId(placementKey) ?: ""
+                        this.adUnitId = AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
                         this.setAdSize(bannerSize)
                         this.loadAd(AdRequest.Builder().build())
                     }
@@ -105,12 +106,13 @@ class AdKitBannerController {
     }
 
     fun populateBannerAd(
-        context: Activity, key: String, enable: Boolean,
+        context: Activity, placementKey: String,adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
         populateCallback: (Any) -> Unit
     ) {
         try {
-            this.placementKey = key
+            this.adIdKey = adIdKey
+            this.placementKey = placementKey
             if (enable && !AdKit.adKitPref.isAppPurchased && adView != null) {
                 adView?.let {
                     try {

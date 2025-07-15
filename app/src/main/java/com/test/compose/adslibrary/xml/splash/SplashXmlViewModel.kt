@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -65,10 +66,13 @@ class SplashXmlViewModel : ViewModel() {
     fun showSplashAd(activity: Activity) {
         if (state.value.moveNext.not()) {
             splashAdController.initSplashAdmob(
-                activity,
-                "splash_inter",
-                true,
-                splashTime = 16L,
+                activity = activity,
+                placementKey = "splash_inter",
+                interAdsConfigs = InterAdsConfigs(
+                    openAdEnable = true,
+                    interLoadingEnable = true,
+                    openAdLoadingEnable = true,
+                ),
                 object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         _state.update {

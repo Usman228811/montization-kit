@@ -8,7 +8,8 @@ enum class AdType(val type: Int) {
 }
 
 data class BannerControllerConfig constructor(
-    val placementKey: String = "",
+    val placementKey: String,
+    val adIdKey: String,
 
 )
 
@@ -17,5 +18,6 @@ data class CollapsableConfig(
 )
 
 data class NativeControllerConfig(
-    val key: String = "",
+    val placementKey: String,
+    val adIdKey: String,
 )

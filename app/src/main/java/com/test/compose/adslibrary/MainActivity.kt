@@ -28,15 +28,6 @@ class MainActivity : ComponentActivity() {
         AdKit.openAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
 
-        AdKit.initializer.initAdsConfigs(
-            interAdsConfigs = InterAdsConfigs(
-                openAdEnable = true,
-                interLoadingEnable = true,
-                openAdLoadingEnable = true,
-            ),
-
-        )
-
         setContent {
             val paddingValues = WindowInsets.systemBars.asPaddingValues()
             val navHostController = rememberNavController()
