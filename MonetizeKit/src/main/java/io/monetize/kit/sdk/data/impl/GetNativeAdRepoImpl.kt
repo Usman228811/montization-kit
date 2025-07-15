@@ -13,6 +13,7 @@ import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
@@ -32,6 +33,7 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var onFail: (() -> Unit)? = null
+    private var isAdEnable:Boolean = true
 
 
     companion object {
@@ -49,12 +51,16 @@ class GetNativeAdRepoImpl private constructor(
         nativeControllerConfig: NativeControllerConfig,
         onFail: () -> Unit
     ) {
+
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
         this.onFail = onFail
-        this.adType = AdType.entries.filter { it.type == nativeControllerConfig.adType.toInt() }[0]
-        this.loadNewAd = nativeControllerConfig.loadNewAd
         this.adFrame = adFrame
+        AdKit.firebaseHelper.apply {
+             adType = AdType.entries.filter { it.type == getLong("${nativeControllerConfig.key}_adType", 2L).toInt() }[0]
+            loadNewAd = getBoolean("${nativeControllerConfig.key}_loadNewAd", false)
+            isAdEnable = getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
+        }
         isAdLoadCalled = true
 
         var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
@@ -73,6 +79,7 @@ class GetNativeAdRepoImpl private constructor(
             model = singleNativeList[index]
             loadSingleNativeAd()
         }
+
     }
 
     override fun onResume() {
@@ -127,7 +134,7 @@ class GetNativeAdRepoImpl private constructor(
     private fun loadSingleNativeAd() {
         try {
             if (isAdLoadCalled) {
-                if (adFrame == null || !nativeControllerConfig.isAdEnable || adKitPref.isAppPurchased) {
+                if (adFrame == null || !isAdEnable || adKitPref.isAppPurchased) {
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
@@ -215,7 +222,7 @@ class GetNativeAdRepoImpl private constructor(
     }
 
     fun requestNewNativeId(stopNextRequest: Boolean) {
-        if (nativeControllerConfig.isAdEnable) {
+        if (isAdEnable) {
             loadNewAd = !stopNextRequest
             if (!isRequesting) {
                 loadSingleNativeAd()

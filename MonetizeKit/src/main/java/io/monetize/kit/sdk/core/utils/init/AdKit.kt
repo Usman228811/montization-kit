@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController

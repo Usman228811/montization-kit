@@ -9,19 +9,13 @@ enum class AdType(val type: Int) {
 
 data class BannerControllerConfig constructor(
     val placementKey: String = "",
-    val isAdEnable: Boolean = false,
-    val collapsableConfig: CollapsableConfig? = null,
-    val loadNewAd:Boolean = false
 
 )
 
 data class CollapsableConfig(
-    val isBottom:Boolean = true
+    val isBottom: Boolean = true
 )
 
 data class NativeControllerConfig(
     val key: String = "",
-    val isAdEnable: Boolean = false,
-    val adType: Long = 2L,
-    val loadNewAd:Boolean = false
 )

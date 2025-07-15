@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instanc
 import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
 import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.domain.repo.GetBannerAdRepo
 
 class GetBannerAdRepoImpl private constructor(
@@ -35,7 +36,7 @@ class GetBannerAdRepoImpl private constructor(
         bannerControllerConfig: BannerControllerConfig,
         onFail: () -> Unit
     ) {
-        this.isForCollapse = bannerControllerConfig.collapsableConfig != null
+        this.isForCollapse = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsible", false)
         if (isForCollapse) {
             baseCollapsableBannerActivity.initCollapsableBannerAd(
                 mContext = mContext,

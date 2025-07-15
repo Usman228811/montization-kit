@@ -33,13 +33,12 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     val configFetched = _configFetched.receiveAsFlow()
 
 
-    fun fetchRemoteValues(
-        isDebug: Boolean,
-        configDefaults: Map<String, Any>
-    ) {
+    fun fetchRemoteValues(isDebug: Boolean, builder: RemoteConfigBuilder.() -> Unit) {
+        val configBuilder = RemoteConfigBuilder.getInstance().apply(builder)
+        val configDefaults = configBuilder.configMap
+
         try {
             Firebase.remoteConfig.apply {
-
                 configureRemoteConfig(this, isDebug, configDefaults)
                 listenForUpdates(this)
                 fetchRemoteConfig(this)
@@ -48,7 +47,6 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
             _configFetched.trySend(true)
         }
     }
-
 
     private fun configureRemoteConfig(
         firebaseRemoteConfig: FirebaseRemoteConfig,

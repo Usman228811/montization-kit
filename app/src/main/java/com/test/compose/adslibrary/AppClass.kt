@@ -7,8 +7,6 @@ import android.content.Context
 import android.os.Bundle
 import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.core.utils.init.AdKit
-import io.monetize.kit.sdk.core.utils.init.AdKit.initializer
-import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
@@ -36,17 +34,18 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             ),
             mapOfNativeIds = mapOf(
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
+                "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
             mapOfBannerIds = mapOf(
-                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
+                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
             ),
             onInitSdk = {
-                initializer.setNativeCustomLayouts(
+                AdKit.initializer.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,
                     bigNativeShimmer = R.layout.large_native_layout_shimmer,
                 )
 
-                openAdManager.excludeComposeRoutesFromOpenAd(
+                AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
                     AppRoute.SplashRoute.route,
                     AppRoute.SubscriptionRoute.route
                 )
@@ -70,7 +69,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     private fun handleCurrentActivity(activity: Activity) {
         AdKit.interHelper.setAppInPause(false)
-        openAdManager.setActivity(activity)
+        AdKit.openAdManager.setActivity(activity)
     }
 
     override fun onActivityResumed(activity: Activity) {
@@ -85,7 +84,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        openAdManager.setActivity(null)
+        AdKit.openAdManager.setActivity(null)
         AdKit.interHelper.setAppInPause(false)
     }
 }

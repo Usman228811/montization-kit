@@ -8,6 +8,7 @@ class AdKitInterHelper private constructor(
 
     private var isAppInPause = false
     private var isInterInstant = false
+    private var isAdEnable = false
     private var interAdsConfigs: InterAdsConfigs? = null
 
 
@@ -52,13 +53,13 @@ class AdKitInterHelper private constructor(
 
     fun showInterAd(
         activity: Activity,
-        placementKey: String,
-        enable: Boolean,
-        interInstant: Boolean = false,
+        placementKey:String,
+        adIdKey: String,
         listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
-        this.isInterInstant = interInstant
-        if (!enable) {
+        this.isInterInstant = AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
+        if (!isAdEnable) {
             listener.onAdClosed()
             return
         }
@@ -74,30 +75,31 @@ class AdKitInterHelper private constructor(
 
 
             var interstitialController: InterstitialController? = null
-            var index = singleInterList.indexOfFirst { it.key == placementKey }
+            var index = singleInterList.indexOfFirst { it.key == adIdKey }
             if (index == -1) {
                 singleInterList.apply {
                     add(
                         InterAdSingleModel(
-                            placementKey,
+                            adIdKey,
                             InterstitialController.getInstance()
                         )
                     )
                 }
-                index = singleInterList.indexOfFirst { it.key == placementKey }
+                index = singleInterList.indexOfFirst { it.key == adIdKey }
             }
             if (index != -1) {
                 interstitialController = singleInterList[index].controller
             }
 
 
-            if (interInstant.not()) {
+            if (isInterInstant.not()) {
 
                 if (counter != -1L) {
                     interstitialController?.showWithCounter(
                         context = activity,
-                        placementKey = placementKey,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
                         key = prefKey,
                         counter = counter
@@ -106,8 +108,9 @@ class AdKitInterHelper private constructor(
                 } else {
                     interstitialController?.showWithoutCounter(
                         context = activity,
-                        placementKey = placementKey,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
                     )
                 }
@@ -115,8 +118,9 @@ class AdKitInterHelper private constructor(
                 if (counter != -1L) {
                     interstitialController?.loadAndShowWithCounter(
                         context = activity,
-                        placementKey = placementKey,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
                         key = prefKey,
                         counter = counter
@@ -124,7 +128,8 @@ class AdKitInterHelper private constructor(
                 } else {
                     interstitialController?.loadAndShow(
                         context = activity,
-                        placementKey = placementKey,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
                         enable = true,
                         listener = listener,
                     )

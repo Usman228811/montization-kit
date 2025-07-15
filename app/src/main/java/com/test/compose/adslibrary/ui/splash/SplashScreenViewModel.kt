@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.test.compose.adslibrary.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -70,7 +71,7 @@ class SplashScreenViewModel(
 
             launch {
                 AdKit.consentManager.googleConsent.collectLatest {
-                    runSplash()
+                    fetchFirebase()
                 }
             }
         }
@@ -98,30 +99,7 @@ class SplashScreenViewModel(
             }
         }
 
-//        firebaseRemoteConfigHelper.apply {
-//            viewModelScope.launch {
-//                configFetched.collectLatest {
-//                    try {
-//                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
-//                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
-//                        val IS_AI = getString("IS_AI", "YES")
-//
-//                        runSplash()
-//                    } catch (e: Exception) {
-//                        runSplash()
-//                    }
-//                }
-//            }
-//
-//            fetchRemoteValues(
-//                BuildConfig.DEBUG,
-//                mapOf(
-//                    "SPLASH_TIME" to 16,
-//                    "HOME_NATIVE_ENABLE" to true,
-//                )
-//            )
-//
-//        }
+
 
 
         AdKit.splashAdController.resetSplash()
@@ -146,6 +124,33 @@ class SplashScreenViewModel(
                     runSplash()
                 }
             }
+        }
+    }
+
+    fun fetchFirebase(){
+        AdKit.firebaseHelper.apply {
+            viewModelScope.launch {
+                configFetched.collectLatest {
+                    try {
+                        runSplash()
+                    } catch (e: Exception) {
+                        runSplash()
+                    }
+                }
+            }
+
+            fetchRemoteValues(BuildConfig.DEBUG) {
+                bool("inter_btn_plant_isAdEnable", true)
+                bool("inter_btn_plant_isInterInstant", true)
+                bool("home_native_isAdEnable", true)
+                bool("home_banner_isAdEnable", true)
+                bool("home_banner_isCollapsible", true)
+                bool("subscription_native_isAdEnable", true)
+                long("home_native_adType", 1L)
+                long("subscription_native_adType", 1L)
+                long("SPLASH_TIME", 16)
+            }
+
         }
     }
 

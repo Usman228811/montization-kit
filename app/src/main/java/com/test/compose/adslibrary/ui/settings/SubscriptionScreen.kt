@@ -94,9 +94,7 @@ fun SubscriptionScreen(
 
         AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
-                key = "home_native",
-                isAdEnable = true,
-                adType = 0
+                key = "subscription_native",
             )
         )
 
@@ -105,7 +103,6 @@ fun SubscriptionScreen(
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "premium_banner",
-                    isAdEnable = true,
                 )
             )
         }

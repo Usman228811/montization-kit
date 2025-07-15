@@ -47,8 +47,6 @@ class MainXmlActivity : AppCompatActivity() {
             nativeAdViewModel,
             nativeControllerConfig = NativeControllerConfig(
                 key = "home_native",
-                isAdEnable = true,
-                adType = 2
             )
         )
 
@@ -57,7 +55,6 @@ class MainXmlActivity : AppCompatActivity() {
             bannerAdViewModel,
             bannerControllerConfig = BannerControllerConfig(
                 placementKey = "home_banner",
-                isAdEnable = true
             )
         )
 

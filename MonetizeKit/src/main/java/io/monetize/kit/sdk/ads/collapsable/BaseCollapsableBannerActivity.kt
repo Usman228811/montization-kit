@@ -22,7 +22,7 @@ class BaseCollapsableBannerActivity private constructor(
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
     private var isAdLoadCalled: Boolean = false
-    private var isBottom: Boolean = true
+    private var isTop: Boolean = true
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
@@ -53,7 +53,7 @@ class BaseCollapsableBannerActivity private constructor(
         onFail: () -> Unit,
     ) {
         this.bannerControllerConfig = bannerControllerConfig
-        isBottom = bannerControllerConfig.collapsableConfig?.isBottom ?: true
+        isTop = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsibleTop", false)
         this.onFail = onFail
         this.mContext = mContext
         this.adFrame = adFrame
@@ -63,7 +63,7 @@ class BaseCollapsableBannerActivity private constructor(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (!bannerControllerConfig.isAdEnable || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
+            if (AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -93,7 +93,7 @@ class BaseCollapsableBannerActivity private constructor(
                                     .addNetworkExtrasBundle(
                                         AdMobAdapter::class.java,
                                         Bundle().apply {
-                                            if (isBottom) {
+                                            if (isTop.not()) {
                                                 putString("collapsible", "bottom")
                                             } else {
                                                 putString("collapsible", "top")

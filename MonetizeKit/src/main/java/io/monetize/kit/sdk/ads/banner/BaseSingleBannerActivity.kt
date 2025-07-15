@@ -88,7 +88,7 @@ class BaseSingleBannerActivity private constructor(
     private fun loadSingleBannerAd() {
         if (isAdLoadCalled) {
             if (adFrame == null ||
-                !bannerControllerConfig.isAdEnable ||
+                AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() ||
                 AdKit.adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
@@ -138,9 +138,9 @@ class BaseSingleBannerActivity private constructor(
                                 controller.populateBannerAd(
                                     context = mContext,
                                     key = bannerControllerConfig.placementKey,
-                                    enable = bannerControllerConfig.isAdEnable,
+                                    enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
                                     adFrame = adFrame,
-                                    loadNewAd = bannerControllerConfig.loadNewAd
+                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false)
                                 ) { ad ->
                                     isRequesting = false
                                     if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {

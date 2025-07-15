@@ -29,6 +29,7 @@ class NativeAdSingleController {
     private var largeAndSmallNativeAd: NativeAd? = null
     private var adControllerListener: AdControllerListener? = null
     private lateinit var nativeControllerConfig: NativeControllerConfig
+    private var isAdEnable = true
 
 
     fun hasLargeAdOrLoading(): Boolean {
@@ -110,14 +111,21 @@ class NativeAdSingleController {
         populateCallback: (NativeAd) -> Unit
 
     ) {
+        this.isAdEnable =
+            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
-        if (nativeControllerConfig.isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
+        if (isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
                 try {
                     try {
                         addNativeAdView(
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
-                            adType = AdType.entries.filter { entries -> entries.type == nativeControllerConfig.adType.toInt() }[0],
+                            adType = AdType.entries.filter { entries ->
+                                entries.type == AdKit.firebaseHelper.getLong(
+                                    "${nativeControllerConfig.key}_adType",
+                                    2L
+                                ).toInt()
+                            }[0],
                             context = context,
                             adFrame = adFrame,
                             ad = it,
@@ -129,14 +137,14 @@ class NativeAdSingleController {
                     populateCallback.invoke(it)
                     largeAndSmallNativeAd = null
                     if (loadNewAd) {
-                        loadNativeAd(context, nativeControllerConfig.isAdEnable)
+                        loadNativeAd(context, isAdEnable)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
         } else {
-            loadNativeAd(context, nativeControllerConfig.isAdEnable)
+            loadNativeAd(context, isAdEnable)
         }
     }
 
@@ -144,9 +152,11 @@ class NativeAdSingleController {
     fun loadNewNativeAd(
         nativeControllerConfig: NativeControllerConfig, context: Context
     ) {
+        this.isAdEnable =
+            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.key}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
         setNativeControllerListener(null)
-        loadNativeAd(context, nativeControllerConfig.isAdEnable)
+        loadNativeAd(context, isAdEnable)
     }
 }
 

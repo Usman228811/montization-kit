@@ -35,16 +35,15 @@ fun MainScreen(
 
         Button(onClick = {
             AdKit.interHelper.showInterAd(
-                placementKey = "inter_common",
+                adIdKey = "inter_common",
+                placementKey = "inter_btn_plant",
                 activity = activity,
-                enable = true,
-                interInstant = true,
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         gotoSubscription()
                     }
 
-                }
+                },
             )
         }) {
             Text("showinter and to got subscripption screen")
@@ -53,9 +52,7 @@ fun MainScreen(
 
         AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
-                key = "home_native",
-                isAdEnable = true,
-                adType = 0
+                key = "home_native"
             )
         )
 
@@ -67,7 +64,6 @@ fun MainScreen(
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "home_banner",
-                    isAdEnable = true,
                 ),
             )
         }
