@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateFlowResultLauncher
 
 @Composable
 fun SplashScreen(
@@ -30,14 +31,15 @@ fun SplashScreen(
     val viewModel: SplashScreenViewModel = viewModel(factory = factory)
     val state by viewModel.state.collectAsState()
 
-//    val launcher = AdSdkInAppUpdateFlowResultLauncher (onFail = {
-//        viewModel.initConsent(activity)
-//    })
+    val launcher = AdKitInAppUpdateFlowResultLauncher (onFail = {
+        viewModel.initConsent(activity)
+    })
 
 
     LaunchedEffect(Unit) {
         viewModel.observeLifecycle(lifecycleOwner)
-        viewModel.initConsent(activity)
+        viewModel.checkUpdate(context, launcher)
+//        viewModel.initConsent(activity)
 
 
 //        viewModel.checkUpdate(launcher)

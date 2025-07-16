@@ -96,7 +96,7 @@ object AdKit {
         initializer = AdKitInitializer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
         interHelper = AdKitInterHelper.getInstance()
-        inAppUpdateManager = AdKitInAppUpdateManager.getInstance(context)
+        inAppUpdateManager = AdKitInAppUpdateManager.getInstance()
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
