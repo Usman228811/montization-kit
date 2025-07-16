@@ -24,17 +24,3 @@ fun AdKitInAppUpdateFlowResultLauncher(
     }
 }
 
-fun AdKitInAppUpdateFlowResultLauncherXmL(
-    onFail: () -> Unit,
-): ManagedActivityResultLauncher<IntentSenderRequest, androidx.activity.result.ActivityResult> {
-    return rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        when (result.resultCode) {
-            Activity.RESULT_CANCELED,
-            ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
-                onFail()
-            }
-        }
-    }
-}
