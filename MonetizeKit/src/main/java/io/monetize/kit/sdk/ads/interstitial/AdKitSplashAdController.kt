@@ -294,7 +294,14 @@ class AdKitSplashAdController private constructor(
     ) {
         interstitialAd?.fullScreenContentCallback =
             object : FullScreenContentCallback() {
+
+                override fun onAdClicked() {
+                    super.onAdClicked()
+                    AdKit.analytics.postAnalytics("Splash_inter_click")
+
+                }
                 override fun onAdDismissedFullScreenContent() {
+                    AdKit.analytics.postAnalytics("Splash_inter_cross")
                     hideProgressAndNullAd(activity)
                     super.onAdDismissedFullScreenContent()
 //                    activity.userAnalytics("Splash_Ad_Close")
@@ -304,6 +311,7 @@ class AdKitSplashAdController private constructor(
                     super.onAdShowedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = true
                     interstitialAd = null
+                    AdKit.analytics.postAnalytics("Splash_inter_show")
 //                    activity.userAnalytics("Splash_Ad_Show")
                 }
 
