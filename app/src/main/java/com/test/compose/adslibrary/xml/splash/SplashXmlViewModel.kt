@@ -1,12 +1,17 @@
 package com.test.compose.adslibrary.xml.splash
 
 import android.app.Activity
+import android.content.Context
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
@@ -97,6 +102,44 @@ class SplashXmlViewModel : ViewModel() {
                 )
             }
         }
+
+    }
+
+
+    fun checkUpdate(
+        context: Context,
+        launcher: ActivityResultLauncher<IntentSenderRequest>
+    ) {
+
+        AdKit.inAppUpdateManager.setUpdateStateCallback { updateState ->
+            when (updateState) {
+                UpdateState.Available -> {
+
+                    AdKit.inAppUpdateManager.startUpdateFlow(launcher)
+                }
+
+                UpdateState.Downloaded -> {
+                    /* show restart dialog
+
+                     or
+
+                    adSdkInAppUpdateManager.updateComplete()*/
+
+                }
+
+                UpdateState.Failed -> {
+                    //continue
+
+                }
+
+                UpdateState.Idle -> {
+
+                }
+            }
+
+        }
+
+        AdKit.inAppUpdateManager.checkUpdate(context)
 
     }
 
