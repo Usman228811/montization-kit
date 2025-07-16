@@ -123,7 +123,7 @@ class NativeAdSingleController {
                             adType = AdType.entries.filter { entries ->
                                 entries.type == AdKit.firebaseHelper.getLong(
                                     "${nativeControllerConfig.placementKey}_adType",
-                                    2L
+                                    nativeControllerConfig.adType.toLong()
                                 ).toInt()
                             }[0],
                             context = context,

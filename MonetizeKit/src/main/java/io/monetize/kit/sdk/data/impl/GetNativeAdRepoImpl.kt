@@ -60,7 +60,7 @@ class GetNativeAdRepoImpl private constructor(
             adType = AdType.entries.filter {
                 it.type == getLong(
                     "${nativeControllerConfig.placementKey}_adType",
-                    2L
+                    nativeControllerConfig.adType.toLong()
                 ).toInt()
             }[0]
             loadNewAd = getBoolean("${nativeControllerConfig.placementKey}_loadNewAd", false)

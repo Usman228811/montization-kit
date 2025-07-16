@@ -53,7 +53,8 @@ fun MainScreen(
         AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
-                adIdKey = "home_native"
+                adIdKey = "home_native",
+                adType = 0
             )
         )
 
