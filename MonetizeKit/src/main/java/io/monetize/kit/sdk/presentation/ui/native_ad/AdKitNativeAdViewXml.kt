@@ -6,9 +6,12 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
+import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 
 class AdKitNativeAdViewXml @JvmOverloads constructor(
     context: Context,
@@ -24,7 +27,6 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
     fun loadNative(
         context: Context,
-        viewModel: NativeAdViewModel?,
         nativeControllerConfig: NativeControllerConfig,
         onFail: () -> Unit = {}
     ) {
@@ -32,6 +34,13 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
         if (context is Activity) {
             visibility = View.VISIBLE
+
+            val viewModel = if (context is ViewModelStoreOwner) {
+                ViewModelProvider(context, NativeAdViewModelFactory())[NativeAdViewModel::class.java]
+            } else {
+                null
+            }
+
             viewModel?.initNativeSingleAdData(
                 mContext = context,
                 adFrame = this,

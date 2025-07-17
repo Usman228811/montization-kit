@@ -2,7 +2,6 @@ package com.test.compose.adslibrary.xml.splash
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.appcompat.app.AppCompatActivity
@@ -23,24 +22,6 @@ class SplashXmlActivity : AppCompatActivity() {
 
 
 
-    private fun initAdsConfigs() {
-//        AdKit.initializer.initAdsConfigs(
-//            AdsControllerConfig(
-//                openAdId = "ca-app-pub-3940256099942544/9257395921",
-//                splashId = "ca-app-pub-3940256099942544/1033173712",
-//                appInterIds = listOf(
-//                    "ca-app-pub-3940256099942544/1033173712",
-//                    "ca-app-pub-3940256099942544/1033173712"
-//                ),
-//                splashInterEnable = true,
-//                openAdEnable = true,
-//                splashTime = 16L,
-//                interLoadingEnable = true,
-//                openAdLoadingEnable = true
-//            )
-//        )
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,13 +31,12 @@ class SplashXmlActivity : AppCompatActivity() {
             //
         }
 
-        initAdsConfigs()
 
         splashXmlViewModel =
             ViewModelProvider(this, SplashXmlViewModelFactory())[SplashXmlViewModel::class]
 
 
-        splashXmlViewModel?.checkUpdate(this@SplashXmlActivity, updateLauncher)
+//        splashXmlViewModel?.checkUpdate(this@SplashXmlActivity, updateLauncher)
 
 
         lifecycleScope.launch {

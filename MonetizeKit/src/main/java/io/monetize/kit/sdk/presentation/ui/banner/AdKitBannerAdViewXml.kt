@@ -6,9 +6,12 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
+import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
 class AdKitBannerAdViewXml @JvmOverloads constructor(
     context: Context,
@@ -24,11 +27,18 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
     fun loadBanner(
         context: Context,
-        viewModel: BannerAdViewModel?,
         bannerControllerConfig: BannerControllerConfig,
         onFail: () -> Unit = {}
     ) {
         this.bannerControllerConfig = bannerControllerConfig
+
+        val viewModel = if (context is ViewModelStoreOwner) {
+            ViewModelProvider(context, BannerAdViewModelFactory())[BannerAdViewModel::class.java]
+        } else {
+            null
+        }
+
+
 
         if (context is Activity) {
             visibility = View.VISIBLE

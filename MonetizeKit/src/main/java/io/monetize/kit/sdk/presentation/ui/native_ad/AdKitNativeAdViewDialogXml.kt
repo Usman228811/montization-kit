@@ -6,9 +6,12 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
+import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialogFactory
 
 class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     context: Context,
@@ -16,7 +19,6 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
-    private var nativeAdViewModel: NativeAdViewModelDialog? = null
     private var nativeControllerConfig: NativeControllerConfig? = null
     private var loadNewAd: Boolean = false
 
@@ -26,17 +28,23 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
 
     fun loadNative(
         context: Context,
-        viewModel: NativeAdViewModelDialog,
         nativeControllerConfig: NativeControllerConfig,
         onFail: () -> Unit = {}
     ) {
-        this.nativeAdViewModel = viewModel
         this.nativeControllerConfig = nativeControllerConfig
         this.loadNewAd = loadNewAd
 
         if (context is Activity) {
             visibility = View.VISIBLE
-            nativeAdViewModel?.initNativeSingleAdData(
+
+
+            val viewModel = if (context is ViewModelStoreOwner) {
+                ViewModelProvider(context, NativeAdViewModelDialogFactory())[NativeAdViewModelDialog::class.java]
+            } else {
+                null
+            }
+
+            viewModel?.initNativeSingleAdData(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
@@ -44,7 +52,7 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
             )
 
             if (context is LifecycleOwner) {
-                nativeAdViewModel?.observeLifecycle(context)
+                viewModel?.observeLifecycle(context)
             }
         }
     }

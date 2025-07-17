@@ -16,7 +16,11 @@
         <activity
             android:name=".xml.splash.SplashXmlActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".xml.MainXmlActivity"
@@ -25,13 +29,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowLayoutInDisplayCutoutMode="shortEdges"
             android:theme="@style/Theme.AdsLibrary" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".xml.SettingsXmlActivity"
