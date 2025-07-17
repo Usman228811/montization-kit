@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.banner
+package io.monetize.kit.sdk.presentation.ui.banner
 
 import android.app.Activity
 import android.content.Context
@@ -16,7 +16,6 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
-    private lateinit var bannerAdViewModel: BannerAdViewModel
     private var bannerControllerConfig: BannerControllerConfig? = null
 
     init {
@@ -25,23 +24,24 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
     fun loadBanner(
         context: Context,
-        viewModel: BannerAdViewModel,
-        bannerControllerConfig: BannerControllerConfig
+        viewModel: BannerAdViewModel?,
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit = {}
     ) {
-        bannerAdViewModel = viewModel
         this.bannerControllerConfig = bannerControllerConfig
 
         if (context is Activity) {
             visibility = View.VISIBLE
-            bannerAdViewModel.initSingleBannerData(
+            viewModel?.initSingleBannerData(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
-                adFrame = this
+                adFrame = this,
+                onFail = onFail
             )
 
             // Optional lifecycle observe
             if (context is LifecycleOwner) {
-                bannerAdViewModel.observeLifecycle(context)
+                viewModel?.observeLifecycle(context)
             }
         }
     }

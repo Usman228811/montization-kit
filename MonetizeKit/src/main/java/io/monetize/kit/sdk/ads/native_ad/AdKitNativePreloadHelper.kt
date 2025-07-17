@@ -1,37 +1,39 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.app.Activity
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
-class AdKitNativePreloadHelper(
-    private val internetController: AdKitInternetController,
-    private val mySharedPreference: AdKitPref,
-    private val mConsent: AdKitConsentManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper,
-    private val nativeCommonHelper: AdKitNativeCommonHelper,
+class AdKitNativePreloadHelper private constructor(
 ) {
+
+    companion object {
+        @Volatile
+        private var instance: AdKitNativePreloadHelper? = null
+
+
+        internal fun getInstance(
+        ): AdKitNativePreloadHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitNativePreloadHelper().also { instance = it }
+            }
+        }
+    }
+
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
-        if (nativeControllerConfig.isAdEnable && mConsent.canRequestAds) {
-            var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+
+        if (AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true) && AdKit.consentManager.canRequestAds) {
+            var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             if (index == -1) {
                 singleNativeList.apply {
                     add(
                         NativeAdSingleModel(
-                            nativeControllerConfig.key,
-                            NativeAdSingleController(
-                                prefs = mySharedPreference,
-                                internetController = internetController,
-                                consentManager = mConsent,
-                                customLayoutHelper = customLayoutHelper,
-                                nativeCommonHelper = nativeCommonHelper
-                            )
+                            nativeControllerConfig.adIdKey,
+                            NativeAdSingleController()
                         )
                     )
                 }
-                index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+                index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             }
             if (index in singleNativeList.indices) {
                 singleNativeList[index].controller?.loadNewNativeAd(

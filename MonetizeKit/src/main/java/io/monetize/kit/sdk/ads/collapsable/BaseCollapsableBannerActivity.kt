@@ -13,24 +13,29 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
-class BaseCollapsableBannerActivity(
-    private val mPrefHelper: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager
+class BaseCollapsableBannerActivity private constructor(
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
     private var isAdLoadCalled: Boolean = false
-    private var isBottom: Boolean = true
+    private var isTop: Boolean = true
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
+
+    private var onFail: (() -> Unit)? = null
+
+    companion object {
+
+        fun getInstance(
+        ): BaseCollapsableBannerActivity {
+            return BaseCollapsableBannerActivity()
+        }
+    }
 
     private fun destroyCollapsableBannerAd() {
         bannerAd?.destroy()
@@ -44,10 +49,12 @@ class BaseCollapsableBannerActivity(
     fun initCollapsableBannerAd(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit,
     ) {
         this.bannerControllerConfig = bannerControllerConfig
-        isBottom = bannerControllerConfig.collapsableConfig?.isBottom ?: true
+        isTop = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsibleTop", false)
+        this.onFail = onFail
         this.mContext = mContext
         this.adFrame = adFrame
         this.isAdLoadCalled = true
@@ -56,7 +63,7 @@ class BaseCollapsableBannerActivity(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (!bannerControllerConfig.isAdEnable || consentManager.canRequestAds.not() || mPrefHelper.isAppPurchased || (!internetController.isConnected && bannerAd == null)) {
+            if (AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -77,14 +84,16 @@ class BaseCollapsableBannerActivity(
                             Constants.showToast(mContext, "collapse banner ad calling")
                         }*/
                         val collapseBannerAd = AdView(mContext).apply {
-                            this.adUnitId = bannerControllerConfig.adId
+                            this.adUnitId =
+                                AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
+                                    ?: ""
                             this.setAdSize(getAdSize(mContext))
                             this.loadAd(
                                 AdRequest.Builder()
                                     .addNetworkExtrasBundle(
                                         AdMobAdapter::class.java,
                                         Bundle().apply {
-                                            if (isBottom) {
+                                            if (isTop.not()) {
                                                 putString("collapsible", "bottom")
                                             } else {
                                                 putString("collapsible", "top")
@@ -119,6 +128,7 @@ class BaseCollapsableBannerActivity(
                                     collapseBannerAd.destroy()
                                     return
                                 }
+                                onFail?.invoke()
                                 isRequesting = false
                                 bannerAd = null
                                 adFrame.removeAllViews()

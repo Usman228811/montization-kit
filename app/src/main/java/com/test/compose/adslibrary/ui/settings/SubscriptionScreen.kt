@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,13 +12,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
+import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
 @Composable
 fun SubscriptionScreen(
-    subscriptionViewModel: SubscriptionViewModel = koinViewModel()
+
 ) {
+
+    val context = LocalContext.current
+    val factory = remember { SubscriptionViewModelFactory() }
+    val subscriptionViewModel: SubscriptionViewModel = viewModel(factory = factory)
 
     val activity = LocalActivity.current as Activity
 
@@ -36,7 +47,8 @@ fun SubscriptionScreen(
             )
         }
 
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 subscriptionViewModel.updateSelectedButtonPos(0)
 
@@ -46,7 +58,8 @@ fun SubscriptionScreen(
                 text = "weekly ${state.weeklyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
 
                 subscriptionViewModel.updateSelectedButtonPos(1)
@@ -56,7 +69,8 @@ fun SubscriptionScreen(
                 text = "monthly ${state.monthlyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
 
                 subscriptionViewModel.updateSelectedButtonPos(2)
@@ -66,13 +80,33 @@ fun SubscriptionScreen(
                 text = "yearly ${state.yearlyPrice}"
             )
         }
-        Button(modifier = Modifier.fillMaxWidth(),
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
-                subscriptionViewModel.purchase()
+                subscriptionViewModel.purchase(activity)
             }
         ) {
             Text(
                 text = state.buttonText
+            )
+        }
+
+
+        AdKitNativeAdView(
+            nativeControllerConfig = NativeControllerConfig(
+                placementKey = "subscription_native",
+                adIdKey = "subscription_native",
+                adType = 2
+            )
+        )
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+
+            AdKitBannerAdView(
+                bannerControllerConfig = BannerControllerConfig(
+                    placementKey = "premium_banner",
+                    adIdKey = "premium_banner"
+                )
             )
         }
     }

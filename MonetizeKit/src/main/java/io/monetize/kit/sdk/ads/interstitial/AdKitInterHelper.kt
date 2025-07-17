@@ -1,82 +1,135 @@
 package io.monetize.kit.sdk.ads.interstitial
 
 import android.app.Activity
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
-class AdKitInterHelper(
-    private val splashController: AdKitSplashAdController,
-    private val interstitialController: InterstitialController,
-    private val adKitOpenAdManager: AdKitOpenAdManager
+class AdKitInterHelper private constructor(
 ) {
 
+    private var isAppInPause = false
+    private var isInterInstant = false
+    private var isAdEnable = false
+    private var interAdsConfigs: InterAdsConfigs? = null
 
-    fun setAdIds(
-        splashId: String,
-        appInterIds: List<String>,
-        interControllerConfig: InterControllerConfig
-    ) {
-        splashController.setSplashId(splashId, interControllerConfig)
-        interstitialController.setAdIds(appInterIds, interControllerConfig)
+
+    fun getInterAdsConfigs(): InterAdsConfigs? {
+        return interAdsConfigs
     }
+
+    fun getInterInstant(): Boolean {
+        return isInterInstant
+
+    }
+
+    companion object {
+        @Volatile
+        private var instance: AdKitInterHelper? = null
+
+
+        internal fun getInstance(
+        ): AdKitInterHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInterHelper().also { instance = it }
+            }
+        }
+    }
+
+
+    fun setInterAdsConfigs(
+        interAdsConfigs: InterAdsConfigs,
+    ) {
+        this.interAdsConfigs = interAdsConfigs
+    }
+
+    fun getAppInPause() = isAppInPause
 
 
     fun setAppInPause(isPause: Boolean) {
-        splashController.setAppInPause(isPause)
-        interstitialController.setAppInPause(isPause)
-        adKitOpenAdManager.setAppInPause(isPause)
+        this.isAppInPause = isPause
+        AdKit.splashAdController.setAppInPause(isPause)
+        AdKit.openAdManager.setAppInPause(isPause)
     }
-
 
 
     fun showInterAd(
         activity: Activity,
-        enable: Boolean,
-        interInstant: Boolean = false,
-        listener: InterstitialControllerListener, key: String = "", counter: Long = -1L,
+        placementKey:String,
+        adIdKey: String,
+        listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
-        if (!enable) {
+        this.isInterInstant = AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
+        if (!isAdEnable) {
             listener.onAdClosed()
             return
         }
 
-        if (splashController.hasAd()) {
-            splashController.showInterstitial(
+        if (AdKit.splashAdController.hasAd()) {
+            AdKit.splashAdController.showInterstitial(
                 activity, true, object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         listener.onAdClosed()
                     }
                 })
         } else {
-            if (interInstant.not()) {
+
+
+            var interstitialController: InterstitialController? = null
+            var index = singleInterList.indexOfFirst { it.key == adIdKey }
+            if (index == -1) {
+                singleInterList.apply {
+                    add(
+                        InterAdSingleModel(
+                            adIdKey,
+                            InterstitialController.getInstance()
+                        )
+                    )
+                }
+                index = singleInterList.indexOfFirst { it.key == adIdKey }
+            }
+            if (index != -1) {
+                interstitialController = singleInterList[index].controller
+            }
+
+
+            if (isInterInstant.not()) {
 
                 if (counter != -1L) {
-                    interstitialController.showWithCounter(
+                    interstitialController?.showWithCounter(
                         context = activity,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
-                        key = key,
+                        key = prefKey,
                         counter = counter
                     )
 
                 } else {
-                    interstitialController.showWithoutCounter(
+                    interstitialController?.showWithoutCounter(
                         context = activity,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
                     )
                 }
             } else {
                 if (counter != -1L) {
-                    interstitialController.loadAndShowWithCounter(
+                    interstitialController?.loadAndShowWithCounter(
                         context = activity,
-                        enable = enable,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
+                        enable = isAdEnable,
                         listener = listener,
-                        key = key,
+                        key = prefKey,
                         counter = counter
                     )
                 } else {
-                    interstitialController.loadAndShow(
+                    interstitialController?.loadAndShow(
                         context = activity,
+                        btnKey = placementKey,
+                        adIdKey = adIdKey,
                         enable = true,
                         listener = listener,
                     )

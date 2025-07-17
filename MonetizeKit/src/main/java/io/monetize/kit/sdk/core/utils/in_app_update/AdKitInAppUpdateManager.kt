@@ -1,17 +1,24 @@
 package io.monetize.kit.sdk.core.utils.in_app_update
 
+import android.app.Activity
 import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.ActivityResult
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 
 sealed class UpdateState {
     data object Idle : UpdateState()
@@ -20,7 +27,38 @@ sealed class UpdateState {
     data object Available : UpdateState()
 }
 
-class AdKitInAppUpdateManager(private val context: Context, private val internetController: AdKitInternetController) {
+class AdKitInAppUpdateManager private constructor(
+) {
+
+    companion object {
+        @Volatile
+        private var instance: AdKitInAppUpdateManager? = null
+
+        internal fun getInstance(
+        ): AdKitInAppUpdateManager {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInAppUpdateManager().also { instance = it }
+            }
+        }
+        /**
+         * For XML-based activities: register the result launcher easily
+         */
+        fun registerLauncher(
+            activity: ComponentActivity,
+            onFail: () -> Unit
+        ): ActivityResultLauncher<IntentSenderRequest> {
+            return activity.registerForActivityResult(
+                ActivityResultContracts.StartIntentSenderForResult()
+            ) { result ->
+                when (result.resultCode) {
+                    Activity.RESULT_CANCELED,
+                    ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
+                        onFail()
+                    }
+                }
+            }
+        }
+    }
 
     private var appUpdateManager: AppUpdateManager? = null
     private var updateListener: InstallStateUpdatedListener? = null
@@ -31,10 +69,10 @@ class AdKitInAppUpdateManager(private val context: Context, private val internet
         updateStateCallback = callback
     }
 
-    fun checkUpdate() {
+    fun checkUpdate(mContext: Context) {
         if (internetController.isConnected) {
             try {
-                appUpdateManager = AppUpdateManagerFactory.create(context)
+                appUpdateManager = AppUpdateManagerFactory.create(mContext)
                 appUpdateManager?.let { appUpdateManager ->
                     appUpdateManager.appUpdateInfo.apply {
                         addOnSuccessListener { p0 ->
@@ -80,13 +118,13 @@ class AdKitInAppUpdateManager(private val context: Context, private val internet
         updateListener?.let {
             appUpdateManager?.unregisterListener(it)
         }
-        
+
         updateStateCallback = null
         updateListener = null
         appUpdateInfo = null
     }
 
-    fun updateComplete(){
+    fun updateComplete() {
         appUpdateManager?.completeUpdate()
     }
 
@@ -99,5 +137,22 @@ class AdKitInAppUpdateManager(private val context: Context, private val internet
                 AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
             )
         } ?: { updateStateCallback?.invoke(UpdateState.Failed) }
+    }
+}
+
+
+@Composable
+fun AdKitInAppUpdateFlowResultLauncher(
+    onFail: () -> Unit,
+): ManagedActivityResultLauncher<IntentSenderRequest, androidx.activity.result.ActivityResult> {
+    return rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        when (result.resultCode) {
+            Activity.RESULT_CANCELED,
+            ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
+                onFail()
+            }
+        }
     }
 }

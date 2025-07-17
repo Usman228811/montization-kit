@@ -4,9 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.0.21"
 
-//    alias(libs.plugins.gmsServicePlugin) apply false
-//    alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
-//    alias(libs.plugins.firebasePerfPlugin) apply false
+//    alias(libs.plugins.gmsServicePlugin)
+//    alias(libs.plugins.firebaseCrashlyticsPlugin)
+//    alias(libs.plugins.firebasePerfPlugin)
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nas.internet.speedtest.meter.speed.test.meter.app"
+        applicationId = "com.test.ads"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -57,11 +57,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.koin)
+//    implementation(libs.koin)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.sdpCompose)
     implementation(libs.androidx.navigation.compose)

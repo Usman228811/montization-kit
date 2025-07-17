@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("maven-publish")
 
 
 }
@@ -19,7 +20,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,6 +41,23 @@ android {
     }
 }
 
+group = "com.github.Usman228811"
+version = "v1.6.6"
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.Usman228811"
+                artifactId = "MonetizeKit"
+                version = "v1.6.6"
+            }
+        }
+    }
+}
+
 dependencies {
 
 
@@ -55,7 +73,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.play.services.ads)
-    implementation(libs.koin)
+//    implementation(libs.koin)
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
 
@@ -64,8 +82,11 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+
 }

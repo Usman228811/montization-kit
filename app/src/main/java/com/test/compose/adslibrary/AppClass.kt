@@ -5,21 +5,11 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
-import com.test.compose.adslibrary.di.MainModule
 import com.test.compose.adslibrary.navigation.AppRoute
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.di.provideMonetizationKitModules
-import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
-import org.koin.android.ext.android.inject
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
-    private val adKitInitializer: AdKitInitializer by inject()
-    private val adKitInterHelper: AdKitInterHelper by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
     companion object {
         var appContext: Context? = null
@@ -29,33 +19,38 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         super.onCreate()
         appContext = this
 
-        startKoin {
-            androidContext(this@AppClass)
-            modules(MainModule)
-            modules(
-                provideMonetizationKitModules()
-            )
-        }
+        AdKit.init(
+            context = this,
+            admobId = "ca-app-pub-3940256099942544~3347511713",
+            openAdId = "ca-app-pub-3940256099942544/9257395921",
+            mapOfInterIds = mapOf(
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "inter_common" to listOf(
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
+                )
+            ),
+            mapOfNativeIds = mapOf(
+                "home_native" to "ca-app-pub-3940256099942544/2247696110",
+                "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
+            ),
+            mapOfBannerIds = mapOf(
+                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
+            ),
+            onInitSdk = {
+                AdKit.analytics.showToast(true)
+                AdKit.initializer.setNativeCustomLayouts(
+                    bigNativeLayout = R.layout.large_native_layout_custom,
+                    bigNativeShimmer = R.layout.large_native_layout_shimmer,
+                )
 
-        adKitInitializer.initMobileAds(
-            adMobAppId = "ca-app-pub-9690615864092002~8960663430",
-            onInit = {
-
-
-            }
-        )
-
-        adKitInitializer.setNativeCustomLayouts(
-            bigNativeLayout = R.layout.large_native_layout_custom,
-            bigNativeShimmer = R.layout.large_native_layout_shimmer,
-        )
-
-        adKitOpenAdManager.excludeComposeRoutesFromOpenAd(
-            AppRoute.SplashRoute.route,
-            AppRoute.SubscriptionRoute.route
-        )
-
-
+                AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
+                    AppRoute.SplashRoute.route,
+                    AppRoute.SubscriptionRoute.route
+                )
+            })
     }
 
     fun initializeAppClass() {
@@ -65,6 +60,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         }
     }
 
+
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
     override fun onActivityStarted(activity: Activity) {
@@ -73,10 +69,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
     private fun handleCurrentActivity(activity: Activity) {
-        adKitInterHelper.setAppInPause(false)
-        adKitOpenAdManager.setActivity(activity)
-//        canShowOpenAd =
-//            (currentActivity !is SplashActivity && currentActivity !is CropImageActivity && currentActivity !is AdActivity)
+        AdKit.interHelper.setAppInPause(false)
+        AdKit.openAdManager.setActivity(activity)
     }
 
     override fun onActivityResumed(activity: Activity) {
@@ -85,13 +79,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivityPaused(activity: Activity) {
-        adKitInterHelper.setAppInPause(true)
+        AdKit.interHelper.setAppInPause(true)
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {
 
-        adKitOpenAdManager.setActivity(null)
-        adKitInterHelper.setAppInPause(false)
+        AdKit.openAdManager.setActivity(null)
+        AdKit.interHelper.setAppInPause(false)
     }
 }

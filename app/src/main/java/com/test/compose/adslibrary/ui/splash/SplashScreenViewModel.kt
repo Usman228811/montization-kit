@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -10,16 +11,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
+import com.test.compose.adslibrary.BuildConfig
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
-import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
-import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
-import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -36,14 +34,28 @@ data class SplashScreenState(
     val updateState: UpdateState = UpdateState.Idle,
 )
 
+class SplashScreenViewModelFactory(
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+//        val AdKit.splashAdController: AdKit.splashAdController =
+//            AdKit.splashAdController.getInstance(context)
+//        val adKitFirebaseRemoteConfigHelper: AdKitFirebaseRemoteConfigHelper =
+//            AdKitFirebaseRemoteConfigHelper.getInstance()
+//        val AdKit.inAppUpdateManager: AdKit.inAppUpdateManager =
+//            AdKit.inAppUpdateManager.getInstance(context)
+//        val AdKit.consentManager: AdKit.consentManager = AdKit.consentManager.getInstance(context)
+//        val pref: AdKitPref = AdKitPref.getInstance(context)
+//        val AdKit.internetController: AdKit.internetController =
+//            AdKit.internetController.getInstance(context)
+//        val  AdKit.purchaseHelper:  AdKit.purchaseHelper =  AdKit.purchaseHelper.getInstance(context)
+
+        return SplashScreenViewModel() as T
+    }
+}
+
 class SplashScreenViewModel(
-    private val adKitSplashAdController: AdKitSplashAdController,
-    private val adKitFirebaseRemoteConfigHelper: AdKitFirebaseRemoteConfigHelper,
-    private val adKitInAppUpdateManager: AdKitInAppUpdateManager,
-    private val adKitConsentManager: AdKitConsentManager,
-    private val pref: AdKitPref,
-    private val adKitInternetController: AdKitInternetController,
-    private val adKitPurchaseHelper: AdKitPurchaseHelper,
 ) : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
@@ -59,14 +71,14 @@ class SplashScreenViewModel(
         viewModelScope.apply {
 
             launch {
-                adKitConsentManager.googleConsent.collectLatest {
-                    runSplash()
+                AdKit.consentManager.googleConsent.collectLatest {
+                    fetchFirebase()
                 }
             }
         }
 
 
-        adKitPurchaseHelper.initBilling("one_time_purchase_id")
+        AdKit.purchaseHelper.initBilling("one_time_purchase_id")
 
 
 
@@ -74,47 +86,24 @@ class SplashScreenViewModel(
 
             launch {
 
-                adKitPurchaseHelper.appPurchased.collectLatest { isPurchased ->
+                 AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
 
                 }
             }
 
             launch {
 
-                adKitPurchaseHelper.productPriceFlow.collectLatest {
+                 AdKit.purchaseHelper.productPriceFlow.collectLatest {
 
 
                 }
             }
         }
 
-//        firebaseRemoteConfigHelper.apply {
-//            viewModelScope.launch {
-//                configFetched.collectLatest {
-//                    try {
-//                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
-//                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
-//                        val IS_AI = getString("IS_AI", "YES")
-//
-//                        runSplash()
-//                    } catch (e: Exception) {
-//                        runSplash()
-//                    }
-//                }
-//            }
-//
-//            fetchRemoteValues(
-//                BuildConfig.DEBUG,
-//                mapOf(
-//                    "SPLASH_TIME" to 16,
-//                    "HOME_NATIVE_ENABLE" to true,
-//                )
-//            )
-//
-//        }
 
 
-        adKitSplashAdController.resetSplash()
+
+        AdKit.splashAdController.resetSplash()
         startProgressAnimation()
 
     }
@@ -127,9 +116,9 @@ class SplashScreenViewModel(
                         isConsentManager = true
                     )
                 }
-                if (!pref.isAppPurchased && adKitInternetController.isConnected) {
-                    adKitConsentManager.gatherConsent(activity)
-                    if (adKitConsentManager.canRequestAds) {
+                if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected) {
+                    AdKit.consentManager.gatherConsent(activity)
+                    if (AdKit.consentManager.canRequestAds) {
                         runSplash()
                     }
                 } else {
@@ -139,14 +128,44 @@ class SplashScreenViewModel(
         }
     }
 
+    fun fetchFirebase(){
+        AdKit.firebaseHelper.apply {
+            viewModelScope.launch {
+                configFetched.collectLatest {
+                    try {
+                        runSplash()
+                    } catch (e: Exception) {
+                        runSplash()
+                    }
+                }
+            }
 
-    fun checkUpdate(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
+            fetchRemoteValues(BuildConfig.DEBUG) {
+                bool("inter_btn_plant_isAdEnable", true)
+                bool("inter_btn_plant_isInterInstant", true)
+                bool("home_native_isAdEnable", true)
+                bool("home_banner_isAdEnable", true)
+                bool("home_banner_isCollapsible", true)
+                bool("subscription_native_isAdEnable", true)
+                long("home_native_adType", 1L)
+                long("subscription_native_adType", 1L)
+                long("SPLASH_TIME", 16)
+            }
 
-        adKitInAppUpdateManager.setUpdateStateCallback { updateState ->
+        }
+    }
+
+
+    fun checkUpdate(
+        context: Context,
+        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    ) {
+
+        AdKit.inAppUpdateManager.setUpdateStateCallback { updateState ->
             when (updateState) {
                 UpdateState.Available -> {
 
-                    adKitInAppUpdateManager.startUpdateFlow(launcher)
+                    AdKit.inAppUpdateManager.startUpdateFlow(launcher)
                 }
 
                 UpdateState.Downloaded -> {
@@ -168,7 +187,7 @@ class SplashScreenViewModel(
 
         }
 
-        adKitInAppUpdateManager.checkUpdate()
+        AdKit.inAppUpdateManager.checkUpdate(context)
 
     }
 
@@ -197,7 +216,7 @@ class SplashScreenViewModel(
             animator?.pause()
         }
         if (!isInterAdShowed && isInterAdCalled) {
-            adKitSplashAdController.pauseAd()
+            AdKit.splashAdController.pauseAd()
         }
         viewModelScope.launch {
             _state.update {
@@ -262,9 +281,14 @@ class SplashScreenViewModel(
     fun showSplashAd(mContext: Activity) {
 
         animator?.cancel()
-        adKitSplashAdController.initSplashAdmob(
+        AdKit.splashAdController.initSplashAdmob(
             mContext,
-            true,
+            placementKey = "splash_inter",
+            interAdsConfigs = InterAdsConfigs(
+                openAdEnable = true,
+                interLoadingEnable = true,
+                openAdLoadingEnable = true,
+            ),
             object : InterstitialControllerListener {
                 override fun onAdClosed() {
                     _state.update {
@@ -275,6 +299,7 @@ class SplashScreenViewModel(
                     }
                 }
 
+
             }
         )
 
@@ -282,9 +307,9 @@ class SplashScreenViewModel(
     }
 
     fun resumeSplashAd(activity: Activity) {
-//        if (!isInterAdShowed && isInterAdCalled) {
-//            splashAdController.resumeAd(activity, true)
-//        }
+        if (!isInterAdShowed && isInterAdCalled) {
+            AdKit.splashAdController.resumeAd(activity, true)
+        }
     }
 
     override fun onCleared() {

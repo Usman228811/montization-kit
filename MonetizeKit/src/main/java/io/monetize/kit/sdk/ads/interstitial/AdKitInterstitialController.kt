@@ -10,36 +10,50 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicInteger
 
-data class InterControllerConfig(
-    val openAdId: String,
-    val splashId: String,
-    val appInterIds: List<String>,
-    val splashInterEnable:Boolean = false,
-    val openAdEnable:Boolean = false,
-    val splashTime :Long = 16L,
+
+data class InterAdSingleModel(
+    val key: String = "",
+    val controller: InterstitialController? = null,
+)
+
+val singleInterList = ArrayList<InterAdSingleModel>()
+
+data class InterAdsConfigs(
+    val openAdEnable:Boolean,
     val instantInterTime: Long = 8L,
     val interLoadingEnable: Boolean = false,
     val openAdLoadingEnable: Boolean = false,
 )
 
+//data class AdsControllerConfig(
+//    val splashInterEnable: Boolean = false,
+//    val openAdEnable: Boolean = false,
+//    val splashTime: Long = 16L,
+//    val instantInterTime: Long = 8L,
+//    val interLoadingEnable: Boolean = false,
+//    val openAdLoadingEnable: Boolean = false,
+//)
 
-class InterstitialController(
-    private val internetController: AdKitInternetController,
-    private val mMyPref: AdKitPref,
-    private val mConsent: AdKitConsentManager,
+
+class InterstitialController private constructor(
 ) {
-    private var interControllerConfig: InterControllerConfig? = null
+    companion object {
+        fun getInstance(
+        ): InterstitialController {
+            return InterstitialController()
+        }
+    }
+
+
+    private var btnKey: String = ""
+    private var adIdKey: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
     private var admobInterAd: InterstitialAd? = null
@@ -47,7 +61,6 @@ class InterstitialController(
     private var adLoadingDialog: AdLoadingDialog? = null
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
-    private var isAppPause = false
     private var isHandlerAdDelayRunning = false
     private val runnableHandlerAdDelay = Runnable {
         if (mInterstitialControllerListener != null && isHandlerAdDelayRunning) {
@@ -59,30 +72,10 @@ class InterstitialController(
             mInterstitialControllerListener?.onAdClosed()
         }
     }
-    private val adIdIndex = AtomicInteger(0)
-    private var idsList: List<String> = emptyList()
-
-
-    fun setAppInPause(isAppPause: Boolean) {
-        this.isAppPause = isAppPause
-    }
-
-
-    fun setAdIds(ids: List<String>, interControllerConfig: InterControllerConfig) {
-        idsList = ids
-        adIdIndex.set(0) // Optional: reset rotation when new list set
-        this.interControllerConfig = interControllerConfig
-    }
-
-    fun getAdId(): String {
-        if (idsList.isEmpty()) throw IllegalStateException("Ad IDs not set. Call setAdIds() first.")
-        val index = adIdIndex.getAndUpdate { (it + 1) % idsList.size }
-        return idsList[index]
-    }
 
 
     private fun startDelayHandler() {
-        val instantTime = interControllerConfig?.instantInterTime ?: 8L
+        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantInterTime ?: 8L
         if (!isHandlerAdDelayRunning) {
             isHandlerAdDelayRunning = true
             handlerAdDelay.postDelayed(
@@ -101,10 +94,10 @@ class InterstitialController(
 
     private fun showAdmobAd(activity: Activity, key: String) {
         try {
-            if (admobInterAd != null && !isAppPause && !IS_INTERSTITIAL_Ad_SHOWING) {
+            if (admobInterAd != null && !AdKit.interHelper.getAppInPause() && !IS_INTERSTITIAL_Ad_SHOWING) {
                 mInterstitialControllerListener?.onAdShow()
                 if (admobInterAd != null) {
-                    setAdmobFullScreen()
+                    setAdmobFullScreen(activity, key)
                     admobInterAd?.show(activity)
                 }
                 if (key != "") {
@@ -119,18 +112,24 @@ class InterstitialController(
     }
 
     fun loadAndShowWithCounter(
-        context: Activity, enable: Boolean,
+        context: Activity,
+        btnKey:String,
+        adIdKey: String,
+        enable: Boolean,
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
+
+        this.btnKey = btnKey
+        this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context, true, key, listener)
+                loadAndShow(context, btnKey, adIdKey, true, key, listener)
             }
         } else if ((savedCount + 1).toLong() >= counter) {
             listener.onAdClosed()
@@ -142,28 +141,39 @@ class InterstitialController(
     }
 
     fun showWithoutCounter(
-        context: Activity, enable: Boolean,
+        context: Activity,
+        btnKey:String,
+        adIdKey: String,
+        enable: Boolean,
         listener: InterstitialControllerListener
     ) {
         mInterstitialControllerListener = listener
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        this.btnKey = btnKey
+        this.adIdKey = adIdKey
+        if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else {
             if (admobInterAd != null) {
                 checkProgressShowAd(context)
             } else {
+                listener.onAdClosed()
                 preLoadInter(context)
             }
         }
     }
 
     fun showWithCounter(
-        context: Activity, enable: Boolean,
+        context: Activity,
+        btnKey:String,
+        adIdKey: String,
+        enable: Boolean,
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
         mInterstitialControllerListener = listener
+        this.btnKey = btnKey
+        this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
-        if (mMyPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
@@ -191,8 +201,8 @@ class InterstitialController(
     }
 
     private fun initAdMobCounter(context: Context, key: String, counter: Long) {
-        val canLoad = internetController.isConnected && !mMyPref.isAppPurchased
-        if (mConsent.canRequestAds && canLoad) {
+        val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
+        if (AdKit.consentManager.canRequestAds && canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
                 preLoadInter(context)
@@ -208,8 +218,8 @@ class InterstitialController(
         if (isForCounter) {
             initAdMobCounter(context, counterKey, counter)
         } else {
-            val canLoad = internetController.isConnected && !mMyPref.isAppPurchased
-            if (mConsent.canRequestAds && canLoad) {
+            val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
+            if (AdKit.consentManager.canRequestAds && canLoad) {
                 preLoadInter(context)
             }
         }
@@ -217,8 +227,8 @@ class InterstitialController(
 
     private fun preLoadInter(context: Context) {
         try {
-            val canGo = internetController.isConnected && mConsent.canRequestAds
-            if (!mMyPref.isAppPurchased && !hasAd && canGo) {
+            val canGo = AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds
+            if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
                 if (!canRequestAd) {
                     return
                 }
@@ -228,7 +238,7 @@ class InterstitialController(
 //                }
 //                "Common Inter Called".logIt()
                 InterstitialAd.load(
-                    context, getAdId(),
+                    context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
                     AdRequest.Builder().build(),
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
@@ -260,13 +270,18 @@ class InterstitialController(
 
     fun loadAndShow(
         context: Activity,
+        btnKey:String,
+        adIdKey: String,
         enable: Boolean = true,
         key: String = "",
         listener: InterstitialControllerListener,
     ) {
+
+        this.btnKey = btnKey
+        this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
-            if (!mMyPref.isAppPurchased && internetController.isConnected && enable && mConsent.canRequestAds) {
+            if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
                 if (!canRequestAd) {
                     mInterstitialControllerListener?.onAdClosed()
                     return
@@ -281,7 +296,7 @@ class InterstitialController(
 //                    context.showToast("Inter Ad Called")
 //                }
                 InterstitialAd.load(
-                    context, getAdId(),
+                    context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
                     AdRequest.Builder().build(),
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(p0: InterstitialAd) {
@@ -339,7 +354,7 @@ class InterstitialController(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
-        if (interControllerConfig?.interLoadingEnable != false) {
+        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable != false) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 val adLoadingDialog = AdLoadingDialog(activity)
@@ -357,7 +372,7 @@ class InterstitialController(
     }
 
 
-    private fun setAdmobFullScreen() {
+    private fun setAdmobFullScreen(activity: Activity, key: String) {
         admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 dismissLoadingDialog()
@@ -366,9 +381,9 @@ class InterstitialController(
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null
 //                activity.userAnalytics("${fromScreen}_Inter_Close")
-//                if (loadNewNextAd && key.isEmpty()) {
-//                    preLoadInter(activity)
-//                }
+                if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
+                    preLoadInter(activity)
+                }
             }
 
             override fun onAdShowedFullScreenContent() {
@@ -394,12 +409,12 @@ class InterstitialController(
     }
 
     private fun getInterCount(key: String, defValue: Int = 0): Int {
-        return mMyPref.getInterInt(key, defValue)
+        return AdKit.adKitPref.getInterInt(key, defValue)
     }
 
     private fun setInterCount(key: String = "APP_INTER_COUNTER", count: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            mMyPref.putInterInt(key, count)
+            AdKit.adKitPref.putInterInt(key, count)
         }
     }
 

@@ -11,15 +11,10 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
-class AdKitSplashAdController(
-    private val internetController: AdKitInternetController,
-    private val myPref: AdKitPref,
-    private val mConsent: AdKitConsentManager,
+class AdKitSplashAdController private constructor(
 ) {
     private val handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
@@ -30,19 +25,28 @@ class AdKitSplashAdController(
     private var isHandlerRunning = false
     private var isPauseDone = false
     private var isAppPause = false
-    private var adId: String = ""
-    private var interControllerConfig: InterControllerConfig? = null
+    private var splashTime :Long = 16L
+    private var isAdEnable :Boolean = false
+
+    companion object {
+        @Volatile
+        private var instance: AdKitSplashAdController? = null
+
+
+        internal fun getInstance(
+        ): AdKitSplashAdController {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitSplashAdController(
+                ).also { instance = it }
+            }
+        }
+    }
 
 
     fun setAppInPause(isAppPause: Boolean) {
         this.isAppPause = isAppPause
     }
 
-
-    fun setSplashId(id: String, interControllerConfig: InterControllerConfig) {
-        adId = id
-        this.interControllerConfig = interControllerConfig
-    }
 
     fun resetSplash() {
         interstitialAd = null
@@ -89,7 +93,8 @@ class AdKitSplashAdController(
 //                    context.showToast("Splash Ad Calling")
 //
 //                }
-                if (adId.isEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
+                val adId = AdKit.interIdManager.getNextInterId(placementKey)
+                if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
                     context, adId,
@@ -154,7 +159,7 @@ class AdKitSplashAdController(
         interstitialControllerListener: InterstitialControllerListener,
     ) {
         mInterstitialControllerListener = interstitialControllerListener
-        if (myPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+        if (AdKit.adKitPref.isAppPurchased || !enable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
             interstitialControllerListener.onAdClosed()
         } else if (interstitialAd != null) {
             adLoadingCheck(activity)
@@ -166,7 +171,7 @@ class AdKitSplashAdController(
     private fun adLoadingCheck(
         activity: Activity,
     ) {
-        if (interControllerConfig?.interLoadingEnable == true) {
+        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable == true) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 adLoadingDialog = AdLoadingDialog(activity)
@@ -214,11 +219,24 @@ class AdKitSplashAdController(
         }
     }
 
+    private var placementKey: String = ""
+
     fun initSplashAdmob(
-        activity: Activity, enable: Boolean,
+        activity: Activity,
+        placementKey: String,
+        interAdsConfigs: InterAdsConfigs,
         listener: InterstitialControllerListener?,
     ) {
+
+
+        AdKit.initializer.initAdsConfigs(
+            interAdsConfigs = interAdsConfigs
+        )
+
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+        this.splashTime = AdKit.firebaseHelper.getLong("SPLASH_TIME", 16)
         mInterstitialControllerListener = listener
+        this.placementKey = placementKey
         canRequestAd = true
         interstitialAd = null
         isHandlerRunning = false
@@ -229,8 +247,8 @@ class AdKitSplashAdController(
             }
         }
         try {
-            if (!myPref.isAppPurchased && enable && mConsent.canRequestAds) {
-                if (!internetController.isConnected) {
+            if (!AdKit.adKitPref.isAppPurchased && isAdEnable && AdKit.consentManager.canRequestAds) {
+                if (!AdKit.internetController.isConnected) {
                     handlerAd.postDelayed({ mInterstitialControllerListener?.onAdClosed() }, 5000)
                     return
                 }
@@ -247,11 +265,11 @@ class AdKitSplashAdController(
 
 
     private fun startHandler() {
-        val splashTime = interControllerConfig?.splashTime?: 16L
+        val splashTime = splashTime
         if (!isHandlerRunning) {
             isHandlerRunning = true
             runnableSplash?.let {
-                handlerAd.postDelayed(it,  splashTime* 1000)
+                handlerAd.postDelayed(it, splashTime * 1000)
             }
         }
     }
@@ -259,7 +277,7 @@ class AdKitSplashAdController(
 
     private fun showSplashAd(activity: Activity) {
         if (!isPauseDone) {
-            if (!IS_INTERSTITIAL_Ad_SHOWING && interControllerConfig?.splashInterEnable == true) {
+            if (!IS_INTERSTITIAL_Ad_SHOWING && isAdEnable) {
                 if (interstitialAd != null) {
                     adLoadingCheck(activity)
                 } else {
@@ -276,7 +294,14 @@ class AdKitSplashAdController(
     ) {
         interstitialAd?.fullScreenContentCallback =
             object : FullScreenContentCallback() {
+
+                override fun onAdClicked() {
+                    super.onAdClicked()
+                    AdKit.analytics.postAnalytics("Splash_inter_click")
+
+                }
                 override fun onAdDismissedFullScreenContent() {
+                    AdKit.analytics.postAnalytics("Splash_inter_cross")
                     hideProgressAndNullAd(activity)
                     super.onAdDismissedFullScreenContent()
 //                    activity.userAnalytics("Splash_Ad_Close")
@@ -286,6 +311,7 @@ class AdKitSplashAdController(
                     super.onAdShowedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = true
                     interstitialAd = null
+                    AdKit.analytics.postAnalytics("Splash_inter_show")
 //                    activity.userAnalytics("Splash_Ad_Show")
                 }
 

@@ -4,9 +4,10 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.core.content.edit
 
-class AdKitPref(context: Context) {
+class AdKitPref private constructor(context: Context) {
+
     private val pref = context.getSharedPreferences(
-        "MonetizeKitPref", MODE_PRIVATE
+        "MonetizeKitPref", Context.MODE_PRIVATE
     )
 
     var isAppPurchased: Boolean
@@ -21,4 +22,16 @@ class AdKitPref(context: Context) {
         pref.edit { putInt(key, value) }
     }
 
+    companion object {
+        @Volatile
+        private var instance: AdKitPref? = null
+
+       internal fun getInstance(context: Context): AdKitPref {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitPref(context.applicationContext).also {
+                    instance = it
+                }
+            }
+        }
+    }
 }

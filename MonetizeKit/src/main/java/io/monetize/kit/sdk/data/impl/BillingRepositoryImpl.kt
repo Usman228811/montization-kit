@@ -15,6 +15,8 @@ import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
@@ -30,11 +32,27 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class BillingRepositoryImpl(
-    private val context: Context,
-    private val internetController: AdKitInternetController,
-    private val myPref: AdKitPref,
+class BillingRepositoryImpl private constructor(
+    mContext: Context,
 ) : BillingRepository {
+
+    private val context = mContext.applicationContext
+
+    companion object {
+        @Volatile
+        private var instance: BillingRepositoryImpl? = null
+
+
+        fun getInstance(
+            context: Context,
+        ): BillingRepositoryImpl {
+            return instance ?: synchronized(this) {
+                instance ?: BillingRepositoryImpl(
+                    context,
+                ).also { instance = it }
+            }
+        }
+    }
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -110,13 +128,15 @@ class BillingRepositoryImpl(
             )
             .build()
 
-        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult  ->
+        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 val productList = queryProductDetailsResult.productDetailsList
                 if (productList.isNotEmpty()) {
                     purchaseSku = productList.find { it.productId == productId }
                     _productPriceFlow.update {
-                        it.copy(price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: "")
+                        it.copy(
+                            price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: ""
+                        )
                     }
                 }
             } else {
@@ -168,7 +188,7 @@ class BillingRepositoryImpl(
     }
 
     private fun updatePurchaseStatus(isPurchased: Boolean) {
-        myPref.isAppPurchased = isPurchased
+        adKitPref.isAppPurchased = isPurchased
         if (isPurchased) {
 //            context.userAnalytics("Premium_buy_successful")
             coroutineScope.launch { _appPurchased.send(true) }

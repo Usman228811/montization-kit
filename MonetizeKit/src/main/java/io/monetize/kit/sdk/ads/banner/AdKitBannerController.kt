@@ -10,9 +10,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 val singleBannerList = ArrayList<BannerSingleAdControllerModel>()
 
@@ -22,18 +20,13 @@ data class BannerSingleAdControllerModel(
     val key: String = ""
 )
 
-class AdKitBannerController(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager
-) {
-    private var key: String = ""
-    private var bannerAdId: String = ""
+class AdKitBannerController {
+    private var placementKey: String = ""
+    private var adIdKey: String = ""
     private var canRequestBannerAd = true
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
     private lateinit var bannerSize: AdSize
-
 
 
     fun setAdControllerListener(listener: AdControllerListener?) {
@@ -56,7 +49,7 @@ class AdKitBannerController(
         try {
 //            val adId = 0
 //            if (adId != -1) {
-            if (enable && !prefs.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
+            if (enable && !AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds) {
                 if (adView == null) {
                     if (!canRequestBannerAd) {
                         return
@@ -70,7 +63,7 @@ class AdKitBannerController(
                         bannerSize = getAdSize(context)
                     }
                     val bannerAd = AdView(context).apply {
-                        this.adUnitId = bannerAdId
+                        this.adUnitId = AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
                         this.setAdSize(bannerSize)
                         this.loadAd(AdRequest.Builder().build())
                     }
@@ -113,15 +106,14 @@ class AdKitBannerController(
     }
 
     fun populateBannerAd(
-        context: Activity, key: String, enable: Boolean,
-        bannerAdId:String,
+        context: Activity, placementKey: String,adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
         populateCallback: (Any) -> Unit
     ) {
         try {
-            this.key = key
-            this.bannerAdId = bannerAdId
-            if (enable && !prefs.isAppPurchased && adView != null) {
+            this.adIdKey = adIdKey
+            this.placementKey = placementKey
+            if (enable && !AdKit.adKitPref.isAppPurchased && adView != null) {
                 adView?.let {
                     try {
                         adFrame.visibility = View.VISIBLE

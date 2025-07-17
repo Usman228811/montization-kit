@@ -1,6 +1,20 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-class AdsCustomLayoutHelper {
+class AdsCustomLayoutHelper private constructor() {
+
+    companion object {
+        @Volatile
+        private var instance: AdsCustomLayoutHelper? = null
+
+
+        internal fun getInstance(
+        ): AdsCustomLayoutHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdsCustomLayoutHelper(
+                ).also { instance = it }
+            }
+        }
+    }
 
 
     private var bigNative: Int? = null

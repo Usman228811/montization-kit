@@ -1,16 +1,31 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
+import android.content.Context
 import android.widget.LinearLayout
+import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
 import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.domain.repo.GetBannerAdRepo
 
-class GetBannerAdRepoImpl(
+class GetBannerAdRepoImpl private constructor(
     private val baseSingleBannerActivity: BaseSingleBannerActivity,
-    private val  baseCollapsableBannerActivity: BaseCollapsableBannerActivity
+    private val baseCollapsableBannerActivity: BaseCollapsableBannerActivity
 ) : GetBannerAdRepo {
+
+
+    companion object {
+
+        fun getInstance(
+        ): GetBannerAdRepoImpl {
+            return GetBannerAdRepoImpl(
+                baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(),
+                baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(),
+            )
+        }
+    }
 
     private var isForCollapse = false
 
@@ -18,21 +33,24 @@ class GetBannerAdRepoImpl(
     override fun init(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     ) {
-        this.isForCollapse = bannerControllerConfig.collapsableConfig != null
+        this.isForCollapse = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsible", false)
         if (isForCollapse) {
             baseCollapsableBannerActivity.initCollapsableBannerAd(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
+                onFail = onFail,
             )
 
         } else {
             baseSingleBannerActivity.initSingleBannerData(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
-                adFrame = adFrame
+                adFrame = adFrame,
+                onFail = onFail,
             )
         }
     }

@@ -1,14 +1,26 @@
 package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
+import android.content.Context
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetBannerAdUseCase
+
+
+class BannerAdViewModelFactory : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return BannerAdViewModel(
+            GetBannerAdUseCase.getInstance()
+        ) as T
+    }
+}
 
 class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : ViewModel() {
 
@@ -16,12 +28,14 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
     fun initSingleBannerData(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     ) {
-        getBannerAdUseCase(
-            mContext,
-            adFrame,
-            bannerControllerConfig
+        getBannerAdUseCase.invoke(
+            mContext = mContext,
+            adFrame = adFrame,
+            bannerControllerConfig = bannerControllerConfig,
+            onFail = onFail
         )
     }
 

@@ -1,20 +1,38 @@
 package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
+import android.content.Context
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.data.impl.SubscriptionRepositoryImpl
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
-class QuerySubscriptionProductsUseCase(
-
-    private val pref: AdKitPref,
+class QuerySubscriptionProductsUseCase private constructor(
     private val repository: SubscriptionRepository
 ) {
+
+    companion object {
+
+        @Volatile
+        private var instance: QuerySubscriptionProductsUseCase? = null
+
+
+        fun getInstance(
+            context: Context
+        ): QuerySubscriptionProductsUseCase {
+            val repo = SubscriptionRepositoryImpl.getInstance(context)
+            return instance ?: synchronized(this) {
+                instance ?: QuerySubscriptionProductsUseCase(
+                    repo
+                ).also { instance = it }
+            }
+        }
+    }
 
     private val _products = MutableStateFlow<Map<String, ProductDetails>?>(null)
     val products = _products.asStateFlow()
@@ -59,7 +77,7 @@ class QuerySubscriptionProductsUseCase(
                 override fun updatePref(subscribedId: String) {
                     try {
                         _subscribedId.value = subscribedId
-                        pref.isAppPurchased = subscribedId.isNotEmpty()
+                        adKitPref.isAppPurchased = subscribedId.isNotEmpty()
                     } catch (_: Exception) {
                     }
                 }

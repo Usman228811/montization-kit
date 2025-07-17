@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.native_ad
+package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
 import android.content.Context
@@ -8,15 +8,15 @@ import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
+import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
 
-class AdKitNativeAdViewXml @JvmOverloads constructor(
+class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : LinearLayout(context, attrs, defStyle) {
 
-    private var nativeAdViewModel: NativeAdViewModel? = null
+    private var nativeAdViewModel: NativeAdViewModelDialog? = null
     private var nativeControllerConfig: NativeControllerConfig? = null
     private var loadNewAd: Boolean = false
 
@@ -26,9 +26,9 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
     fun loadNative(
         context: Context,
-        viewModel: NativeAdViewModel,
+        viewModel: NativeAdViewModelDialog,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit = {}
     ) {
         this.nativeAdViewModel = viewModel
         this.nativeControllerConfig = nativeControllerConfig
@@ -40,7 +40,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                loadNewAd = loadNewAd
+                onFail = onFail
             )
 
             if (context is LifecycleOwner) {

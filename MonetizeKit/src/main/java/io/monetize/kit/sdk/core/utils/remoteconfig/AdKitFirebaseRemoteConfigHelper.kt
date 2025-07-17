@@ -12,19 +12,33 @@ import com.google.firebase.remoteconfig.remoteConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class AdKitFirebaseRemoteConfigHelper {
+class AdKitFirebaseRemoteConfigHelper private constructor() {
+
+    companion object {
+        @Volatile
+        private var instance: AdKitFirebaseRemoteConfigHelper? = null
+
+
+        internal fun getInstance(
+        ): AdKitFirebaseRemoteConfigHelper {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitFirebaseRemoteConfigHelper(
+
+                ).also { instance = it }
+            }
+        }
+    }
 
     private val _configFetched = Channel<Boolean>()
     val configFetched = _configFetched.receiveAsFlow()
 
 
-    fun fetchRemoteValues(
-        isDebug: Boolean,
-        configDefaults: Map<String, Any>
-    ) {
+    fun fetchRemoteValues(isDebug: Boolean, builder: RemoteConfigBuilder.() -> Unit) {
+        val configBuilder = RemoteConfigBuilder.getInstance().apply(builder)
+        val configDefaults = configBuilder.configMap
+
         try {
             Firebase.remoteConfig.apply {
-
                 configureRemoteConfig(this, isDebug, configDefaults)
                 listenForUpdates(this)
                 fetchRemoteConfig(this)
@@ -33,7 +47,6 @@ class AdKitFirebaseRemoteConfigHelper {
             _configFetched.trySend(true)
         }
     }
-
 
     private fun configureRemoteConfig(
         firebaseRemoteConfig: FirebaseRemoteConfig,
@@ -101,21 +114,23 @@ class AdKitFirebaseRemoteConfigHelper {
         })
     }
 
-    fun getBoolean(key: String, def:Boolean): Boolean {
+    fun getBoolean(key: String, def: Boolean): Boolean {
         return try {
             Firebase.remoteConfig.getBoolean(key)
         } catch (e: Exception) {
             def
         }
     }
-    fun getLong(key: String, def:Long): Long {
+
+    fun getLong(key: String, def: Long): Long {
         return try {
             Firebase.remoteConfig.getLong(key)
         } catch (e: Exception) {
             def
         }
     }
-    fun getString(key: String, def:String): String {
+
+    fun getString(key: String, def: String): String {
         return try {
             Firebase.remoteConfig.getString(key)
         } catch (e: Exception) {

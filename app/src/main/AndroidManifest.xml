@@ -14,23 +14,27 @@
         android:theme="@style/Theme.AdsLibrary"
         tools:targetApi="31">
         <activity
-            android:name=".MainXmlActivity"
-            android:exported="true" >
+            android:name=".xml.splash.SplashXmlActivity"
+            android:exported="true">
 
         </activity>
+        <activity
+            android:name=".xml.MainXmlActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AdsLibrary">
+            android:theme="@style/Theme.AdsLibrary" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-
         </activity>
+        <activity
+            android:name=".xml.SettingsXmlActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

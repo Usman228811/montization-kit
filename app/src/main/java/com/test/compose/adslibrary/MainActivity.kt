@@ -15,38 +15,18 @@ import androidx.navigation.compose.rememberNavController
 import com.test.compose.adslibrary.AppClass.Companion.appContext
 import com.test.compose.adslibrary.navigation.AppNavHost
 import com.test.compose.adslibrary.navigation.AppRoute
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.utils.init.AdKitInitializer
-import org.koin.android.ext.android.inject
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class MainActivity : ComponentActivity() {
 
-    private val adKitInitializer: AdKitInitializer by inject()
-    private val adKitOpenAdManager: AdKitOpenAdManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         (appContext as AppClass).initializeAppClass()
-        adKitOpenAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
+        AdKit.openAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
-
-        adKitInitializer.init(
-            InterControllerConfig(
-                openAdId = "ca-app-pub-3940256099942544/9257395921",
-                splashId = "ca-app-pub-3940256099942544/1033173712",
-                appInterIds = listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
-                ),
-                splashInterEnable = false,
-                openAdEnable = true,
-                splashTime = 16L,
-                interLoadingEnable = true,
-                openAdLoadingEnable = true
-            )
-        )
 
         setContent {
             val paddingValues = WindowInsets.systemBars.asPaddingValues()
@@ -56,7 +36,7 @@ class MainActivity : ComponentActivity() {
 
                 navHostController.currentBackStackEntryFlow.collect { backStackEntry ->
                     val route = backStackEntry.destination.route
-                    adKitOpenAdManager.setCurrentComposeRoute(route)
+                    AdKit.openAdManager.setCurrentComposeRoute(route)
                 }
             }
 

@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.native_ad
+package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -12,19 +12,23 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
-import org.koin.androidx.compose.koinViewModel
+import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
+import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 
 
 @Composable
-fun AdKitNativeAdViewDialog(
-    nativeAdViewModel: NativeAdViewModelDialog = koinViewModel(),
-    loadNewAd: Boolean = false,
-    nativeControllerConfig: NativeControllerConfig
+fun AdKitNativeAdView(
+    nativeControllerConfig: NativeControllerConfig,
+    onFail: () -> Unit = {}
 
 ) {
+
+    val nativeAdViewModel: NativeAdViewModel = viewModel(
+        factory = NativeAdViewModelFactory()
+    )
 
     val tet = LocalActivity.current as Activity
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -51,7 +55,7 @@ fun AdKitNativeAdViewDialog(
                     mContext = tet,
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
-                    loadNewAd = loadNewAd,
+                    onFail = onFail,
                 )
             }
         )

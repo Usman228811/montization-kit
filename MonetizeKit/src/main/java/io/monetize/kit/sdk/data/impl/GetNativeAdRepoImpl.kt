@@ -6,27 +6,20 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.nativead.NativeAd
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
-import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
-class GetNativeAdRepoImpl(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper,
-    private val nativeCommonHelper: AdKitNativeCommonHelper,
+class GetNativeAdRepoImpl private constructor(
 ) : GetNativeAdRepo {
 
     private var largeNativeAd: Any? = null
@@ -39,43 +32,59 @@ class GetNativeAdRepoImpl(
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
+    private var onFail: (() -> Unit)? = null
+    private var isAdEnable: Boolean = true
+
+
+    companion object {
+
+        fun getInstance(
+        ): GetNativeAdRepoImpl {
+            return GetNativeAdRepoImpl()
+        }
+    }
 
 
     override fun init(
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean
+        onFail: () -> Unit
     ) {
+
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
-        this.adType = AdType.entries.filter { it.type == nativeControllerConfig.adType.toInt() }[0]
-        this.loadNewAd = loadNewAd
+        this.onFail = onFail
         this.adFrame = adFrame
+        AdKit.firebaseHelper.apply {
+            adType = AdType.entries.filter {
+                it.type == getLong(
+                    "${nativeControllerConfig.placementKey}_adType",
+                    nativeControllerConfig.adType.toLong()
+                ).toInt()
+            }[0]
+            loadNewAd = getBoolean("${nativeControllerConfig.placementKey}_loadNewAd", false)
+            isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
+        }
         isAdLoadCalled = true
 
-        var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+        var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
         if (index == -1) {
             singleNativeList.apply {
                 add(
                     NativeAdSingleModel(
-                        nativeControllerConfig.key,
-                        NativeAdSingleController(
-                            prefs = prefs,
-                            internetController = internetController,
-                            consentManager = consentManager,
-                            customLayoutHelper = customLayoutHelper,
-                            nativeCommonHelper = nativeCommonHelper
-                        )
+                        nativeControllerConfig.adIdKey,
+                        NativeAdSingleController()
                     )
                 )
             }
-            index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.key }
+            index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
         }
         if (index != -1) {
             model = singleNativeList[index]
             loadSingleNativeAd()
         }
+
     }
 
     override fun onResume() {
@@ -127,16 +136,17 @@ class GetNativeAdRepoImpl(
         }
     }
 
-    private fun loadSingleNativeAd(isForRefresh: Boolean = false) {
+    private fun loadSingleNativeAd() {
         try {
             if (isAdLoadCalled) {
-                if (adFrame == null || !nativeControllerConfig.isAdEnable || prefs.isAppPurchased) {
+                if (adFrame == null || !isAdEnable || adKitPref.isAppPurchased) {
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
                         adFrame?.let { adFrame ->
                             if (canLoadAdAgain) {
-                                if (largeNativeAd == null || isForRefresh) {
+                                if (largeNativeAd == null) {
+
                                     if (!isRequesting) {
                                         isRequesting = true
                                         adFrame.descendantFocusability =
@@ -146,7 +156,7 @@ class GetNativeAdRepoImpl(
                                                 context = mContext,
                                                 adFrame = adFrame,
                                                 adType = adType,
-                                                customLayoutHelper = customLayoutHelper
+                                                customLayoutHelper = nativeCustomLayoutHelper
                                             )
                                         }
                                         nativeAdController.setNativeControllerListener(object :
@@ -157,12 +167,13 @@ class GetNativeAdRepoImpl(
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                                     return
                                                 }
-                                                if (largeNativeAd == null || isForRefresh) {
-                                                    loadSingleNativeAd(isForRefresh)
+                                                if (largeNativeAd == null) {
+                                                    loadSingleNativeAd()
                                                 }
                                             }
 
                                             override fun onAdFailed() {
+                                                onFail?.invoke()
                                                 isRequesting = false
                                                 canLoadAdAgain = false
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
@@ -198,7 +209,7 @@ class GetNativeAdRepoImpl(
                                     }
                                 } else {
                                     addNativeAdView(
-                                        customLayoutHelper,
+                                        nativeCustomLayoutHelper,
                                         adType,
                                         mContext,
                                         adFrame,
@@ -216,10 +227,10 @@ class GetNativeAdRepoImpl(
     }
 
     fun requestNewNativeId(stopNextRequest: Boolean) {
-        if (nativeControllerConfig.isAdEnable) {
+        if (isAdEnable) {
             loadNewAd = !stopNextRequest
             if (!isRequesting) {
-                loadSingleNativeAd(true)
+                loadSingleNativeAd()
             }
         }
     }

@@ -7,8 +7,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.domain.usecase.GetNativeAdUseCase
+
+class NativeAdViewModelDialogFactory :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+        @Suppress("UNCHECKED_CAST")
+        return NativeAdViewModelDialog(
+            GetNativeAdUseCase.getInstance()
+        ) as T
+    }
+}
 
 class NativeAdViewModelDialog(private val getNativeAdUseCase: GetNativeAdUseCase) : ViewModel() {
 
@@ -17,13 +29,13 @@ class NativeAdViewModelDialog(private val getNativeAdUseCase: GetNativeAdUseCase
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        loadNewAd: Boolean = false
+        onFail: () -> Unit
     ) {
-        getNativeAdUseCase(
+        getNativeAdUseCase.invoke(
             mContext = mContext,
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
-            loadNewAd = loadNewAd,
+            onFail = onFail,
         )
     }
 

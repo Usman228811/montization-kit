@@ -15,17 +15,18 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import java.util.Date
 
-class AdKitOpenAdManager(
-    private val mContext: Context,
-    private val internetController: AdKitInternetController,
-    private val prefHelper: AdKitPref
+class AdKitOpenAdManager private constructor(
+    context: Context,
 ) : DefaultLifecycleObserver {
+
+    private val mContext = context.applicationContext
+
     private var mAppOpenAd: AppOpenAd? = null
     private var loadTime: Long = 0
     private var canRequestAd = true
@@ -33,11 +34,28 @@ class AdKitOpenAdManager(
     private var isAdEnable = true
     private var isPause = false
     private var isLoadingEnable = true
-    private var canShowOpenAd = true
     private var adId = ""
     private var currentActivity: Activity? = null
 
     private var currentRoute: String? = null
+
+    companion object {
+        @Volatile
+        private var instance: AdKitOpenAdManager? = null
+
+
+        internal fun getInstance(
+            context: Context,
+        ): AdKitOpenAdManager {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitOpenAdManager(
+                    context,
+
+                    ).also { instance = it }
+            }
+        }
+
+    }
 
     fun setCurrentComposeRoute(route: String?) {
         currentRoute = route
@@ -58,18 +76,17 @@ class AdKitOpenAdManager(
         this.isPause = isPause
     }
 
-    fun setCanShowOpenAd(canShowOpenAd: Boolean) {
-        this.canShowOpenAd = canShowOpenAd
+
+    fun setOpenAdId(adId:String){
+        this.adId = adId
     }
 
     fun setOpenAdConfigs(
-        adId: String,
         isAdEnable: Boolean,
         isLoadingEnable: Boolean,
     ) {
         this.isAdEnable = isAdEnable
         this.isLoadingEnable = isLoadingEnable
-        this.adId = adId
     }
 
     fun initOpenAd() {
@@ -88,7 +105,7 @@ class AdKitOpenAdManager(
 
     private fun showAd() {
         try {
-            if (canShowOpenAd && !prefHelper.isAppPurchased && isAdEnable) {
+            if (!adKitPref.isAppPurchased && isAdEnable) {
                 showAdIfAvailable()
             }
         } catch (ignored: Exception) {
@@ -103,7 +120,7 @@ class AdKitOpenAdManager(
 
         if (adId.isNotEmpty()) {
             // Have unused ad, no need to fetch another.
-            if (isAdAvailable || !internetController.isConnected || prefHelper.isAppPurchased || isPause) {
+            if (isAdAvailable || !internetController.isConnected || adKitPref.isAppPurchased || isPause) {
                 return
             }
             if (!canRequestAd) {

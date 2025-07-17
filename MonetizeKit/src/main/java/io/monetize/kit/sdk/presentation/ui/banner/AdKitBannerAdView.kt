@@ -1,4 +1,4 @@
-package io.monetize.kit.sdk.ads.banner
+package io.monetize.kit.sdk.presentation.ui.banner
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -12,22 +12,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
-import org.koin.androidx.compose.koinViewModel
-
-
+import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
 
 @Composable
 fun AdKitBannerAdView(
-    bannerAdViewModel: BannerAdViewModel = koinViewModel(),
-    bannerControllerConfig: BannerControllerConfig
+    bannerControllerConfig: BannerControllerConfig,
+    onFail: () -> Unit = {}
 ) {
 
     val context = LocalContext.current
+    val bannerAdViewModel: BannerAdViewModel = viewModel(
+        factory = BannerAdViewModelFactory()
+    )
+
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
@@ -51,7 +54,8 @@ fun AdKitBannerAdView(
                 bannerAdViewModel.initSingleBannerData(
                     mContext = context as Activity,
                     bannerControllerConfig = bannerControllerConfig,
-                    adFrame = adFrame
+                    adFrame = adFrame,
+                    onFail = onFail,
                 )
             }
         )

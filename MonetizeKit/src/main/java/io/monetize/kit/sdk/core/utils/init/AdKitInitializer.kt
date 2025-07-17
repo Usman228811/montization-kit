@@ -5,26 +5,34 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
-import io.monetize.kit.sdk.ads.interstitial.InterControllerConfig
-import io.monetize.kit.sdk.ads.native_ad.AdKitNativeCommonHelper
-import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
-import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
-import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
+import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
+import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AdKitInitializer(
-    private val context: Context,
-    private val adKitPref: AdKitPref,
-    private val adKitInterHelper: AdKitInterHelper,
-    private val adKitOpenAdManager: AdKitOpenAdManager,
-    private val customLayoutHelper: AdsCustomLayoutHelper,
-    private val nativeCommonHelper: AdKitNativeCommonHelper,
+
+class AdKitInitializer private constructor(
 ) {
 
-    fun initMobileAds(adMobAppId: String, onInit: () -> Unit) {
+    companion object {
+        @Volatile
+        private var instance: AdKitInitializer? = null
+
+
+        internal fun getInstance(
+        ): AdKitInitializer {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInitializer(
+                ).also { instance = it }
+            }
+        }
+    }
+
+    fun initMobileAds(context: Context, adMobAppId: String, onInit: () -> Unit) {
+
         try {
             val applicationInfo = context.packageManager.getApplicationInfo(
                 context.packageName,
@@ -65,7 +73,7 @@ class AdKitInitializer(
         smallNativeShimmer: Int? = null,
         splitNativeShimmer: Int? = null,
     ) {
-        customLayoutHelper.apply {
+        nativeCustomLayoutHelper.apply {
             setBigNative(
                 bigNative = bigNativeLayout,
                 bigNativeShimmer = bigNativeShimmer
@@ -81,27 +89,18 @@ class AdKitInitializer(
         }
     }
 
-    fun init(
-        interControllerConfig: InterControllerConfig,
-        nativeCommonIds: List<String>? = null,
-        resetInterKeyForCommonAds: String? = null
+   internal fun initAdsConfigs(
+        interAdsConfigs: InterAdsConfigs,
     ) {
-        adKitInterHelper.setAdIds(
-            splashId = interControllerConfig.splashId,
-            appInterIds = interControllerConfig.appInterIds,
-            interControllerConfig = interControllerConfig
+        interHelper.setInterAdsConfigs(
+            interAdsConfigs = interAdsConfigs,
         )
-        adKitOpenAdManager.setOpenAdConfigs(
-            adId = interControllerConfig.openAdId,
-            isAdEnable = interControllerConfig.openAdEnable,
-            isLoadingEnable = interControllerConfig.openAdLoadingEnable
+        openAdManager.setOpenAdConfigs(
+            isAdEnable = interAdsConfigs.openAdEnable,
+            isLoadingEnable = interAdsConfigs.openAdLoadingEnable
         )
-        nativeCommonHelper.setNativeAdIds(nativeCommonIds)
-        adKitOpenAdManager.initOpenAd()
-        resetInterKeyForCommonAds?.let {
-            adKitPref.putInterInt(it, 0)
-        }
-
-
+        openAdManager.initOpenAd()
     }
+
+
 }

@@ -10,7 +10,9 @@ interface GetBannerAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     )
+
 
 
     fun onResume()

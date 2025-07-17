@@ -4,7 +4,27 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 
-class AdKitInternetController(private val context: Context) {
+class AdKitInternetController private constructor(context: Context) {
+
+
+    companion object {
+        @Volatile
+        private var instance: AdKitInternetController? = null
+
+
+        internal fun getInstance(
+            context: Context,
+        ): AdKitInternetController {
+            return instance ?: synchronized(this) {
+                instance ?: AdKitInternetController(
+                    context.applicationContext,
+                ).also {
+                    instance = it
+                }
+            }
+        }
+    }
+
     private val connectivityManager by lazy {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }

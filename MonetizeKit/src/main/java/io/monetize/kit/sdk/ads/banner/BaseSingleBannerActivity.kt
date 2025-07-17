@@ -8,19 +8,15 @@ import android.widget.LinearLayout
 import com.google.android.gms.ads.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
-import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 
-class BaseSingleBannerActivity(
-    private val prefs: AdKitPref,
-    private val internetController: AdKitInternetController,
-    private val consentManager: AdKitConsentManager
+class BaseSingleBannerActivity private constructor(
 ) {
     private var bannerAd: AdView? = null
-    private var loadNewAd: Boolean = false
     private var adFrame: LinearLayout? = null
     private var model: BannerSingleAdControllerModel? = null
 
@@ -29,13 +25,26 @@ class BaseSingleBannerActivity(
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
+    private var onFail: (() -> Unit)? = null
+
+    companion object {
+
+        fun getInstance(
+        ): BaseSingleBannerActivity {
+            return BaseSingleBannerActivity()
+        }
+    }
+
+
     fun initSingleBannerData(
         mContext: Activity,
         adFrame: LinearLayout,
-        bannerControllerConfig: BannerControllerConfig
+        bannerControllerConfig: BannerControllerConfig,
+        onFail: () -> Unit
     ) {
         this.bannerControllerConfig = bannerControllerConfig
         this.mContext = mContext
+        this.onFail = onFail
         try {
             adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         } catch (_: Exception) {
@@ -43,19 +52,16 @@ class BaseSingleBannerActivity(
         this.adFrame = adFrame
         isAdLoadCalled = true
 
-        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.key }
+        var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
         if (index == -1) {
             singleBannerList.add(
                 BannerSingleAdControllerModel(
                     AdKitBannerController(
-                        prefs,
-                        internetController,
-                        consentManager
-                    ), bannerControllerConfig.key
+                    ), bannerControllerConfig.adIdKey
                 )
             )
 
-            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.key }
+            index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
         }
 
         if (index != -1) {
@@ -81,7 +87,11 @@ class BaseSingleBannerActivity(
 
     private fun loadSingleBannerAd() {
         if (isAdLoadCalled) {
-            if (adFrame == null || !bannerControllerConfig.isAdEnable || prefs.isAppPurchased || consentManager.canRequestAds.not()
+            if (adFrame == null ||
+                AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() ||
+                AdKit.adKitPref.isAppPurchased
+                || consentManager.canRequestAds.not()
+                || internetController.isConnected.not()
             ) {
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -110,6 +120,7 @@ class BaseSingleBannerActivity(
                                     }
 
                                     override fun onAdFailed() {
+                                        onFail?.invoke()
                                         isRequesting = false
                                         if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                             return
@@ -126,11 +137,11 @@ class BaseSingleBannerActivity(
                                 })
                                 controller.populateBannerAd(
                                     context = mContext,
-                                    key = bannerControllerConfig.key,
-                                    enable = bannerControllerConfig.isAdEnable,
-                                    bannerAdId = bannerControllerConfig.adId,
+                                    placementKey = bannerControllerConfig.placementKey,
+                                    adIdKey = bannerControllerConfig.adIdKey,
+                                    enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
                                     adFrame = adFrame,
-                                    loadNewAd = loadNewAd
+                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false)
                                 ) { ad ->
                                     isRequesting = false
                                     if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
