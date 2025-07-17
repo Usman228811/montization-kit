@@ -39,6 +39,11 @@ class AdKitOpenAdManager private constructor(
 
     private var currentRoute: String? = null
 
+    private var canShowOpenAd = true
+    fun canShowOpenAd(canShowOpenAd: Boolean) {
+        this.canShowOpenAd = canShowOpenAd
+    }
+
     companion object {
         @Volatile
         private var instance: AdKitOpenAdManager? = null
@@ -118,8 +123,7 @@ class AdKitOpenAdManager private constructor(
 
     private fun fetchAd() {
 
-        if (adId.isNotEmpty()) {
-            // Have unused ad, no need to fetch another.
+        if (adId.isNotEmpty() && isAdEnable) {
             if (isAdAvailable || !internetController.isConnected || adKitPref.isAppPurchased || isPause) {
                 return
             }
@@ -137,9 +141,6 @@ class AdKitOpenAdManager private constructor(
                     override fun onAdLoaded(appOpenAd: AppOpenAd) {
                         super.onAdLoaded(appOpenAd)
                         canRequestAd = true
-//                    if (BuildConfig.DEBUG) {
-//                        showToast(appClass, "Open Ad Loaded")
-//                    }
                         mAppOpenAd = appOpenAd
                         mAppOpenAd?.fullScreenContentCallback =
                             object : FullScreenContentCallback() {
@@ -164,9 +165,6 @@ class AdKitOpenAdManager private constructor(
                         super.onAdFailedToLoad(loadAdError)
                         canRequestAd = true
                         mAppOpenAd = null
-//                    if (BuildConfig.DEBUG) {
-//                        showToast(appClass, "Open Ad failed")
-//                    }
                     }
                 })
         }
@@ -183,16 +181,9 @@ class AdKitOpenAdManager private constructor(
                         val isExcludedActivity =
                             currentActivity?.javaClass?.name in excludedActivities
 
-                        if (!isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
+                        if (canShowOpenAd && !isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
                             currentActivity?.let { checkProgressShowAd(it) }
                         }
-
-//                        currentActivity?.let { currentActivity ->
-//                            val className = currentActivity::class.java.name
-//                            if (currentActivity !is AdActivity && className !in excludedActivities) {
-//                                checkProgressShowAd(currentActivity)
-//                            }
-//                        }
                     }
                 } else {
                     fetchAd()
