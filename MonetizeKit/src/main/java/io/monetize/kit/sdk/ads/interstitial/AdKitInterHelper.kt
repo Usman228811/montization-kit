@@ -58,7 +58,7 @@ class AdKitInterHelper private constructor(
         listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
         this.isInterInstant = AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
         if (!isAdEnable) {
             listener.onAdClosed()
             return
