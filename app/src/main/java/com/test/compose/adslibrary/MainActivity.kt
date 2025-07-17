@@ -1,6 +1,8 @@
 package com.test.compose.adslibrary
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -9,8 +11,10 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.test.compose.adslibrary.AppClass.Companion.appContext
 import com.test.compose.adslibrary.navigation.AppNavHost
@@ -27,9 +31,7 @@ class MainActivity : ComponentActivity() {
         (appContext as AppClass).initializeAppClass()
         AdKit.openAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
-
         setContent {
-            val paddingValues = WindowInsets.systemBars.asPaddingValues()
             val navHostController = rememberNavController()
 
             LaunchedEffect(key1 = navHostController) {
@@ -41,12 +43,14 @@ class MainActivity : ComponentActivity() {
             }
 
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                AppNavHost(navHostController)
+            Scaffold { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    AppNavHost(navHostController)
+                }
             }
 
         }

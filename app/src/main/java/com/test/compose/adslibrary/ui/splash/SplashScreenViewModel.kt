@@ -176,7 +176,7 @@ class SplashScreenViewModel(
                 }
 
                 UpdateState.Failed -> {
-                    //continue
+                   initConsent(context as Activity)
 
                 }
 
