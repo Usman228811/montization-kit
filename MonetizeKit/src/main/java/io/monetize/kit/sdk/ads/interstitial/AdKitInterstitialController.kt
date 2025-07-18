@@ -113,13 +113,13 @@ class InterstitialController private constructor(
 
     fun loadAndShowWithCounter(
         context: Activity,
-        btnKey:String,
+        placementKey:String,
         adIdKey: String,
         enable: Boolean,
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
 
-        this.btnKey = btnKey
+        this.btnKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
@@ -142,13 +142,13 @@ class InterstitialController private constructor(
 
     fun showWithoutCounter(
         context: Activity,
-        btnKey:String,
+        placementKey:String,
         adIdKey: String,
         enable: Boolean,
         listener: InterstitialControllerListener
     ) {
         mInterstitialControllerListener = listener
-        this.btnKey = btnKey
+        this.btnKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
@@ -157,20 +157,20 @@ class InterstitialController private constructor(
                 checkProgressShowAd(context)
             } else {
                 listener.onAdClosed()
-                preLoadInter(context)
+                loadInter(context)
             }
         }
     }
 
     fun showWithCounter(
         context: Activity,
-        btnKey:String,
+        placementKey:String,
         adIdKey: String,
         enable: Boolean,
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
         mInterstitialControllerListener = listener
-        this.btnKey = btnKey
+        this.btnKey = placementKey
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
@@ -181,7 +181,7 @@ class InterstitialController private constructor(
             } else {
 
                 if ((savedCount + 2).toLong() >= counter) {
-                    preLoadInter(context)
+                    loadInter(context)
                 }
 
                 if (savedCount == -1) {
@@ -192,7 +192,7 @@ class InterstitialController private constructor(
             }
         } else if ((savedCount + 2).toLong() >= counter) {
             listener.onAdClosed()
-            preLoadInter(context)
+            loadInter(context)
             setInterCount(key, savedCount + 1)
         } else {
             listener.onAdClosed()
@@ -205,27 +205,32 @@ class InterstitialController private constructor(
         if (AdKit.consentManager.canRequestAds && canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
-                preLoadInter(context)
+                loadInter(context)
             }
         }
     }
 
-    fun initAdMob(context: Context, enable: Boolean, counterKey: String = "", counter: Long = -1) {
+    fun preLoadInter(context: Context,
+                  placementKey:String,
+                  adIdKey: String,
+                  enable: Boolean, counterKey: String = "", counter: Long = -1) {
         if (!enable) {
             return
         }
+        this.btnKey = placementKey
+        this.adIdKey = adIdKey
         val isForCounter = counterKey.isNotEmpty() && counter.toInt() != -1
         if (isForCounter) {
             initAdMobCounter(context, counterKey, counter)
         } else {
             val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
             if (AdKit.consentManager.canRequestAds && canLoad) {
-                preLoadInter(context)
+                loadInter(context)
             }
         }
     }
 
-    private fun preLoadInter(context: Context) {
+    private fun loadInter(context: Context) {
         try {
             val canGo = AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds
             if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
@@ -270,14 +275,14 @@ class InterstitialController private constructor(
 
     fun loadAndShow(
         context: Activity,
-        btnKey:String,
+        placementKey:String,
         adIdKey: String,
         enable: Boolean = true,
         key: String = "",
         listener: InterstitialControllerListener,
     ) {
 
-        this.btnKey = btnKey
+        this.btnKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
@@ -382,7 +387,7 @@ class InterstitialController private constructor(
                 admobInterAd = null
 //                activity.userAnalytics("${fromScreen}_Inter_Close")
                 if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
-                    preLoadInter(activity)
+                    loadInter(activity)
                 }
             }
 
