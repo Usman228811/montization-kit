@@ -2,7 +2,6 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.content.Context
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
@@ -64,14 +63,21 @@ class AdKitSubscriptionHelper private constructor(
             }
 
             subscribedId.value == "" -> {
-                subscriptionProducts.value?.get(productId)?.let {
-                    purchaseProduct(it)
+
+                subscriptionProducts.value.products?.let { products ->
+                    products[productId]?.let {
+                        purchaseProduct(it)
+                    }
                 }
+
             }
 
             isSubscriptionUpdateSupported() -> {
-                subscriptionProducts.value?.get(productId)?.let {
-                    purchaseProduct.changeSubscriptionPlan(it)
+
+                subscriptionProducts.value.products?.let { products ->
+                    products[productId]?.let {
+                        purchaseProduct.changeSubscriptionPlan(it)
+                    }
                 }
             }
         }

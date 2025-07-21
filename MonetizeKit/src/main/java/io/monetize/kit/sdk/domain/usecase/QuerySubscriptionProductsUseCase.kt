@@ -10,6 +10,11 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+data class Products(
+    val products: Map<String, ProductDetails>? = null
+)
 
 
 class QuerySubscriptionProductsUseCase private constructor(
@@ -34,7 +39,7 @@ class QuerySubscriptionProductsUseCase private constructor(
         }
     }
 
-    private val _products = MutableStateFlow<Map<String, ProductDetails>?>(null)
+    private val _products = MutableStateFlow(Products())
     val products = _products.asStateFlow()
 
     private val _subscribedId = MutableStateFlow("")
@@ -53,7 +58,11 @@ class QuerySubscriptionProductsUseCase private constructor(
                 }
 
                 override fun onQueryProductSuccess(skuList: Map<String, ProductDetails>) {
-                    _products.value = skuList
+                    _products.update {
+                        it.copy(
+                            products = skuList
+                        )
+                    }
                     repository.querySubscriptionHistory()
 
                 }
@@ -97,20 +106,23 @@ class QuerySubscriptionProductsUseCase private constructor(
     }
 
     fun getBillingPrice(productId: String, billingPeriod: String): String {
-        products.value?.let {
-            it[productId]?.subscriptionOfferDetails?.let { skuDetail ->
-                skuDetail[0].pricingPhases.pricingPhaseList.let { priceList ->
-                    if (priceList.size == 1) {
-                        return priceList[0].formattedPrice
+        products.value.let { products ->
+            products.products?.let {
+
+                it[productId]?.subscriptionOfferDetails?.let { skuDetail ->
+                    skuDetail[0].pricingPhases.pricingPhaseList.let { priceList ->
+                        if (priceList.size == 1) {
+                            return priceList[0].formattedPrice
+                        }
                     }
-                }
-                val list = skuDetail[0].pricingPhases.pricingPhaseList.filter { priceList ->
-                    priceList.billingPeriod == billingPeriod
-                }
-                return if (list.isNotEmpty()) {
-                    list[0].formattedPrice
-                } else {
-                    "Error fetching Price"
+                    val list = skuDetail[0].pricingPhases.pricingPhaseList.filter { priceList ->
+                        priceList.billingPeriod == billingPeriod
+                    }
+                    return if (list.isNotEmpty()) {
+                        list[0].formattedPrice
+                    } else {
+                        "Error fetching Price"
+                    }
                 }
             }
         }
