@@ -27,20 +27,12 @@ val singleInterList = ArrayList<InterAdSingleModel>()
 
 data class InterAdsConfigs(
     val openAdEnable:Boolean,
+    val openAdInstant :Boolean = false,
     val instantInterTime: Long = 8L,
+    val instantOpenAdTime: Long = 8L,
     val interLoadingEnable: Boolean = false,
     val openAdLoadingEnable: Boolean = false,
 )
-
-//data class AdsControllerConfig(
-//    val splashInterEnable: Boolean = false,
-//    val openAdEnable: Boolean = false,
-//    val splashTime: Long = 16L,
-//    val instantInterTime: Long = 8L,
-//    val interLoadingEnable: Boolean = false,
-//    val openAdLoadingEnable: Boolean = false,
-//)
-
 
 class InterstitialController private constructor(
 ) {

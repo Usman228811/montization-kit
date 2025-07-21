@@ -38,7 +38,7 @@ class AdKitAnalytics private constructor(private val context: Context) {
 
     fun postAnalytics(message: String) {
         try {
-            Log.d("AdKit_Logs", "${BuildConfig.DEBUG}")
+            Log.d("AdKit_Logs", "is debug ${BuildConfig.DEBUG}")
             if (!BuildConfig.DEBUG) {
                 var event = message
                 if (message.contains(" ")) {

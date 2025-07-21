@@ -2,8 +2,6 @@ package com.test.compose.adslibrary.xml.splash
 
 import android.app.Activity
 import android.content.Context
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
@@ -77,6 +75,9 @@ class SplashXmlViewModel : ViewModel() {
                     openAdEnable = true,
                     interLoadingEnable = true,
                     openAdLoadingEnable = true,
+                    openAdInstant = true,
+                    instantOpenAdTime = 8,
+                    instantInterTime = 8
                 ),
                 object : InterstitialControllerListener {
                     override fun onAdClosed() {

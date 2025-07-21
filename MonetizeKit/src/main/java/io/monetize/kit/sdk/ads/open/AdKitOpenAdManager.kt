@@ -17,6 +17,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import java.util.Date
@@ -40,6 +41,23 @@ class AdKitOpenAdManager private constructor(
     private var currentRoute: String? = null
 
     private var canShowOpenAd = true
+    private var isOpenAdInstant = false
+
+    private var adLoadingDialog: AdLoadingDialog? = null
+
+    private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
+    private var isHandlerAdDelayRunning = false
+    private val runnableHandlerAdDelay = Runnable {
+        if (isHandlerAdDelayRunning) {
+            try {
+                adLoadingDialog?.dismissAlertDialog()
+            } catch (_: Exception) {
+            }
+            isHandlerAdDelayRunning = false
+        }
+    }
+
+
     fun canShowOpenAd(canShowOpenAd: Boolean) {
         this.canShowOpenAd = canShowOpenAd
     }
@@ -82,14 +100,16 @@ class AdKitOpenAdManager private constructor(
     }
 
 
-    fun setOpenAdId(adId:String){
+    fun setOpenAdId(adId: String) {
         this.adId = adId
     }
 
     fun setOpenAdConfigs(
         isAdEnable: Boolean,
         isLoadingEnable: Boolean,
+        isOpenAdInstant: Boolean,
     ) {
+        this.isOpenAdInstant = isOpenAdInstant
         this.isAdEnable = isAdEnable
         this.isLoadingEnable = isLoadingEnable
     }
@@ -105,13 +125,17 @@ class AdKitOpenAdManager private constructor(
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
         isPause = false
-        showAd()
+        if (isOpenAdInstant.not()) {
+            showAd()
+        } else {
+            loadAndShowOpenAd()
+        }
     }
 
     private fun showAd() {
         try {
             if (!adKitPref.isAppPurchased && isAdEnable) {
-                showAdIfAvailable()
+                showAdIfAvailable(true)
             }
         } catch (ignored: Exception) {
         }
@@ -121,9 +145,125 @@ class AdKitOpenAdManager private constructor(
         currentActivity = activity
     }
 
-    private fun fetchAd() {
+    private fun startDelayHandler() {
+        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantOpenAdTime ?: 8L
+        if (!isHandlerAdDelayRunning) {
+            isHandlerAdDelayRunning = true
+            handlerAdDelay.postDelayed(
+                runnableHandlerAdDelay, instantTime * 1000
+            )
+        }
+    }
 
-        if (adId.isNotEmpty() && isAdEnable) {
+
+   private fun loadAndShowOpenAd() {
+
+        if (isAdAvailable) {
+            showAdIfAvailable(true)
+        } else {
+            if (!IS_INTERSTITIAL_Ad_SHOWING && !IS_OPEN_Ad_SHOWING && !isPause && !adKitPref.isAppPurchased) {
+                if (!canRequestAd) {
+                    return
+                }
+                val isExcludedRoute = currentRoute in excludedComposeRoutes
+                val isExcludedActivity =
+                    currentActivity?.javaClass?.name in excludedActivities
+
+                if (canShowOpenAd && !isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
+                    currentActivity?.let { activity ->
+
+                        if (adId.isNotEmpty() && isAdEnable && isOpenAdInstant && AdKit.consentManager.canRequestAds) {
+                            canRequestAd = false
+                            adLoadingDialog = AdLoadingDialog(activity)
+                            adLoadingDialog?.showAlertDialog()
+                            startDelayHandler()
+                            Log.d("AdKit_Logs", "instant open ad called")
+
+                            AppOpenAd.load(
+                                mContext,
+                                adId,
+                                AdRequest.Builder().build(),
+                                object : AppOpenAdLoadCallback() {
+                                    override fun onAdLoaded(appOpenAd: AppOpenAd) {
+                                        super.onAdLoaded(appOpenAd)
+                                        Log.d("AdKit_Logs", "instant open ad loaded")
+                                        canRequestAd = true
+                                        mAppOpenAd = appOpenAd
+                                        setFullScreenCallBacks()
+                                        loadTime = Date().time
+
+                                        if (isHandlerAdDelayRunning) {
+                                            dismissLoadingDialog()
+                                            removeCallBacksDelay()
+                                            showAdIfAvailable(false)
+
+                                        }
+                                    }
+
+                                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                                        super.onAdFailedToLoad(loadAdError)
+
+                                        Log.d("AdKit_Logs", "instant open ad failed")
+
+                                        canRequestAd = true
+                                        mAppOpenAd = null
+
+                                        if (isHandlerAdDelayRunning) {
+                                            dismissLoadingDialog()
+                                            removeCallBacksDelay()
+                                        }
+                                    }
+                                })
+
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    fun setFullScreenCallBacks() {
+        mAppOpenAd?.fullScreenContentCallback =
+            object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    mAppOpenAd = null
+                    IS_OPEN_Ad_SHOWING = false
+                    if (isOpenAdInstant.not()) {
+                        preloadOpenAd()
+                    }
+                }
+
+                override fun onAdFailedToShowFullScreenContent(
+                    adError: AdError
+                ) {
+                    IS_OPEN_Ad_SHOWING = false
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    IS_OPEN_Ad_SHOWING = true
+                }
+            }
+    }
+
+    fun removeCallBacksDelay() {
+        try {
+            isHandlerAdDelayRunning = false
+            handlerAdDelay.removeCallbacks(runnableHandlerAdDelay)
+        } catch (ignored: Exception) {
+        }
+    }
+
+    private fun dismissLoadingDialog() {
+        try {
+            adLoadingDialog?.dismissAlertDialog()
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun preloadOpenAd() {
+
+        if (adId.isNotEmpty() && isAdEnable && !isOpenAdInstant) {
             if (isAdAvailable || !internetController.isConnected || adKitPref.isAppPurchased || isPause) {
                 return
             }
@@ -131,6 +271,8 @@ class AdKitOpenAdManager private constructor(
                 return
             }
             canRequestAd = false
+
+            Log.d("AdKit_Logs", "preload open ad called")
 
 
             AppOpenAd.load(
@@ -140,29 +282,18 @@ class AdKitOpenAdManager private constructor(
                 object : AppOpenAdLoadCallback() {
                     override fun onAdLoaded(appOpenAd: AppOpenAd) {
                         super.onAdLoaded(appOpenAd)
+
+                        Log.d("AdKit_Logs", "preload open ad loaded")
                         canRequestAd = true
                         mAppOpenAd = appOpenAd
-                        mAppOpenAd?.fullScreenContentCallback =
-                            object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    mAppOpenAd = null
-                                    IS_OPEN_Ad_SHOWING = false
-                                    fetchAd()
-                                }
-
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    IS_OPEN_Ad_SHOWING = false
-                                }
-
-                                override fun onAdShowedFullScreenContent() {
-                                    IS_OPEN_Ad_SHOWING = true
-                                }
-                            }
                         loadTime = Date().time
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         super.onAdFailedToLoad(loadAdError)
+
+
+                        Log.d("AdKit_Logs", "preload open ad failed")
                         canRequestAd = true
                         mAppOpenAd = null
                     }
@@ -170,23 +301,30 @@ class AdKitOpenAdManager private constructor(
         }
     }
 
-    private fun showAdIfAvailable() {
+    private fun showAdIfAvailable(showWithProgress: Boolean) {
         try {
             if (!IS_INTERSTITIAL_Ad_SHOWING) {
                 if (!IS_OPEN_Ad_SHOWING && isAdAvailable) {
                     if (!isPause) {
-                        Log.d("AdKit_Logs", "currentRoute: $currentRoute")
-
                         val isExcludedRoute = currentRoute in excludedComposeRoutes
                         val isExcludedActivity =
                             currentActivity?.javaClass?.name in excludedActivities
 
                         if (canShowOpenAd && !isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
-                            currentActivity?.let { checkProgressShowAd(it) }
+                            currentActivity?.let {
+                                Log.d("AdKit_Logs", "open ad progress $showWithProgress")
+                                if (showWithProgress) {
+                                    setFullScreenCallBacks()
+                                    checkProgressShowAd(it)
+                                } else {
+                                    mAppOpenAd?.show(it)
+                                }
+
+                            }
                         }
                     }
                 } else {
-                    fetchAd()
+                    preloadOpenAd()
                 }
             }
         } catch (ignored: Exception) {

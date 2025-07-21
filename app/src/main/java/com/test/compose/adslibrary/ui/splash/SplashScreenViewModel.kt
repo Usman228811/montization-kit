@@ -34,29 +34,14 @@ data class SplashScreenState(
     val updateState: UpdateState = UpdateState.Idle,
 )
 
-class SplashScreenViewModelFactory(
-) : ViewModelProvider.Factory {
+class SplashScreenViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
-//        val AdKit.splashAdController: AdKit.splashAdController =
-//            AdKit.splashAdController.getInstance(context)
-//        val adKitFirebaseRemoteConfigHelper: AdKitFirebaseRemoteConfigHelper =
-//            AdKitFirebaseRemoteConfigHelper.getInstance()
-//        val AdKit.inAppUpdateManager: AdKit.inAppUpdateManager =
-//            AdKit.inAppUpdateManager.getInstance(context)
-//        val AdKit.consentManager: AdKit.consentManager = AdKit.consentManager.getInstance(context)
-//        val pref: AdKitPref = AdKitPref.getInstance(context)
-//        val AdKit.internetController: AdKit.internetController =
-//            AdKit.internetController.getInstance(context)
-//        val  AdKit.purchaseHelper:  AdKit.purchaseHelper =  AdKit.purchaseHelper.getInstance(context)
-
         return SplashScreenViewModel() as T
     }
 }
 
-class SplashScreenViewModel(
-) : ViewModel() {
+class SplashScreenViewModel : ViewModel() {
 
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
@@ -86,14 +71,14 @@ class SplashScreenViewModel(
 
             launch {
 
-                 AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
+                AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
 
                 }
             }
 
             launch {
 
-                 AdKit.purchaseHelper.productPriceFlow.collectLatest {
+                AdKit.purchaseHelper.productPriceFlow.collectLatest {
 
 
                 }
@@ -128,7 +113,7 @@ class SplashScreenViewModel(
         }
     }
 
-    fun fetchFirebase(){
+    fun fetchFirebase() {
         AdKit.firebaseHelper.apply {
             viewModelScope.launch {
                 configFetched.collectLatest {
@@ -176,7 +161,7 @@ class SplashScreenViewModel(
                 }
 
                 UpdateState.Failed -> {
-                   initConsent(context as Activity)
+                    initConsent(context as Activity)
 
                 }
 
@@ -287,6 +272,7 @@ class SplashScreenViewModel(
             interAdsConfigs = InterAdsConfigs(
                 openAdEnable = true,
                 interLoadingEnable = true,
+                openAdInstant = true,
                 openAdLoadingEnable = true,
             ),
             object : InterstitialControllerListener {

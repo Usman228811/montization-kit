@@ -97,7 +97,8 @@ class AdKitInitializer private constructor(
         )
         openAdManager.setOpenAdConfigs(
             isAdEnable = interAdsConfigs.openAdEnable,
-            isLoadingEnable = interAdsConfigs.openAdLoadingEnable
+            isLoadingEnable = interAdsConfigs.openAdLoadingEnable,
+            isOpenAdInstant = interAdsConfigs.openAdInstant
         )
         openAdManager.initOpenAd()
     }

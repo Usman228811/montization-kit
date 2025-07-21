@@ -52,7 +52,6 @@ class AdKitConsentManager private constructor(context: Context) {
         }
         isRequestingConsent = true
         try {
-            Log.d("AdKit_Logs", "gatherConsent: ${BuildConfig.DEBUG}")
             val params: ConsentRequestParameters = if (BuildConfig.DEBUG) {
                 val debugSettings = ConsentDebugSettings.Builder(activity)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
