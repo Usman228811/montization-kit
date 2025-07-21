@@ -4,6 +4,18 @@
 dependencies {
     implementation("com.github.Usman228811:montization-kit:v1.7.4")
 }
+
+
+//app level gradle
+    alias(libs.plugins.gmsServicePlugin) apply false
+    alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
+    alias(libs.plugins.firebasePerfPlugin) apply false
+
+// project level gradle
+   alias(libs.plugins.gmsServicePlugin)
+   alias(libs.plugins.firebaseCrashlyticsPlugin)
+   alias(libs.plugins.firebasePerfPlugin)
+
 ```
 
 # SDK Initialize
