@@ -260,11 +260,13 @@ class SplashScreenViewModel : ViewModel() {
         AdKit.splashAdController.initSplashAdmob(
             mContext,
             placementKey = "splash_inter",
+            adIdKey = "splash_inter",
             interAdsConfigs = InterAdsConfigs(
                 openAdEnable = true,
                 interLoadingEnable = true,
                 openAdInstant = true,
                 openAdLoadingEnable = true,
+                splashTime = AdKit.firebaseHelper.getLong("splash_time",16)
             ),
             object : InterstitialControllerListener {
                 override fun onAdClosed() {

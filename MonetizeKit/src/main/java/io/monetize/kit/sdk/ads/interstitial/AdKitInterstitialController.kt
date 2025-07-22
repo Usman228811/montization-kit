@@ -28,6 +28,7 @@ val singleInterList = ArrayList<InterAdSingleModel>()
 data class InterAdsConfigs(
     val openAdEnable:Boolean,
     val openAdInstant :Boolean = false,
+    val splashTime :Long,
     val instantInterTime: Long = 8L,
     val instantOpenAdTime: Long = 8L,
     val interLoadingEnable: Boolean = false,

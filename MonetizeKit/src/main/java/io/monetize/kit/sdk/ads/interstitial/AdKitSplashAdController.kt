@@ -93,7 +93,7 @@ class AdKitSplashAdController private constructor(
 //                    context.showToast("Splash Ad Calling")
 //
 //                }
-                val adId = AdKit.interIdManager.getNextInterId(placementKey)
+                val adId = AdKit.interIdManager.getNextInterId(adIdKey)
                 if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
@@ -219,11 +219,12 @@ class AdKitSplashAdController private constructor(
         }
     }
 
-    private var placementKey: String = ""
+    private var adIdKey: String = ""
 
     fun initSplashAdmob(
         activity: Activity,
         placementKey: String,
+        adIdKey: String,
         interAdsConfigs: InterAdsConfigs,
         listener: InterstitialControllerListener?,
     ) {
@@ -234,9 +235,9 @@ class AdKitSplashAdController private constructor(
         )
 
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
-        this.splashTime = AdKit.firebaseHelper.getLong("SPLASH_TIME", 16)
+        this.splashTime = interAdsConfigs.splashTime
         mInterstitialControllerListener = listener
-        this.placementKey = placementKey
+        this.adIdKey = adIdKey
         canRequestAd = true
         interstitialAd = null
         isHandlerRunning = false

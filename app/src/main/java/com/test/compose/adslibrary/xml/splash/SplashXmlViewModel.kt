@@ -71,13 +71,15 @@ class SplashXmlViewModel : ViewModel() {
             splashAdController.initSplashAdmob(
                 activity = activity,
                 placementKey = "splash_inter",
+                adIdKey = "splash_inter",
                 interAdsConfigs = InterAdsConfigs(
                     openAdEnable = true,
                     interLoadingEnable = true,
                     openAdLoadingEnable = true,
                     openAdInstant = true,
                     instantOpenAdTime = 8,
-                    instantInterTime = 8
+                    instantInterTime = 8,
+                    splashTime = AdKit.firebaseHelper.getLong("splash_time",16)
                 ),
                 object : InterstitialControllerListener {
                     override fun onAdClosed() {
