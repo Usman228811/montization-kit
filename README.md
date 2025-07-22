@@ -5,8 +5,18 @@ dependencies {
     implementation("com.github.Usman228811:montization-kit:v1.7.4")
 }
 
+// .toml [plugins]
 
-//app level gradle
+gmsServiceVersion = "4.4.3"
+firebaseCrashlyticsVersion = "3.0.4"
+firebasePerfVersion = "1.4.2"
+
+gmsServicePlugin = { id = "com.google.gms.google-services", version.ref = "gmsServiceVersion" }
+firebaseCrashlyticsPlugin = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsVersion" }
+firebasePerfPlugin = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfVersion" }
+
+
+// app level gradle
     alias(libs.plugins.gmsServicePlugin) apply false
     alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
     alias(libs.plugins.firebasePerfPlugin) apply false
@@ -28,12 +38,12 @@ in App class, oncreate
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
                 "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
-                "home_inter" to "ca-app-pub-3940256099942544/1033173712", // if single then take this id else will rotate for this placement
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712", // if single then will take this id else will rotate for this placement 
                 "inter_common" to listOf(
                     "ca-app-pub-3940256099942544/1033173712",
                     "ca-app-pub-3940256099942544/1033173712",
                     "ca-app-pub-3940256099942544/1033173712"
-                )
+                ) // if single then will take this id else will rotate for this placement 
             ),
             mapOfNativeIds = mapOf(
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
@@ -41,14 +51,34 @@ in App class, oncreate
             mapOfBannerIds = mapOf(
                 "home_banner" to "ca-app-pub-3940256099942544/9214589741",
             ),
+	    defaultRemoteConfigBuilder = {
+                bool("inter_btn_plant_isAdEnable", true)
+                bool("inter_btn_plant_isInterInstant", true)
+                bool("home_native_isAdEnable", true)
+                bool("home_banner_isAdEnable", true)
+                bool("home_banner_isCollapsible", true)
+                bool("subscription_native_isAdEnable", false)
+                long("home_native_adType", 1L)
+                long("subscription_native_adType", 1L)
+                long("SPLASH_TIME", 16)
+            },
           onInitSdk = {
                 //optional
                 AdKit.analytics.showToast(false)
+		//optional
+ 		AdKit.initializer.disableAds(false)
 
                 // if added then will take these layouts else default layouts
-                AdKit.initializer.setNativeCustomLayouts(
+                AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,
                     bigNativeShimmer = R.layout.large_native_layout_shimmer,
+
+		   //as your requirement
+		    smallNativeLayout
+		    splitNativeLayout
+		   smallNativeShimmer
+		  splitNativeShimmer
+
                 )
 
                 //  stop showing open ads from xml activities
@@ -178,7 +208,7 @@ AdKit.initializer.setNativeCustomLayouts(
 AdKit.analytics.postAnalytics("Main_idenify_plant_btn")
 
 
-🔴 if toast events in debug mode just add in app class
+// if toast events in debug mode just add in app class
 
 onInitSdk = {
                 AdKit.analytics.showToast(BuildConfig.DEBUG)
@@ -236,21 +266,25 @@ onInitSdk = {
     (appContext as AppClass).initializeAppClass()
 
 
-🔴 if you are using compose then to stop showing open ad in splash 
-     adSdkOpenAdManager.setCurrentComposeRoute(
+// if you are using compose then to stop showing open ad in splash 
+     AdKit.openAdManager.setCurrentComposeRoute(
             SplashRoute::class.qualifiedName
         )
 
 
  
-🔴 if using compose, in oncreate of main activity -> set current route in AdSdkOpenAdManager so that open ad knows if it is to stop show ad in this screen or not
+// if using compose, in oncreate of main activity -> set current route in AdSdkOpenAdManager so that open ad knows if it is to stop show ad in this screen or not
 
 val navController = rememberNavController()
             val currentDestination by navController.currentBackStackEntryFlow.collectAsState(
                 initial = null
             )
             val currentRoute = currentDestination?.destination?.route
-            adSdkOpenAdManager.setCurrentComposeRoute(currentRoute)
+	    AdKit.openAdManager.setCurrentComposeRoute(currentRoute)
+
+// if stop showing open ad for specific scenerio
+AdKit.openAdManager.canShowOpenAd(false|true)
+
 
 ```
 
@@ -263,7 +297,7 @@ val navController = rememberNavController()
         )
 
          // stop showing open ad in xml activities
-        AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
+        AdKit.openAdManager.excludeActivitiesFromOpenAd(
             MainActivity::class.java
         )
 
@@ -420,21 +454,9 @@ fun checkUpdate(
                 }
             }
 
-            🔴 Add all default values in the default remote config like this
+            // Add all default values in the default remote config like this
 
-              fetchRemoteValues(BuildConfig.DEBUG) {
-               
-                bool("home_native_isAdEnable", true)
-                bool("home_banner_isAdEnable", true)
-                bool("home_banner_isCollapsible", true)
-                bool("home_banner_isCollapsibleTop", false)
-                bool("subscription_native_isAdEnable", true)
-                long("home_native_adType", 1L)
-                long("subscription_native_adType", 1L)
-                long("SPLASH_TIME", 16)
-            }
-
-        }
+              fetchRemoteValues(BuildConfig.DEBUG)
 ```
 
 # One Time Purchase
@@ -444,9 +466,7 @@ fun checkUpdate(
 
     //replace it with your product id
 
-        AdKit.purchaseHelper.initBilling("one_time_purchase_id")
-
-
+   AdKit.purchaseHelper.initBilling("one_time_purchase_id")
 
     //in viewmodel or screen
 
@@ -712,7 +732,7 @@ class SplashViewModel(
 
     fun checkForUpdate(
         activity: Activity,
-        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+        launcher: ActivityResultLauncher<IntentSenderRequest>
     ) {
         inAppUpdateManager.setUpdateStateCallback { updateState ->
             when (updateState) {
@@ -813,33 +833,7 @@ class SplashViewModel(
             }
             firebaseHelper.fetchRemoteValues(
                 isDebug = isDebug,
-            ) {
-                bool("native_language_splash_isAdEnable", true)
-                bool("inter_home_isAdEnable", true)
-                bool("splash_inter_isAdEnable", true)
-                bool("exit_dialog_isAdEnable", true)
-                bool("native_home_isAdEnable", true)
-                bool("history_native_isAdEnable", true)
-                bool("native_language_settings_isAdEnable", true)
-                bool("native_my_plant_isAdEnable", true)
-                bool("native_water_isAdEnable", true)
-                bool("banner_result_isAdEnable", true)
-                bool("banner_camera_isAdEnable", true)
-                bool("boarding_native_isAdEnable", true)
-                bool("OPEN_AD_ENABLE", true)
-                bool("INTER_LOADING_ENABLE", true)
-                bool("OPEN_AD_LOADING_ENABLE", true)
-
-
-                long("native_language_settings_adType", 0)
-                long("native_language_splash_adType", 0)
-                long("native_my_plant_adType", 2)
-                long("exit_dialog_adType", 2)
-                long("native_home_adType", 2)
-                long("native_water_adType", 2)
-                long("history_native_adType", 2)
-                long("boarding_native_adType", 0)
-            }
+            ) 
         }
     }
 
