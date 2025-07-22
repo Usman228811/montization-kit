@@ -12,12 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
+import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
 @Composable
 fun MainScreen(
@@ -44,6 +44,8 @@ fun MainScreen(
                     }
 
                 },
+                prefKey = "common_pref",
+                counter = 2 //from remote conigs
             )
         }) {
             Text("showinter and to got subscripption screen")
@@ -54,7 +56,7 @@ fun MainScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-                adType = 0
+                adType = 2
             )
         )
 

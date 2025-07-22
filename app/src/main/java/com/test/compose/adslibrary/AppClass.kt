@@ -39,11 +39,25 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             mapOfBannerIds = mapOf(
                 "home_banner" to "ca-app-pub-3940256099942544/2014213617",
             ),
+            defaultRemoteConfigBuilder = {
+                bool("inter_btn_plant_isAdEnable", true)
+                bool("inter_btn_plant_isInterInstant", true)
+                bool("home_native_isAdEnable", true)
+                bool("home_banner_isAdEnable", true)
+                bool("home_banner_isCollapsible", true)
+                bool("subscription_native_isAdEnable", false)
+                long("home_native_adType", 1L)
+                long("subscription_native_adType", 1L)
+                long("SPLASH_TIME", 16)
+            },
             onInitSdk = {
+
+                AdKit.initializer.disableAds(false)
                 AdKit.analytics.showToast(false)
-                AdKit.initializer.setNativeCustomLayouts(
+                AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,
-                    bigNativeShimmer = R.layout.large_native_layout_shimmer,
+                    smallNativeLayout = R.layout.small_native_layout_custom,
+                    splitNativeLayout = R.layout.large_native_right_jazz_custom,
                 )
 
                 AdKit.openAdManager.excludeComposeRoutesFromOpenAd(

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "247304139028",
+    "project_id": "prank-sound-571d4",
+    "storage_bucket": "prank-sound-571d4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247304139028:android:a51b2cd16b325dbc2d1201",
+        "android_client_info": {
+          "package_name": "com.fart.funny.pranks.sounds"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkoPyiY6TdZWQXIXKgPNsLso53lhwzy-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

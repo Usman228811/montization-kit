@@ -24,7 +24,30 @@ class AdsCustomLayoutHelper private constructor() {
     private var bigNativeShimmer: Int? = null
     private var smallNativeShimmer: Int? = null
 
-    fun setBigNative(bigNative: Int?, bigNativeShimmer: Int?) {
+
+    fun setNativeCustomLayouts(
+        bigNativeLayout: Int? = null,
+        smallNativeLayout: Int? = null,
+        splitNativeLayout: Int? = null,
+        bigNativeShimmer: Int? = null,
+        smallNativeShimmer: Int? = null,
+        splitNativeShimmer: Int? = null,
+    ) {
+        setBigNative(
+            bigNative = bigNativeLayout,
+            bigNativeShimmer = bigNativeShimmer
+        )
+        setSmallNative(
+            smallNative = smallNativeLayout,
+            smallNativeShimmer = smallNativeShimmer
+        )
+        setSplitNative(
+            splitNative = splitNativeLayout,
+            splitNativeShimmer = splitNativeShimmer
+        )
+    }
+
+    private fun setBigNative(bigNative: Int?, bigNativeShimmer: Int?) {
         this.bigNative = bigNative
         this.bigNativeShimmer = bigNativeShimmer
     }
@@ -37,7 +60,7 @@ class AdsCustomLayoutHelper private constructor() {
         return bigNativeShimmer
     }
 
-    fun setSmallNative(smallNative: Int?, smallNativeShimmer: Int?) {
+    private fun setSmallNative(smallNative: Int?, smallNativeShimmer: Int?) {
         this.smallNative = smallNative
         this.smallNativeShimmer = smallNativeShimmer
     }
@@ -52,7 +75,7 @@ class AdsCustomLayoutHelper private constructor() {
     }
 
 
-    fun setSplitNative(splitNative: Int?, splitNativeShimmer: Int?) {
+    private fun setSplitNative(splitNative: Int?, splitNativeShimmer: Int?) {
         this.splitNative = splitNative
         this.splitNativeShimmer = splitNativeShimmer
     }

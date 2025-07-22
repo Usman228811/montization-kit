@@ -13,7 +13,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.test.compose.adslibrary.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
@@ -114,30 +113,22 @@ class SplashScreenViewModel : ViewModel() {
     }
 
     fun fetchFirebase() {
-        AdKit.firebaseHelper.apply {
-            viewModelScope.launch {
-                configFetched.collectLatest {
-                    try {
-                        runSplash()
-                    } catch (e: Exception) {
-                        runSplash()
-                    }
-                }
-            }
+        runSplash()
 
-            fetchRemoteValues(BuildConfig.DEBUG) {
-                bool("inter_btn_plant_isAdEnable", true)
-                bool("inter_btn_plant_isInterInstant", true)
-                bool("home_native_isAdEnable", true)
-                bool("home_banner_isAdEnable", true)
-                bool("home_banner_isCollapsible", true)
-                bool("subscription_native_isAdEnable", true)
-                long("home_native_adType", 1L)
-                long("subscription_native_adType", 1L)
-                long("SPLASH_TIME", 16)
-            }
-
-        }
+//        AdKit.firebaseHelper.apply {
+//            viewModelScope.launch {
+//                configFetched.collectLatest {
+//                    try {
+//                        runSplash()
+//                    } catch (e: Exception) {
+//                        runSplash()
+//                    }
+//                }
+//            }
+//
+//            fetchRemoteValues(BuildConfig.DEBUG)
+//
+//        }
     }
 
 

@@ -52,6 +52,13 @@ class BaseCollapsableBannerActivity private constructor(
         bannerControllerConfig: BannerControllerConfig,
         onFail: () -> Unit,
     ) {
+        if (AdKit.initializer.getDisableAds()) {
+            adFrame.let {
+                it.visibility = View.GONE
+                it.removeAllViews()
+            }
+            return
+        }
         this.bannerControllerConfig = bannerControllerConfig
         isTop = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsibleTop", false)
         this.onFail = onFail

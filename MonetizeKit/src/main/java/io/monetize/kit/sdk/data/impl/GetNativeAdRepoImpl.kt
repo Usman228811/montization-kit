@@ -51,6 +51,10 @@ class GetNativeAdRepoImpl private constructor(
         nativeControllerConfig: NativeControllerConfig,
         onFail: () -> Unit
     ) {
+        if (AdKit.initializer.getDisableAds()) {
+            hideAdFrame()
+            return
+        }
 
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext

@@ -52,11 +52,15 @@ class AdKitInterHelper private constructor(
 
     fun preLoadInter(
         activity: Activity,
-        placementKey:String,
+        placementKey: String,
         adIdKey: String,
         prefKey: String = "", counter: Long = -1L,
     ) {
-        this.isInterInstant = AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
+        if (AdKit.initializer.getDisableAds()) {
+            return
+        }
+        this.isInterInstant =
+            AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
         if (isAdEnable.not()) {
             return
@@ -94,11 +98,16 @@ class AdKitInterHelper private constructor(
 
     fun showInterAd(
         activity: Activity,
-        placementKey:String,
+        placementKey: String,
         adIdKey: String,
         listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
-        this.isInterInstant = AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
+        if (AdKit.initializer.getDisableAds()) {
+            listener.onAdClosed()
+            return
+        }
+        this.isInterInstant =
+            AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
         if (!isAdEnable) {
             listener.onAdClosed()

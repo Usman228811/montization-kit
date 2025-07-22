@@ -247,6 +247,10 @@ class AdKitSplashAdController private constructor(
             }
         }
         try {
+            if (AdKit.initializer.getDisableAds()) {
+                mInterstitialControllerListener?.onAdClosed()
+                return
+            }
             if (!AdKit.adKitPref.isAppPurchased && isAdEnable && AdKit.consentManager.canRequestAds) {
                 if (!AdKit.internetController.isConnected) {
                     handlerAd.postDelayed({ mInterstitialControllerListener?.onAdClosed() }, 5000)

@@ -125,6 +125,11 @@ class AdKitOpenAdManager private constructor(
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
         isPause = false
+
+        if (AdKit.initializer.getDisableAds()) {
+            return
+        }
+
         if (isOpenAdInstant.not()) {
             showAd()
         } else {
@@ -156,7 +161,7 @@ class AdKitOpenAdManager private constructor(
     }
 
 
-   private fun loadAndShowOpenAd() {
+    private fun loadAndShowOpenAd() {
 
         if (isAdAvailable) {
             showAdIfAvailable(true)

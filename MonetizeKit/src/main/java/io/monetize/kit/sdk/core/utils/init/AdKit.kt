@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
-import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
@@ -18,6 +17,7 @@ import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
+import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 
 object AdKit {
 
@@ -91,8 +91,13 @@ object AdKit {
         mapOfInterIds: Map<String, Any>,
         mapOfNativeIds: Map<String, Any>,
         mapOfBannerIds: Map<String, Any>,
-        resetInterKeyForCommonAds: String? = null, onInitSdk: () -> Unit
+        defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
+        resetInterKeyForCommonAds: String? = null,
+        onInitSdk: () -> Unit
     ) {
+        val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
+        val configDefaults = configBuilder.configMap
+
         initializer = AdKitInitializer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
         interHelper = AdKitInterHelper.getInstance()
@@ -100,6 +105,7 @@ object AdKit {
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
+        firebaseHelper.setDefaultRemoteConfigs(configDefaults)
         preLoadNative = AdKitNativePreloadHelper.getInstance()
         splashAdController = AdKitSplashAdController.getInstance()
         openAdManager = AdKitOpenAdManager.getInstance(context)

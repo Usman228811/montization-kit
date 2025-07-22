@@ -7,7 +7,6 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
-import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +15,8 @@ import kotlinx.coroutines.launch
 
 class AdKitInitializer private constructor(
 ) {
+
+    private var disableAds = false
 
     companion object {
         @Volatile
@@ -65,31 +66,14 @@ class AdKitInitializer private constructor(
         onInit()
     }
 
-    fun setNativeCustomLayouts(
-        bigNativeLayout: Int? = null,
-        smallNativeLayout: Int? = null,
-        splitNativeLayout: Int? = null,
-        bigNativeShimmer: Int? = null,
-        smallNativeShimmer: Int? = null,
-        splitNativeShimmer: Int? = null,
-    ) {
-        nativeCustomLayoutHelper.apply {
-            setBigNative(
-                bigNative = bigNativeLayout,
-                bigNativeShimmer = bigNativeShimmer
-            )
-            setSmallNative(
-                smallNative = smallNativeLayout,
-                smallNativeShimmer = smallNativeShimmer
-            )
-            setSplitNative(
-                splitNative = splitNativeLayout,
-                splitNativeShimmer = splitNativeShimmer
-            )
-        }
+    fun disableAds(disableAds: Boolean) {
+        this.disableAds = disableAds
     }
 
-   internal fun initAdsConfigs(
+    internal fun getDisableAds() = disableAds
+
+
+    internal fun initAdsConfigs(
         interAdsConfigs: InterAdsConfigs,
     ) {
         interHelper.setInterAdsConfigs(
