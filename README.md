@@ -5,6 +5,9 @@ dependencies {
     implementation("com.github.Usman228811:montization-kit:v1.7.4")
 }
 
+// in settings.gradle
+ maven { url = uri("https://www.jitpack.io" ) }
+
 // .toml [plugins]
 
 gmsServiceVersion = "4.4.3"
