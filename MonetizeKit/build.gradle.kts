@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "v1.7.6"
+version = "v1.7.7"
 
 
 afterEvaluate {
@@ -52,7 +52,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "v1.7.6"
+                version = "v1.7.7"
             }
         }
     }
@@ -61,32 +61,40 @@ afterEvaluate {
 dependencies {
 
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation("androidx.core:core-ktx:1.16.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.12.0")
 
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-
-    implementation(libs.play.services.ads)
-//    implementation(libs.koin)
-    implementation(libs.sdp.android)
-    implementation(libs.ssp.android)
-
-    implementation(libs.app.update.ktx)
-    implementation(libs.sdpCompose)
-
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation(platform("androidx.compose:compose-bom:2025.07.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
 
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase)
+    implementation("com.google.android.gms:play-services-ads:24.4.0")
+    implementation("com.intuit.sdp:sdp-android:1.1.1")
+    implementation("com.intuit.ssp:ssp-android:1.1.1")
+
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
+    implementation("network.chaintech:sdp-ssp-compose-multiplatform:1.0.7")
+
+
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-process:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+
+
+    implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-config")
+    implementation("com.google.firebase:firebase-perf")
+
+    implementation("com.android.billingclient:billing-ktx:8.0.0")
+
 
 
 }

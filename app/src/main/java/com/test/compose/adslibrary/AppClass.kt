@@ -20,6 +20,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         appContext = this
 
         AdKit.init(
+            isDebug = BuildConfig.DEBUG,
             context = this,
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "ca-app-pub-3940256099942544/9257395921",
