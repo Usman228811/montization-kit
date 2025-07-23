@@ -44,13 +44,18 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("inter_btn_plant_isAdEnable", true)
                 bool("inter_btn_plant_isInterInstant", true)
                 bool("home_native_isAdEnable", true)
+                string("home_native_ctaColor", "#FF03DAC5")
+                string("overAllNativeCtaColor", "#FFFFFF")
+                string("overAllNativeBgColor", "#964B00")
                 bool("home_banner_isAdEnable", true)
                 bool("home_banner_isCollapsible", true)
-                bool("subscription_native_isAdEnable", false)
+                bool("subscription_native_isAdEnable", true)
                 long("home_native_adType", 1L)
                 long("subscription_native_adType", 1L)
                 long("SPLASH_TIME", 16)
             },
+//            overAllNativeBgColor =
+//            overAllNativeCtaColor = "#FFEB3B",
             onInitSdk = {
 
                 AdKit.initializer.disableAds(false)

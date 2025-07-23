@@ -213,11 +213,12 @@ class GetNativeAdRepoImpl private constructor(
                                     }
                                 } else {
                                     addNativeAdView(
-                                        nativeCustomLayoutHelper,
-                                        adType,
-                                        mContext,
-                                        adFrame,
-                                        largeNativeAd as NativeAd,
+                                        nativeControllerConfig = nativeControllerConfig,
+                                        adsCustomLayoutHelper = nativeCustomLayoutHelper,
+                                        adType = adType,
+                                        context = mContext,
+                                        adFrame = adFrame,
+                                        ad = largeNativeAd as NativeAd,
                                     )
                                 }
                             }

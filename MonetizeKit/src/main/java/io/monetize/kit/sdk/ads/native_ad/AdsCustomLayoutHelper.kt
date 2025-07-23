@@ -2,6 +2,24 @@ package io.monetize.kit.sdk.ads.native_ad
 
 class AdsCustomLayoutHelper private constructor() {
 
+    private var overAllCtaColor = ""
+    private var overAllBgColor = ""
+
+    fun setOverAllBgColor(color: String) {
+
+    }
+    fun getOverAllBgColor(): String {
+        return overAllBgColor
+    }
+
+    fun setOverAllCtaColor(color: String) {
+        overAllCtaColor = color
+    }
+
+    fun getOverAllCtaColor(): String {
+        return overAllCtaColor
+    }
+
     companion object {
         @Volatile
         private var instance: AdsCustomLayoutHelper? = null

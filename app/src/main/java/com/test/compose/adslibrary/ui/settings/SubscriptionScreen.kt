@@ -96,6 +96,7 @@ fun SubscriptionScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "subscription_native",
                 adIdKey = "subscription_native",
+                bgColor = "#FFC0CB",
                 adType = 2
             )
         )

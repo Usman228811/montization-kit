@@ -119,6 +119,7 @@ class NativeAdSingleController {
                 try {
                     try {
                         addNativeAdView(
+                            nativeControllerConfig = nativeControllerConfig,
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
                             adType = AdType.entries.filter { entries ->
                                 entries.type == AdKit.firebaseHelper.getLong(

@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +10,16 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.graphics.toColorInt
+import androidx.core.view.ViewCompat
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
 
 private fun getFirstNonNull(vararg values: Int?): Int {
@@ -71,6 +76,7 @@ fun addShimmerLayout(
 
 
 fun addNativeAdView(
+    nativeControllerConfig: NativeControllerConfig,
     adsCustomLayoutHelper: AdsCustomLayoutHelper,
     adType: AdType,
     context: Context,
@@ -96,6 +102,7 @@ fun addNativeAdView(
                 if (isForCustom) {
                     val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
                     populateUnifiedNativeJazzAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
                         nativeAd = ad,
                         adView = sdkLayout.nativeAdView,
                         isCustom = true,
@@ -104,6 +111,7 @@ fun addNativeAdView(
                 } else {
                     val nativeAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
                     populateUnifiedNativeJazzAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
                         nativeAd = ad,
                         adView = nativeAdView
                     )
@@ -147,6 +155,7 @@ fun addNativeAdView(
                 if (isForCustom) {
                     val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
                         nativeAd = ad,
                         adView = sdkLayout.nativeAdView,
                         isCustom = true,
@@ -156,6 +165,7 @@ fun addNativeAdView(
                 } else {
                     val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
                         nativeAd = ad,
                         adView = defaultAdView,
                         isForSmall = isForSmall
@@ -178,12 +188,28 @@ fun addNativeAdView(
 }
 
 fun populateUnifiedNativeAdViewUnified(
+    nativeControllerConfig: NativeControllerConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
     isCustom: Boolean = false,
     customLayout: SdkNativeAdView? = null,
     isForSmall: Boolean
 ) {
+    try {
+        val colorHex = listOf(
+            AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_bgColor", nativeControllerConfig.bgColor),
+            nativeControllerConfig.bgColor,
+            AdKit.firebaseHelper.getString("overAllNativeBgColor", AdKit.nativeCustomLayoutHelper.getOverAllBgColor()),
+            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+        ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+        colorHex?.toColorInt()?.let { colorInt ->
+            adView.setBackgroundColor(colorInt)
+        }
+    } catch (_: Exception) {
+
+    }
+
     if (!isForSmall) {
         val mediaView = if (isCustom) {
             customLayout?.mediaView?.setupMediaView() as? MediaView
@@ -226,6 +252,25 @@ fun populateUnifiedNativeAdViewUnified(
     (adView.callToActionView as? AppCompatButton)?.apply {
         text = nativeAd.callToAction ?: ""
         visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
+
+        try {
+            val colorHex = listOf(
+                AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_ctaColor", nativeControllerConfig.ctaColor),
+                nativeControllerConfig.ctaColor,
+                AdKit.firebaseHelper.getString("overAllNativeCtaColor", AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()),
+                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+            ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+            colorHex?.toColorInt()?.let { colorInt ->
+                background?.let {
+                    ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(colorInt))
+                } ?: run {
+                    setBackgroundColor(colorInt)
+                }
+            }
+        } catch (_: Exception) {
+
+        }
     }
 
     (adView.iconView as? ImageView)?.apply {
@@ -238,11 +283,28 @@ fun populateUnifiedNativeAdViewUnified(
 
 
 fun populateUnifiedNativeJazzAdViewUnified(
+    nativeControllerConfig: NativeControllerConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
     isCustom: Boolean = false,
     sdkLayout: SdkNativeAdView? = null
 ) {
+
+    try {
+        val colorHex = listOf(
+            AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_bgColor", nativeControllerConfig.bgColor),
+            nativeControllerConfig.bgColor,
+            AdKit.firebaseHelper.getString("overAllNativeBgColor", AdKit.nativeCustomLayoutHelper.getOverAllBgColor()),
+            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+        ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+        colorHex?.toColorInt()?.let { colorInt ->
+            adView.setBackgroundColor(colorInt)
+        }
+    } catch (_: Exception) {
+
+    }
+
     val mediaView: MediaView? = if (isCustom) {
         sdkLayout?.mediaView?.setupMediaView() as? MediaView
     } else {
@@ -281,6 +343,25 @@ fun populateUnifiedNativeJazzAdViewUnified(
     (adView.callToActionView as? AppCompatButton)?.apply {
         text = nativeAd.callToAction ?: ""
         visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
+
+        try {
+            val colorHex = listOf(
+                AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_ctaColor", nativeControllerConfig.ctaColor),
+                nativeControllerConfig.ctaColor,
+                AdKit.firebaseHelper.getString("overAllNativeCtaColor", AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()),
+                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+            ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+            colorHex?.toColorInt()?.let { colorInt ->
+                background?.let {
+                    ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(colorInt))
+                } ?: run {
+                    setBackgroundColor(colorInt)
+                }
+            }
+        } catch (_: Exception) {
+
+        }
     }
 
     adView.setNativeAd(nativeAd)

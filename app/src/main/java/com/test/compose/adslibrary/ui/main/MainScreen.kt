@@ -56,7 +56,8 @@ fun MainScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-                adType = 2
+                ctaColor = "#FFBB86FC",
+                adType = 1
             )
         )
 
