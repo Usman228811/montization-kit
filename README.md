@@ -55,7 +55,11 @@ in App class, oncreate
             mapOfBannerIds = mapOf(
                 "home_banner" to "ca-app-pub-3940256099942544/9214589741",
             ),
+//            overAllNativeBgColor = "#FFEB3B", 
+//            overAllNativeCtaColor = "#FFEB3B",
 	    defaultRemoteConfigBuilder = {
+		string("overAllNativeCtaColor", "#FFFFFF") // to change overall native cta color
+                string("overAllNativeBgColor", "#964B00")  // to change overall native bg color
                 bool("inter_btn_plant_isAdEnable", true)
                 bool("inter_btn_plant_isInterInstant", true)
                 bool("home_native_isAdEnable", true)
@@ -151,7 +155,9 @@ Add default values in the default values
 AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements
+                adIdKey = "home_native", // ad id key can be common for different placements,
+                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
+                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
                 adType = 2
             )
         )
@@ -159,9 +165,11 @@ AdKitNativeAdView(
 
 // for dialog in the same screen
 AdKitNativeAdViewDialog(
-            nativeControllerConfig = NativeControllerConfig(
+           nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements
+                adIdKey = "home_native", // ad id key can be common for different placements,
+                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
+                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
                 adType = 2
             )
         )
@@ -191,7 +199,9 @@ AdKitNativeAdViewDialog(
             this@MainXmlActivity,
            nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements
+                adIdKey = "home_native", // ad id key can be common for different placements,
+                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
+                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
                 adType = 2
             )
         )
