@@ -2,7 +2,7 @@
 # Library
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.7.5")
+    implementation("com.github.Usman228811:montization-kit:v1.7.6")
 }
 
 // in settings.gradle
@@ -890,7 +890,8 @@ class SplashViewModel(
                 }
             }
             AdKit.splashAdController.initSplashAdmob(
-                placementKey = "splash_inter",
+                placementKey = "splash_inter",// ad placement key will be unique for this placement
+		adIdKey = "splash_inter", // ad id key can be common for different placements
                 activity = mContext,
                 interAdsConfigs = InterAdsConfigs(
                     openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
