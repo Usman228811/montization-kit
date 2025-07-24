@@ -2,7 +2,7 @@
 # Library
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.7.6")
+    implementation("com.github.Usman228811:montization-kit:v1.7.8")
 }
 
 // in settings.gradle
