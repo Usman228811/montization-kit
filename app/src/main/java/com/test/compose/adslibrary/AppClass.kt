@@ -41,6 +41,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "home_banner" to "ca-app-pub-3940256099942544/2014213617",
             ),
             defaultRemoteConfigBuilder = {
+                bool("splash_inter_isAdEnable", true)
                 bool("inter_btn_plant_isAdEnable", true)
                 bool("inter_btn_plant_isInterInstant", true)
                 bool("home_native_isAdEnable", true)
@@ -52,7 +53,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("subscription_native_isAdEnable", true)
                 long("home_native_adType", 1L)
                 long("subscription_native_adType", 1L)
-                long("SPLASH_TIME", 16)
             },
 //            overAllNativeBgColor =
 //            overAllNativeCtaColor = "#FFEB3B",

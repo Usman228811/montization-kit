@@ -1,6 +1,8 @@
 package io.monetize.kit.sdk.core.utils.remoteconfig
 
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.ConfigUpdate
@@ -9,10 +11,41 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
 class AdKitFirebaseRemoteConfigHelper private constructor() {
+
+    private var runnableSplash: Runnable? = null
+    private var isHandlerRunning = false
+    private val handlerAd = Handler(Looper.getMainLooper())
+
+
+    private fun startHandler() {
+        var configFetchTime = AdKit.firebaseHelper.getLong("config_fetch_time", 8)
+        Log.d("skdjflskfj", "startHandler1: ${configFetchTime}")
+        if (configFetchTime == 0L) {
+            configFetchTime = 8L
+        }
+        Log.d("skdjflskfj", "startHandler2: ${configFetchTime}")
+        if (!isHandlerRunning) {
+            isHandlerRunning = true
+            runnableSplash?.let {
+                handlerAd.postDelayed(it, configFetchTime * 1000)
+            }
+        }
+    }
+
+    private fun removeCallBacks() {
+        try {
+            isHandlerRunning = false
+            runnableSplash?.let {
+                handlerAd.removeCallbacks(it)
+            }
+        } catch (_: Exception) {
+        }
+    }
 
     companion object {
         @Volatile
@@ -35,13 +68,28 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
     fun fetchRemoteValues(isDebug: Boolean) {
 
+        runnableSplash = Runnable {
+            if (isHandlerRunning) {
+                isHandlerRunning = false
+                _configFetched.trySend(true)
+            }
+        }
+
         try {
+            startHandler()
             Firebase.remoteConfig.apply {
                 configureRemoteConfig(this, isDebug)
                 listenForUpdates(this)
                 fetchRemoteConfig(this)
             }
         } catch (e: Exception) {
+            configFetched()
+        }
+    }
+
+    private fun configFetched() {
+        if (isHandlerRunning) {
+            removeCallBacks()
             _configFetched.trySend(true)
         }
     }
@@ -63,7 +111,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
                 setConfigSettingsAsync(settings)
             }
         } catch (e: Exception) {
-            _configFetched.trySend(true)
+            configFetched()
         }
     }
 
@@ -89,18 +137,18 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
                         } else {
                             Log.e("AdKit_Logs", "Firebase Fetch failed", task.exception)
                         }
-                        _configFetched.trySend(true)
+                        configFetched()
                     }
                     .addOnFailureListener {
-                        _configFetched.trySend(true)
+                        configFetched()
                     }
                     .addOnCanceledListener {
-                        _configFetched.trySend(true)
+                        configFetched()
                     }
             }
         } catch (e: Exception) {
             Log.d("AdKit_Logs", "fetchRemoteConfig package error: ")
-            _configFetched.trySend(true)
+            configFetched()
         }
 
     }

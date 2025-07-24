@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.test.compose.adslibrary.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
@@ -92,6 +93,7 @@ class SplashScreenViewModel : ViewModel() {
 
     }
 
+
     fun initConsent(activity: Activity) {
         viewModelScope.launch {
             if (state.value.isConsentManager.not()) {
@@ -113,22 +115,21 @@ class SplashScreenViewModel : ViewModel() {
     }
 
     fun fetchFirebase() {
-        runSplash()
 
-//        AdKit.firebaseHelper.apply {
-//            viewModelScope.launch {
-//                configFetched.collectLatest {
-//                    try {
-//                        runSplash()
-//                    } catch (e: Exception) {
-//                        runSplash()
-//                    }
-//                }
-//            }
-//
-//            fetchRemoteValues(BuildConfig.DEBUG)
-//
-//        }
+        AdKit.firebaseHelper.apply {
+            viewModelScope.launch {
+                configFetched.collectLatest {
+                    try {
+                        runSplash()
+                    } catch (e: Exception) {
+                        runSplash()
+                    }
+                }
+            }
+
+            fetchRemoteValues(BuildConfig.DEBUG)
+
+        }
     }
 
 

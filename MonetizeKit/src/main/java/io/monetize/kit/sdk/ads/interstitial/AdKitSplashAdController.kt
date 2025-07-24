@@ -235,7 +235,11 @@ class AdKitSplashAdController private constructor(
         )
 
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
-        this.splashTime = interAdsConfigs.splashTime
+        var time  = interAdsConfigs.splashTime
+        if (time == 0L) {
+            time = 16L
+        }
+        this.splashTime = time
         mInterstitialControllerListener = listener
         this.adIdKey = adIdKey
         canRequestAd = true
