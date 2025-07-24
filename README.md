@@ -47,9 +47,9 @@ Apply plugins in your app-level `build.gradle`:
 
 ```kotlin
 plugins {
-    alias(libs.plugins.gmsServicePlugin) apply false
-    alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
-    alias(libs.plugins.firebasePerfPlugin) apply false
+    alias(libs.plugins.gmsServicePlugin) 
+    alias(libs.plugins.firebaseCrashlyticsPlugin) 
+    alias(libs.plugins.firebasePerfPlugin) 
 }
 ```
 
@@ -57,9 +57,9 @@ And in your project-level `build.gradle`:
 
 ```kotlin
 plugins {
-    alias(libs.plugins.gmsServicePlugin)
-    alias(libs.plugins.firebaseCrashlyticsPlugin)
-    alias(libs.plugins.firebasePerfPlugin)
+    alias(libs.plugins.gmsServicePlugin) apply false
+    alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
+    alias(libs.plugins.firebasePerfPlugin) apply false
 }
 ```
 
