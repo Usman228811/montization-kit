@@ -424,6 +424,20 @@ AdKit.interHelper.showInterAd(
 )
 ```
 
+Preload an interstitial ad:
+
+```kotlin
+AdKit.interHelper.preLoadInter(
+    activity = activity,
+    adIdKey = "inter_common",
+    placementKey = "inter_btn_plant",
+    activity = activity,
+    // Optional
+    prefKey = "common_pref",
+    counter = 2 // From remote configs
+)
+```
+
 ---
 
 ## In-App Update
@@ -525,11 +539,20 @@ viewModelScope.apply {
 
 // Trigger purchase
 AdKit.purchaseHelper.purchaseProduct(activity)
+
+// You can check if the app is purchased using AdKit.
+val isPurchased = AdKit.adKitPref.isAppPurchased
 ```
 
 ---
 
 ## Subscriptions
+
+```kotlin
+// You can check if the app is subscribed using AdKit.
+val isSubscribed = AdKit.adKitPref.isAppPurchased
+
+```
 
 ### ViewModel for Subscriptions
 
