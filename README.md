@@ -1,15 +1,39 @@
+# Monetization Kit Documentation
 
-# Library
+A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app purchases, subscriptions, and analytics.
+
+---
+
+## Installation
+
+### Add Dependency
+
+To integrate the Monetization Kit into your project, include the following in your app's `build.gradle`:
+
 ```kotlin
 dependencies {
     implementation("com.github.Usman228811:montization-kit:v1.7.8")
 }
+```
 
-// in settings.gradle
- maven { url = uri("https://www.jitpack.io" ) }
+### Configure JitPack Repository
 
-// .toml [plugins]
+In your `settings.gradle`, add the JitPack repository:
 
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://www.jitpack.io") }
+    }
+}
+```
+
+### Gradle Plugins
+
+Define the required plugins in your `.toml` file:
+
+```toml
+[plugins]
 gmsServiceVersion = "4.4.3"
 firebaseCrashlyticsVersion = "3.0.4"
 firebasePerfVersion = "1.4.2"
@@ -17,526 +41,509 @@ firebasePerfVersion = "1.4.2"
 gmsServicePlugin = { id = "com.google.gms.google-services", version.ref = "gmsServiceVersion" }
 firebaseCrashlyticsPlugin = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsVersion" }
 firebasePerfPlugin = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfVersion" }
+```
 
+Apply plugins in your app-level `build.gradle`:
 
-// app level gradle
+```kotlin
+plugins {
     alias(libs.plugins.gmsServicePlugin) apply false
     alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
     alias(libs.plugins.firebasePerfPlugin) apply false
-
-// project level gradle
-   alias(libs.plugins.gmsServicePlugin)
-   alias(libs.plugins.firebaseCrashlyticsPlugin)
-   alias(libs.plugins.firebasePerfPlugin)
-
+}
 ```
 
-# SDK Initialize
-in App class, oncreate
+And in your project-level `build.gradle`:
+
 ```kotlin
-
- AdKit.init(
-	    isDebug = BuildConfig.DEBUG,
-            context = this,
-            admobId = "ca-app-pub-3940256099942544~3347511713",
-            openAdId = "ca-app-pub-3940256099942544/9257395921",
-            mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
-                "home_inter" to "ca-app-pub-3940256099942544/1033173712", // If it's single, it will use this ID; otherwise, it will rotate for this placement.
-                "inter_common" to listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
-                ) // If it's single, it will use this ID; otherwise, it will rotate for this placement.
-            ),
-            mapOfNativeIds = mapOf(
-                "home_native" to "ca-app-pub-3940256099942544/2247696110",
-            ),
-            mapOfBannerIds = mapOf(
-                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
-            ),
-//            overAllNativeBgColor = "#FFEB3B", 
-//            overAllNativeCtaColor = "#FFEB3B",
-	    defaultRemoteConfigBuilder = {
-		// Add all default values to the Remote Config like this.
-		string("overAllNativeCtaColor", "#FFFFFF") // to change overall native cta color
-                string("overAllNativeBgColor", "#964B00")  // to change overall native bg color
-                bool("inter_btn_plant_isAdEnable", true)
-                bool("inter_btn_plant_isInterInstant", true)
-                bool("home_native_isAdEnable", true)
-                bool("home_banner_isAdEnable", true)
-                bool("home_banner_isCollapsible", true)
-                bool("subscription_native_isAdEnable", false)
-                long("home_native_adType", 1L)
-                long("subscription_native_adType", 1L)
-                long("SPLASH_TIME", 16)
-            },
-          onInitSdk = {
-                //optional
-                AdKit.analytics.showToast(false)
-		//optional
- 		AdKit.initializer.disableAds(false)
-
-                // If added, it will use these layouts; otherwise, it will use the default layouts.
-                AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
-                    bigNativeLayout = R.layout.large_native_layout_custom,
-                    bigNativeShimmer = R.layout.large_native_layout_shimmer,
-
-		   //As per your requirement.
-		    smallNativeLayout
-		    splitNativeLayout
-		   smallNativeShimmer
-		  splitNativeShimmer
-
-                )
-
-                //  To stop showing open ads from XML-based activities, you can follow 
-                AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java,)
-
-                //  To stop showing open ads from compose routes, you can follow
-                AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
-                    AppRoute.SplashRoute::class.qualifiedName?: "",
-                    AppRoute.FeedbackRoute::class.qualifiedName?: "",
-                    AppRoute.PrivacyPolicy::class.qualifiedName?: "",
-                )
-            })
-
-
+plugins {
+    alias(libs.plugins.gmsServicePlugin)
+    alias(libs.plugins.firebaseCrashlyticsPlugin)
+    alias(libs.plugins.firebasePerfPlugin)
+}
 ```
 
-# Consent Manager 
-```kotlin
- viewModelScope.apply {
+---
 
-            launch {
-                AdKit.consentManager.googleConsent.collectLatest {
-                    runSplash()
-                }
-            }
+## SDK Initialization
+
+Initialize the SDK in your `Application` class's `onCreate` method:
+
+```kotlin
+AdKit.init(
+    isDebug = BuildConfig.DEBUG,
+    context = this,
+    admobId = "ca-app-pub-3940256099942544~3347511713",
+    openAdId = "ca-app-pub-3940256099942544/9257395921",
+    mapOfInterIds = mapOf(
+        "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+        "home_inter" to "ca-app-pub-3940256099942544/1033173712", // If single, uses this ID; otherwise, rotates for this placement.
+        "inter_common" to listOf(
+            "ca-app-pub-3940256099942544/1033173712",
+            "ca-app-pub-3940256099942544/1033173712",
+            "ca-app-pub-3940256099942544/1033173712"
+        ) // If single, uses this ID; otherwise, rotates for this placement.
+    ),
+    mapOfNativeIds = mapOf(
+        "home_native" to "ca-app-pub-3940256099942544/2247696110"
+    ),
+    mapOfBannerIds = mapOf(
+        "home_banner" to "ca-app-pub-3940256099942544/9214589741"
+    ),
+    // overAllNativeBgColor = "#FFEB3B", 
+    // overAllNativeCtaColor = "#FFEB3B",
+    defaultRemoteConfigBuilder = {
+        // Add default values to Remote Config
+        string("overAllNativeCtaColor", "#FFFFFF") // Change overall native CTA color
+        string("overAllNativeBgColor", "#964B00")  // Change overall native background color
+        bool("inter_btn_plant_isAdEnable", true)
+        bool("inter_btn_plant_isInterInstant", true)
+        bool("home_native_isAdEnable", true)
+        bool("home_banner_isAdEnable", true)
+        bool("home_banner_isCollapsible", true)
+        bool("subscription_native_isAdEnable", false)
+        long("home_native_adType", 1L)
+        long("subscription_native_adType", 1L)
+        long("SPLASH_TIME", 16)
+    },
+    onInitSdk = {
+        // Optional: Disable toast notifications for analytics
+        AdKit.analytics.showToast(false)
+        // Optional: Enable or disable ads
+        AdKit.initializer.disableAds(false)
+
+        // Set custom native ad layouts (optional)
+        AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
+            bigNativeLayout = R.layout.large_native_layout_custom,
+            bigNativeShimmer = R.layout.large_native_layout_shimmer,
+            // As per your requirement
+            smallNativeLayout,
+            splitNativeLayout,
+            smallNativeShimmer,
+            splitNativeShimmer
+        )
+
+        // Exclude activities from showing open ads
+        AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java)
+
+        // Exclude Compose routes from showing open ads
+        AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
+            AppRoute.SplashRoute::class.qualifiedName ?: "",
+            AppRoute.FeedbackRoute::class.qualifiedName ?: "",
+            AppRoute.PrivacyPolicy::class.qualifiedName ?: ""
+        )
+    }
+)
+```
+
+---
+
+## Consent Manager
+
+Handle user consent for ads in your ViewModel:
+
+```kotlin
+viewModelScope.apply {
+    launch {
+        AdKit.consentManager.googleConsent.collectLatest {
+            runSplash()
         }
+    }
+}
 
- fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
-                _state.update {
-                    it.copy(
-                        isConsentManager = true
-                    )
-                }
-                if (!pref.isAppPurchased && adSdkInternetController.isConnected) {
-                    AdKit.consentManager.gatherConsent(activity)
-                    if (AdKit.consentManager.canRequestAds) {
-                        runSplash()
-                    }
-                } else {
+fun initConsent(activity: Activity) {
+    viewModelScope.launch {
+        if (state.value.isConsentManager.not()) {
+            _state.update {
+                it.copy(isConsentManager = true)
+            }
+            if (!pref.isAppPurchased && adSdkInternetController.isConnected) {
+                AdKit.consentManager.gatherConsent(activity)
+                if (AdKit.consentManager.canRequestAds) {
                     runSplash()
                 }
+            } else {
+                runSplash()
             }
         }
     }
-
+}
 ```
 
+---
 
+## Native Ads
 
-# Native Ad
-## AdTypes
- - 0 for large native
- - 1 for split 
- - 2 for small native
+### Ad Types
+- `0`: Large native ad
+- `1`: Split native ad
+- `2`: Small native ad
 
-## remote config values 
-Add default values in the default config or in the remote configs.
-- {$placementkey}_isAdEnable
-- {$placementkey}_adType
-- {$placementkey}_loadNewAd
-- {$placementkey}_ctaColor
-- {$placementkey}_bgColor
+### Remote Config Values
+Add these to default or remote configs:
+- `{$placementkey}_isAdEnable`
+- `{$placementkey}_adType`
+- `{$placementkey}_loadNewAd`
+- `{$placementkey}_ctaColor`
+- `{$placementkey}_bgColor`
 
-To change the overall native CTA or background color, add the values in the default or remote configs.
+For global native ad styling:
+- `overAllNativeBgColor`
+- `overAllNativeCtaColor`
 
-- overAllNativeBgColor
-- overAllNativeCtaColor
+### Jetpack Compose Support
 
-## Compose support for native
 ```kotlin
 AdKitNativeAdView(
-            nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
-                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
-                adType = 2
-            )
-        )
+    nativeControllerConfig = NativeControllerConfig(
+        placementKey = "home_native", // Unique placement key
+        adIdKey = "home_native", // Can be common across placements
+        ctaColor = "#FFBB86FC", // Optional: CTA color, changeable remotely
+        bgColor = "#000000", // Optional: Background color, changeable remotely
+        adType = 2
+    ),
+    onFail = {
+	// handle native fail
+    }
+)
 
-
-// for dialog in the same screen
+// For dialogs on the same screen
 AdKitNativeAdViewDialog(
-           nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
-                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
-                adType = 2
-            )
-        )
+    nativeControllerConfig = NativeControllerConfig(
+        placementKey = "home_native",
+        adIdKey = "home_native",
+        ctaColor = "#FFBB86FC",
+        bgColor = "#000000",
+        adType = 2
+    ),
+    onFail = {
+	// handle native fail
+    }
+)
 ```
-## XML support for native
+
+### XML Support
+
+```xml
+<io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
+    android:id="@+id/adFrameNative"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/_50sdp"
+    app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
+
+<!-- For dialogs on the same screen -->
+<io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
+    android:id="@+id/adFrameNative"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/_50sdp"
+    app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
+```
+
+Load the ad in your Activity or Fragment:
 
 ```kotlin
-
-    <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
-        android:id="@+id/adFrameNative"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_50sdp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
-
-    // for dialog in the same screen
-    <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
-        android:id="@+id/adFrameNative"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_50sdp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
-
-
-  // in activity or fragment
-  binding.adFrameNative.loadNative(
-            this@MainXmlActivity,
-           nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native", // placementKey will be unique for that placement
-                adIdKey = "home_native", // adIdKey can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
-                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
-                adType = 2
-            )
-        )
-
-
-// custom natives
-
-// in app class, onInitSdk ->
-AdKit.initializer.setNativeCustomLayouts(
-            bigNativeLayout = R.layout.large_native_layout_custom,
-            bigNativeShimmer = R.layout.large_native_layout_shimmer, // If added, it shows this shimmer; otherwise, it shows the default.
-                )
+binding.adFrameNative.loadNative(
+    this@MainXmlActivity,
+    nativeControllerConfig = NativeControllerConfig(
+        placementKey = "home_native",
+        adIdKey = "home_native",
+        ctaColor = "#FFBB86FC",
+        bgColor = "#000000",
+        adType = 2
+    ),
+    onFail = {
+	// handle native fail
+    }
+)
 ```
 
-# Analytics Events
+### Custom Native Layouts
+
+Set custom layouts in the `onInitSdk` callback:
+
+```kotlin
+AdKit.initializer.setNativeCustomLayouts(
+    bigNativeLayout = R.layout.large_native_layout_custom,
+    bigNativeShimmer = R.layout.large_native_layout_shimmer // Shows custom shimmer if provided
+)
+```
+
+---
+
+## Analytics Events
+
+Post analytics events:
 
 ```kotlin
 AdKit.analytics.postAnalytics("Main_idenify_plant_btn")
+```
 
+Enable toast for events in debug mode in App Class:
 
-// If you want to show toast events in debug mode, just add the code in the App class.
-
+```kotlin
 onInitSdk = {
-                AdKit.analytics.showToast(BuildConfig.DEBUG)
-                
-            })
-
+    AdKit.analytics.showToast(BuildConfig.DEBUG)
+}
 ```
 
-# App Open Ad
+---
 
+## App Open Ads
+
+### Setup in Application Class
 
 ```kotlin
- fun initializeAppClass() {
-        try {
-            registerActivityLifecycleCallbacks(this)
-        } catch (_: Exception) {
-        }
-    }
+fun initializeAppClass() {
+    try {
+        registerActivityLifecycleCallbacks(this)
+    } catch (_: Exception) {}
+}
 
+override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
 
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+override fun onActivityStarted(activity: Activity) {
+    handleCurrentActivity(activity)
+}
 
-    override fun onActivityStarted(activity: Activity) {
-        handleCurrentActivity(activity)
-    }
+private fun handleCurrentActivity(activity: Activity) {
+    AdKit.interHelper.setAppInPause(false)
+    AdKit.openAdManager.setActivity(activity)
+}
 
+override fun onActivityResumed(activity: Activity) {
+    handleCurrentActivity(activity)
+}
 
-    private fun handleCurrentActivity(activity: Activity) {
-        AdKit.interHelper.setAppInPause(false)
-        AdKit.openAdManager.setActivity(activity)
-    }
+override fun onActivityStopped(activity: Activity) {}
+override fun onActivityPaused(activity: Activity) {
+    AdKit.interHelper.setAppInPause(true)
+}
 
-    override fun onActivityResumed(activity: Activity) {
-        handleCurrentActivity(activity)
-    }
-
-    override fun onActivityStopped(activity: Activity) {}
-    override fun onActivityPaused(activity: Activity) {
-        AdKit.interHelper.setAppInPause(true)
-    }
-
-    override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
-    override fun onActivityDestroyed(activity: Activity) {
-
-        AdKit.openAdManager.setActivity(null)
-        AdKit.interHelper.setAppInPause(false)
-    }
-
+override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+override fun onActivityDestroyed(activity: Activity) {
+    AdKit.openAdManager.setActivity(null)
+    AdKit.interHelper.setAppInPause(false)
+}
 ```
 
-## In main activity
+### In Main Activity
 
 ```kotlin
+(appContext as AppClass).initializeAppClass()
+```
 
-    (appContext as AppClass).initializeAppClass()
+For Jetpack Compose, manage open ads in Main Activity:
 
+```kotlin
+// Set current Compose route
+AdKit.openAdManager.setCurrentComposeRoute(SplashRoute::class.qualifiedName)
 
-// If you're using Compose, to stop showing the open ad in the splash screen
-     AdKit.openAdManager.setCurrentComposeRoute(
-            SplashRoute::class.qualifiedName
-        )
-
-
- 
-// If using Compose, in onCreate of MainActivity, set the current route in AdKit.openAdManager so it knows whether to show the open ad on this screen or not.
-
+// Track navigation
 val navController = rememberNavController()
-            val currentDestination by navController.currentBackStackEntryFlow.collectAsState(
-                initial = null
-            )
-            val currentRoute = currentDestination?.destination?.route
-	    AdKit.openAdManager.setCurrentComposeRoute(currentRoute)
-
+val currentDestination by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+val currentRoute = currentDestination?.destination?.route
+AdKit.openAdManager.setCurrentComposeRoute(currentRoute)
 ```
 
-## stop showing open ad, in app class oncreate
+Exclude screens from open ads:
+
 ```kotlin
+AdKit.openAdManager.excludeComposeRoutesFromOpenAd(SplashRoute::class.qualifiedName ?: "")
+AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java)
 
-        // To stop showing open ads in Compose screens
-        AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
-            SplashRoute::class.qualifiedName ?: ""
-        )
-
-         // To stop showing open ads in Xml-based activities
-        AdKit.openAdManager.excludeActivitiesFromOpenAd(
-            MainActivity::class.java
-        )
-
-	/*
-          If you want to stop showing the open ad for a specific scenario,
-          add a condition in your logic to skip showing the ad when that scenario is detected.
-        */ 
-       AdKit.openAdManager.canShowOpenAd(false|true)
-
+// Conditionally disable open ads
+AdKit.openAdManager.canShowOpenAd(false|true)
 ```
 
+---
 
-# Banner Ad
+## Banner Ads
 
+### Remote Config Values
+- `{$placementkey}_isAdEnable`
+- `{$placementkey}_loadNewAd`
+- `{$placementkey}_isCollapsible`
+- `{$placementkey}_isCollapsibleTop`
 
-## Remote config values 
-Add default values in the default values
-- {$placementkey}_isAdEnable
-- {$placementkey}_loadNewAd
-- {$placementkey}_isCollapsible
-- {$placementkey}_isCollapsibleTop
-
-## Compose support for banner
-
-```kotlin
-  AdKitBannerAdView(
-                 bannerControllerConfig = BannerControllerConfig(
-                placementKey = "home_banner",
-                adIdKey = "home_banner",
-            )
-            )
-
-````
-
-## XML support for banner
+### Jetpack Compose Support
 
 ```kotlin
+AdKitBannerAdView(
+    bannerControllerConfig = BannerControllerConfig(
+        placementKey = "home_banner",
+        adIdKey = "home_banner"
+    )
+)
+```
 
-    <io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
-        android:id="@+id/adFrame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
+### XML Support
 
+```xml
+<io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
+    android:id="@+id/adFrame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toBottomOf="parent" />
+```
+
+Load the banner ad:
+
+```kotlin
 binding.adFrame.loadBanner(
-            this@MainXmlActivity,
-            bannerControllerConfig = BannerControllerConfig(
-                placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements
-            )
-        )
-
+    this@MainXmlActivity,
+    bannerControllerConfig = BannerControllerConfig(
+        placementKey = "home_native",
+        adIdKey = "home_native"
+    )
+)
 ```
 
-# Interstitial Ad
+---
 
+## Interstitial Ads
 
-## Remote config values 
-Add default values in the default values
-- {$placementkey}_isAdEnable
-- {$placementkey}_isInterInstant
+### Remote Config Values
+- `{$placementkey}_isAdEnable`
+- `{$placementkey}_isInterInstant`
+
+Show an interstitial ad:
 
 ```kotlin
-
 AdKit.interHelper.showInterAd(
-                adIdKey = "inter_common",// for ad id key
-                placementKey = "inter_btn_plant", // for enable disable or instant
-                activity = activity,
-                listener = object : InterstitialControllerListener {
-                    override fun onAdClosed() {
-
-                        }
-
-                },
-		//optional
-                prefKey = "common_pref", 
-                counter = 2 //from remote conigs
-            )
-
+    adIdKey = "inter_common",
+    placementKey = "inter_btn_plant",
+    activity = activity,
+    listener = object : InterstitialControllerListener {
+        override fun onAdClosed() {}
+    },
+    // Optional
+    prefKey = "common_pref",
+    counter = 2 // From remote configs
+)
 ```
 
-# In App Update
+---
+
+## In-App Update
+
+### Jetpack Compose
 
 ```kotlin
-    // in compose
-   val launcher = AdKitInAppUpdateFlowResultLauncher (onFail = {
-       //continue for consent
-    })
+val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
+    // Proceed with consent
+})
+```
 
-    //in xml 
-    private val updateLauncher: ActivityResultLauncher<IntentSenderRequest> by lazy {
-        AdKitInAppUpdateManager.registerLauncher(this) {
-           //continue for consent
+### XML
+
+```kotlin
+private val updateLauncher = AdKitInAppUpdateManager.registerLauncher(this, onFail = {
+    // Proceed with consent
+})
+```
+
+Check for updates:
+
+```kotlin
+fun checkUpdate(context: Context, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+    AdKit.inAppUpdateManager.setUpdateStateCallback { updateState ->
+        when (updateState) {
+            UpdateState.Available -> {
+                AdKit.inAppUpdateManager.startUpdateFlow(launcher)
+            }
+            UpdateState.Downloaded -> {
+                // Show restart dialog or call
+                AdKit.inAppUpdateManager.updateComplete()
+            }
+            UpdateState.Failed -> {
+                // Proceed with consent
+            }
+            UpdateState.Idle -> {}
         }
     }
+    AdKit.inAppUpdateManager.checkUpdate(context)
+}
 
-fun checkUpdate(
-        context: Context,
-        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
-
-        AdKit.inAppUpdateManager.setUpdateStateCallback { updateState ->
-            when (updateState) {
-                UpdateState.Available -> {
-
-                    AdKit.inAppUpdateManager.startUpdateFlow(launcher)
-                }
-
-                UpdateState.Downloaded -> {
-                    /* show restart dialog
-                    
-                     or
-
-                    adSdkInAppUpdateManager.updateComplete()*/
-
-                }
-
-                UpdateState.Failed -> {
-                    //continue for consent
-
-                }
-
-                UpdateState.Idle -> {
-
-                }
-            }
-
-        }
-
-        AdKit.inAppUpdateManager.checkUpdate(context)
-
-    }
-
-    //on cleanerd in viewmodel | ondestroy
-    override fun onCleared() {
-        super.onCleared()
-        AdKit.inAppUpdateManager.unRegisterLister()
-        animator?.cancel()
-    }
-
+// Clean up in ViewModel or onDestroy
+override fun onCleared() {
+    super.onCleared()
+    AdKit.inAppUpdateManager.unRegisterLister()
+}
 ```
 
-# Firebase Remote Configs
+---
+
+## Firebase Remote Configs
+
+Fetch remote config values:
 
 ```kotlin
-
-//oncreate 
- AdKit.firebaseHelper.apply {
-            viewModelScope.launch {
-                configFetched.collectLatest {
-                    try {
-                        val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
-                        val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
-                        val IS_AI = getString("IS_AI", "YES")
-                       //continue
-                    
-                    } catch (e: Exception) {
-                        //continue
-                    }
-                }
-            }
-
-              fetchRemoteValues(BuildConfig.DEBUG)
-```
-
-# One Time Purchase
-
-```kotlin
-     //in splash
-
-    // Replace it with your product ID.
-
-   AdKit.purchaseHelper.initBilling("one_time_purchase_id")
-
-    //in viewmodel or screen
-
-     viewModelScope.apply {
-
-            launch {
-
-                AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
-                    Log.d("ioiioo", "isPurchased: $isPurchased")
-                }
-            }
-
-            launch {
-
-                AdKit.purchaseHelper.productPriceFlow.collectLatest {
-
-                    Log.d("ioiioo", "productPriceFlow: ${it.price.ifEmpty { "..." }}")
-
-                }
+AdKit.firebaseHelper.apply {
+    viewModelScope.launch {
+        configFetched.collectLatest {
+            try {
+                val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
+                val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
+                val IS_AI = getString("IS_AI", "YES")
+                // Continue
+            } catch (e: Exception) {
+                // Continue
             }
         }
-
-        //to purchase
-
-        AdKit.purchaseHelper.purchaseProduct(activity)
+    }
+    fetchRemoteValues(BuildConfig.DEBUG)
+}
 ```
 
-# Subscription
+---
+
+## One-Time Purchase
+
+Initialize billing in your splash screen:
 
 ```kotlin
+AdKit.purchaseHelper.initBilling("one_time_purchase_id")
+```
 
+Handle purchase state in your ViewModel:
 
-// viewModel for subscription
+```kotlin
+viewModelScope.apply {
+    launch {
+        AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
+            Log.d("ioiioo", "isPurchased: $isPurchased")
+        }
+    }
+    launch {
+        AdKit.purchaseHelper.productPriceFlow.collectLatest {
+            Log.d("ioiioo", "productPriceFlow: ${it.price.ifEmpty { "..." }}")
+        }
+    }
+}
 
+// Trigger purchase
+AdKit.purchaseHelper.purchaseProduct(activity)
+```
 
+---
+
+## Subscriptions
+
+### ViewModel for Subscriptions
+
+```kotlin
 data class SettingScreenState(
     val weeklyPrice: String = "",
     val monthlyPrice: String = "",
     val yearlyPrice: String = "",
     val subscribedId: String = "",
     val selectedButtonPos: Int = 0,
-    val buttonText: String = "subscribe",
+    val buttonText: String = "subscribe"
 )
 
-class SubscriptionViewModel(
-    
-) : ViewModel() {
-
-    
+class SubscriptionViewModel : ViewModel() {
     private var _state = MutableStateFlow(SettingScreenState())
     val state = _state.asStateFlow()
 
@@ -556,7 +563,7 @@ class SubscriptionViewModel(
                         it.copy(
                             weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
                             monthlyPrice = getBillingPrice("monthly1_subscription", "P1M"),
-                            yearlyPrice = getBillingPrice("yearly_subscription", "P1Y"),
+                            yearlyPrice = getBillingPrice("yearly_subscription", "P1Y")
                         )
                     }
                 }
@@ -564,23 +571,18 @@ class SubscriptionViewModel(
             launch {
                 AdKit.subscriptionHelper.subscribedId.collectLatest { subscribedId ->
                     _state.update {
-                        it.copy(
-                            subscribedId = subscribedId
-                        )
+                        it.copy(subscribedId = subscribedId)
                     }
                 }
             }
-
             launch {
                 AdKit.subscriptionHelper.historyFetched.collectLatest {
-
                     val buttonText = when {
                         state.value.subscribedId.isEmpty() -> "subscribe"
                         state.value.subscribedId == selectedId() -> "cancel subscription"
                         AdKit.subscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
-                        else -> state.value.buttonText // fallback to existing text
+                        else -> state.value.buttonText
                     }
-
                     _state.update {
                         it.copy(buttonText = buttonText)
                     }
@@ -593,18 +595,13 @@ class SubscriptionViewModel(
         AdKit.subscriptionHelper.loadProducts(activity, list)
     }
 
-
     private fun getBillingPrice(productId: String, billingPeriod: String): String {
         return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
-
-
     }
 
     fun updateSelectedButtonPos(selectedButtonPos: Int) {
         _state.update {
-            it.copy(
-                selectedButtonPos = selectedButtonPos
-            )
+            it.copy(selectedButtonPos = selectedButtonPos)
         }
         AdKit.subscriptionHelper.querySubscriptionProducts()
     }
@@ -615,35 +612,23 @@ class SubscriptionViewModel(
 }
 ```
 
-## how to implement subscription
+### Implementing Subscriptions
 
 ```kotlin
-// inscreen
+LaunchedEffect(Unit) {
+    subscriptionViewModel.loadProducts(
+        activity,
+        listOf("weekly_subscription2", "monthly1_subscription", "yearly_subscription")
+    )
+}
 
-  LaunchedEffect(Unit) {
-            subscriptionViewModel.loadProducts(
-                activity,
-                listOf(
-                    "weekly_subscription2",
-                    "monthly1_subscription",
-                    "yearly_subscription"
-                )
-            )
-        }
-
-// i.e weekly 
-Button(modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(0)
-
-            }
-        ) {
-            Text(
-                text = "weekly ${state.weeklyPrice}"
-            )
-        }
-
-
+// Example: Weekly subscription button
+Button(
+    modifier = Modifier.fillMaxWidth(),
+    onClick = { subscriptionViewModel.updateSelectedButtonPos(0) }
+) {
+    Text(text = "Weekly ${state.weeklyPrice}")
+}
 
 /* 
 
@@ -656,22 +641,19 @@ The code checks your current subscription status and proceeds accordingly:
 🔄 Already subscribed but a different plan is selected → Goes to Update Subscription screen
 
 */
-
-  Button(modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                subscriptionViewModel.purchase(activity)
-            }
-        ) {
-            Text(
-                text = state.buttonText
-            )
-        }
+Button(
+    modifier = Modifier.fillMaxWidth(),
+    onClick = { subscriptionViewModel.purchase(activity) }
+) {
+    Text(text = state.buttonText)
+}
 ```
 
-# Splash ViewModel 
+---
+
+## Splash Screen ViewModel
 
 ```kotlin
-
 data class SplashScreenState(
     val isConsentManager: Boolean = false,
     val initializeSplash: Boolean = false,
@@ -681,13 +663,12 @@ data class SplashScreenState(
     val moveToMain: Boolean = false,
     val isPurchased: Boolean = false,
     val runSplash: Boolean = false,
-    val progress: Int = 0,
+    val progress: Int = 0
 )
 
 class SplashViewModel(
-    private val prefHelper: PrefHelper,
+    private val prefHelper: PrefHelper
 ) : ViewModel() {
-
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
     private var isInterAdShowed = false
@@ -707,11 +688,7 @@ class SplashViewModel(
             animator?.resume()
         }
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isAppResumed = true
-                )
-            }
+            _state.update { it.copy(isAppResumed = true) }
         }
     }
 
@@ -723,11 +700,7 @@ class SplashViewModel(
             AdKit.splashAdController.pauseAd()
         }
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isAppResumed = false
-                )
-            }
+            _state.update { it.copy(isAppResumed = false) }
         }
     }
 
@@ -739,10 +712,7 @@ class SplashViewModel(
                 else -> {}
             }
         }
-
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-
-        // Ensure observer is removed when lifecycle is destroyed
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
@@ -750,47 +720,26 @@ class SplashViewModel(
         })
     }
 
-    fun checkForUpdate(
-        activity: Activity,
-        launcher: ActivityResultLauncher<IntentSenderRequest>
-    ) {
+    fun checkForUpdate(activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
         inAppUpdateManager.setUpdateStateCallback { updateState ->
             when (updateState) {
-                UpdateState.Available -> {
-                    inAppUpdateManager.startUpdateFlow(launcher)
-                }
-
-                UpdateState.Downloaded -> {
-                    inAppUpdateManager.updateComplete()
-
-                }
-
-                UpdateState.Failed -> {
-                    initConsent(activity)
-
-                }
-
-                UpdateState.Idle -> {
-
-                }
+                UpdateState.Available -> inAppUpdateManager.startUpdateFlow(launcher)
+                UpdateState.Downloaded -> inAppUpdateManager.updateComplete()
+                UpdateState.Failed -> initConsent(activity)
+                UpdateState.Idle -> {}
             }
         }
         inAppUpdateManager.checkUpdate(activity)
     }
 
-
     private fun collections() {
         viewModelScope.apply {
             launch {
-                consentManager.googleConsent.collectLatest {
-                    initializeSplash()
-                }
+                consentManager.googleConsent.collectLatest { initializeSplash() }
             }
-
             launch {
                 firebaseHelper.apply {
-
-                    firebaseHelper.configFetched.collectLatest {
+                    configFetched.collectLatest {
                         try {
                             assignRemoteValues(this)
                             runSplash()
@@ -800,12 +749,9 @@ class SplashViewModel(
                     }
                 }
             }
-
             launch {
                 purchaseHelper.appPurchased.collectLatest { result ->
-                    _state.update {
-                        it.copy(isPurchased = result)
-                    }
+                    _state.update { it.copy(isPurchased = result) }
                 }
             }
         }
@@ -814,11 +760,7 @@ class SplashViewModel(
     fun initConsent(activity: Activity) {
         viewModelScope.launch {
             if (state.value.isConsentManager.not()) {
-                _state.update {
-                    it.copy(
-                        isConsentManager = true
-                    )
-                }
+                _state.update { it.copy(isConsentManager = true) }
                 if (!adKitPref.isAppPurchased && internetController.isConnected) {
                     consentManager.gatherConsent(activity)
                     if (consentManager.canRequestAds) {
@@ -834,11 +776,7 @@ class SplashViewModel(
     private fun initializeSplash() {
         viewModelScope.launch {
             if (state.value.initializeSplash.not()) {
-                _state.update {
-                    it.copy(
-                        initializeSplash = true
-                    )
-                }
+                _state.update { it.copy(initializeSplash = true) }
                 fetchFirebase()
             }
         }
@@ -846,25 +784,15 @@ class SplashViewModel(
 
     private fun fetchFirebase() {
         if (state.value.fireBaseFetch.not()) {
-            _state.update {
-                it.copy(
-                    fireBaseFetch = true
-                )
-            }
-            firebaseHelper.fetchRemoteValues(
-                isDebug = isDebug,
-            ) 
+            _state.update { it.copy(fireBaseFetch = true) }
+            firebaseHelper.fetchRemoteValues(isDebug = isDebug)
         }
     }
 
     private fun runSplash() {
         viewModelScope.launch {
             if (state.value.runSplash.not()) {
-                _state.update {
-                    it.copy(
-                        runSplash = true
-                    )
-                }
+                _state.update { it.copy(runSplash = true) }
             }
         }
     }
@@ -876,11 +804,7 @@ class SplashViewModel(
             addUpdateListener { animation ->
                 val value = animation.animatedValue as? Int
                 viewModelScope.launch {
-                    _state.update {
-                        it.copy(
-                            progress = value ?: 50
-                        )
-                    }
+                    _state.update { it.copy(progress = value ?: 50) }
                 }
             }
             start()
@@ -890,41 +814,27 @@ class SplashViewModel(
     fun showSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-
             when (LANG_APPEAR.toInt()) {
-                0 -> {
-                }
-
+                0 -> {}
                 1 -> {
                     if (!prefHelper.langAppeared) {
                         preLoadNative(mContext)
                     }
-
                 }
-
-                2 -> {
-                    preLoadNative(mContext)
-                }
+                2 -> preLoadNative(mContext)
             }
             AdKit.splashAdController.initSplashAdmob(
-                placementKey = "splash_inter",// ad placement key will be unique for this placement
-		adIdKey = "splash_inter", // ad id key can be common for different placements
+                placementKey = "splash_inter",
+                adIdKey = "splash_inter",
                 activity = mContext,
                 interAdsConfigs = InterAdsConfigs(
-                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
-                    interLoadingEnable = firebaseHelper.getBoolean(
-                        "INTER_LOADING_ENABLE",
-                        true
-                    ),
-                    openAdLoadingEnable = firebaseHelper.getBoolean(
-                        "OPEN_AD_LOADING_ENABLE",
-                        true
-                    ),
-
-                    
-                  //  openAdInstant = false,
-                  //  instantOpenAdTime = 8, 
-                  //  instantInterTime = 8
+ 		    splashTime = AdKit.firebaseHelper.getLong("splash_time",16),
+                    openAdEnable = AdKit.firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
+                    interLoadingEnable = AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
+                    openAdLoadingEnable = AdKit.firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
+                    // openAdInstant = false,
+                    // instantOpenAdTime = 8,
+                    // instantInterTime = 8
                 ),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
@@ -932,26 +842,18 @@ class SplashViewModel(
                         isInterAdShowed = true
                         animator?.cancel()
                         viewModelScope.launch {
-                            _state.update {
-                                it.copy(
-                                    progress = 100,
-                                )
-                            }
+                            _state.update { it.copy(progress = 100) }
                         }
                     }
-
                     override fun onAdClosed() {
                         animator?.cancel()
                         _state.update {
-                            it.copy(
-                                progress = 100,
-                                moveToMain = true,
-                            )
+                            it.copy(progress = 100, moveToMain = true)
                         }
                     }
-                })
+                }
+            )
         }
-
     }
 
     fun resumeSplashAd(activity: Activity) {
@@ -965,7 +867,7 @@ class SplashViewModel(
             mContext = mContext,
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "native_language_splash",
-                adIdKey = "native_language_splash",
+                adIdKey = "native_language_splash"
             )
         )
     }
@@ -975,51 +877,45 @@ class SplashViewModel(
         inAppUpdateManager.unRegisterLister()
         animator?.cancel()
     }
-
 }
-````
-# Splash Screen
+```
+
+---
+
+## Splash Screen Implementation
 
 ```kotlin
 val activity = LocalActivity.current as Activity
-    val state by splashViewModel.state.collectAsState()
-    val lifecycleOwner = LocalLifecycleOwner.current
+val state by splashViewModel.state.collectAsState()
+val lifecycleOwner = LocalLifecycleOwner.current
+val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
+    splashViewModel.initConsent(activity)
+})
 
-    val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
-        splashViewModel.initConsent(activity)
-    })
-    LaunchedEffect(Unit) {
-        splashViewModel.checkForUpdate(activity, launcher)
-    }
-    LaunchedEffect(Unit) {
-        splashViewModel.observeLifecycle(lifecycleOwner)
-    }
+LaunchedEffect(Unit) {
+    splashViewModel.checkForUpdate(activity, launcher)
+    splashViewModel.observeLifecycle(lifecycleOwner)
+}
 
-    LaunchedEffect(key1 = state.runSplash) {
-        if (state.runSplash) {
-            splashViewModel.showSplashAd(activity)
-        }
+LaunchedEffect(key1 = state.runSplash) {
+    if (state.runSplash) {
+        splashViewModel.showSplashAd(activity)
     }
-    LaunchedEffect(key1 = state.moveToMain) {
-        if (state.moveToMain) {
-            gotoMain()
+}
 
-        }
+LaunchedEffect(key1 = state.moveToMain) {
+    if (state.moveToMain) {
+        gotoMain()
     }
+}
 
-    LaunchedEffect(state.isAppResumed) {
-        if (state.isAppResumed) {
-            splashViewModel.resumeSplashAd(activity)
-        }
+LaunchedEffect(state.isAppResumed) {
+    if (state.isAppResumed) {
+        splashViewModel.resumeSplashAd(activity)
     }
+}
 ```
 
+---
 
-
-
-
-
-
-
-
-
+This documentation provides a clean, organized, and visually appealing guide to using the Monetization Kit in your Android app. Each section is clearly separated, with consistent formatting and detailed explanations for seamless integration. Kotlin code blocks are now explicitly marked with triple backticks and the `kotlin` language identifier.
