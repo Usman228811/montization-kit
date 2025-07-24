@@ -42,12 +42,12 @@ in App class, oncreate
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
                 "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
-                "home_inter" to "ca-app-pub-3940256099942544/1033173712", // if single then will take this id else will rotate for this placement 
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712", // If it's single, it will use this ID; otherwise, it will rotate for this placement.
                 "inter_common" to listOf(
                     "ca-app-pub-3940256099942544/1033173712",
                     "ca-app-pub-3940256099942544/1033173712",
                     "ca-app-pub-3940256099942544/1033173712"
-                ) // if single then will take this id else will rotate for this placement 
+                ) // If it's single, it will use this ID; otherwise, it will rotate for this placement.
             ),
             mapOfNativeIds = mapOf(
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
@@ -58,6 +58,7 @@ in App class, oncreate
 //            overAllNativeBgColor = "#FFEB3B", 
 //            overAllNativeCtaColor = "#FFEB3B",
 	    defaultRemoteConfigBuilder = {
+		// Add all default values to the Remote Config like this.
 		string("overAllNativeCtaColor", "#FFFFFF") // to change overall native cta color
                 string("overAllNativeBgColor", "#964B00")  // to change overall native bg color
                 bool("inter_btn_plant_isAdEnable", true)
@@ -76,12 +77,12 @@ in App class, oncreate
 		//optional
  		AdKit.initializer.disableAds(false)
 
-                // if added then will take these layouts else default layouts
+                // If added, it will use these layouts; otherwise, it will use the default layouts.
                 AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     bigNativeLayout = R.layout.large_native_layout_custom,
                     bigNativeShimmer = R.layout.large_native_layout_shimmer,
 
-		   //as your requirement
+		   //As per your requirement.
 		    smallNativeLayout
 		    splitNativeLayout
 		   smallNativeShimmer
@@ -89,10 +90,10 @@ in App class, oncreate
 
                 )
 
-                //  stop showing open ads from xml activities
+                //  To stop showing open ads from XML-based activities, you can follow 
                 AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java,)
 
-                //  stop showing open ads from compose routes
+                //  To stop showing open ads from compose routes, you can follow
                 AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
                     AppRoute.SplashRoute::class.qualifiedName?: "",
                     AppRoute.FeedbackRoute::class.qualifiedName?: "",
@@ -145,10 +146,17 @@ in App class, oncreate
  - 2 for small native
 
 ## remote config values 
-Add default values in the default values
+Add default values in the default config or in the remote configs.
 - {$placementkey}_isAdEnable
 - {$placementkey}_adType
 - {$placementkey}_loadNewAd
+- {$placementkey}_ctaColor
+- {$placementkey}_bgColor
+
+To change the overall native CTA or background color, add the values in the default or remote configs.
+
+- overAllNativeBgColor
+- overAllNativeCtaColor
 
 ## Compose support for native
 ```kotlin
@@ -156,8 +164,8 @@ AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native", //placement key will be unique for that placement
                 adIdKey = "home_native", // ad id key can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
-                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
+                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
+                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
                 adType = 2
             )
         )
@@ -168,8 +176,8 @@ AdKitNativeAdViewDialog(
            nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native", //placement key will be unique for that placement
                 adIdKey = "home_native", // ad id key can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
-                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
+                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
+                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
                 adType = 2
             )
         )
@@ -198,10 +206,10 @@ AdKitNativeAdViewDialog(
   binding.adFrameNative.loadNative(
             this@MainXmlActivity,
            nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native", //placement key will be unique for that placement
-                adIdKey = "home_native", // ad id key can be common for different placements,
-                ctaColor = "#FFBB86FC", // optional -> if this is implemented then will take this color for this placement cta
-                bgColor = "#000000", / optional -> if this is implemented then will take this color for this placement bg
+                placementKey = "home_native", // placementKey will be unique for that placement
+                adIdKey = "home_native", // adIdKey can be common for different placements,
+                ctaColor = "#FFBB86FC", // optional -> If this is implemented, the CTA color for this placement will be used. It can be changed remotely.
+                bgColor = "#000000", // optional -> If this is implemented, the Background color for this placement will be used. It can be changed remotely.
                 adType = 2
             )
         )
@@ -212,7 +220,7 @@ AdKitNativeAdViewDialog(
 // in app class, onInitSdk ->
 AdKit.initializer.setNativeCustomLayouts(
             bigNativeLayout = R.layout.large_native_layout_custom,
-            bigNativeShimmer = R.layout.large_native_layout_shimmer, // if added then shows this shimmer else default
+            bigNativeShimmer = R.layout.large_native_layout_shimmer, // If added, it shows this shimmer; otherwise, it shows the default.
                 )
 ```
 
@@ -222,7 +230,7 @@ AdKit.initializer.setNativeCustomLayouts(
 AdKit.analytics.postAnalytics("Main_idenify_plant_btn")
 
 
-// if toast events in debug mode just add in app class
+// If you want to show toast events in debug mode, just add the code in the App class.
 
 onInitSdk = {
                 AdKit.analytics.showToast(BuildConfig.DEBUG)
@@ -280,14 +288,14 @@ onInitSdk = {
     (appContext as AppClass).initializeAppClass()
 
 
-// if you are using compose then to stop showing open ad in splash 
+// If you're using Compose, to stop showing the open ad in the splash screen
      AdKit.openAdManager.setCurrentComposeRoute(
             SplashRoute::class.qualifiedName
         )
 
 
  
-// if using compose, in oncreate of main activity -> set current route in AdSdkOpenAdManager so that open ad knows if it is to stop show ad in this screen or not
+// If using Compose, in onCreate of MainActivity, set the current route in AdKit.openAdManager so it knows whether to show the open ad on this screen or not.
 
 val navController = rememberNavController()
             val currentDestination by navController.currentBackStackEntryFlow.collectAsState(
@@ -296,24 +304,26 @@ val navController = rememberNavController()
             val currentRoute = currentDestination?.destination?.route
 	    AdKit.openAdManager.setCurrentComposeRoute(currentRoute)
 
-// if stop showing open ad for specific scenerio
-AdKit.openAdManager.canShowOpenAd(false|true)
-
-
 ```
 
 ## stop showing open ad, in app class oncreate
 ```kotlin
 
-        // stop showing open ad in compose screens
+        // To stop showing open ads in Compose screens
         AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
             SplashRoute::class.qualifiedName ?: ""
         )
 
-         // stop showing open ad in xml activities
+         // To stop showing open ads in Xml-based activities
         AdKit.openAdManager.excludeActivitiesFromOpenAd(
             MainActivity::class.java
         )
+
+	/*
+          If you want to stop showing the open ad for a specific scenario,
+          add a condition in your logic to skip showing the ad when that scenario is detected.
+        */ 
+       AdKit.openAdManager.canShowOpenAd(false|true)
 
 ```
 
@@ -321,10 +331,9 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 # Banner Ad
 
 
-## remote config values 
+## Remote config values 
 Add default values in the default values
 - {$placementkey}_isAdEnable
-- {$placementkey}_adType
 - {$placementkey}_loadNewAd
 - {$placementkey}_isCollapsible
 - {$placementkey}_isCollapsibleTop
@@ -341,7 +350,7 @@ Add default values in the default values
 
 ````
 
-## Xml support for banner
+## XML support for banner
 
 ```kotlin
 
@@ -364,7 +373,7 @@ binding.adFrame.loadBanner(
 # Interstitial Ad
 
 
-## remote config values 
+## Remote config values 
 Add default values in the default values
 - {$placementkey}_isAdEnable
 - {$placementkey}_isInterInstant
@@ -391,7 +400,7 @@ AdKit.interHelper.showInterAd(
 # In App Update
 
 ```kotlin
-// in compose
+    // in compose
    val launcher = AdKitInAppUpdateFlowResultLauncher (onFail = {
        //continue for consent
     })
@@ -468,17 +477,15 @@ fun checkUpdate(
                 }
             }
 
-            // Add all default values in the default remote config like this
-
               fetchRemoteValues(BuildConfig.DEBUG)
 ```
 
 # One Time Purchase
 
 ```kotlin
- //in splash
+     //in splash
 
-    //replace it with your product id
+    // Replace it with your product ID.
 
    AdKit.purchaseHelper.initBilling("one_time_purchase_id")
 
@@ -513,7 +520,7 @@ fun checkUpdate(
 ```kotlin
 
 
-// viewmodel for subscription
+// viewModel for subscription
 
 
 data class SettingScreenState(
@@ -640,14 +647,13 @@ Button(modifier = Modifier.fillMaxWidth(),
 
 /* 
 
-WHAT WILL HAPPEN IF YOU CLICK SUBSCRIBE BUTTON
+What happens when you click the Subscribe button:
 
-CODE WILL CHECK ITS STATUS AND WILL PROCEED
+The code checks your current subscription status and proceeds accordingly:
 
-=> if already subscribed -- will goto cancel subscription screen
-=> not already subscribed -- will subscibe
-=> already subsribed but now other plan is selected -- will goto update subscription
-
+✅ Already subscribed → Goes to the Cancel Subscription screen
+❌ Not subscribed → Proceeds to Subscribe
+🔄 Already subscribed but a different plan is selected → Goes to Update Subscription screen
 
 */
 
