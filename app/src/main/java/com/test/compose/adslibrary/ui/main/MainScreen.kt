@@ -24,7 +24,6 @@ fun MainScreen(
     gotoSubscription: () -> Unit
 ) {
     val context = LocalContext.current
-
     val activity = LocalActivity.current as Activity
 
 
