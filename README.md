@@ -172,6 +172,74 @@ fun initConsent(activity: Activity) {
 
 ---
 
+
+# Splash Ad
+
+## Important Parameter `loadAndShow` 
+- If `true`, the ad will load and show automatically. On ad failure or ad dismissed, `onAdClosed` is called.
+- If `false`, only the ad loads. On success or failure, `onAdLoaded` is called — you can then show the navigation button.
+
+```kotlin
+private fun showSplashAd(mContext: Activity) {
+
+        animator?.cancel()
+        AdKit.splashAdController.initSplashInterstitial(
+            activity = mContext,
+            loadAndShow = false, 
+            placementKey = "splash_inter",
+            adIdKey = "splash_inter",
+            interAdsConfigs = InterAdsConfigs(
+                openAdEnable = true,
+                interLoadingEnable = true,
+                openAdInstant = false,
+                openAdLoadingEnable = true,
+                splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
+            ),
+            listener = object : InterstitialControllerListener {
+                override fun onAdClosed() {
+		// it will be called if `loadAndShow` is true
+                    _state.update {
+                        it.copy(
+                            progress = 100,
+                        )
+                    }
+                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
+                }
+
+                override fun onAdLoaded() {
+                    super.onAdLoaded()
+		// it will be called if `loadAndShow` is false
+                    _state.update {
+                        it.copy(
+                            onAdLoaded = true,
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+/*
+If loadAndShow is false, onAdLoaded will be called. Then use the provided function to show the splash ad.
+Whether the ad is available or not, it will always trigger onAdClosed
+*/
+
+
+fun showSplashInter(activity: Activity){
+        splashAdController.showInterstitial(
+            activity = activity,
+            enable = true,
+            object :InterstitialControllerListener{
+                override fun onAdClosed() {
+                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
+                }
+
+            }
+        )
+    }
+
+```
+
 ## Native Ads
 
 ### Ad Types
@@ -991,7 +1059,7 @@ class SplashViewModel(
                 }
                 2 -> preLoadNative(mContext)
             }
-            AdKit.splashAdController.initSplashAdmob(
+            AdKit.splashAdController.initSplashInterstitial(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
                 activity = mContext,
