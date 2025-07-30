@@ -61,8 +61,11 @@ fun SplashScreen(
         }
     }
 
+
     BackHandler {}
 
 
-    SplashScreenContent()
+    SplashScreenContent(state, showAd = {
+        viewModel.showSplashInter(activity)
+    })
 }

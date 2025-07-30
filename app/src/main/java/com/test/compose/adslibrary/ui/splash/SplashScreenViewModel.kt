@@ -22,6 +22,7 @@ import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,7 +46,6 @@ class SplashScreenViewModel : ViewModel() {
 
     private val _oneTimeEvent = Channel<SplashOneTimeEventEvents>()
     val oneTimeEvent = _oneTimeEvent.receiveAsFlow()
-
 
 
     private var isInterAdShowed = false
@@ -94,7 +94,6 @@ class SplashScreenViewModel : ViewModel() {
         startProgressAnimation()
 
     }
-
 
 
     fun initConsent(activity: Activity) {
@@ -169,8 +168,8 @@ class SplashScreenViewModel : ViewModel() {
 
     }
 
-    fun sendOneTimeEvent(events: SplashOneTimeEventEvents){
-        when(events){
+    fun sendOneTimeEvent(events: SplashOneTimeEventEvents) {
+        when (events) {
             SplashOneTimeEventEvents.MoveToMain -> {
                 viewModelScope.launch {
                     _oneTimeEvent.send(events)
@@ -303,11 +302,25 @@ class SplashScreenViewModel : ViewModel() {
         }
     }
 
+    fun showSplashInter(activity: Activity){
+        splashAdController.showInterstitial(
+            activity = activity,
+            enable = true,
+            object :InterstitialControllerListener{
+                override fun onAdClosed() {
+                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
+                }
+
+            }
+        )
+    }
+
     private fun showSplashAd(mContext: Activity) {
 
         animator?.cancel()
-        AdKit.splashAdController.initSplashAdmob(
-            mContext,
+        AdKit.splashAdController.initSplashInterstitial(
+            activity = mContext,
+            loadAndShow = false,
             placementKey = "splash_inter",
             adIdKey = "splash_inter",
             interAdsConfigs = InterAdsConfigs(
@@ -317,7 +330,7 @@ class SplashScreenViewModel : ViewModel() {
                 openAdLoadingEnable = true,
                 splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
             ),
-            object : InterstitialControllerListener {
+            listener = object : InterstitialControllerListener {
                 override fun onAdClosed() {
                     _state.update {
                         it.copy(
@@ -325,6 +338,15 @@ class SplashScreenViewModel : ViewModel() {
                         )
                     }
                     sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
+                }
+
+                override fun onAdLoaded() {
+                    super.onAdLoaded()
+                    _state.update {
+                        it.copy(
+                            onAdLoaded = true,
+                        )
+                    }
                 }
 
 

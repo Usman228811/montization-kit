@@ -68,7 +68,7 @@ class SplashXmlViewModel : ViewModel() {
 
     fun showSplashAd(activity: Activity) {
         if (state.value.moveNext.not()) {
-            splashAdController.initSplashAdmob(
+            splashAdController.initSplashInterstitial(
                 activity = activity,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
@@ -79,9 +79,9 @@ class SplashXmlViewModel : ViewModel() {
                     openAdInstant = true,
                     instantOpenAdTime = 8,
                     instantInterTime = 8,
-                    splashTime = AdKit.firebaseHelper.getLong("splash_time",16)
+                    splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
                 ),
-                object : InterstitialControllerListener {
+                listener = object : InterstitialControllerListener {
                     override fun onAdClosed() {
                         _state.update {
                             it.copy(

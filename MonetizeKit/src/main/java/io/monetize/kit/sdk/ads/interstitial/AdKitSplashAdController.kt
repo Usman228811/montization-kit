@@ -25,8 +25,8 @@ class AdKitSplashAdController private constructor(
     private var isHandlerRunning = false
     private var isPauseDone = false
     private var isAppPause = false
-    private var splashTime :Long = 16L
-    private var isAdEnable :Boolean = false
+    private var splashTime: Long = 16L
+    private var isAdEnable: Boolean = false
 
     companion object {
         @Volatile
@@ -111,7 +111,9 @@ class AdKitSplashAdController private constructor(
                             if (isHandlerRunning) {
                                 removeCallBacks()
                                 mInterstitialControllerListener?.onAdLoaded()
-                                showSplashAd(context)
+                                if (loadAndShow) {
+                                    showSplashAd(context)
+                                }
                             }
                         }
 
@@ -140,7 +142,12 @@ class AdKitSplashAdController private constructor(
     private fun handleException() {
         if (isHandlerRunning) {
             removeCallBacks()
-            mInterstitialControllerListener?.onAdClosed()
+            if (loadAndShow) {
+                mInterstitialControllerListener?.onAdClosed()
+            } else {
+                mInterstitialControllerListener?.onAdLoaded()
+
+            }
         }
     }
 
@@ -220,14 +227,17 @@ class AdKitSplashAdController private constructor(
     }
 
     private var adIdKey: String = ""
+    private var loadAndShow: Boolean = true
 
-    fun initSplashAdmob(
+    fun initSplashInterstitial(
         activity: Activity,
         placementKey: String,
         adIdKey: String,
+        loadAndShow: Boolean = true,
         interAdsConfigs: InterAdsConfigs,
         listener: InterstitialControllerListener?,
     ) {
+        this.loadAndShow = loadAndShow
 
 
         AdKit.initializer.initAdsConfigs(
@@ -235,7 +245,7 @@ class AdKitSplashAdController private constructor(
         )
 
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
-        var time  = interAdsConfigs.splashTime
+        var time = interAdsConfigs.splashTime
         if (time == 0L) {
             time = 16L
         }
@@ -248,24 +258,42 @@ class AdKitSplashAdController private constructor(
         runnableSplash = Runnable {
             if (mInterstitialControllerListener != null && isHandlerRunning) {
                 isHandlerRunning = false
-                mInterstitialControllerListener?.onAdClosed()
+                if (this.loadAndShow) {
+                    mInterstitialControllerListener?.onAdClosed()
+                } else {
+                    mInterstitialControllerListener?.onAdLoaded()
+                }
             }
         }
         try {
             if (AdKit.initializer.getDisableAds()) {
-                mInterstitialControllerListener?.onAdClosed()
+                if (loadAndShow) {
+                    mInterstitialControllerListener?.onAdClosed()
+                } else {
+                    mInterstitialControllerListener?.onAdLoaded()
+                }
                 return
             }
             if (!AdKit.adKitPref.isAppPurchased && isAdEnable && AdKit.consentManager.canRequestAds) {
                 if (!AdKit.internetController.isConnected) {
-                    handlerAd.postDelayed({ mInterstitialControllerListener?.onAdClosed() }, 5000)
+                    handlerAd.postDelayed({
+                        if (loadAndShow) {
+                            mInterstitialControllerListener?.onAdClosed()
+                        } else {
+                            mInterstitialControllerListener?.onAdLoaded()
+                        }
+                    }, 5000)
                     return
                 }
                 startHandler()
                 loadNewInterstitialAd(activity)
             } else {
                 handlerAd.postDelayed({
-                    mInterstitialControllerListener?.onAdClosed()
+                    if (loadAndShow) {
+                        mInterstitialControllerListener?.onAdClosed()
+                    } else {
+                        mInterstitialControllerListener?.onAdLoaded()
+                    }
                 }, 5000)
             }
         } catch (_: Exception) {
@@ -309,6 +337,7 @@ class AdKitSplashAdController private constructor(
                     AdKit.analytics.postAnalytics("Splash_inter_click")
 
                 }
+
                 override fun onAdDismissedFullScreenContent() {
                     AdKit.analytics.postAnalytics("Splash_inter_cross")
                     hideProgressAndNullAd(activity)

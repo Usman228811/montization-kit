@@ -7,5 +7,6 @@ data class SplashScreenState(
     val isAppResumed: Boolean = false,
     val isConsentManager: Boolean = false,
     val progress: Int = 0,
+    val onAdLoaded: Boolean = false,
     val updateState: UpdateState = UpdateState.Idle,
 )
