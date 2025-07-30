@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.8.0")
+    implementation("com.github.Usman228811:montization-kit:v1.8.1")
 }
 ```
 
