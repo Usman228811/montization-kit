@@ -10,7 +10,8 @@ interface GetNativeAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit,
     )
 
 

@@ -9,6 +9,8 @@ import io.monetize.kit.sdk.ads.native_ad.AdKitNativePreloadHelper
 import io.monetize.kit.sdk.ads.native_ad.AdsCustomLayoutHelper
 import io.monetize.kit.sdk.ads.native_ad.NativeIdManager
 import io.monetize.kit.sdk.ads.open.AdKitOpenAdManager
+import io.monetize.kit.sdk.ads.rewarded.AdKitRewardHelper
+import io.monetize.kit.sdk.ads.rewarded.RewardAdIdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
@@ -32,6 +34,9 @@ object AdKit {
 
 
     lateinit var interHelper: AdKitInterHelper
+        private set
+
+    lateinit var rewardHelper: AdKitRewardHelper
         private set
 
 
@@ -83,6 +88,8 @@ object AdKit {
 
     lateinit var interIdManager: InterIdManager
         private set
+    lateinit var rewardAdIdManager: RewardAdIdManager
+        private set
 
 
     fun init(
@@ -90,6 +97,7 @@ object AdKit {
         context: Context, admobId: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
+        mapOfRewardIds: Map<String, Any>,
         mapOfNativeIds: Map<String, Any>,
         mapOfBannerIds: Map<String, Any>,
         overAllNativeCtaColor: String = "",
@@ -104,6 +112,7 @@ object AdKit {
         initializer = AdKitInitializer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
         interHelper = AdKitInterHelper.getInstance()
+        rewardHelper = AdKitRewardHelper.getInstance()
         inAppUpdateManager = AdKitInAppUpdateManager.getInstance()
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
@@ -119,6 +128,7 @@ object AdKit {
         nativeCustomLayoutHelper.setOverAllBgColor(overAllNativeBgColor)
         analytics = AdKitAnalytics.getInstance(context)
         interIdManager = InterIdManager.getInstance()
+        rewardAdIdManager = RewardAdIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
         bannerIdManager = BannerIdManager.getInstance()
         openAdManager.setOpenAdId(
@@ -126,6 +136,7 @@ object AdKit {
         )
 
         interIdManager.setInterIds(mapOfInterIds)
+        rewardAdIdManager.setRewardAdIds(mapOfRewardIds)
         nativeIdManager.setNativeIds(mapOfNativeIds)
         bannerIdManager.setBannerIds(mapOfBannerIds)
         resetInterKeyForCommonAds?.let {

@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
-import android.content.Context
 import android.widget.LinearLayout
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.data.impl.GetNativeAdRepoImpl
@@ -24,7 +23,8 @@ class GetNativeAdUseCase private constructor(private val repo: GetNativeAdRepo) 
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit,
     ) {
 
         repo.init(
@@ -32,6 +32,7 @@ class GetNativeAdUseCase private constructor(private val repo: GetNativeAdRepo) 
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
             onFail = onFail,
+            onAdClick = onAdClick,
         )
 
     }

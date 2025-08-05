@@ -28,6 +28,7 @@ class BaseCollapsableBannerActivity private constructor(
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
     private var onFail: (() -> Unit)? = null
+    private var onAdClick: (() -> Unit)? = null
 
     companion object {
 
@@ -51,6 +52,7 @@ class BaseCollapsableBannerActivity private constructor(
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
         onFail: () -> Unit,
+        onAdClick: () -> Unit,
     ) {
         if (AdKit.initializer.getDisableAds()) {
             adFrame.let {
@@ -62,6 +64,7 @@ class BaseCollapsableBannerActivity private constructor(
         this.bannerControllerConfig = bannerControllerConfig
         isTop = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsibleTop", false)
         this.onFail = onFail
+        this.onAdClick = onAdClick
         this.mContext = mContext
         this.adFrame = adFrame
         this.isAdLoadCalled = true
@@ -127,6 +130,11 @@ class BaseCollapsableBannerActivity private constructor(
 //                                        mContext, "collapse banner ad loaded", Toast.LENGTH_SHORT
 //                                    ).show()
 //                                }
+                            }
+
+                            override fun onAdClicked() {
+                                super.onAdClicked()
+                                onAdClick?.invoke()
                             }
 
                             override fun onAdFailedToLoad(p0: LoadAdError) {

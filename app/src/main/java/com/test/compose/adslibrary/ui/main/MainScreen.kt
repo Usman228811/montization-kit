@@ -1,6 +1,8 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
+import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -33,13 +35,22 @@ fun MainScreen(
     ) {
 
         Button(onClick = {
-            AdKit.interHelper.showInterAd(
-                adIdKey = "inter_common",
+            AdKit.rewardHelper.showRewardAd(
+                adIdKey = "reward_main",
                 placementKey = "inter_btn_plant",
                 activity = activity,
-                listener = object : InterstitialControllerListener {
-                    override fun onAdClosed() {
-                        gotoSubscription()
+                listener = object : RewardedControllerListener {
+                    override fun onRewardDismissed(isRewarded: Boolean) {
+                        Log.d("ioioioi", "onRewardDismissed: $isRewarded")
+                        if (isRewarded.not()) {
+                            if (AdKit.adKitPref.getInterInt("common_pref", 0)>= 2) {
+                                Log.d("ioioioi", "onRewardDismissed: try again")
+                            }else{
+                                Log.d("ioioioi", "onRewardDismissed: continue")
+                            }
+                        }else{
+                            Log.d("ioioioi", "onRewardDismissed: continue")
+                        }
                     }
 
                 },
@@ -57,7 +68,10 @@ fun MainScreen(
                 adIdKey = "home_native",
                 ctaColor = "#FFBB86FC",
                 adType = 1
-            )
+            ),
+            onAdClick = {
+                Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+            }
         )
 
 
@@ -70,7 +84,9 @@ fun MainScreen(
                     placementKey = "home_banner",
                     adIdKey = "home_banner"
                 ),
-            )
+                onAdClick ={
+                    Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT).show()
+                })
         }
     }
 }

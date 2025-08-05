@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
-import android.content.Context
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -29,13 +28,15 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit,
     ) {
         getBannerAdUseCase.invoke(
             mContext = mContext,
             adFrame = adFrame,
             bannerControllerConfig = bannerControllerConfig,
-            onFail = onFail
+            onFail = onFail,
+            onAdClick = onAdClick,
         )
     }
 

@@ -22,7 +22,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialogFactor
 @Composable
 fun AdKitNativeAdViewDialog(
     nativeControllerConfig: NativeControllerConfig,
-    onFail: () -> Unit = {}
+    onFail: () -> Unit = {},
+    onAdClick: () -> Unit = {},
 
 ) {
 
@@ -56,7 +57,8 @@ fun AdKitNativeAdViewDialog(
                     mContext = activity,
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
-                    onFail = onFail
+                    onFail = onFail,
+                    onAdClick = onAdClick,
                 )
             }
         )

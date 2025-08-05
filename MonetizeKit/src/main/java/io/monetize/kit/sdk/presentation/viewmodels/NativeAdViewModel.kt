@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
-import android.content.Context
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -30,13 +29,15 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit,
     ) {
         getNativeAdUseCase.invoke(
             mContext = mContext,
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
             onFail = onFail,
+            onAdClick = onAdClick,
         )
     }
 

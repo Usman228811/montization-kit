@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
-import android.content.Context
 import android.widget.LinearLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.data.impl.GetBannerAdRepoImpl
@@ -27,7 +26,8 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit,
 
     ) {
 
@@ -36,6 +36,7 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
             bannerControllerConfig = bannerControllerConfig,
             adFrame = adFrame,
             onFail = onFail,
+            onAdClick = onAdClick,
         )
 
     }

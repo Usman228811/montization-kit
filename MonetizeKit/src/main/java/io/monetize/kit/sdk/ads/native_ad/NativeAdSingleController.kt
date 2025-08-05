@@ -30,6 +30,7 @@ class NativeAdSingleController {
     private var adControllerListener: AdControllerListener? = null
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var isAdEnable = true
+    private var onAdClick:(() ->Unit) ?= null
 
 
     fun hasLargeAdOrLoading(): Boolean {
@@ -79,6 +80,11 @@ class NativeAdSingleController {
 
 
                     val adLoader = builder.withAdListener(object : AdListener() {
+
+                        override fun onAdClicked() {
+                            super.onAdClicked()
+                            onAdClick?.invoke()
+                        }
                         override fun onAdFailedToLoad(p0: LoadAdError) {
                             super.onAdFailedToLoad(p0)
                             canRequestLargeAd = true
@@ -108,9 +114,11 @@ class NativeAdSingleController {
         nativeControllerConfig: NativeControllerConfig,
         adFrame: LinearLayout,
         loadNewAd: Boolean = true,
-        populateCallback: (NativeAd) -> Unit
+        populateCallback: (NativeAd) -> Unit,
+        onAdClick: () -> Unit,
 
     ) {
+        this.onAdClick = onAdClick
         this.isAdEnable =
             AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig

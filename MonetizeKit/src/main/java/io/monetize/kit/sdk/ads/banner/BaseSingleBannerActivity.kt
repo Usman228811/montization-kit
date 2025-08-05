@@ -26,6 +26,7 @@ class BaseSingleBannerActivity private constructor(
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
     private var onFail: (() -> Unit)? = null
+    private var onAdClick: (() -> Unit)? = null
 
     companion object {
 
@@ -40,7 +41,8 @@ class BaseSingleBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit
     ) {
         if (AdKit.initializer.getDisableAds()) {
             adFrame.let {
@@ -52,6 +54,7 @@ class BaseSingleBannerActivity private constructor(
         this.bannerControllerConfig = bannerControllerConfig
         this.mContext = mContext
         this.onFail = onFail
+        this.onAdClick = onAdClick
         try {
             adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         } catch (_: Exception) {
@@ -125,7 +128,6 @@ class BaseSingleBannerActivity private constructor(
                                             loadSingleBannerAd()
                                         }
                                     }
-
                                     override fun onAdFailed() {
                                         onFail?.invoke()
                                         isRequesting = false
@@ -148,15 +150,19 @@ class BaseSingleBannerActivity private constructor(
                                     adIdKey = bannerControllerConfig.adIdKey,
                                     enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
                                     adFrame = adFrame,
-                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false)
-                                ) { ad ->
-                                    isRequesting = false
-                                    if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                        controller.setAdControllerListener(null)
-                                        bannerAd = ad as AdView
+                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false),
+                                    populateCallback = { ad ->
+                                        isRequesting = false
+                                        if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                                            controller.setAdControllerListener(null)
+                                            bannerAd = ad as AdView
+
+                                        }
+                                    }, onAdClick ={
+                                        onAdClick?.invoke()
 
                                     }
-                                }
+                                )
                             }
                         } else {
                             try {

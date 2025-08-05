@@ -33,23 +33,28 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     "ca-app-pub-3940256099942544/1033173712"
                 )
             ),
+            mapOfRewardIds = mapOf(
+                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
+            ),
             mapOfNativeIds = mapOf(
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
                 "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
             mapOfBannerIds = mapOf(
-                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
+                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
+//                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
             defaultRemoteConfigBuilder = {
                 bool("splash_inter_isAdEnable", true)
                 bool("inter_btn_plant_isAdEnable", true)
                 bool("inter_btn_plant_isInterInstant", true)
+                bool("inter_btn_plant_isRewardInstant", true)
                 bool("home_native_isAdEnable", true)
                 string("home_native_ctaColor", "#FF03DAC5")
                 string("overAllNativeCtaColor", "#FFFFFF")
                 string("overAllNativeBgColor", "#964B00")
                 bool("home_banner_isAdEnable", true)
-                bool("home_banner_isCollapsible", true)
+                bool("home_banner_isCollapsible", false)
                 bool("subscription_native_isAdEnable", true)
                 long("home_native_adType", 1L)
                 long("subscription_native_adType", 1L)

@@ -33,6 +33,7 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var onFail: (() -> Unit)? = null
+    private var onAdClick: (() -> Unit)? = null
     private var isAdEnable: Boolean = true
 
 
@@ -49,7 +50,8 @@ class GetNativeAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit
+        onFail: () -> Unit,
+        onAdClick: () -> Unit
     ) {
         if (AdKit.initializer.getDisableAds()) {
             hideAdFrame()
@@ -60,6 +62,7 @@ class GetNativeAdRepoImpl private constructor(
         this.mContext = mContext
         this.onFail = onFail
         this.adFrame = adFrame
+        this.onAdClick = onAdClick
         AdKit.firebaseHelper.apply {
             adType = AdType.entries.filter {
                 it.type == getLong(
@@ -198,18 +201,22 @@ class GetNativeAdRepoImpl private constructor(
                                             nativeControllerConfig = nativeControllerConfig,
                                             adFrame = adFrame,
                                             loadNewAd = loadNewAd,
-                                        ) { ad ->
-                                            isRequesting = false
-                                            if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                nativeAdController.setNativeControllerListener(null)
-                                                largeNativeAd = ad
+                                            populateCallback = { ad ->
+                                                isRequesting = false
+                                                if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                                                    nativeAdController.setNativeControllerListener(
+                                                        null
+                                                    )
+                                                    largeNativeAd = ad
 //                                            event?.setFromScreen(
 //                                                adIdNativeReference.replace(
 //                                                    "_NATIVE_ID", ""
 //                                                )
 //                                            )
-                                            }
-                                        }
+                                                }
+                                            }, onAdClick = {
+                                                onAdClick?.invoke()
+                                            })
                                     }
                                 } else {
                                     addNativeAdView(

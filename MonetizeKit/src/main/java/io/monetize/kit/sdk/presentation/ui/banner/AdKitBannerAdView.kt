@@ -23,7 +23,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 @Composable
 fun AdKitBannerAdView(
     bannerControllerConfig: BannerControllerConfig,
-    onFail: () -> Unit = {}
+    onFail: () -> Unit = {},
+    onAdClick: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -56,6 +57,7 @@ fun AdKitBannerAdView(
                     bannerControllerConfig = bannerControllerConfig,
                     adFrame = adFrame,
                     onFail = onFail,
+                    onAdClick = onAdClick,
                 )
             }
         )

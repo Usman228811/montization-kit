@@ -28,7 +28,8 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit = {}
+        onFail: () -> Unit = {},
+        onAdClick: () -> Unit = {},
     ) {
         this.nativeControllerConfig = nativeControllerConfig
 
@@ -45,7 +46,8 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                onFail = onFail
+                onFail = onFail,
+                onAdClick = onAdClick,
             )
 
             if (context is LifecycleOwner) {

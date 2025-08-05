@@ -22,7 +22,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 @Composable
 fun AdKitNativeAdView(
     nativeControllerConfig: NativeControllerConfig,
-    onFail: () -> Unit = {}
+    onFail: () -> Unit = {},
+    onAdClick: () -> Unit = {},
 
 ) {
 
@@ -38,6 +39,7 @@ fun AdKitNativeAdView(
         onDispose {
         }
     }
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -56,6 +58,7 @@ fun AdKitNativeAdView(
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
                     onFail = onFail,
+                    onAdClick = onAdClick,
                 )
             }
         )

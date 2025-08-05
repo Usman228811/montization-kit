@@ -27,6 +27,7 @@ class AdKitBannerController {
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
     private lateinit var bannerSize: AdSize
+    private var onAdClick: (() -> Unit)? = null
 
 
     fun setAdControllerListener(listener: AdControllerListener?) {
@@ -79,6 +80,11 @@ class AdKitBannerController {
                             adControllerListener?.onAdLoaded()
                         }
 
+                        override fun onAdClicked() {
+                            super.onAdClicked()
+                            onAdClick?.invoke()
+                        }
+
                         override fun onAdFailedToLoad(p0: LoadAdError) {
                             super.onAdFailedToLoad(p0)
                             canRequestBannerAd = true
@@ -106,11 +112,13 @@ class AdKitBannerController {
     }
 
     fun populateBannerAd(
-        context: Activity, placementKey: String,adIdKey: String, enable: Boolean,
+        context: Activity, placementKey: String, adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
-        populateCallback: (Any) -> Unit
+        populateCallback: (Any) -> Unit,
+        onAdClick: () -> Unit,
     ) {
         try {
+            this.onAdClick = onAdClick
             this.adIdKey = adIdKey
             this.placementKey = placementKey
             if (enable && !AdKit.adKitPref.isAppPurchased && adView != null) {

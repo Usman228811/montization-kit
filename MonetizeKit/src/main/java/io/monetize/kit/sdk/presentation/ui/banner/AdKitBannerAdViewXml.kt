@@ -28,7 +28,8 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     fun loadBanner(
         context: Context,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit = {}
+        onFail: () -> Unit = {},
+        onAdClick: () -> Unit = {},
     ) {
         this.bannerControllerConfig = bannerControllerConfig
 
@@ -46,7 +47,8 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = this,
-                onFail = onFail
+                onFail = onFail,
+                onAdClick = onAdClick,
             )
 
             // Optional lifecycle observe

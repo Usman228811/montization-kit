@@ -1,15 +1,16 @@
-package io.monetize.kit.sdk.ads.interstitial
+package io.monetize.kit.sdk.ads.rewarded
 
 import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -18,29 +19,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-data class InterAdSingleModel(
+data class RewardAdSingleModel(
     val key: String = "",
-    val controller: InterstitialController? = null,
+    val controller: RewardAdController? = null,
 )
 
-val singleInterList = ArrayList<InterAdSingleModel>()
+val singleRewardAdList = ArrayList<RewardAdSingleModel>()
 
-data class InterAdsConfigs(
-    val openAdEnable: Boolean,
-    val openAdInstant: Boolean = false,
-    val splashTime: Long,
-    val instantInterTime: Long = 8L,
-    val instantOpenAdTime: Long = 8L,
-    val interLoadingEnable: Boolean = false,
-    val openAdLoadingEnable: Boolean = false,
-)
-
-class InterstitialController private constructor(
+class RewardAdController private constructor(
 ) {
     companion object {
         fun getInstance(
-        ): InterstitialController {
-            return InterstitialController()
+        ): RewardAdController {
+            return RewardAdController()
         }
     }
 
@@ -49,8 +40,9 @@ class InterstitialController private constructor(
     private var adIdKey: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
-    private var admobInterAd: InterstitialAd? = null
-    private var mInterstitialControllerListener: InterstitialControllerListener? = null
+    private var isUserEarnReward = false
+    private var rewardAd: RewardedAd? = null
+    private var mInterstitialControllerListener: RewardedControllerListener? = null
     private var adLoadingDialog: AdLoadingDialog? = null
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
@@ -62,7 +54,7 @@ class InterstitialController private constructor(
             } catch (_: Exception) {
             }
             isHandlerAdDelayRunning = false
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onRewardDismissed(false)
         }
     }
 
@@ -85,22 +77,24 @@ class InterstitialController private constructor(
         }
     }
 
-    private fun showAdmobAd(activity: Activity, key: String) {
+    private fun showRewardAd(activity: Activity, key: String) {
         try {
-            if (admobInterAd != null && !AdKit.interHelper.getAppInPause() && !IS_INTERSTITIAL_Ad_SHOWING) {
+            if (rewardAd != null && !AdKit.interHelper.getAppInPause() && !IS_INTERSTITIAL_Ad_SHOWING) {
                 mInterstitialControllerListener?.onAdShow()
-                if (admobInterAd != null) {
+                if (rewardAd != null) {
                     setAdmobFullScreen(activity, key)
-                    admobInterAd?.show(activity)
+                    rewardAd?.show(activity) { rewardItem ->
+                        isUserEarnReward = true
+                    }
                 }
                 if (key != "") {
                     setInterCount(key, 0)
                 }
             } else {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onRewardDismissed(false)
             }
         } catch (exception: Exception) {
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onRewardDismissed(false)
         }
     }
 
@@ -109,26 +103,27 @@ class InterstitialController private constructor(
         placementKey: String,
         adIdKey: String,
         enable: Boolean,
-        listener: InterstitialControllerListener, key: String, counter: Long,
+        listener: RewardedControllerListener, key: String, counter: Long,
     ) {
 
+        isUserEarnReward = false
         this.btnKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
         } else if (savedCount == -1 || savedCount >= counter) {
-            if (admobInterAd != null) {
+            if (rewardAd != null) {
                 checkProgressShowAd(context, key)
             } else {
                 loadAndShow(context, btnKey, adIdKey, true, key, listener)
             }
         } else if ((savedCount + 1).toLong() >= counter) {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
             setInterCount(key, savedCount + 1)
         }
     }
@@ -138,18 +133,19 @@ class InterstitialController private constructor(
         placementKey: String,
         adIdKey: String,
         enable: Boolean,
-        listener: InterstitialControllerListener
+        listener: RewardedControllerListener
     ) {
+        isUserEarnReward = false
         mInterstitialControllerListener = listener
         this.btnKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
         } else {
-            if (admobInterAd != null) {
+            if (rewardAd != null) {
                 checkProgressShowAd(context)
             } else {
-                listener.onAdClosed()
+                listener.onRewardDismissed(false)
                 loadInter(context)
             }
         }
@@ -160,16 +156,17 @@ class InterstitialController private constructor(
         placementKey: String,
         adIdKey: String,
         enable: Boolean,
-        listener: InterstitialControllerListener, key: String, counter: Long,
+        listener: RewardedControllerListener, key: String, counter: Long,
     ) {
+        isUserEarnReward = false
         mInterstitialControllerListener = listener
         this.btnKey = placementKey
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
         } else if (savedCount == -1 || savedCount >= counter) {
-            if (admobInterAd != null) {
+            if (rewardAd != null) {
                 checkProgressShowAd(context, key)
             } else {
 
@@ -180,15 +177,15 @@ class InterstitialController private constructor(
                 if (savedCount == -1) {
                     setInterCount(key, 1)
                 }
-                listener.onAdClosed()
+                listener.onRewardDismissed(false)
 
             }
         } else if ((savedCount + 2).toLong() >= counter) {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
             loadInter(context)
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onAdClosed()
+            listener.onRewardDismissed(false)
             setInterCount(key, savedCount + 1)
         }
     }
@@ -214,7 +211,7 @@ class InterstitialController private constructor(
         }
         this.btnKey = placementKey
         this.adIdKey = adIdKey
-        if (admobInterAd != null) {
+        if (rewardAd != null) {
             return
         }
         val isForCounter = counterKey.isNotEmpty() && counter.toInt() != -1
@@ -236,34 +233,23 @@ class InterstitialController private constructor(
                     return
                 }
                 canRequestAd = false
-//                if (isDebug) {
-//                    context.showToast("Inter calling")
-//                }
-//                "Common Inter Called".logIt()
-                InterstitialAd.load(
-                    context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
+
+                RewardedAd.load(
+                    context,
+                    AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",
                     AdRequest.Builder().build(),
-                    object : InterstitialAdLoadCallback() {
-                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                            super.onAdLoaded(interstitialAd)
-                            admobInterAd = interstitialAd
+                    object : RewardedAdLoadCallback() {
+                        override fun onAdLoaded(ad: RewardedAd) {
+                            rewardAd = ad
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Inter loaded")
-//                            }
-//                            "Common Inter Loaded".logIt()
                         }
 
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            super.onAdFailedToLoad(loadAdError)
-                            admobInterAd = null
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            rewardAd = null
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Inter failed: ${loadAdError.code}")
-//                            }
-//                            "Common Inter Failed: ${loadAdError.code} and message: ${loadAdError.message}".logIt()
                         }
-                    })
+                    },
+                )
             }
         } catch (ignored: Exception) {
             canRequestAd = true
@@ -277,19 +263,20 @@ class InterstitialController private constructor(
         adIdKey: String,
         enable: Boolean = true,
         key: String = "",
-        listener: InterstitialControllerListener,
+        listener: RewardedControllerListener,
     ) {
 
+        isUserEarnReward = false
         this.btnKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
             if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
                 if (!canRequestAd) {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onRewardDismissed(false)
                     return
                 }
-                if (admobInterAd != null) {
+                if (rewardAd != null) {
                     checkProgressShowAd(context, key)
                 } else {
                     canRequestAd = false
@@ -297,42 +284,36 @@ class InterstitialController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-//                if (isDebug) {
-////                    "Common Inter Called".logIt()
-//                    context.showToast("Inter Ad Called")
-//                }
-                    InterstitialAd.load(
-                        context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
+                    Log.d("ioioioi", "onAdFailedToLoad: ${AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""}")
+
+                    RewardedAd.load(
+                        context,
+                        AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",
                         AdRequest.Builder().build(),
-                        object : InterstitialAdLoadCallback() {
-                            override fun onAdLoaded(p0: InterstitialAd) {
-//                            if (isDebug) {
-////                                "Common Inter Loaded".logIt()
-//                                context.showToast("Inter Ad Loaded")
-//                            }
-                                super.onAdLoaded(p0)
-                                admobInterAd = p0
+                        object : RewardedAdLoadCallback() {
+                            override fun onAdLoaded(ad: RewardedAd) {
+
+                                rewardAd = ad
                                 canRequestAd = true
                                 if (isHandlerAdDelayRunning) {
                                     dismissLoadingDialog()
                                     removeCallBacksDelay()
-                                    showAdmobAd(context, key)
+                                    showRewardAd(context, key)
                                 }
                             }
 
-                            override fun onAdFailedToLoad(p0: LoadAdError) {
-//                            if (isDebug) {
-////                                "Common Inter Ad Failed: ${p0.code}".logIt()
-//                                context.showToast("Inter Ad Failed")
-//                            }
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
                                 canRequestAd = true
+                                Log.d("ioioioi", "onAdFailedToLoad: $adError")
                                 handlerRemoveCallback(context)
                             }
-                        })
+                        },
+                    )
                 }
 
+
             } else {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onRewardDismissed(false)
             }
         } catch (e: Exception) {
             canRequestAd = true
@@ -347,7 +328,7 @@ class InterstitialController private constructor(
         if (isHandlerAdDelayRunning) {
             dismissLoadingDialog()
             removeCallBacksDelay()
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onRewardDismissed(false)
         }
     }
 
@@ -368,53 +349,50 @@ class InterstitialController private constructor(
                 val adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog.showAlertDialog()
                 handlerAd.postDelayed({
-                    showAdmobAd(activity, key)
+                    showRewardAd(activity, key)
                     adLoadingDialog.dismissAlertDialog()
                 }, 1000)
             } catch (e: Exception) {
-                showAdmobAd(activity, key)
+                showRewardAd(activity, key)
             }
         } else {
-            showAdmobAd(activity, key)
+            showRewardAd(activity, key)
         }
     }
 
 
     private fun setAdmobFullScreen(activity: Activity, key: String) {
-        admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                dismissLoadingDialog()
-                mInterstitialControllerListener?.onAdClosed()
-                super.onAdDismissedFullScreenContent()
-                IS_INTERSTITIAL_Ad_SHOWING = false
-                admobInterAd = null
-//                activity.userAnalytics("${fromScreen}_Inter_Close")
-                if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
-                    loadInter(activity)
+
+        rewardAd?.fullScreenContentCallback =
+            object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    dismissLoadingDialog()
+                    mInterstitialControllerListener?.onRewardDismissed(isUserEarnReward)
+                    super.onAdDismissedFullScreenContent()
+                    IS_INTERSTITIAL_Ad_SHOWING = false
+                    rewardAd = null
+                    if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
+                        loadInter(activity)
+                    }
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    dismissLoadingDialog()
+                    mInterstitialControllerListener?.onRewardDismissed(false)
+                    super.onAdFailedToShowFullScreenContent(adError)
+                    rewardAd = null
+                    IS_INTERSTITIAL_Ad_SHOWING = false
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    IS_INTERSTITIAL_Ad_SHOWING = true
+                    rewardAd = null
                 }
             }
 
-            override fun onAdShowedFullScreenContent() {
-                super.onAdShowedFullScreenContent()
-                IS_INTERSTITIAL_Ad_SHOWING = true
-                admobInterAd = null
-//                activity.userAnalytics("${fromScreen}_Inter_Show")
-            }
 
-            override fun onAdFailedToShowFullScreenContent(p0: AdError) {
-                dismissLoadingDialog()
-                mInterstitialControllerListener?.onAdClosed()
-                super.onAdFailedToShowFullScreenContent(p0)
-//                activity.userAnalytics("${fromScreen}_Inter_Show_Failed")
-                admobInterAd = null
-                IS_INTERSTITIAL_Ad_SHOWING = false
-//                if (loadNewNextAd && key.isEmpty()) {
-//                    preLoadInter(activity)
-//                }
-            }
-
-        }
     }
+
 
     private fun getInterCount(key: String, defValue: Int = 0): Int {
         return AdKit.adKitPref.getInterInt(key, defValue)
@@ -429,7 +407,6 @@ class InterstitialController private constructor(
 
     private val hasAd: Boolean
         get() {
-            return admobInterAd != null
+            return rewardAd != null
         }
-
 }

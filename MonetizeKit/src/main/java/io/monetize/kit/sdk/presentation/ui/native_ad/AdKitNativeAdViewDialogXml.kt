@@ -20,7 +20,7 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyle) {
 
     private var nativeControllerConfig: NativeControllerConfig? = null
-    private var loadNewAd: Boolean = false
+
 
     init {
         inflate(context, R.layout.ad_inflator, this)
@@ -29,10 +29,10 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit = {}
+        onFail: () -> Unit = {},
+        onAdClick: () -> Unit = {},
     ) {
         this.nativeControllerConfig = nativeControllerConfig
-        this.loadNewAd = loadNewAd
 
         if (context is Activity) {
             visibility = View.VISIBLE
@@ -48,7 +48,8 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                onFail = onFail
+                onFail = onFail,
+                onAdClick = onAdClick,
             )
 
             if (context is LifecycleOwner) {
