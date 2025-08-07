@@ -21,6 +21,8 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
 
     private var nativeControllerConfig: NativeControllerConfig? = null
 
+    private var mViewModel: NativeAdViewModelDialog ?= null
+
 
     init {
         inflate(context, R.layout.ad_inflator, this)
@@ -38,13 +40,13 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
             visibility = View.VISIBLE
 
 
-            val viewModel = if (context is ViewModelStoreOwner) {
+            mViewModel = if (context is ViewModelStoreOwner) {
                 ViewModelProvider(context, NativeAdViewModelDialogFactory())[NativeAdViewModelDialog::class.java]
             } else {
                 null
             }
 
-            viewModel?.initNativeSingleAdData(
+            mViewModel?.initNativeSingleAdData(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
@@ -53,8 +55,12 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
             )
 
             if (context is LifecycleOwner) {
-                viewModel?.observeLifecycle(context)
+                mViewModel?.observeLifecycle(context)
             }
         }
+    }
+
+    fun destroyNativeAd(){
+        mViewModel?.onDestroy()
     }
 }

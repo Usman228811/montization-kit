@@ -64,4 +64,8 @@ fun AdKitNativeAdView(
         )
     }
 
+    fun destroyNativeAd(){
+        nativeAdViewModel.onDestroy()
+    }
+
 }

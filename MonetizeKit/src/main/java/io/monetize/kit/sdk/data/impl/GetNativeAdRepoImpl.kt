@@ -116,6 +116,7 @@ class GetNativeAdRepoImpl private constructor(
     private fun destroyNativeAd() {
         try {
             if (largeNativeAd != null) {
+                canLoadAdAgain = true
                 destroyAd(largeNativeAd!!)
                 largeNativeAd = null
             }
