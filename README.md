@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.8.1")
+    implementation("com.github.Usman228811:montization-kit:v1.8.4")
 }
 ```
 
@@ -490,7 +490,11 @@ AdKit.initializer.setNativeCustomLayouts(
 Post analytics events:
 
 ```kotlin
+//post events
 AdKit.analytics.postAnalytics("Main_idenify_plant_btn")
+
+//post screen name
+AdKit.analytics.postScreenName("splash", "splash")
 ```
 
 Enable toast for events in debug mode in App Class:
@@ -641,6 +645,52 @@ Preload an interstitial ad:
 
 ```kotlin
 AdKit.interHelper.preLoadInter(
+    activity = activity,
+    adIdKey = "inter_common",
+    placementKey = "inter_btn_plant",
+    activity = activity,
+    // Optional
+    prefKey = "common_pref",
+    counter = 2 // From remote configs
+)
+```
+
+---
+
+
+## Rewarded Ads
+
+### Remote Config Values
+- `{$placementkey}_isAdEnable`
+- `{$placementkey}_isRewardInstant`
+
+Show an interstitial ad:
+
+```kotlin
+AdKit.rewardHelper.showRewardAd(
+    adIdKey = "inter_common",
+    placementKey = "inter_btn_plant",
+    activity = activity,
+     listener = object : RewardedControllerListener {
+                    override fun onRewardDismissed(isRewarded: Boolean) {
+                        if (isRewarded.not()) {
+                            
+                        }else{
+                            
+                        }
+                    }
+
+                },
+    // Optional
+    prefKey = "common_pref",
+    counter = 2 // From remote configs
+)
+```
+
+Preload an Rewarded ad:
+
+```kotlin
+AdKit.interHelper.preLoadRewardAd(
     activity = activity,
     adIdKey = "inter_common",
     placementKey = "inter_btn_plant",
