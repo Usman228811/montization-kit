@@ -281,6 +281,8 @@ AdKitNativeAdView(
     }
 	)
 
+// destroy?.invoke()
+
 // For dialogs on the same screen
 AdKitNativeAdViewDialog(
     nativeControllerConfig = NativeControllerConfig(
@@ -302,6 +304,8 @@ AdKitNativeAdViewDialog(
     
 	)
 )
+
+// destroy?.invoke()
 
 
 ```
