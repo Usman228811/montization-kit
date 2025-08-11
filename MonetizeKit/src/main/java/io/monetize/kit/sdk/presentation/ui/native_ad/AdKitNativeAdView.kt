@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -24,6 +25,8 @@ fun AdKitNativeAdView(
     nativeControllerConfig: NativeControllerConfig,
     onFail: () -> Unit = {},
     onAdClick: () -> Unit = {},
+    callCustomDestroy: ((() -> Unit) -> Unit)? = null
+
 
 ) {
 
@@ -40,6 +43,11 @@ fun AdKitNativeAdView(
         }
     }
 
+
+    callCustomDestroy?.invoke {
+        Log.d("opoppop", "call custom destroy: ")
+        nativeAdViewModel.onDestroy()
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -64,7 +72,7 @@ fun AdKitNativeAdView(
         )
     }
 
-    fun destroyNativeAd(){
+    fun destroyNativeAd() {
         nativeAdViewModel.onDestroy()
     }
 

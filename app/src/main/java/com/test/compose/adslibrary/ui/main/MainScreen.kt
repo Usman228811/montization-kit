@@ -1,7 +1,6 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
@@ -14,10 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
@@ -25,8 +22,9 @@ import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 fun MainScreen(
     gotoSubscription: () -> Unit
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val activity = LocalActivity.current as Activity
+    var destroy: (() -> Unit)? = null
 
 
     Column(
@@ -35,28 +33,29 @@ fun MainScreen(
     ) {
 
         Button(onClick = {
-            AdKit.rewardHelper.showRewardAd(
-                adIdKey = "reward_main",
-                placementKey = "inter_btn_plant",
-                activity = activity,
-                listener = object : RewardedControllerListener {
-                    override fun onRewardDismissed(isRewarded: Boolean) {
-                        Log.d("ioioioi", "onRewardDismissed: $isRewarded")
-                        if (isRewarded.not()) {
-                            if (AdKit.adKitPref.getInterInt("common_pref", 0)>= 2) {
-                                Log.d("ioioioi", "onRewardDismissed: try again")
-                            }else{
-                                Log.d("ioioioi", "onRewardDismissed: continue")
-                            }
-                        }else{
-                            Log.d("ioioioi", "onRewardDismissed: continue")
-                        }
-                    }
-
-                },
-                prefKey = "common_pref",
-                counter = 2 //from remote conigs
-            )
+            gotoSubscription()
+//            AdKit.rewardHelper.showRewardAd(
+//                adIdKey = "reward_main",
+//                placementKey = "inter_btn_plant",
+//                activity = activity,
+//                listener = object : RewardedControllerListener {
+//                    override fun onRewardDismissed(isRewarded: Boolean) {
+//                        Log.d("ioioioi", "onRewardDismissed: $isRewarded")
+//                        if (isRewarded.not()) {
+//                            if (AdKit.adKitPref.getInterInt("common_pref", 0) >= 2) {
+//                                Log.d("ioioioi", "onRewardDismissed: try again")
+//                            } else {
+//                                Log.d("ioioioi", "onRewardDismissed: continue")
+//                            }
+//                        } else {
+//                            Log.d("ioioioi", "onRewardDismissed: continue")
+//                        }
+//                    }
+//
+//                },
+//                prefKey = "common_pref",
+//                counter = 2 //from remote conigs
+//            )
         }) {
             Text("showinter and to got subscripption screen")
         }
@@ -68,11 +67,21 @@ fun MainScreen(
                 adIdKey = "home_native",
                 ctaColor = "#FFBB86FC",
                 adType = 1
-            ),
+            ), onFail = {
+
+            },
             onAdClick = {
                 Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+            }, callCustomDestroy = { callCustomDestroy ->
+                destroy = callCustomDestroy
             }
         )
+
+        Button(onClick = {
+            destroy?.invoke()
+        }) {
+            Text(text = "destroy native ad")
+        }
 
 
         Spacer(modifier = Modifier.weight(1f))
@@ -84,8 +93,9 @@ fun MainScreen(
                     placementKey = "home_banner",
                     adIdKey = "home_banner"
                 ),
-                onAdClick ={
-                    Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT).show()
+                onAdClick = {
+                    Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
+                        .show()
                 })
         }
     }

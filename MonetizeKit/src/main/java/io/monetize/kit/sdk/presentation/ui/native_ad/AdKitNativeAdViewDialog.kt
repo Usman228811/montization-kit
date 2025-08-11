@@ -24,6 +24,7 @@ fun AdKitNativeAdViewDialog(
     nativeControllerConfig: NativeControllerConfig,
     onFail: () -> Unit = {},
     onAdClick: () -> Unit = {},
+    callCustomDestroy: ((()->Unit) -> Unit) ?= null
 
 ) {
 
@@ -41,6 +42,7 @@ fun AdKitNativeAdViewDialog(
         }
     }
 
+    callCustomDestroy?.invoke { nativeAdViewModel.onDestroy() }
     Column(modifier = Modifier.fillMaxWidth()) {
 
         AndroidView(
@@ -64,8 +66,5 @@ fun AdKitNativeAdViewDialog(
         )
     }
 
-    fun destroyNativeAd(){
-        nativeAdViewModel.onDestroy()
-    }
 
 }
