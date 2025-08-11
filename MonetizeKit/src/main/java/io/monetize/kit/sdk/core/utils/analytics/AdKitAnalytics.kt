@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils.analytics
 
+import android.R.id.message
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import io.monetize.kit.sdk.BuildConfig
 
 class AdKitAnalytics private constructor(private val context: Context) {
@@ -54,6 +56,19 @@ class AdKitAnalytics private constructor(private val context: Context) {
             if (showToast){
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun postScreenName(screenName: String, className: String) {
+        try {
+            if (!BuildConfig.DEBUG) {
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                    param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
+                    param(FirebaseAnalytics.Param.SCREEN_CLASS, className)
+                }
+            }
+        } catch (_: Exception) {
+        } catch (_: OutOfMemoryError) {
         }
     }
 }
