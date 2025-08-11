@@ -269,11 +269,17 @@ AdKitNativeAdView(
         ctaColor = "#FFBB86FC", // Optional: CTA color, changeable remotely
         bgColor = "#000000", // Optional: Background color, changeable remotely
         adType = 2
-    ),
-    onFail = {
-	// handle native fail
+    ), onFail = {
+                // handle onAdFail
+            },
+    onAdClick = {
+                // handle onAdClick
+    },
+   callCustomDestroy = { callCustomDestroy ->
+				//handle Custom Destroy
+                destroy = callCustomDestroy
     }
-)
+	)
 
 // For dialogs on the same screen
 AdKitNativeAdViewDialog(
@@ -284,10 +290,20 @@ AdKitNativeAdViewDialog(
         bgColor = "#000000",
         adType = 2
     ),
-    onFail = {
-	// handle native fail
-    }
+   	onFail = {
+                // handle onAdFail
+            },
+    onAdClick = {
+                // handle onAdClick
+    },
+    callCustomDestroy = { callCustomDestroy ->
+				//handle Custom Destroy
+                destroy = callCustomDestroy
+    
+	)
 )
+
+
 ```
 
 ### XML Support
@@ -322,9 +338,16 @@ binding.adFrameNative.loadNative(
         adType = 2
     ),
     onFail = {
-	// handle native fail
+                // handle onAdFail
+            },
+    onAdClick = {
+                // handle onAdClick
     }
 )
+
+//custom destroy native ad
+binding.adFrameNative.destroyNativeAd()
+
 ```
 
 ### Custom Native Layouts
