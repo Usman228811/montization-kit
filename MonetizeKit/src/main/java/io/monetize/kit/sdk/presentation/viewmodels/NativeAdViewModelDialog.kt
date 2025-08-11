@@ -2,9 +2,6 @@ package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
 import android.widget.LinearLayout
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -55,28 +52,28 @@ class NativeAdViewModelDialog(private val getNativeAdUseCase: GetNativeAdUseCase
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {
-        val lifecycleObserver = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    onResume()
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    onPause()
-                }
-
-                else -> {}
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-
-        // Ensure observer is removed when lifecycle is destroyed
-        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                onDestroy()
-                lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-            }
-        })
+//        val lifecycleObserver = LifecycleEventObserver { _, event ->
+//            when (event) {
+//                Lifecycle.Event.ON_RESUME -> {
+//                    onResume()
+//                }
+//
+//                Lifecycle.Event.ON_PAUSE -> {
+//                    onPause()
+//                }
+//
+//                else -> {}
+//            }
+//        }
+//
+//        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+//
+//        // Ensure observer is removed when lifecycle is destroyed
+//        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+//            override fun onDestroy(owner: LifecycleOwner) {
+//                onDestroy()
+//                lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+//            }
+//        })
     }
 }

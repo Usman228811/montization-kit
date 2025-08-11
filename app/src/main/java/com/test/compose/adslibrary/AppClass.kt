@@ -25,7 +25,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_inter" to "ca-app-pub-3940256099942544/sdf",
                 "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
                     "ca-app-pub-3940256099942544/1033173712",
@@ -37,6 +37,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "reward_main" to "ca-app-pub-3940256099942544/5224354917"
             ),
             mapOfNativeIds = mapOf(
+                "exit_native" to "ca-app-pub-3940256099942544/2247696110",
                 "home_native" to "ca-app-pub-3940256099942544/2247696110",
                 "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
@@ -45,6 +46,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
             defaultRemoteConfigBuilder = {
+                bool("exit_native_isAdEnable", true)
                 bool("splash_inter_isAdEnable", true)
                 bool("inter_btn_plant_isAdEnable", true)
                 bool("inter_btn_plant_isInterInstant", true)
