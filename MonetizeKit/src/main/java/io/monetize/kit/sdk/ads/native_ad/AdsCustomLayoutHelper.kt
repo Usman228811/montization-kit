@@ -37,23 +37,32 @@ class AdsCustomLayoutHelper private constructor() {
 
     private var bigNative: Int? = null
     private var smallNative: Int? = null
+    private var smallNativeBanner: Int? = null
     private var splitNative: Int? = null
     private var splitNativeShimmer: Int? = null
     private var bigNativeShimmer: Int? = null
     private var smallNativeShimmer: Int? = null
 
+    private var smallNativeBannerShimmer: Int? = null
+
 
     fun setNativeCustomLayouts(
         bigNativeLayout: Int? = null,
         smallNativeLayout: Int? = null,
+        smallNativeBannerLayout: Int? = null,
         splitNativeLayout: Int? = null,
         bigNativeShimmer: Int? = null,
         smallNativeShimmer: Int? = null,
+        smallNativeBannerShimmer: Int? = null,
         splitNativeShimmer: Int? = null,
     ) {
         setBigNative(
             bigNative = bigNativeLayout,
             bigNativeShimmer = bigNativeShimmer
+        )
+        setSmallNativeBanner(
+            smallNativeBanner = smallNativeBannerLayout,
+            smallNativeBannerShimmer = smallNativeBannerShimmer
         )
         setSmallNative(
             smallNative = smallNativeLayout,
@@ -68,6 +77,10 @@ class AdsCustomLayoutHelper private constructor() {
     private fun setBigNative(bigNative: Int?, bigNativeShimmer: Int?) {
         this.bigNative = bigNative
         this.bigNativeShimmer = bigNativeShimmer
+    }
+    private fun setSmallNativeBanner(smallNativeBanner: Int?, smallNativeBannerShimmer: Int?) {
+        this.smallNativeBanner = smallNativeBanner
+        this.smallNativeBannerShimmer = smallNativeBannerShimmer
     }
 
     fun getBigNative(): Int? {
@@ -88,8 +101,15 @@ class AdsCustomLayoutHelper private constructor() {
         return smallNative
     }
 
+    fun getSmallNativeBanner(): Int? {
+        return smallNativeBanner
+    }
+
     fun getSmallNativeShimmer(): Int? {
         return smallNativeShimmer
+    }
+    fun getSmallNativeBannerShimmer(): Int? {
+        return smallNativeBannerShimmer
     }
 
 

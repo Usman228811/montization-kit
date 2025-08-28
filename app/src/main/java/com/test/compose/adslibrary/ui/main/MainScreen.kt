@@ -94,7 +94,7 @@ fun MainScreen(
                 placementKey = "home_native",
                 adIdKey = "home_native",
                 ctaColor = "#FFBB86FC",
-                adType = 1
+                adType = 3
             ), onFail = {
 
             },

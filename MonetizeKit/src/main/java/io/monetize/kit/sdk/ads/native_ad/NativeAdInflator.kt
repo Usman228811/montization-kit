@@ -51,6 +51,12 @@ fun addShimmerLayout(
             R.layout.small_native_layout
         )
 
+        AdType.SMALL_NATIVE_BANNER -> getFirstNonNull(
+            customLayoutHelper?.getSmallNativeBannerShimmer(),
+            customLayoutHelper?.getSmallNativeBanner(),
+            R.layout.small_native_banner_layout
+        )
+
         AdType.BANNER -> R.layout.banner_layout
     }
 
@@ -126,6 +132,52 @@ fun addNativeAdView(
 
             }
 
+            AdType.SMALL_NATIVE_BANNER -> {
+                val isForCustom = adsCustomLayoutHelper.getSmallNativeBanner() != null
+
+                val adView = LayoutInflater.from(context).inflate(
+                    when {
+                        isForCustom -> adsCustomLayoutHelper.getSmallNativeBanner()!!
+                        else -> R.layout.small_native_banner_layout
+                    },
+                    adFrame,
+                    false
+                )
+                try {
+                    adView.parent?.let { parent ->
+                        (parent as ViewGroup).removeAllViews()
+                    }
+                } catch (_: Exception) {
+                }
+
+                if (isForCustom) {
+                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
+                        nativeAd = ad,
+                        adView = sdkLayout.nativeAdView,
+                        isCustom = true,
+                        customLayout = sdkLayout,
+                        isForSmall = true
+                    )
+                } else {
+                    val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
+                    populateUnifiedNativeAdViewUnified(
+                        nativeControllerConfig = nativeControllerConfig,
+                        nativeAd = ad,
+                        adView = defaultAdView,
+                        isForSmall = true
+                    )
+                }
+
+                adFrame.visibility = View.VISIBLE
+                try {
+                    adFrame.removeAllViews()
+                } catch (_: Exception) {
+                }
+                adFrame.addView(adView)
+            }
+
 
             else -> {
                 val isForSmall = adType == AdType.SMALL_BOTTOM_BUTTON
@@ -197,9 +249,15 @@ fun populateUnifiedNativeAdViewUnified(
 ) {
     try {
         val colorHex = listOf(
-            AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_bgColor", nativeControllerConfig.bgColor),
+            AdKit.firebaseHelper.getString(
+                "${nativeControllerConfig.placementKey}_bgColor",
+                nativeControllerConfig.bgColor
+            ),
             nativeControllerConfig.bgColor,
-            AdKit.firebaseHelper.getString("overAllNativeBgColor", AdKit.nativeCustomLayoutHelper.getOverAllBgColor()),
+            AdKit.firebaseHelper.getString(
+                "overAllNativeBgColor",
+                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+            ),
             AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
         ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 
@@ -255,9 +313,15 @@ fun populateUnifiedNativeAdViewUnified(
 
         try {
             val colorHex = listOf(
-                AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_ctaColor", nativeControllerConfig.ctaColor),
+                AdKit.firebaseHelper.getString(
+                    "${nativeControllerConfig.placementKey}_ctaColor",
+                    nativeControllerConfig.ctaColor
+                ),
                 nativeControllerConfig.ctaColor,
-                AdKit.firebaseHelper.getString("overAllNativeCtaColor", AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()),
+                AdKit.firebaseHelper.getString(
+                    "overAllNativeCtaColor",
+                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+                ),
                 AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
             ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 
@@ -292,9 +356,15 @@ fun populateUnifiedNativeJazzAdViewUnified(
 
     try {
         val colorHex = listOf(
-            AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_bgColor", nativeControllerConfig.bgColor),
+            AdKit.firebaseHelper.getString(
+                "${nativeControllerConfig.placementKey}_bgColor",
+                nativeControllerConfig.bgColor
+            ),
             nativeControllerConfig.bgColor,
-            AdKit.firebaseHelper.getString("overAllNativeBgColor", AdKit.nativeCustomLayoutHelper.getOverAllBgColor()),
+            AdKit.firebaseHelper.getString(
+                "overAllNativeBgColor",
+                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+            ),
             AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
         ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 
@@ -346,9 +416,15 @@ fun populateUnifiedNativeJazzAdViewUnified(
 
         try {
             val colorHex = listOf(
-                AdKit.firebaseHelper.getString("${nativeControllerConfig.placementKey}_ctaColor", nativeControllerConfig.ctaColor),
+                AdKit.firebaseHelper.getString(
+                    "${nativeControllerConfig.placementKey}_ctaColor",
+                    nativeControllerConfig.ctaColor
+                ),
                 nativeControllerConfig.ctaColor,
-                AdKit.firebaseHelper.getString("overAllNativeCtaColor", AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()),
+                AdKit.firebaseHelper.getString(
+                    "overAllNativeCtaColor",
+                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+                ),
                 AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
             ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 

@@ -4,7 +4,8 @@ enum class AdType(val type: Int) {
     LARGE_NATIVE(0),
     JAZZ_LEFT_BOTTOM_CTA(1),
     SMALL_BOTTOM_BUTTON(2),
-    BANNER(3),
+    SMALL_NATIVE_BANNER(3),
+    BANNER(4),
 }
 
 data class BannerControllerConfig(
