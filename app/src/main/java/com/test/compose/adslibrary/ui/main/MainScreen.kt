@@ -1,6 +1,7 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -30,8 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
@@ -61,7 +64,19 @@ fun MainScreen(
     ) {
 
         Button(onClick = {
-            gotoSubscription()
+
+            AdKit.interHelper.showInterAd(
+                activity = activity,
+                placementKey = "home_inter",
+                adIdKey = "home_inter",
+                listener = object : InterstitialControllerListener {
+                    override fun onAdClosed(isInterShowed: Boolean) {
+                        Log.d("iooioi", "onAdClosed: $isInterShowed")
+                    }
+                }
+
+            )
+
 //            AdKit.rewardHelper.showRewardAd(
 //                adIdKey = "reward_main",
 //                placementKey = "inter_btn_plant",
@@ -76,13 +91,13 @@ fun MainScreen(
 //                                Log.d("ioioioi", "onRewardDismissed: continue")
 //                            }
 //                        } else {
+//
+//                            gotoSubscription()
 //                            Log.d("ioioioi", "onRewardDismissed: continue")
 //                        }
 //                    }
 //
 //                },
-//                prefKey = "common_pref",
-//                counter = 2 //from remote conigs
 //            )
         }) {
             Text("showinter and to got subscripption screen")

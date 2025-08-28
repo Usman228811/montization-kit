@@ -384,7 +384,7 @@ class InterstitialController private constructor(
         admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 dismissLoadingDialog()
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(true)
                 super.onAdDismissedFullScreenContent()
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null

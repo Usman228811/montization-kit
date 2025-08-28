@@ -220,9 +220,9 @@ class AdKitSplashAdController private constructor(
                 }
             }
         } catch (_: Exception) {
-            hideProgressAndNullAd(activity)
+            hideProgressAndNullAd()
         } catch (_: OutOfMemoryError) {
-            hideProgressAndNullAd(activity)
+            hideProgressAndNullAd()
         }
     }
 
@@ -340,7 +340,7 @@ class AdKitSplashAdController private constructor(
 
                 override fun onAdDismissedFullScreenContent() {
                     AdKit.analytics.postAnalytics("Splash_inter_cross")
-                    hideProgressAndNullAd(activity)
+                    hideProgressAndNullAd(true)
                     super.onAdDismissedFullScreenContent()
 //                    activity.userAnalytics("Splash_Ad_Close")
                 }
@@ -355,15 +355,15 @@ class AdKitSplashAdController private constructor(
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     super.onAdFailedToShowFullScreenContent(adError)
-                    hideProgressAndNullAd(activity)
+                    hideProgressAndNullAd()
 //                    activity.userAnalytics("Splash_Ad_Show_Failed")
                 }
 
             }
     }
 
-    private fun hideProgressAndNullAd(activity: Activity) {
-        mInterstitialControllerListener?.onAdClosed()
+    private fun hideProgressAndNullAd(isInterShowed: Boolean = false) {
+        mInterstitialControllerListener?.onAdClosed(isInterShowed)
         IS_INTERSTITIAL_Ad_SHOWING = false
         interstitialAd = null
         hideProgress()

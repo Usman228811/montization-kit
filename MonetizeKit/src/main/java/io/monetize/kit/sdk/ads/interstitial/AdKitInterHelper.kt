@@ -117,8 +117,8 @@ class AdKitInterHelper private constructor(
         if (AdKit.splashAdController.hasAd()) {
             AdKit.splashAdController.showInterstitial(
                 activity, true, object : InterstitialControllerListener {
-                    override fun onAdClosed() {
-                        listener.onAdClosed()
+                    override fun onAdClosed(isInterShowed: Boolean) {
+                        listener.onAdClosed(isInterShowed)
                     }
                 })
         } else {

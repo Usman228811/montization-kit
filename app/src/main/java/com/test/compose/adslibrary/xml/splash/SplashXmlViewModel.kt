@@ -82,7 +82,7 @@ class SplashXmlViewModel : ViewModel() {
                     splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
                 ),
                 listener = object : InterstitialControllerListener {
-                    override fun onAdClosed() {
+                    override fun onAdClosed(isInterShowed: Boolean) {
                         _state.update {
                             it.copy(
                                 moveNext = true
