@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.8.6")
+    implementation("com.github.Usman228811:montization-kit:v1.8.9")
 }
 ```
 
@@ -118,9 +118,12 @@ AdKit.init(
             bigNativeShimmer = R.layout.large_native_layout_shimmer,
             // As per your requirement
             smallNativeLayout,
+			smallNativeBannerLayout,
             splitNativeLayout,
             smallNativeShimmer,
-            splitNativeShimmer
+            splitNativeShimmer,
+			smallNativeBannerShimmer,
+
         )
 
         // Exclude activities from showing open ads
@@ -196,7 +199,7 @@ private fun showSplashAd(mContext: Activity) {
                 splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
             ),
             listener = object : InterstitialControllerListener {
-                override fun onAdClosed() {
+                override fun onAdClosed(isInterShowed: Boolean) {
 		// it will be called if `loadAndShow` is true
                     _state.update {
                         it.copy(
@@ -230,7 +233,7 @@ fun showSplashInter(activity: Activity){
             activity = activity,
             enable = true,
             object :InterstitialControllerListener{
-                override fun onAdClosed() {
+                override fun onAdClosed(isInterShowed: Boolean) {
                     sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
                 }
 
@@ -660,7 +663,7 @@ AdKit.interHelper.showInterAd(
     placementKey = "inter_btn_plant",
     activity = activity,
     listener = object : InterstitialControllerListener {
-        override fun onAdClosed() {}
+        override fun onAdClosed(isInterShowed: Boolean) {}
     },
     // Optional
     prefKey = "common_pref",
@@ -1158,7 +1161,7 @@ class SplashViewModel(
                             _state.update { it.copy(progress = 100) }
                         }
                     }
-                    override fun onAdClosed() {
+                    override fun onAdClosed(isInterShowed: Boolean) {
                         animator?.cancel()
                         _state.update {
                             it.copy(progress = 100, moveToMain = true)
