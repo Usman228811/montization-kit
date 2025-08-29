@@ -90,6 +90,9 @@ AdKit.init(
     mapOfBannerIds = mapOf(
         "home_banner" to "ca-app-pub-3940256099942544/9214589741"
     ),
+	mapOfRewardIds = mapOf(
+       "reward_id" to getString(com.plantcare.ai.plant.framework.R.string.chat_reward_id),
+    ),
     // overAllNativeBgColor = "#FFEB3B", 
     // overAllNativeCtaColor = "#FFEB3B",
     defaultRemoteConfigBuilder = {
@@ -362,7 +365,7 @@ binding.adFrameNative.destroyNativeAd()
 Set custom layouts in the `onInitSdk` callback:
 
 ```kotlin
-AdKit.initializer.setNativeCustomLayouts(
+AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
     bigNativeLayout = R.layout.large_native_layout_custom,
     bigNativeShimmer = R.layout.large_native_layout_shimmer // Shows custom shimmer if provided
 )
