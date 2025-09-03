@@ -252,6 +252,7 @@ fun showSplashInter(activity: Activity){
 - `0`: Large native ad
 - `1`: Split native ad
 - `2`: Small native ad
+- `3`: Small native Banner ad
 
 ### Remote Config Values
 Add these to default or remote configs:
