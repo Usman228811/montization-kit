@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import io.monetize.kit.sdk.ads.banner.AdKitBannerPreloadHelper
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
 import io.monetize.kit.sdk.ads.interstitial.AdKitSplashAdController
@@ -53,6 +54,9 @@ object AdKit {
 
 
     lateinit var preLoadNative: AdKitNativePreloadHelper
+        private set
+
+    lateinit var preloadBanner: AdKitBannerPreloadHelper
         private set
 
 
@@ -119,6 +123,7 @@ object AdKit {
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
         firebaseHelper.setDefaultRemoteConfigs(configDefaults)
         preLoadNative = AdKitNativePreloadHelper.getInstance()
+        preloadBanner = AdKitBannerPreloadHelper.getInstance()
         splashAdController = AdKitSplashAdController.getInstance()
         openAdManager = AdKitOpenAdManager.getInstance(context)
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)

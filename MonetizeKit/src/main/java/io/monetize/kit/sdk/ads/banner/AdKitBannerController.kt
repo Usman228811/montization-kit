@@ -10,6 +10,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
+import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 val singleBannerList = ArrayList<BannerSingleAdControllerModel>()
@@ -24,6 +25,7 @@ class AdKitBannerController {
     private var placementKey: String = ""
     private var adIdKey: String = ""
     private var canRequestBannerAd = true
+    private var isAdEnable = false
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
     private lateinit var bannerSize: AdSize
@@ -36,11 +38,13 @@ class AdKitBannerController {
     }
 
 
+
     fun loadNewBannerAd(
-        context: Activity, enable: Boolean
+        bannerControllerConfig: BannerControllerConfig, context: Activity
     ) {
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true)
         setAdControllerListener(null)
-        loadBannerAd(context, enable)
+        loadBannerAd(context, isAdEnable)
     }
 
 
