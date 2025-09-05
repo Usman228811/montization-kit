@@ -1,12 +1,15 @@
 package com.test.compose.adslibrary.ui.splash.state
 
-import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 
 data class SplashScreenState(
-    val runSplash: Boolean = false,
-    val isAppResumed: Boolean = false,
     val isConsentManager: Boolean = false,
-    val progress: Int = 0,
+    val initializeSplash: Boolean = false,
+    val fireBaseFetch: Boolean = false,
+    val showRestartDialog: Boolean = false,
+    val isAppResumed: Boolean = false,
+    val moveToMain: Boolean = false,
+    val isPurchased: Boolean = false,
+    val runSplash: Boolean = false,
     val onAdLoaded: Boolean = false,
-    val updateState: UpdateState = UpdateState.Idle,
+    val progress: Int = 0
 )

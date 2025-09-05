@@ -1,71 +1,57 @@
 package com.test.compose.adslibrary.ui.splash
 
+import SplashScreenViewModel
+import SplashScreenViewModelFactory
 import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.test.compose.adslibrary.ui.splash.content.SplashScreenContent
-import com.test.compose.adslibrary.ui.splash.events.SplashOneTimeEventEvents
-import com.test.compose.adslibrary.ui.splash.events.SplashScreenEvents
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateFlowResultLauncher
 
 @Composable
 fun SplashScreen(
     moveToNext: () -> Unit,
 ) {
-    val activity = LocalActivity.current as Activity
-    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val context = LocalContext.current
     val factory = remember { SplashScreenViewModelFactory() }
-    val viewModel: SplashScreenViewModel = viewModel(factory = factory)
-    val state by viewModel.state.collectAsState()
-
+    val splashViewModel: SplashScreenViewModel = viewModel(factory = factory)
+    val activity = LocalActivity.current as Activity
+    val state by splashViewModel.state.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
-        viewModel.onEvent(SplashScreenEvents.CheckConsent(activity))
+        splashViewModel.initConsent(activity)
     })
 
     LaunchedEffect(Unit) {
-        viewModel.oneTimeEvent.collect { event ->
-            when (event) {
-                SplashOneTimeEventEvents.MoveToMain -> {
-                    moveToNext()
-                }
-            }
+        splashViewModel.checkForUpdate(activity, launcher)
+        splashViewModel.observeLifecycle(lifecycleOwner)
+    }
+
+    LaunchedEffect(key1 = state.runSplash) {
+        if (state.runSplash) {
+            splashViewModel.initSplashAd(activity)
         }
     }
 
-
-    LaunchedEffect(Unit) {
-        viewModel.observeLifecycle(lifecycleOwner)
-        viewModel.onEvent(SplashScreenEvents.CheckUpdate(context, launcher))
+    LaunchedEffect(key1 = state.moveToMain) {
+        if (state.moveToMain) {
+            moveToNext()
+        }
     }
-
 
     LaunchedEffect(state.isAppResumed) {
         if (state.isAppResumed) {
-            viewModel.onEvent(SplashScreenEvents.AppResumed(activity))
+            splashViewModel.resumeSplashAd(activity)
         }
     }
 
-    LaunchedEffect(state.runSplash) {
-        if (state.runSplash) {
-            viewModel.onEvent(SplashScreenEvents.ShowSplashAd(activity))
-        }
-    }
-
-
-    BackHandler {}
-
-
-    SplashScreenContent(state, showAd = {
-        viewModel.showSplashInter(activity)
+    SplashScreenContent(state = state, showAd = {
+        splashViewModel.showSplashOnClick(activity)
     })
 }

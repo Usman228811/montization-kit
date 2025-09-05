@@ -25,7 +25,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/sdf",
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
                 "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
                     "ca-app-pub-3940256099942544/1033173712",

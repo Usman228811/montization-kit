@@ -17,7 +17,6 @@ fun SplashScreenContent(state: SplashScreenState, showAd :() ->Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         if (state.onAdLoaded) {
             Button(onClick = {
                 showAd()

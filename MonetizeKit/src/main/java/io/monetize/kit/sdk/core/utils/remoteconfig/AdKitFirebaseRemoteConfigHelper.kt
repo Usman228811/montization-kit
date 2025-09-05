@@ -24,11 +24,9 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
     private fun startHandler() {
         var configFetchTime = AdKit.firebaseHelper.getLong("config_fetch_time", 8)
-        Log.d("skdjflskfj", "startHandler1: ${configFetchTime}")
         if (configFetchTime == 0L) {
             configFetchTime = 8L
         }
-        Log.d("skdjflskfj", "startHandler2: ${configFetchTime}")
         if (!isHandlerRunning) {
             isHandlerRunning = true
             runnableSplash?.let {

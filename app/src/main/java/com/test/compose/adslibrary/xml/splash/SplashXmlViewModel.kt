@@ -147,7 +147,7 @@ class SplashXmlViewModel : ViewModel() {
     }
 
     fun resumeAd(activity: Activity) {
-        splashAdController.resumeAd(activity, true)
+        splashAdController.resumeAd(activity)
     }
 
     fun pauseAd() {

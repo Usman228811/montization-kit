@@ -116,14 +116,12 @@ class AdKitInterHelper private constructor(
 
         if (AdKit.splashAdController.hasAd()) {
             AdKit.splashAdController.showInterstitial(
-                activity, true, object : InterstitialControllerListener {
+                activity,  object : InterstitialControllerListener {
                     override fun onAdClosed(isInterShowed: Boolean) {
                         listener.onAdClosed(isInterShowed)
                     }
                 })
         } else {
-
-
             var interstitialController: InterstitialController? = null
             var index = singleInterList.indexOfFirst { it.key == adIdKey }
             if (index == -1) {

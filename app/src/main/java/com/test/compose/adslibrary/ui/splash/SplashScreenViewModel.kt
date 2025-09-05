@@ -1,10 +1,7 @@
-package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.content.Context
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -13,24 +10,24 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.test.compose.adslibrary.BuildConfig
-import com.test.compose.adslibrary.ui.splash.events.SplashOneTimeEventEvents
-import com.test.compose.adslibrary.ui.splash.events.SplashScreenEvents
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
+import io.monetize.kit.sdk.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
+import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
+import io.monetize.kit.sdk.core.utils.init.AdKit.purchaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 
 class SplashScreenViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -39,198 +36,28 @@ class SplashScreenViewModelFactory : ViewModelProvider.Factory {
     }
 }
 
-class SplashScreenViewModel : ViewModel() {
-
+class SplashScreenViewModel(
+) : ViewModel() {
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
-
-    private val _oneTimeEvent = Channel<SplashOneTimeEventEvents>()
-    val oneTimeEvent = _oneTimeEvent.receiveAsFlow()
-
-
     private var isInterAdShowed = false
     private var isInterAdCalled = false
     private var animator: ValueAnimator? = null
 
     init {
-
-
-        viewModelScope.apply {
-
-            launch {
-                AdKit.consentManager.googleConsent.collectLatest {
-                    onEvent(SplashScreenEvents.FireBaseFetch)
-                }
-            }
-        }
-
-
-        AdKit.purchaseHelper.initBilling("one_time_purchase_id")
-
-
-
-        viewModelScope.apply {
-
-            launch {
-
-                AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
-
-                }
-            }
-
-            launch {
-
-                AdKit.purchaseHelper.productPriceFlow.collectLatest {
-
-
-                }
-            }
-        }
-
-
-
-
+        AdKit.analytics.postAnalytics("Splash_launch")
         AdKit.splashAdController.resetSplash()
+        collections()
         startProgressAnimation()
-
+        purchaseHelper.initBilling("one_time_purchase_id")
     }
-
-
-    fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
-                _state.update {
-                    it.copy(
-                        isConsentManager = true
-                    )
-                }
-                if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected) {
-                    AdKit.consentManager.gatherConsent(activity)
-                    if (AdKit.consentManager.canRequestAds) {
-                        onEvent(SplashScreenEvents.FireBaseFetch)
-                    }
-                } else {
-                    onEvent(SplashScreenEvents.FireBaseFetch)
-                }
-            }
-        }
-    }
-
-    private fun fetchFirebase() {
-
-        AdKit.firebaseHelper.apply {
-            viewModelScope.launch {
-                configFetched.collectLatest {
-                    try {
-                        onEvent(SplashScreenEvents.RunSplash)
-                    } catch (e: Exception) {
-                        onEvent(SplashScreenEvents.RunSplash)
-                    }
-                }
-            }
-
-            fetchRemoteValues(BuildConfig.DEBUG)
-
-        }
-    }
-
-    fun onEvent(splashScreenEvents: SplashScreenEvents) {
-        when (splashScreenEvents) {
-            is SplashScreenEvents.AppResumed -> {
-                resumeSplashAd(splashScreenEvents.mContext)
-            }
-
-            is SplashScreenEvents.CheckUpdate -> {
-                checkUpdate(
-                    context = splashScreenEvents.context,
-                    launcher = splashScreenEvents.launcher
-                )
-
-            }
-
-            is SplashScreenEvents.ShowSplashAd -> {
-                showSplashAd(splashScreenEvents.mContext)
-
-            }
-
-            is SplashScreenEvents.CheckConsent -> {
-                initConsent(splashScreenEvents.mContext)
-            }
-
-            SplashScreenEvents.FireBaseFetch -> {
-                fetchFirebase()
-            }
-
-            SplashScreenEvents.RunSplash -> {
-                runSplash()
-            }
-        }
-
-    }
-
-    fun sendOneTimeEvent(events: SplashOneTimeEventEvents) {
-        when (events) {
-            SplashOneTimeEventEvents.MoveToMain -> {
-                viewModelScope.launch {
-                    _oneTimeEvent.send(events)
-                }
-            }
-        }
-    }
-
-
-    private fun checkUpdate(
-        context: Context,
-        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
-    ) {
-
-        inAppUpdateManager.setUpdateStateCallback { updateState ->
-            when (updateState) {
-                UpdateState.Available -> {
-
-                    inAppUpdateManager.startUpdateFlow(launcher)
-                }
-
-                UpdateState.Downloaded -> {
-                    /* show restart dialog
-                     or
-                    adSdkInAppUpdateManager.updateComplete()*/
-
-                }
-
-                UpdateState.Failed -> {
-                    onEvent(SplashScreenEvents.CheckConsent(context as Activity))
-
-                }
-
-                UpdateState.Idle -> {
-
-                }
-            }
-
-        }
-
-        inAppUpdateManager.checkUpdate(context)
-
-    }
-
-//    override fun onCleared() {
-//        super.onCleared()
-//        inAppUpdateManager.unRegisterLister()
-//        animator?.cancel()
-//    }
-
 
     private fun onResume() {
         if (state.value.runSplash) {
             animator?.resume()
         }
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isAppResumed = true
-                )
-            }
+            _state.update { it.copy(isAppResumed = true) }
         }
     }
 
@@ -242,26 +69,19 @@ class SplashScreenViewModel : ViewModel() {
             AdKit.splashAdController.pauseAd()
         }
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isAppResumed = false
-                )
-            }
+            _state.update { it.copy(isAppResumed = false) }
         }
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {
-        val lifecycleObserver = LifecycleEventObserver { a, event ->
+        val lifecycleObserver = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> onResume()
                 Lifecycle.Event.ON_PAUSE -> onPause()
                 else -> {}
             }
         }
-
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-
-        // Ensure observer is removed when lifecycle is destroyed
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
@@ -269,101 +89,167 @@ class SplashScreenViewModel : ViewModel() {
         })
     }
 
+    fun checkForUpdate(activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        inAppUpdateManager.setUpdateStateCallback { updateState ->
+            when (updateState) {
+                UpdateState.Available -> inAppUpdateManager.startUpdateFlow(launcher)
+                UpdateState.Downloaded -> inAppUpdateManager.updateComplete()
+                UpdateState.Failed -> initConsent(activity)
+                UpdateState.Idle -> {}
+            }
+        }
+        inAppUpdateManager.checkUpdate(activity)
+    }
 
-    private fun runSplash() {
-        viewModelScope.launch {
-            if (state.value.runSplash.not()) {
-                _state.update {
-                    it.copy(
-                        runSplash = true
-                    )
+    private fun collections() {
+        viewModelScope.apply {
+            launch {
+                consentManager.googleConsent.collectLatest { initializeSplash() }
+            }
+            launch {
+                firebaseHelper.apply {
+                    configFetched.collectLatest {
+                        try {
+//                            assignRemoteValues(this)
+                            runSplash()
+                        } catch (e: Exception) {
+                            runSplash()
+                        }
+                    }
                 }
-
+            }
+            launch {
+                purchaseHelper.appPurchased.collectLatest { result ->
+                    _state.update { it.copy(isPurchased = result) }
+                }
             }
         }
     }
 
+    fun initConsent(activity: Activity) {
+        viewModelScope.launch {
+            if (state.value.isConsentManager.not()) {
+                _state.update { it.copy(isConsentManager = true) }
+                if (!adKitPref.isAppPurchased && internetController.isConnected) {
+                    consentManager.gatherConsent(activity)
+                    if (consentManager.canRequestAds) {
+                        initializeSplash()
+                    }
+                } else {
+                    initializeSplash()
+                }
+            }
+        }
+    }
+
+    private fun initializeSplash() {
+        viewModelScope.launch {
+            if (state.value.initializeSplash.not()) {
+                _state.update { it.copy(initializeSplash = true) }
+                fetchFirebase()
+            }
+        }
+    }
+
+    private fun fetchFirebase() {
+        if (state.value.fireBaseFetch.not()) {
+            _state.update { it.copy(fireBaseFetch = true) }
+            firebaseHelper.fetchRemoteValues(isDebug = BuildConfig.DEBUG)
+        }
+    }
+
+    private fun runSplash() {
+        viewModelScope.launch {
+            if (state.value.runSplash.not()) {
+                _state.update { it.copy(runSplash = true) }
+            }
+        }
+    }
 
     private fun startProgressAnimation() {
         animator?.cancel()
         animator = ValueAnimator.ofInt(0, 100).apply {
             duration = 25_000L
             addUpdateListener { animation ->
-                val value = animation.animatedValue as Int
+                val value = animation.animatedValue as? Int
                 viewModelScope.launch {
-                    _state.update {
-                        it.copy(
-                            progress = value
-                        )
-                    }
+                    _state.update { it.copy(progress = value ?: 50) }
                 }
             }
             start()
         }
     }
 
-    fun showSplashInter(activity: Activity){
+    fun initSplashAd(mContext: Activity) {
+        if (!isInterAdCalled) {
+            isInterAdCalled = true
+            AdKit.splashAdController.initSplashInterstitial(
+                placementKey = "splash_inter",
+                adIdKey = "splash_inter",
+                loadAndShow = false,
+                activity = mContext,
+                interAdsConfigs = InterAdsConfigs(
+                    splashTime = firebaseHelper.getLong("splash_time", 16),
+                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
+                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
+                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
+                    // openAdInstant = false,
+                    // instantOpenAdTime = 8,
+                    // instantInterTime = 8
+                ),
+                listener = object : InterstitialControllerListener {
+                    override fun onAdShow() {
+                        super.onAdShow()
+                        isInterAdShowed = true
+                        animator?.cancel()
+                        viewModelScope.launch {
+                            _state.update { it.copy(progress = 100) }
+                        }
+                    }
+                    override fun onAdClosed(isInterShowed: Boolean) {
+                        animator?.cancel()
+                        _state.update {
+                            it.copy(progress = 100, moveToMain = true)
+                        }
+                    }
+                    override fun onAdLoaded() {
+                        super.onAdLoaded()
+                        _state.update {
+                            it.copy(
+                                onAdLoaded = true,
+                            )
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    fun resumeSplashAd(activity: Activity) {
+        if (!isInterAdShowed && isInterAdCalled) {
+            AdKit.splashAdController.resumeAd(activity)
+        }
+    }
+
+    fun showSplashOnClick(activity: Activity){
         splashAdController.showInterstitial(
             activity = activity,
-            enable = true,
             object :InterstitialControllerListener{
                 override fun onAdClosed(isInterShowed: Boolean) {
-                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
-                }
-
-            }
-        )
-    }
-
-    private fun showSplashAd(mContext: Activity) {
-
-        animator?.cancel()
-        AdKit.splashAdController.initSplashInterstitial(
-            activity = mContext,
-            loadAndShow = false,
-            placementKey = "splash_inter",
-            adIdKey = "splash_inter",
-            interAdsConfigs = InterAdsConfigs(
-                openAdEnable = true,
-                interLoadingEnable = true,
-                openAdInstant = false,
-                openAdLoadingEnable = true,
-                splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
-            ),
-            listener = object : InterstitialControllerListener {
-                override fun onAdClosed(isInterShowed: Boolean) {
                     _state.update {
                         it.copy(
-                            progress = 100,
-                        )
-                    }
-                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
-                }
-
-                override fun onAdLoaded() {
-                    super.onAdLoaded()
-                    _state.update {
-                        it.copy(
-                            onAdLoaded = true,
+                            moveToMain = true,
                         )
                     }
                 }
 
-
             }
         )
-
-
-    }
-
-    private fun resumeSplashAd(activity: Activity) {
-        if (!isInterAdShowed && isInterAdCalled) {
-            AdKit.splashAdController.resumeAd(activity, true)
-        }
     }
 
     override fun onCleared() {
         super.onCleared()
+        inAppUpdateManager.unRegisterLister()
         animator?.cancel()
     }
 }
