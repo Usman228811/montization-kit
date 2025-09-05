@@ -184,6 +184,7 @@ fun initConsent(activity: Activity) {
 ## Important Parameter `loadAndShow` 
 - If `true`, the ad will load and show automatically. On ad failure or ad dismissed, `onAdClosed` is called.
 - If `false`, only the ad loads. On success or failure, `onAdLoaded` is called — you can then show the navigation button.
+- To show `AppOpenAd` on the Splash screen, add `${placementKey}_isAdOpenAd` to `true` in the `Default Remote Configs` within AppClass. By default, the Splash OpenAd is false.
 
 ```kotlin
 private fun showSplashAd(mContext: Activity) {
