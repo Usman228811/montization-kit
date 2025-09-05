@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.8.9")
+    implementation("com.github.Usman228811:montization-kit:v1.9.1")
 }
 ```
 
@@ -188,41 +188,52 @@ fun initConsent(activity: Activity) {
 ```kotlin
 private fun showSplashAd(mContext: Activity) {
 
-        animator?.cancel()
         AdKit.splashAdController.initSplashInterstitial(
-            activity = mContext,
-            loadAndShow = false, 
-            placementKey = "splash_inter",
-            adIdKey = "splash_inter",
-            interAdsConfigs = InterAdsConfigs(
-                openAdEnable = true,
-                interLoadingEnable = true,
-                openAdInstant = false,
-                openAdLoadingEnable = true,
-                splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
-            ),
-            listener = object : InterstitialControllerListener {
-                override fun onAdClosed(isInterShowed: Boolean) {
-		// it will be called if `loadAndShow` is true
-                    _state.update {
-                        it.copy(
-                            progress = 100,
-                        )
+                placementKey = "splash_inter",
+                adIdKey = "splash_inter",
+                loadAndShow = false,
+                activity = mContext,
+                interAdsConfigs = InterAdsConfigs(
+                    splashTime = firebaseHelper.getLong("splash_time", 16),
+                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
+                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
+                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
+                    // openAdInstant = false,
+                    // instantOpenAdTime = 8,
+                    // instantInterTime = 8
+                ),
+                listener = object : InterstitialControllerListener {
+                    override fun onAdShow() {
+                        super.onAdShow()
+                        isInterAdShowed = true
+                        animator?.cancel()
+                        viewModelScope.launch {
+                            _state.update { it.copy(progress = 100) }
+                        }
                     }
-                    sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
-                }
+                    override fun onAdClosed(isInterShowed: Boolean) {
 
-                override fun onAdLoaded() {
-                    super.onAdLoaded()
-		// it will be called if `loadAndShow` is false
-                    _state.update {
-                        it.copy(
-                            onAdLoaded = true,
-                        )
+						// it will be called if `loadAndShow` is true
+
+                        animator?.cancel()
+                        _state.update {
+                            it.copy(progress = 100, moveToMain = true)
+                        }
+                    }
+                    override fun onAdLoaded() {
+                        super.onAdLoaded()
+
+						// it will be called if `loadAndShow` is false
+
+                        _state.update {
+                            it.copy(
+                                onAdLoaded = true,
+                            )
+                        }
                     }
                 }
-            }
-        )
+            )
+        
     }
 
 /*
@@ -231,10 +242,9 @@ Whether the ad is available or not, it will always trigger onAdClosed
 */
 
 
-fun showSplashInter(activity: Activity){
+fun showSplashInterOnClick(activity: Activity){
         splashAdController.showInterstitial(
             activity = activity,
-            enable = true,
             object :InterstitialControllerListener{
                 override fun onAdClosed(isInterShowed: Boolean) {
                     sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
@@ -983,11 +993,12 @@ data class SplashScreenState(
     val moveToMain: Boolean = false,
     val isPurchased: Boolean = false,
     val runSplash: Boolean = false,
+	val onAdLoaded: Boolean = false,
     val progress: Int = 0
 )
 
-class SplashViewModel(
-    private val prefHelper: PrefHelper
+
+class SplashScreenViewModel(
 ) : ViewModel() {
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
@@ -1061,7 +1072,7 @@ class SplashViewModel(
                 firebaseHelper.apply {
                     configFetched.collectLatest {
                         try {
-                            assignRemoteValues(this)
+//                            assignRemoteValues(this)
                             runSplash()
                         } catch (e: Exception) {
                             runSplash()
@@ -1105,7 +1116,7 @@ class SplashViewModel(
     private fun fetchFirebase() {
         if (state.value.fireBaseFetch.not()) {
             _state.update { it.copy(fireBaseFetch = true) }
-            firebaseHelper.fetchRemoteValues(isDebug = isDebug)
+            firebaseHelper.fetchRemoteValues(isDebug = BuildConfig.DEBUG)
         }
     }
 
@@ -1131,27 +1142,19 @@ class SplashViewModel(
         }
     }
 
-    fun showSplashAd(mContext: Activity) {
+    fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-            when (LANG_APPEAR.toInt()) {
-                0 -> {}
-                1 -> {
-                    if (!prefHelper.langAppeared) {
-                        preLoadNative(mContext)
-                    }
-                }
-                2 -> preLoadNative(mContext)
-            }
             AdKit.splashAdController.initSplashInterstitial(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
+                loadAndShow = false,
                 activity = mContext,
                 interAdsConfigs = InterAdsConfigs(
- 		    splashTime = AdKit.firebaseHelper.getLong("splash_time",16),
-                    openAdEnable = AdKit.firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
-                    interLoadingEnable = AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
-                    openAdLoadingEnable = AdKit.firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
+                    splashTime = firebaseHelper.getLong("splash_time", 16),
+                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
+                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
+                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
                     // openAdInstant = false,
                     // instantOpenAdTime = 8,
                     // instantInterTime = 8
@@ -1171,6 +1174,14 @@ class SplashViewModel(
                             it.copy(progress = 100, moveToMain = true)
                         }
                     }
+                    override fun onAdLoaded() {
+                        super.onAdLoaded()
+                        _state.update {
+                            it.copy(
+                                onAdLoaded = true,
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -1178,17 +1189,23 @@ class SplashViewModel(
 
     fun resumeSplashAd(activity: Activity) {
         if (!isInterAdShowed && isInterAdCalled) {
-            AdKit.splashAdController.resumeAd(activity, true)
+            AdKit.splashAdController.resumeAd(activity)
         }
     }
 
-    private fun preLoadNative(mContext: Activity) {
-        AdKit.preLoadNative.preLoadNativeAd(
-            mContext = mContext,
-            nativeControllerConfig = NativeControllerConfig(
-                placementKey = "native_language_splash",
-                adIdKey = "native_language_splash"
-            )
+    fun showSplashOnClick(activity: Activity){
+        splashAdController.showInterstitial(
+            activity = activity,
+            object :InterstitialControllerListener{
+                override fun onAdClosed(isInterShowed: Boolean) {
+                    _state.update {
+                        it.copy(
+                            moveToMain = true,
+                        )
+                    }
+                }
+
+            }
         )
     }
 
@@ -1205,35 +1222,41 @@ class SplashViewModel(
 ## Splash Screen Implementation
 
 ```kotlin
-val activity = LocalActivity.current as Activity
-val state by splashViewModel.state.collectAsState()
-val lifecycleOwner = LocalLifecycleOwner.current
-val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
-    splashViewModel.initConsent(activity)
-})
+val factory = remember { SplashScreenViewModelFactory() }
+    val splashViewModel: SplashScreenViewModel = viewModel(factory = factory)
+    val activity = LocalActivity.current as Activity
+    val state by splashViewModel.state.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val launcher = AdKitInAppUpdateFlowResultLauncher(onFail = {
+        splashViewModel.initConsent(activity)
+    })
 
-LaunchedEffect(Unit) {
-    splashViewModel.checkForUpdate(activity, launcher)
-    splashViewModel.observeLifecycle(lifecycleOwner)
-}
-
-LaunchedEffect(key1 = state.runSplash) {
-    if (state.runSplash) {
-        splashViewModel.showSplashAd(activity)
+    LaunchedEffect(Unit) {
+        splashViewModel.checkForUpdate(activity, launcher)
+        splashViewModel.observeLifecycle(lifecycleOwner)
     }
-}
 
-LaunchedEffect(key1 = state.moveToMain) {
-    if (state.moveToMain) {
-        gotoMain()
+    LaunchedEffect(key1 = state.runSplash) {
+        if (state.runSplash) {
+            splashViewModel.initSplashAd(activity)
+        }
     }
-}
 
-LaunchedEffect(state.isAppResumed) {
-    if (state.isAppResumed) {
-        splashViewModel.resumeSplashAd(activity)
+    LaunchedEffect(key1 = state.moveToMain) {
+        if (state.moveToMain) {
+            moveToNext()
+        }
     }
-}
+
+    LaunchedEffect(state.isAppResumed) {
+        if (state.isAppResumed) {
+            splashViewModel.resumeSplashAd(activity)
+        }
+    }
+
+    SplashScreenContent(state = state, showAd = {
+        splashViewModel.showSplashOnClick(activity)
+    })
 ```
 
 ---
