@@ -108,6 +108,12 @@ class SubscriptionRepositoryImpl private constructor(
                 )
                 .setProductDetailsParamsList(list)
                 .build()
+            if (subscriptionClient.launchBillingFlow(
+                    mActivity!!, flowParams
+                ).responseCode == BillingClient.BillingResponseCode.OK
+            ) {
+//                JavaUtils.sendAnalytics(context, "SUBSCRIBE_UPDATE_CLICK")
+            }
         } catch (ignored: Exception) {
         }
     }

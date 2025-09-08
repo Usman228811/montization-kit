@@ -13,8 +13,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.showToast
@@ -23,12 +21,10 @@ import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -59,7 +55,7 @@ class BillingRepositoryImpl private constructor(
     private val _productPriceFlow = MutableStateFlow(PurchasePriceModel())
 
 
-    private val _appPurchased = Channel<Boolean>()
+    private val _appPurchased = MutableStateFlow(false)
 
     private var purchaseSku: ProductDetails? = null
     private lateinit var billingClient: BillingClient
@@ -75,7 +71,7 @@ class BillingRepositoryImpl private constructor(
     }
 
     override fun appPurchased(): Flow<Boolean> {
-        return _appPurchased.receiveAsFlow()
+        return _appPurchased.asStateFlow()
     }
 
     private val isBillingClientInitialized: Boolean
@@ -191,7 +187,7 @@ class BillingRepositoryImpl private constructor(
         adKitPref.isAppPurchased = isPurchased
         if (isPurchased) {
 //            context.userAnalytics("Premium_buy_successful")
-            coroutineScope.launch { _appPurchased.send(true) }
+            coroutineScope.launch { _appPurchased.value = true }
         }
     }
 
