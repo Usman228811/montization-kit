@@ -44,6 +44,7 @@ class AdsCustomLayoutHelper private constructor() {
     private var smallNativeShimmer: Int? = null
 
     private var smallNativeBannerShimmer: Int? = null
+    private var bannerShimmer: Int? = null
 
 
     fun setNativeCustomLayouts(
@@ -55,6 +56,7 @@ class AdsCustomLayoutHelper private constructor() {
         smallNativeShimmer: Int? = null,
         smallNativeBannerShimmer: Int? = null,
         splitNativeShimmer: Int? = null,
+        bannerShimmer: Int? = null,
     ) {
         setBigNative(
             bigNative = bigNativeLayout,
@@ -72,6 +74,7 @@ class AdsCustomLayoutHelper private constructor() {
             splitNative = splitNativeLayout,
             splitNativeShimmer = splitNativeShimmer
         )
+        this.bannerShimmer = bannerShimmer
     }
 
     private fun setBigNative(bigNative: Int?, bigNativeShimmer: Int?) {
@@ -110,6 +113,9 @@ class AdsCustomLayoutHelper private constructor() {
     }
     fun getSmallNativeBannerShimmer(): Int? {
         return smallNativeBannerShimmer
+    }
+    fun getBannerShimmer(): Int? {
+        return bannerShimmer
     }
 
 

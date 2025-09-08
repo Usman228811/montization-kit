@@ -57,7 +57,10 @@ fun addShimmerLayout(
             R.layout.small_native_banner_layout
         )
 
-        AdType.BANNER -> R.layout.banner_layout
+        AdType.BANNER -> getFirstNonNull(
+            customLayoutHelper?.getBannerShimmer(),
+            R.layout.banner_layout
+        )
     }
 
     val shimmerContainer = LayoutInflater.from(context)
