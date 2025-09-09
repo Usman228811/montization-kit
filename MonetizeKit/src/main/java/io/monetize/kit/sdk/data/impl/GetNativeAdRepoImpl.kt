@@ -12,6 +12,7 @@ import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
@@ -23,18 +24,17 @@ class GetNativeAdRepoImpl private constructor(
 ) : GetNativeAdRepo {
 
     private var largeNativeAd: Any? = null
-    private var loadNewAd: Boolean = false
     private var isAdLoadCalled: Boolean = false
     private var isRequesting: Boolean = false
     private var adFrame: LinearLayout? = null
     private var model: NativeAdSingleModel? = null
+    private lateinit var remoteNativeAdConfig: NativeAdConfig
     private var adType: AdType = AdType.SMALL_BOTTOM_BUTTON
     private lateinit var mContext: Activity
-    private lateinit var nativeControllerConfig: NativeControllerConfig
+//    private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var onFail: (() -> Unit)? = null
     private var onAdClick: (() -> Unit)? = null
-    private var isAdEnable: Boolean = true
 
 
     companion object {
@@ -58,20 +58,24 @@ class GetNativeAdRepoImpl private constructor(
             return
         }
 
-        this.nativeControllerConfig = nativeControllerConfig
+//        this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
         this.onFail = onFail
         this.adFrame = adFrame
         this.onAdClick = onAdClick
         AdKit.firebaseHelper.apply {
-            adType = AdType.entries.filter {
-                it.type == getLong(
-                    "${nativeControllerConfig.placementKey}_adType",
-                    nativeControllerConfig.adType.toLong()
-                ).toInt()
+//            adType = AdType.entries.filter {
+//                it.type == getLong(
+//                    "${nativeControllerConfig.placementKey}_adType",
+//                    nativeControllerConfig.adType.toLong()
+//                ).toInt()
+//            }[0]
+//            loadNewAd = getBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
+//            isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
+            remoteNativeAdConfig = getNativeAds(nativeControllerConfig)
+            adType =  AdType.entries.filter {
+                it.type == remoteNativeAdConfig.ad_type
             }[0]
-            loadNewAd = getBoolean("${nativeControllerConfig.placementKey}_loadNewAd", false)
-            isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         }
         isAdLoadCalled = true
 
@@ -147,7 +151,7 @@ class GetNativeAdRepoImpl private constructor(
     private fun loadSingleNativeAd() {
         try {
             if (isAdLoadCalled) {
-                if (adFrame == null || !isAdEnable || adKitPref.isAppPurchased) {
+                if (adFrame == null || remoteNativeAdConfig.enabled.not() || adKitPref.isAppPurchased) {
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
@@ -199,9 +203,9 @@ class GetNativeAdRepoImpl private constructor(
                                         })
                                         nativeAdController.populateNativeAd(
                                             context = mContext,
-                                            nativeControllerConfig = nativeControllerConfig,
+                                            remoteNativeAdConfig = remoteNativeAdConfig,
                                             adFrame = adFrame,
-                                            loadNewAd = loadNewAd,
+                                            loadNewAd = remoteNativeAdConfig.loadNewAd,
                                             populateCallback = { ad ->
                                                 isRequesting = false
                                                 if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
@@ -221,7 +225,7 @@ class GetNativeAdRepoImpl private constructor(
                                     }
                                 } else {
                                     addNativeAdView(
-                                        nativeControllerConfig = nativeControllerConfig,
+                                        remoteNativeAdConfig = remoteNativeAdConfig,
                                         adsCustomLayoutHelper = nativeCustomLayoutHelper,
                                         adType = adType,
                                         context = mContext,
@@ -236,15 +240,6 @@ class GetNativeAdRepoImpl private constructor(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-        }
-    }
-
-    fun requestNewNativeId(stopNextRequest: Boolean) {
-        if (isAdEnable) {
-            loadNewAd = !stopNextRequest
-            if (!isRequesting) {
-                loadSingleNativeAd()
-            }
         }
     }
 }

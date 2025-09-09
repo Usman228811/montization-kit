@@ -10,6 +10,7 @@ import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
@@ -28,7 +29,7 @@ class NativeAdSingleController {
     private var canRequestLargeAd = true
     private var largeAndSmallNativeAd: NativeAd? = null
     private var adControllerListener: AdControllerListener? = null
-    private lateinit var nativeControllerConfig: NativeControllerConfig
+    private lateinit var remoteNativeAdConfig: NativeAdConfig
     private var isAdEnable = true
     private var onAdClick:(() ->Unit) ?= null
 
@@ -61,7 +62,7 @@ class NativeAdSingleController {
 
                     val builder = AdLoader.Builder(
                         context,
-                        AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
+                        AdKit.nativeIdManager.getNextNativeId(placement = remoteNativeAdConfig.adIdKey)
                             ?: ""
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
@@ -111,7 +112,7 @@ class NativeAdSingleController {
 
     fun populateNativeAd(
         context: Context,
-        nativeControllerConfig: NativeControllerConfig,
+        remoteNativeAdConfig: NativeAdConfig,
         adFrame: LinearLayout,
         loadNewAd: Boolean = true,
         populateCallback: (NativeAd) -> Unit,
@@ -119,21 +120,17 @@ class NativeAdSingleController {
 
     ) {
         this.onAdClick = onAdClick
-        this.isAdEnable =
-            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
-        this.nativeControllerConfig = nativeControllerConfig
+        this.isAdEnable = remoteNativeAdConfig.enabled
+        this.remoteNativeAdConfig = remoteNativeAdConfig
         if (isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
                 try {
                     try {
                         addNativeAdView(
-                            nativeControllerConfig = nativeControllerConfig,
+                            remoteNativeAdConfig = remoteNativeAdConfig,
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
                             adType = AdType.entries.filter { entries ->
-                                entries.type == AdKit.firebaseHelper.getLong(
-                                    "${nativeControllerConfig.placementKey}_adType",
-                                    nativeControllerConfig.adType.toLong()
-                                ).toInt()
+                                entries.type == remoteNativeAdConfig.ad_type
                             }[0],
                             context = context,
                             adFrame = adFrame,

@@ -56,7 +56,7 @@ class AdKitSplashAdController private constructor(
                     splashInterstitialManager?.showInterstitial(activity, it)
                 }
             } else {
-                closeCallBack()
+                it.onAdClosed(false)
             }
         }
     }

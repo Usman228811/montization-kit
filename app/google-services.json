@@ -1,21 +1,22 @@
 {
   "project_info": {
-    "project_number": "247304139028",
-    "project_id": "prank-sound-571d4",
-    "storage_bucket": "prank-sound-571d4.firebasestorage.app"
+    "project_number": "608228744936",
+    "firebase_url": "https://test-app-6f44c.firebaseio.com",
+    "project_id": "test-app-6f44c",
+    "storage_bucket": "test-app-6f44c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:247304139028:android:a51b2cd16b325dbc2d1201",
+        "mobilesdk_app_id": "1:608228744936:android:dd0f0eb40cc0047e",
         "android_client_info": {
-          "package_name": "com.fart.funny.pranks.sounds"
+          "package_name": "com.example.gpsapp"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAkoPyiY6TdZWQXIXKgPNsLso53lhwzy-E"
+          "current_key": "AIzaSyAVgwBjnKwzq-0HXdd-jvH0N6yobykiaPE"
         }
       ],
       "services": {

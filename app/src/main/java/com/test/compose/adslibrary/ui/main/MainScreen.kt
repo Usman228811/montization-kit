@@ -1,7 +1,6 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -19,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +57,29 @@ fun MainScreen(
         })
     }
 
+    LaunchedEffect(Unit) {
+//        val native_ad_1 = AdKit.firebaseHelper.getString("native_home", "")
+//        val native_ad_2 = AdKit.firebaseHelper.getString("subscription_native", "")
+//        Log.d("usman", "native_ad_1: $native_ad_1")
+//        Log.d("usman", "native_ad_2: $native_ad_2")
+//
+//
+//        val ad1Json = JSONObject(native_ad_1)
+//        val ad2Json = JSONObject(native_ad_2)
+//
+//        val isAd1Enabled = ad1Json.getBoolean("enabled")
+//        val ad1UnitId = ad1Json.getString("ad_unit_id")
+//        val ad1Type = ad1Json.getString("ad_type")
+//        val ad1Refresh = ad1Json.getInt("refresh_interval")
+//
+//        Log.d("usman", "ad1Json: $ad1Json")
+//        Log.d("usman", "ad2Json: $ad2Json")
+//        Log.d("usman", "isAd1Enabled: $isAd1Enabled")
+//        Log.d("usman", "ad1UnitId: $ad1UnitId")
+//        Log.d("usman", "ad1Type: $ad1Type")
+//        Log.d("usman", "ad1Refresh: $ad1Refresh")
+    }
+
 
     Column(
         modifier = Modifier
@@ -71,7 +94,7 @@ fun MainScreen(
                 adIdKey = "home_inter",
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed(isInterShowed: Boolean) {
-                        Log.d("iooioi", "onAdClosed: $isInterShowed")
+                        gotoSubscription()
                     }
                 }
 

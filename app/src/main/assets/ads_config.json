@@ -1,0 +1,30 @@
+{
+  "native_ads": {
+    "home_native": {
+      "enabled": true,
+      "ad_unit_id":"ca-app-pub-xxxxxxxxxxxxxxxx/1111111111",
+      "ad_type": 1,
+      "cta_color": null,
+      "bg_color": null
+    },
+    "subscription_native": {
+      "enabled": true,
+      "ad_unit_id": "ca-app-pub-xxxxxxxxxxxxxxxx/2222222222",
+      "ad_type": 2,
+      "refresh_interval": 60
+    }
+  },
+  "banner_ads": {
+    "home_banner": {
+      "enabled": true,
+      "ad_unit_id": "ca-app-pub-xxxxxxxxxxxxxxxx/3333333333",
+      "size": "BANNER"
+    }
+  },
+  "app_open_ads": {
+    "splash_open": {
+      "enabled": true,
+      "ad_unit_id": "ca-app-pub-xxxxxxxxxxxxxxxx/4444444444"
+    }
+  }
+}

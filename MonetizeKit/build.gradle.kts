@@ -94,6 +94,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.android.billingclient:billing-ktx:8.0.0")
+    implementation("com.google.code.gson:gson:2.13.1")
 
 
 

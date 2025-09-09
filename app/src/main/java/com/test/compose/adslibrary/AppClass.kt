@@ -46,6 +46,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
+            jsonFileName = "ads_config.json",
             defaultRemoteConfigBuilder = {
                 bool("exit_native_isAdEnable", true)
                 bool("splash_inter_isAdEnable", true)

@@ -107,6 +107,7 @@ object AdKit {
         overAllNativeCtaColor: String = "",
         overAllNativeBgColor: String = "",
         defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
+        jsonFileName:String,
         resetInterKeyForCommonAds: String? = null,
         onInitSdk: () -> Unit
     ) {
@@ -121,7 +122,8 @@ object AdKit {
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
-        firebaseHelper.setDefaultRemoteConfigs(configDefaults)
+//        firebaseHelper.setDefaultRemoteConfigs(configDefaults)
+        firebaseHelper.setDefaultsFromAssets(context, jsonFileName)
         preLoadNative = AdKitNativePreloadHelper.getInstance()
         preloadBanner = AdKitBannerPreloadHelper.getInstance()
         splashAdController = AdKitSplashAdController.getInstance()

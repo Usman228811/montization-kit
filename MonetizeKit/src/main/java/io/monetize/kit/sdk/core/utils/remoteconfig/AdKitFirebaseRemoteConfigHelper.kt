@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.remoteconfig
 
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -11,9 +12,16 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import com.google.gson.Gson
+import io.monetize.kit.sdk.core.utils.adtype.AdsConfig
+import io.monetize.kit.sdk.core.utils.adtype.AppOpenAdConfig
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import org.json.JSONObject
 
 class AdKitFirebaseRemoteConfigHelper private constructor() {
 
@@ -113,6 +121,26 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
+    fun setDefaultsFromAssets(context: Context, fileName: String) {
+        try {
+            val inputStream = context.assets.open(fileName)
+            val jsonString = inputStream.bufferedReader().use { it.readText() }
+            val jsonObject = JSONObject(jsonString)
+            val builder = RemoteConfigBuilder.getInstance()
+
+            val defaultsMap = mutableMapOf<String, Any>()
+            jsonObject.keys().forEach { key ->
+                defaultsMap[key] = jsonObject.get(key)
+            }
+            Log.d("usman", "setDefaultsFromAssets: $defaultsMap")
+            builder.configMap = defaultsMap
+
+            Firebase.remoteConfig.setDefaultsAsync(defaultsMap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun setDefaultRemoteConfigs(
         configDefaults: Map<String, Any>
     ) {
@@ -190,6 +218,46 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         } catch (e: Exception) {
             def
         }
+    }
+
+    fun FirebaseRemoteConfig.getAdsConfig(): AdsConfig? {
+        val jsonString = getString("ads_config")
+        return try {
+            Gson().fromJson(jsonString, AdsConfig::class.java)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
+    fun getNativeAds(nativeControllerConfig: NativeControllerConfig): NativeAdConfig {
+        return try {
+            val map = Firebase.remoteConfig.getAdsConfig()?.native_ads ?: emptyMap()
+            if (map.isNotEmpty()) {
+                map[nativeControllerConfig.placementKey] ?: run {
+                    defaultNativeAd(nativeControllerConfig)
+                }
+            } else {
+                defaultNativeAd(nativeControllerConfig)
+            }
+        } catch (e: Exception) {
+            defaultNativeAd(nativeControllerConfig)
+        }
+    }
+
+    private fun defaultNativeAd(nativeControllerConfig: NativeControllerConfig) = NativeAdConfig(
+        ad_type = nativeControllerConfig.adType,
+        cta_color = nativeControllerConfig.ctaColor,
+        bg_color = nativeControllerConfig.bgColor,
+    )
+
+    fun FirebaseRemoteConfig.getBannerAds(): Map<String, BannerAdConfig> {
+        return getAdsConfig()?.banner_ads ?: emptyMap()
+    }
+
+    fun FirebaseRemoteConfig.getAppOpenAds(): Map<String, AppOpenAdConfig> {
+        return getAdsConfig()?.app_open_ads ?: emptyMap()
     }
 
 

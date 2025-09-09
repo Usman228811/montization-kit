@@ -18,7 +18,7 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.AdType
-import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
 
@@ -85,7 +85,7 @@ fun addShimmerLayout(
 
 
 fun addNativeAdView(
-    nativeControllerConfig: NativeControllerConfig,
+    remoteNativeAdConfig: NativeAdConfig,
     adsCustomLayoutHelper: AdsCustomLayoutHelper,
     adType: AdType,
     context: Context,
@@ -111,7 +111,7 @@ fun addNativeAdView(
                 if (isForCustom) {
                     val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
                     populateUnifiedNativeJazzAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = sdkLayout.nativeAdView,
                         isCustom = true,
@@ -120,7 +120,7 @@ fun addNativeAdView(
                 } else {
                     val nativeAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
                     populateUnifiedNativeJazzAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = nativeAdView
                     )
@@ -156,7 +156,7 @@ fun addNativeAdView(
                 if (isForCustom) {
                     val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = sdkLayout.nativeAdView,
                         isCustom = true,
@@ -166,7 +166,7 @@ fun addNativeAdView(
                 } else {
                     val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = defaultAdView,
                         isForSmall = true
@@ -210,7 +210,7 @@ fun addNativeAdView(
                 if (isForCustom) {
                     val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = sdkLayout.nativeAdView,
                         isCustom = true,
@@ -220,7 +220,7 @@ fun addNativeAdView(
                 } else {
                     val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
                     populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
+                        remoteNativeAdConfig = remoteNativeAdConfig,
                         nativeAd = ad,
                         adView = defaultAdView,
                         isForSmall = isForSmall
@@ -243,7 +243,7 @@ fun addNativeAdView(
 }
 
 fun populateUnifiedNativeAdViewUnified(
-    nativeControllerConfig: NativeControllerConfig,
+    remoteNativeAdConfig: NativeAdConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
     isCustom: Boolean = false,
@@ -252,11 +252,7 @@ fun populateUnifiedNativeAdViewUnified(
 ) {
     try {
         val colorHex = listOf(
-            AdKit.firebaseHelper.getString(
-                "${nativeControllerConfig.placementKey}_bgColor",
-                nativeControllerConfig.bgColor
-            ),
-            nativeControllerConfig.bgColor,
+            remoteNativeAdConfig.bg_color,
             AdKit.firebaseHelper.getString(
                 "overAllNativeBgColor",
                 AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
@@ -316,11 +312,7 @@ fun populateUnifiedNativeAdViewUnified(
 
         try {
             val colorHex = listOf(
-                AdKit.firebaseHelper.getString(
-                    "${nativeControllerConfig.placementKey}_ctaColor",
-                    nativeControllerConfig.ctaColor
-                ),
-                nativeControllerConfig.ctaColor,
+                remoteNativeAdConfig.cta_color,
                 AdKit.firebaseHelper.getString(
                     "overAllNativeCtaColor",
                     AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
@@ -350,7 +342,7 @@ fun populateUnifiedNativeAdViewUnified(
 
 
 fun populateUnifiedNativeJazzAdViewUnified(
-    nativeControllerConfig: NativeControllerConfig,
+    remoteNativeAdConfig: NativeAdConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
     isCustom: Boolean = false,
@@ -359,11 +351,7 @@ fun populateUnifiedNativeJazzAdViewUnified(
 
     try {
         val colorHex = listOf(
-            AdKit.firebaseHelper.getString(
-                "${nativeControllerConfig.placementKey}_bgColor",
-                nativeControllerConfig.bgColor
-            ),
-            nativeControllerConfig.bgColor,
+            remoteNativeAdConfig.bg_color,
             AdKit.firebaseHelper.getString(
                 "overAllNativeBgColor",
                 AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
@@ -419,11 +407,7 @@ fun populateUnifiedNativeJazzAdViewUnified(
 
         try {
             val colorHex = listOf(
-                AdKit.firebaseHelper.getString(
-                    "${nativeControllerConfig.placementKey}_ctaColor",
-                    nativeControllerConfig.ctaColor
-                ),
-                nativeControllerConfig.ctaColor,
+                remoteNativeAdConfig.cta_color,
                 AdKit.firebaseHelper.getString(
                     "overAllNativeCtaColor",
                     AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()

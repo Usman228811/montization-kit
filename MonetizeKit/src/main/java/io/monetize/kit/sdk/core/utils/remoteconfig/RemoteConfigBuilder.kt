@@ -1,7 +1,7 @@
 package io.monetize.kit.sdk.core.utils.remoteconfig
 
 class RemoteConfigBuilder private constructor() {
-    val configMap = mutableMapOf<String, Any>()
+    var configMap = mutableMapOf<String, Any>()
 
 
     companion object {
