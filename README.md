@@ -269,7 +269,7 @@ fun showSplashInterOnClick(activity: Activity){
 Add these to default or remote configs:
 - `{$placementkey}_isAdEnable`
 - `{$placementkey}_adType`
-- `{$placementkey}_loadNewAd`
+- `{$adIdKey}_loadNewAd`
 - `{$placementkey}_ctaColor`
 - `{$placementkey}_bgColor`
 
@@ -625,7 +625,7 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
-- `{$placementkey}_loadNewAd`
+- `{$adIdKey}_loadNewAd`
 - `{$placementkey}_isCollapsible`
 - `{$placementkey}_isCollapsibleTop`
 
