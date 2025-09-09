@@ -70,7 +70,7 @@ class GetNativeAdRepoImpl private constructor(
                     nativeControllerConfig.adType.toLong()
                 ).toInt()
             }[0]
-            loadNewAd = getBoolean("${nativeControllerConfig.placementKey}_loadNewAd", false)
+            loadNewAd = getBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
             isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         }
         isAdLoadCalled = true

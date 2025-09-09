@@ -150,7 +150,7 @@ class BaseSingleBannerActivity private constructor(
                                     adIdKey = bannerControllerConfig.adIdKey,
                                     enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
                                     adFrame = adFrame,
-                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_loadNewAd", false),
+                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.adIdKey}_loadNewAd", false),
                                     populateCallback = { ad ->
                                         isRequesting = false
                                         if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
