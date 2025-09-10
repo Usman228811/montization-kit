@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,7 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
@@ -40,9 +45,9 @@ fun SubscriptionScreen(
             subscriptionViewModel.loadProducts(
                 activity,
                 listOf(
-                    "weekly_subscription2",
-                    "monthly1_subscription",
-                    "yearly_subscription"
+                    "monthly",
+                    "yearly",
+                    "yearly"
                 )
             )
         }
@@ -50,7 +55,7 @@ fun SubscriptionScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(0)
+                subscriptionViewModel.updateSelectedButtonPos(activity,0)
 
             }
         ) {
@@ -62,7 +67,7 @@ fun SubscriptionScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
 
-                subscriptionViewModel.updateSelectedButtonPos(1)
+                subscriptionViewModel.updateSelectedButtonPos(activity,1)
             }
         ) {
             Text(
@@ -73,7 +78,7 @@ fun SubscriptionScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
 
-                subscriptionViewModel.updateSelectedButtonPos(2)
+                subscriptionViewModel.updateSelectedButtonPos(activity,2)
             }
         ) {
             Text(
@@ -88,6 +93,25 @@ fun SubscriptionScreen(
         ) {
             Text(
                 text = state.buttonText
+            )
+        }
+
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp), thickness = 5.dp)
+
+        Text(
+            text = state.oneTimePrice,
+            color = Color.Black,
+            fontSize = 18.sp
+        )
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                subscriptionViewModel.purchaseProduct(activity)
+            }
+        ) {
+            Text(
+                text = "Purchase One Time"
             )
         }
 

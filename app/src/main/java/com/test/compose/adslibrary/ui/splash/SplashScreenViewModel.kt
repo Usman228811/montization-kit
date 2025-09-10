@@ -45,11 +45,12 @@ class SplashScreenViewModel(
     private var animator: ValueAnimator? = null
 
     init {
+        AdKit.purchaseHelper.initBilling("android.test.purchased")
         AdKit.analytics.postAnalytics("Splash_launch")
         AdKit.splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        purchaseHelper.initBilling("one_time_purchase_id")
+//        purchaseHelper.initBilling("one_time_purchase_id")
     }
 
     private fun onResume() {

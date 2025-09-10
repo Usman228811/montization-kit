@@ -47,7 +47,8 @@ class SubscriptionRepositoryImpl private constructor(
     private var isBillingReady: Boolean = false
     private lateinit var subscriptionClient: BillingClient
     private var subscriptionListener: SubscriptionListener? = null
-    private var mActivity: Activity? = null
+
+    //    private var mActivity: Activity? = null
     private var productIds: List<String>? = null
     private var subscribeProductToken = ""
 
@@ -58,37 +59,33 @@ class SubscriptionRepositoryImpl private constructor(
             false
         } else subscriptionClient.isReady
 
-    override fun purchaseProduct(skuDetails: ProductDetails) {
+    override fun purchaseProduct(activity: Activity, skuDetails: ProductDetails) {
         try {
             if (isBillingClientDead) {
                 return
             }
-            if (mActivity == null) {
-                return
+            skuDetails.subscriptionOfferDetails?.get(0)?.let {
+                val offerToken = it.offerToken
+                subscriptionClient.launchBillingFlow(
+                    activity,
+                    BillingFlowParams.newBuilder().setProductDetailsParamsList(
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(skuDetails)
+                                .setOfferToken(offerToken)
+                                .build()
+                        )
+                    ).build()
+                ).responseCode
             }
-            val offerToken = skuDetails.subscriptionOfferDetails?.get(0)!!.offerToken
-            subscriptionClient.launchBillingFlow(
-                mActivity!!,
-                BillingFlowParams.newBuilder().setProductDetailsParamsList(
-                    listOf(
-                        BillingFlowParams.ProductDetailsParams.newBuilder()
-                            .setProductDetails(skuDetails)
-                            .setOfferToken(offerToken)
-                            .build()
-                    )
-                ).build()
-            ).responseCode
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    override fun changeSubscriptionPlan(skuDetails: ProductDetails) {
+    override fun changeSubscriptionPlan(activity: Activity, skuDetails: ProductDetails) {
         try {
             if (isBillingClientDead) {
-                return
-            }
-            if (mActivity == null) {
                 return
             }
             val offerToken = skuDetails.subscriptionOfferDetails?.get(0)!!.offerToken
@@ -109,7 +106,7 @@ class SubscriptionRepositoryImpl private constructor(
                 .setProductDetailsParamsList(list)
                 .build()
             if (subscriptionClient.launchBillingFlow(
-                    mActivity!!, flowParams
+                    activity, flowParams
                 ).responseCode == BillingClient.BillingResponseCode.OK
             ) {
 //                JavaUtils.sendAnalytics(context, "SUBSCRIBE_UPDATE_CLICK")
@@ -127,7 +124,7 @@ class SubscriptionRepositoryImpl private constructor(
         }
     }
 
-    override fun querySubscriptionProducts(productIds: List<String>) {
+    override fun querySubscriptionProducts(activity: Activity, productIds: List<String>) {
         this.productIds = productIds
         if (isBillingClientDead) {
             return
@@ -145,7 +142,7 @@ class SubscriptionRepositoryImpl private constructor(
             subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
                 if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
                     val p1 = details.productDetailsList
-                    mActivity?.runOnUiThread {
+                    activity.runOnUiThread {
                         if (p1.isNotEmpty()) {
                             subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1))
                         } else {
@@ -153,7 +150,7 @@ class SubscriptionRepositoryImpl private constructor(
                         }
                     }
                 } else {
-                    mActivity?.runOnUiThread {
+                    activity.runOnUiThread {
                         subscriptionListener?.subscriptionItemNotFound()
                     }
                 }
@@ -174,9 +171,9 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
 
-    private fun resetAllPurchases() {
+    private fun resetAllPurchases(activity: Activity) {
         subscribeProductToken = ""
-        mActivity?.runOnUiThread {
+        activity.runOnUiThread {
             subscriptionListener?.updatePref("")
         }
     }
@@ -187,7 +184,7 @@ class SubscriptionRepositoryImpl private constructor(
         } else ""
     }
 
-    override fun querySubscriptionHistory() {
+    override fun querySubscriptionHistory(activity: Activity) {
         if (isBillingClientDead) {
             return
         }
@@ -208,53 +205,53 @@ class SubscriptionRepositoryImpl private constructor(
                                             )
                                         ) {
                                             if (purchase.isAcknowledged) {
-                                                setSubscribed(purchase)
-                                                mActivity?.runOnUiThread {
+                                                setSubscribed(activity, purchase)
+                                                activity.runOnUiThread {
                                                     subscriptionListener?.onSubscriptionPurchasedFetched()
                                                 }
                                             } else {
-                                                acknowledgedPurchase(purchase)
+                                                acknowledgedPurchase(activity, purchase)
                                             }
                                             return
                                         }
                                     }
                                 }
                             }
-                            resetAllPurchases()
-                            mActivity?.runOnUiThread {
+                            resetAllPurchases(activity)
+                            activity.runOnUiThread {
                                 subscriptionListener?.onSubscriptionPurchasedFetched()
                             }
                         }
 
                     })
             } else {
-                resetAllPurchases()
+                resetAllPurchases(activity)
             }
         }
     }
 
-    override fun setSubscribed(purchase: Purchase) {
+    override fun setSubscribed(activity: Activity, purchase: Purchase) {
         subscribeProductToken = purchase.purchaseToken
-        mActivity?.runOnUiThread {
+        activity.runOnUiThread {
             subscriptionListener?.updatePref(getSku(purchase.products))
         }
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, list: List<Purchase>?) {
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-            if (!list.isNullOrEmpty()) {
-                for (purchase in list) {
-                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                        checkSubscriptionsId(getSku(purchase.products))
-                    ) {
-                        mActivity?.runOnUiThread {
-                            subscriptionListener?.checkPurchaseStatus(purchase)
-                        }
-                        break
-                    }
-                }
-            }
-        }
+//        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+//            if (!list.isNullOrEmpty()) {
+//                for (purchase in list) {
+//                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
+//                        checkSubscriptionsId(getSku(purchase.products))
+//                    ) {
+//                        mActivity?.runOnUiThread {
+//                            subscriptionListener?.checkPurchaseStatus(purchase)
+//                        }
+//                        break
+//                    }
+//                }
+//            }
+//        }
     }
 
     override fun getSelectedSubscriptionId(selectedPosition: Int): String {
@@ -301,7 +298,7 @@ class SubscriptionRepositoryImpl private constructor(
         return false
     }
 
-    override fun acknowledgedPurchase(purchase: Purchase) {
+    override fun acknowledgedPurchase(activity: Activity, purchase: Purchase) {
         if (isBillingClientDead) {
             return
         }
@@ -310,8 +307,8 @@ class SubscriptionRepositoryImpl private constructor(
             .build()
         subscriptionClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult: BillingResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                setSubscribed(purchase)
-                mActivity?.runOnUiThread {
+                setSubscribed(activity, purchase)
+                activity.runOnUiThread {
                     subscriptionListener?.onSubscriptionPurchasedFetched()
                 }
             }
@@ -322,21 +319,20 @@ class SubscriptionRepositoryImpl private constructor(
         activity: Activity,
         listener: SubscriptionListener?
     ) {
-        this.mActivity = activity
         this.subscriptionListener = listener
         if (isBillingReady) {
             subscriptionListener?.onBillingInitialized()
         } else {
-            setupConnection()
+            setupConnection(activity)
         }
     }
 
 
-    init {
-        setupConnection()
-    }
+//    init {
+//        setupConnection()
+//    }
 
-    private fun setupConnection() {
+    private fun setupConnection(activity: Activity) {
         try {
             if (!::subscriptionClient.isInitialized) {
                 subscriptionClient = BillingClient
@@ -356,7 +352,7 @@ class SubscriptionRepositoryImpl private constructor(
                         override fun onBillingSetupFinished(billingResult: BillingResult) {
                             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                                 isBillingReady = true
-                                mActivity?.runOnUiThread {
+                                activity.runOnUiThread {
                                     subscriptionListener?.onBillingInitialized()
                                 }
                             }
