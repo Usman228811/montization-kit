@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.9.4")
+    implementation("com.github.Usman228811:montization-kit:v1.9.5")
 }
 ```
 
@@ -924,18 +924,18 @@ class SubscriptionViewModel : ViewModel() {
     }
 
     fun loadProducts(activity: Activity, list: List<String>) {
-        AdKit.subscriptionHelper.loadProducts(activity, list)
+        AdKit.subscriptionHelper.initBilling(activity, list)
     }
 
     private fun getBillingPrice(productId: String, billingPeriod: String): String {
         return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
     }
 
-    fun updateSelectedButtonPos(selectedButtonPos: Int) {
+    fun updateSelectedButtonPos(activity:Activity, selectedButtonPos: Int) {
         _state.update {
             it.copy(selectedButtonPos = selectedButtonPos)
         }
-        AdKit.subscriptionHelper.querySubscriptionProducts()
+        AdKit.subscriptionHelper.querySubscriptionProducts(activity)
     }
 
     fun purchase(activity: Activity) {
@@ -957,7 +957,7 @@ LaunchedEffect(Unit) {
 // Example: Weekly subscription button
 Button(
     modifier = Modifier.fillMaxWidth(),
-    onClick = { subscriptionViewModel.updateSelectedButtonPos(0) }
+    onClick = { subscriptionViewModel.updateSelectedButtonPos(activity, 0) }
 ) {
     Text(text = "Weekly ${state.weeklyPrice}")
 }
