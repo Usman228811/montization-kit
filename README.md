@@ -1,6 +1,6 @@
 # Monetization Kit Documentation
 
-A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app purchases, subscriptions, and analytics.
+A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app review, in-app purchases, subscriptions, and analytics.
 
 ---
 
@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.9.6")
+    implementation("com.github.Usman228811:montization-kit:v1.9.7")
 }
 ```
 
@@ -794,6 +794,23 @@ override fun onCleared() {
     super.onCleared()
     AdKit.inAppUpdateManager.unRegisterLister()
 }
+```
+
+---
+
+## In-App Review
+
+```kotlin
+ AdKit.inAppReviewManager.startReview(activity, object : ReviewListener {
+                override fun onFail() {
+					//contiue to app
+                }
+
+                override fun onComplete() {
+					//contiue to app
+                }
+
+            })
 ```
 
 ---
