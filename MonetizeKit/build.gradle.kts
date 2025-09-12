@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "v1.9.6"
+version = "v1.9.7"
 
 
 afterEvaluate {
@@ -52,7 +52,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "v1.9.6"
+                version = "v1.9.7"
             }
         }
     }
@@ -94,6 +94,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.android.billingclient:billing-ktx:8.0.0")
+    implementation("com.google.android.play:review-ktx:2.0.2")
 
 
 

@@ -158,9 +158,11 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
             onDismissRequest()
         }) {
 
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
 
             AdKitNativeAdViewDialog(
                 nativeControllerConfig = NativeControllerConfig(

@@ -16,6 +16,7 @@ import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
+import io.monetize.kit.sdk.core.utils.in_app_review.AdKitInAppReviewManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
@@ -31,6 +32,9 @@ object AdKit {
         private set
 
     lateinit var inAppUpdateManager: AdKitInAppUpdateManager
+        private set
+
+    lateinit var inAppReviewManager: AdKitInAppReviewManager
         private set
 
 
@@ -118,6 +122,7 @@ object AdKit {
         interHelper = AdKitInterHelper.getInstance()
         rewardHelper = AdKitRewardHelper.getInstance()
         inAppUpdateManager = AdKitInAppUpdateManager.getInstance()
+        inAppReviewManager = AdKitInAppReviewManager.getInstance()
         internetController = AdKitInternetController.getInstance(context)
         consentManager = AdKitConsentManager.getInstance(context)
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
