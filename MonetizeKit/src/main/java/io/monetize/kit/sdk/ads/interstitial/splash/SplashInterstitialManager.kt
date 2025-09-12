@@ -93,10 +93,6 @@ internal class SplashInterstitialManager private constructor(
                     return
                 }
                 canRequestAd = false
-//                if (isDebug) {
-//                    context.showToast("Splash Ad Calling")
-//
-//                }
                 val adId = AdKit.interIdManager.getNextInterId(adIdKey)
                 if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
@@ -108,9 +104,6 @@ internal class SplashInterstitialManager private constructor(
                             super.onAdLoaded(splashAd)
                             interstitialAd = splashAd
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Splash Ad Loaded")
-//                            }
 
                             if (isHandlerRunning) {
                                 removeCallBacks()
@@ -125,9 +118,6 @@ internal class SplashInterstitialManager private constructor(
                             super.onAdFailedToLoad(loadAdError)
                             interstitialAd = null
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Splash Ad Failed: ${loadAdError.code}")
-//                            }
                             handleException()
                         }
                     })
@@ -210,9 +200,6 @@ internal class SplashInterstitialManager private constructor(
                 }
 
                 interstitialAd != null -> {
-//                    if (isDebug) {
-//                        activity.showToast("Splash Ad Showing")
-//                    }
                     setFullScreenContentCallback(activity)
                     mInterstitialControllerListener?.onAdShow()
                     interstitialAd?.show(activity)
@@ -306,7 +293,6 @@ internal class SplashInterstitialManager private constructor(
                     AdKit.analytics.postAnalytics("Splash_inter_cross")
                     hideProgressAndNullAd(true)
                     super.onAdDismissedFullScreenContent()
-//                    activity.userAnalytics("Splash_Ad_Close")
                 }
 
                 override fun onAdShowedFullScreenContent() {
@@ -314,13 +300,11 @@ internal class SplashInterstitialManager private constructor(
                     IS_INTERSTITIAL_Ad_SHOWING = true
                     interstitialAd = null
                     AdKit.analytics.postAnalytics("Splash_inter_show")
-//                    activity.userAnalytics("Splash_Ad_Show")
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     super.onAdFailedToShowFullScreenContent(adError)
                     hideProgressAndNullAd()
-//                    activity.userAnalytics("Splash_Ad_Show_Failed")
                 }
 
             }

@@ -4,6 +4,7 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.text.TextUtils
 import androidx.core.net.toUri
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -18,6 +19,8 @@ import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import io.monetize.kit.sdk.R
+import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 
@@ -64,7 +67,7 @@ class SubscriptionRepositoryImpl private constructor(
             if (isBillingClientDead) {
                 return
             }
-            skuDetails.subscriptionOfferDetails?.get(0)?.let {
+            val billingResult = skuDetails.subscriptionOfferDetails?.get(0)?.let {
                 val offerToken = it.offerToken
                 subscriptionClient.launchBillingFlow(
                     activity,
@@ -76,10 +79,24 @@ class SubscriptionRepositoryImpl private constructor(
                                 .build()
                         )
                     ).build()
-                ).responseCode
+                )
             }
+
+            billingResult?.let {
+                if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                    context.showToast(activity.getString(R.string.try_again))
+                }
+            }
+
+        } catch (e: IntentSender.SendIntentException) {
+            activity.let {
+                context.showToast(activity.getString(R.string.try_again))
+            }
+
         } catch (e: Exception) {
-            e.printStackTrace()
+            activity.let {
+                context.showToast(activity.getString(R.string.try_again))
+            }
         }
     }
 
@@ -111,7 +128,15 @@ class SubscriptionRepositoryImpl private constructor(
             ) {
 //                JavaUtils.sendAnalytics(context, "SUBSCRIBE_UPDATE_CLICK")
             }
-        } catch (ignored: Exception) {
+        } catch (e: IntentSender.SendIntentException) {
+            activity.let {
+                context.showToast(activity.getString(R.string.try_again))
+            }
+
+        } catch (e: Exception) {
+            activity.let {
+                context.showToast(activity.getString(R.string.try_again))
+            }
         }
     }
 

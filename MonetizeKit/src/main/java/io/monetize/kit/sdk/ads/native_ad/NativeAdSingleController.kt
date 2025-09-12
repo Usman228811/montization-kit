@@ -54,10 +54,7 @@ class NativeAdSingleController {
                         return
                     }
                     canRequestLargeAd = false
-//                    if (BuildConfig.DEBUG) {
-//                        Toast.makeText(context, "large native ad calling", Toast.LENGTH_SHORT)
-//                            .show()
-//                    }
+
 
                     val builder = AdLoader.Builder(
                         context,
@@ -66,9 +63,6 @@ class NativeAdSingleController {
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
                         canRequestLargeAd = true
-//                        if (BuildConfig.DEBUG) {
-////                            Constants.showToast(context, "native ad loaded $admobNativeIdCount  ")
-//                        }
                         largeAndSmallNativeAd = newNativeAd
                         adControllerListener?.onAdLoaded()
                     }
@@ -89,13 +83,6 @@ class NativeAdSingleController {
                             super.onAdFailedToLoad(p0)
                             canRequestLargeAd = true
                             largeAndSmallNativeAd = null
-//                            if (BuildConfig.DEBUG) {
-//                                Toast.makeText(
-//                                    context,
-//                                    "large native load failed ==> code " + loadAdError.code,
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
-//                            }
                             adControllerListener?.onAdFailed()
                         }
                     }).build()
@@ -104,7 +91,7 @@ class NativeAdSingleController {
             } else {
                 adControllerListener?.onAdFailed()
             }
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
     }
 

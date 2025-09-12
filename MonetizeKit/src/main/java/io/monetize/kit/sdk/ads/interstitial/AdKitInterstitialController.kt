@@ -236,10 +236,6 @@ class InterstitialController private constructor(
                     return
                 }
                 canRequestAd = false
-//                if (isDebug) {
-//                    context.showToast("Inter calling")
-//                }
-//                "Common Inter Called".logIt()
                 InterstitialAd.load(
                     context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
                     AdRequest.Builder().build(),
@@ -248,20 +244,12 @@ class InterstitialController private constructor(
                             super.onAdLoaded(interstitialAd)
                             admobInterAd = interstitialAd
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Inter loaded")
-//                            }
-//                            "Common Inter Loaded".logIt()
                         }
 
                         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                             super.onAdFailedToLoad(loadAdError)
                             admobInterAd = null
                             canRequestAd = true
-//                            if (isDebug) {
-//                                context.showToast("Inter failed: ${loadAdError.code}")
-//                            }
-//                            "Common Inter Failed: ${loadAdError.code} and message: ${loadAdError.message}".logIt()
                         }
                     })
             }
@@ -297,19 +285,11 @@ class InterstitialController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-//                if (isDebug) {
-////                    "Common Inter Called".logIt()
-//                    context.showToast("Inter Ad Called")
-//                }
                     InterstitialAd.load(
                         context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
                         AdRequest.Builder().build(),
                         object : InterstitialAdLoadCallback() {
                             override fun onAdLoaded(p0: InterstitialAd) {
-//                            if (isDebug) {
-////                                "Common Inter Loaded".logIt()
-//                                context.showToast("Inter Ad Loaded")
-//                            }
                                 super.onAdLoaded(p0)
                                 admobInterAd = p0
                                 canRequestAd = true
@@ -321,10 +301,6 @@ class InterstitialController private constructor(
                             }
 
                             override fun onAdFailedToLoad(p0: LoadAdError) {
-//                            if (isDebug) {
-////                                "Common Inter Ad Failed: ${p0.code}".logIt()
-//                                context.showToast("Inter Ad Failed")
-//                            }
                                 canRequestAd = true
                                 handlerRemoveCallback(context)
                             }
@@ -388,7 +364,6 @@ class InterstitialController private constructor(
                 super.onAdDismissedFullScreenContent()
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null
-//                activity.userAnalytics("${fromScreen}_Inter_Close")
                 if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
                     loadInter(activity)
                 }
@@ -398,19 +373,14 @@ class InterstitialController private constructor(
                 super.onAdShowedFullScreenContent()
                 IS_INTERSTITIAL_Ad_SHOWING = true
                 admobInterAd = null
-//                activity.userAnalytics("${fromScreen}_Inter_Show")
             }
 
             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                 dismissLoadingDialog()
                 mInterstitialControllerListener?.onAdClosed()
                 super.onAdFailedToShowFullScreenContent(p0)
-//                activity.userAnalytics("${fromScreen}_Inter_Show_Failed")
                 admobInterAd = null
                 IS_INTERSTITIAL_Ad_SHOWING = false
-//                if (loadNewNextAd && key.isEmpty()) {
-//                    preLoadInter(activity)
-//                }
             }
 
         }

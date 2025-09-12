@@ -53,18 +53,12 @@ class AdKitBannerController {
         context: Activity, enable: Boolean
     ) {
         try {
-//            val adId = 0
-//            if (adId != -1) {
             if (enable && !AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds) {
                 if (adView == null) {
                     if (!canRequestBannerAd) {
                         return
                     }
                     canRequestBannerAd = false
-//                        if (BuildConfig.DEBUG) {
-//                            Constants.showToast(context, "banner ad calling")
-//                        }
-
                     if (!::bannerSize.isInitialized) {
                         bannerSize = getAdSize(context)
                     }
@@ -77,10 +71,6 @@ class AdKitBannerController {
                         override fun onAdLoaded() {
                             super.onAdLoaded()
                             canRequestBannerAd = true
-//                                if (BuildConfig.DEBUG) {
-//                                    Toast.makeText(context, "banner ad loaded", Toast.LENGTH_SHORT)
-//                                        .show()
-//                                }
                             adView = bannerAd
                             adControllerListener?.onAdLoaded()
                         }
@@ -94,14 +84,6 @@ class AdKitBannerController {
                             super.onAdFailedToLoad(p0)
                             canRequestBannerAd = true
                             adView = null
-//                                if (BuildConfig.DEBUG) {
-//
-//                                    Toast.makeText(
-//                                        context,
-//                                        "banner load failed ==> code " + p0.code,
-//                                        Toast.LENGTH_SHORT
-//                                    ).show()
-//                                }
                             adControllerListener?.onAdFailed()
                         }
                     }
@@ -109,10 +91,7 @@ class AdKitBannerController {
             } else {
                 adControllerListener?.onAdFailed()
             }
-//            } else {
-//                adControllerListener?.onAdFailed()
-//            }
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
     }
 

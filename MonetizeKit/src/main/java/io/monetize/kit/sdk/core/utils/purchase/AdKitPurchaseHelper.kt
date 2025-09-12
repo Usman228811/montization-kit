@@ -41,17 +41,3 @@ class AdKitPurchaseHelper private constructor(
         }
     }
 }
-
-//class AdKitPurchaseHelper(
-//    private val init: InitBillingUseCase,
-//    private val purchase: PurchaseProductUseCase,
-//    private val billingRepository: BillingRepository
-//) {
-//
-//    val productPriceFlow = billingRepository.productPriceFlow()
-//    val appPurchased = billingRepository.appPurchased()
-//
-//    fun initBilling(productId: String) = init(productId)
-//
-//    fun purchaseProduct(activity: Activity?) = purchase(activity)
-//}

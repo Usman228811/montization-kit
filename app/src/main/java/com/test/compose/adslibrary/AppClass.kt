@@ -43,6 +43,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
             ),
             mapOfBannerIds = mapOf(
+                "premium_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
                 "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
@@ -58,6 +59,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 string("overAllNativeBgColor", "#964B00")
                 bool("home_banner_isAdEnable", true)
                 bool("home_banner_isCollapsible", false)
+                bool("premium_banner_isAdEnable", true)
                 bool("subscription_native_isAdEnable", true)
                 long("home_native_adType", 1L)
                 long("subscription_native_adType", 1L)

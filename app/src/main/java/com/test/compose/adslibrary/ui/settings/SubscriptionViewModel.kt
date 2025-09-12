@@ -37,9 +37,9 @@ class SubscriptionViewModel(
     val state = _state.asStateFlow()
 
     private val subscriptionMap = mapOf(
-        0 to "monthly",
-        1 to "yearly",
-        2 to "yearly"
+        0 to "weekly_subscription2",
+        1 to "monthly1_subscription",
+        2 to "yearly_subscription"
     )
 
     private fun selectedId() = subscriptionMap[state.value.selectedButtonPos]
@@ -60,9 +60,9 @@ class SubscriptionViewModel(
                 AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
                     _state.update {
                         it.copy(
-                            weeklyPrice = getBillingPrice("monthly", "P1W"),
-                            monthlyPrice = getBillingPrice("yearly", "P1M"),
-                            yearlyPrice = getBillingPrice("yearly", "P1Y"),
+                            weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
+                            monthlyPrice = getBillingPrice("monthly1_subscription", "P1M"),
+                            yearlyPrice = getBillingPrice("yearly_subscription", "P1Y"),
                         )
                     }
                 }

@@ -209,11 +209,6 @@ class GetNativeAdRepoImpl private constructor(
                                                         null
                                                     )
                                                     largeNativeAd = ad
-//                                            event?.setFromScreen(
-//                                                adIdNativeReference.replace(
-//                                                    "_NATIVE_ID", ""
-//                                                )
-//                                            )
                                                 }
                                             }, onAdClick = {
                                                 onAdClick?.invoke()

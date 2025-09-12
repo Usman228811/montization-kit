@@ -125,11 +125,6 @@ class BaseCollapsableBannerActivity private constructor(
                                 adFrame.visibility = View.VISIBLE
                                 adFrame.removeAllViews()
                                 adFrame.addView(bannerAd)
-//                                if (BuildConfig.DEBUG) {
-//                                    Toast.makeText(
-//                                        mContext, "collapse banner ad loaded", Toast.LENGTH_SHORT
-//                                    ).show()
-//                                }
                             }
 
                             override fun onAdClicked() {
@@ -148,13 +143,6 @@ class BaseCollapsableBannerActivity private constructor(
                                 bannerAd = null
                                 adFrame.removeAllViews()
                                 adFrame.visibility = View.GONE
-//                                if (BuildConfig.DEBUG) {
-//                                    Toast.makeText(
-//                                        mContext,
-//                                        "collapse banner load failed ==> code " + p0.code,
-//                                        Toast.LENGTH_SHORT
-//                                    ).show()
-//                                }
                             }
                         }
                     } else {
