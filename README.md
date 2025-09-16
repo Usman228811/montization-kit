@@ -117,16 +117,17 @@ AdKit.init(
 
         // Set custom native ad layouts (optional)
         AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
-            bigNativeLayout = R.layout.large_native_layout_custom,
-            bigNativeShimmer = R.layout.large_native_layout_shimmer,
+            largeNativeLayout = R.layout.large_native_layout_custom,
+            largeNativeShimmer = R.layout.large_native_layout_shimmer,
             // As per your requirement
-            smallNativeLayout,
-			smallNativeBannerLayout,
-            splitNativeLayout,
-            smallNativeShimmer,
-            splitNativeShimmer,
-			smallNativeBannerShimmer,
-			bannerShimmer,
+            largeNativeLayout
+			smallNativeLayout
+			smallNativeShimmer
+			smallNativeMiniLayout
+			smallNativeMiniShimmer
+			smallNativeMediaViewLayout
+			smallNativeMediaViewShimmer
+			bannerShimmer
 
         )
 
@@ -262,9 +263,9 @@ fun showSplashInterOnClick(activity: Activity){
 
 ### Ad Types
 - `0`: Large native ad
-- `1`: Split native ad
+- `1`: Small native with media view ad
 - `2`: Small native ad
-- `3`: Small native Banner ad
+- `3`: Small native mini ad
 
 ### Remote Config Values
 Add these to default or remote configs:
