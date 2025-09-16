@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v1.9.8")
+    implementation("com.github.Usman228811:montization-kit:v2.0.0")
 }
 ```
 
@@ -69,6 +69,16 @@ plugins {
 
 Initialize the SDK in your `Application` class's `onCreate` method:
 
+
+### Ad Types
+These configs should be added to your default remote config to control ad behavior in the plugin:
+- `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading. 
+- `INTER_INSTANT_TIME`- Time window to show instant Interstitial ad
+- `OPEN_AD_LOADING_ENABLE`- Enable/disable App-Open-Ad loading.
+- `IS_OPEN_AD_INSTANT`- Enable/disable instant App-Open-Ad.
+- `OPEN_AD_INSTANT_TIME`- Time window to show instant App-Open-Ad.
+- `OPEN_AD_ENABLE`- Enable/disable App-Open-Ad completely.
+
 ```kotlin
 AdKit.init(
     isDebug = BuildConfig.DEBUG,
@@ -93,22 +103,58 @@ AdKit.init(
 	mapOfRewardIds = mapOf(
        "reward_id" to getString(com.plantcare.ai.plant.framework.R.string.chat_reward_id),
     ),
-    // overAllNativeBgColor = "#FFEB3B", 
-    // overAllNativeCtaColor = "#FFEB3B",
     defaultRemoteConfigBuilder = {
-        // Add default values to Remote Config
-        string("overAllNativeCtaColor", "#FFFFFF") // Change overall native CTA color
-        string("overAllNativeBgColor", "#964B00")  // Change overall native background color
-        bool("inter_btn_plant_isAdEnable", true)
-        bool("inter_btn_plant_isInterInstant", true)
-        bool("home_native_isAdEnable", true)
-        bool("home_banner_isAdEnable", true)
-        bool("home_banner_isCollapsible", true)
-        bool("subscription_native_isAdEnable", false)
-        long("home_native_adType", 1L)
-        long("subscription_native_adType", 1L)
-        long("SPLASH_TIME", 16)
-    },
+
+                bool("OPEN_AD_ENABLE", true)
+                bool("IS_OPEN_AD_INSTANT", false)
+                bool("INTER_LOADING_ENABLE", true)
+                bool("OPEN_AD_LOADING_ENABLE", true)
+                long("OPEN_AD_INSTANT_TIME", 8)
+                long("INTER_INSTANT_TIME", 8)
+
+                native("exit_native"){
+                    enable(true)
+                    ctaColor("")
+                    bgColor("")
+                    adType(1)
+                }
+                native("home_native"){
+                    enable(true)
+                    ctaColor("#FFFFFF")
+                    adType(2)
+                }
+                native("subscription_native"){
+                    enable(true)
+                    ctaColor("")
+                    bgColor("")
+                    adType(1)
+                }
+
+                fullScreen("splash_inter"){
+                    enable(true)
+                }
+                fullScreen("home_inter"){
+                    enable(true)
+                    instantInter(true)
+                }
+                fullScreen("inter_btn_plant"){
+                    enable(true)
+                }
+                fullScreen("inter_btn_plant"){
+                    enable(true)
+                    instantReward(true)
+                }
+                banner("home_banner"){
+//                    enable(true)
+                    collapsible(true)
+                    isTop(false)
+                }
+                banner("premium_banner"){
+                    enable(true)
+                    collapsible(false)
+                }
+                overAllNativeColor("#964B00", "#FF03DAC5")
+            },
     onInitSdk = {
         // Optional: Disable toast notifications for analytics
         AdKit.analytics.showToast(false)
@@ -196,15 +242,7 @@ private fun showSplashAd(mContext: Activity) {
                 adIdKey = "splash_inter",
                 loadAndShow = false,
                 activity = mContext,
-                interAdsConfigs = InterAdsConfigs(
-                    splashTime = firebaseHelper.getLong("splash_time", 16),
-                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
-                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
-                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
-                    // openAdInstant = false,
-                    // instantOpenAdTime = 8,
-                    // instantInterTime = 8
-                ),
+				splashTime = firebaseHelper.getLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()
@@ -1169,16 +1207,8 @@ class SplashScreenViewModel(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
                 loadAndShow = false,
+				splashTime = firebaseHelper.getLong("splash_time", 16),
                 activity = mContext,
-                interAdsConfigs = InterAdsConfigs(
-                    splashTime = firebaseHelper.getLong("splash_time", 16),
-                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
-                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
-                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
-                    // openAdInstant = false,
-                    // instantOpenAdTime = 8,
-                    // instantInterTime = 8
-                ),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()
