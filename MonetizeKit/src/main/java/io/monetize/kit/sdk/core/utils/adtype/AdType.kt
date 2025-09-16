@@ -2,9 +2,9 @@ package io.monetize.kit.sdk.core.utils.adtype
 
 enum class AdType(val type: Int) {
     LARGE_NATIVE(0),
-    JAZZ_LEFT_BOTTOM_CTA(1),
-    SMALL_BOTTOM_BUTTON(2),
-    SMALL_NATIVE_BANNER(3),
+    SMALL_NATIVE_MEDIA_VIEW(1),
+    SMALL_NATIVE(2),
+    SMALL_NATIVE_MINI(3),
     BANNER(4),
 }
 

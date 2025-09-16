@@ -25,7 +25,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+//                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
                 "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
@@ -64,16 +64,16 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 long("home_native_adType", 1L)
                 long("subscription_native_adType", 1L)
             },
-//            overAllNativeBgColor =
-//            overAllNativeCtaColor = "#FFEB3B",
+            overAllNativeBgColor = "#1B38B4",
+            overAllNativeCtaColor = "#FFEB3B",
             onInitSdk = {
 
                 AdKit.initializer.disableAds(false)
                 AdKit.analytics.showToast(false)
                 AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
-                    bigNativeLayout = R.layout.large_native_layout_custom,
+                    largeNativeLayout = R.layout.large_native_layout_custom,
                     smallNativeLayout = R.layout.small_native_layout_custom,
-                    splitNativeLayout = R.layout.large_native_right_jazz_custom,
+                    smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
                 )
 
                 AdKit.openAdManager.excludeComposeRoutesFromOpenAd(

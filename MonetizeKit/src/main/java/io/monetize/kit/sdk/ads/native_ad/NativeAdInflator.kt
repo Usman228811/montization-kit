@@ -27,41 +27,25 @@ private fun getFirstNonNull(vararg values: Int?): Int {
         ?: throw IllegalArgumentException("All layout values are null")
 }
 
+private val defaultLayouts = mapOf(
+    AdType.LARGE_NATIVE to R.layout.large_native_layout,
+    AdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
+    AdType.SMALL_NATIVE to R.layout.small_native_layout,
+    AdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
+    AdType.BANNER to R.layout.banner_layout
+)
+
+
 fun addShimmerLayout(
     context: Context,
     adFrame: LinearLayout, adType: AdType,
     customLayoutHelper: AdsCustomLayoutHelper? = null
 ) {
-    val shimmerLayoutId = when (adType) {
-        AdType.LARGE_NATIVE -> getFirstNonNull(
-            customLayoutHelper?.getBigNativeShimmer(),
-            customLayoutHelper?.getBigNative(),
-            R.layout.large_native_layout
-        )
-
-        AdType.JAZZ_LEFT_BOTTOM_CTA -> getFirstNonNull(
-            customLayoutHelper?.getSplitNativeShimmer(),
-            customLayoutHelper?.getSplitNative(),
-            R.layout.large_native_right_jazz
-        )
-
-        AdType.SMALL_BOTTOM_BUTTON -> getFirstNonNull(
-            customLayoutHelper?.getSmallNativeShimmer(),
-            customLayoutHelper?.getSmallNative(),
-            R.layout.small_native_layout
-        )
-
-        AdType.SMALL_NATIVE_BANNER -> getFirstNonNull(
-            customLayoutHelper?.getSmallNativeBannerShimmer(),
-            customLayoutHelper?.getSmallNativeBanner(),
-            R.layout.small_native_banner_layout
-        )
-
-        AdType.BANNER -> getFirstNonNull(
-            customLayoutHelper?.getBannerShimmer(),
-            R.layout.banner_layout
-        )
-    }
+    val shimmerLayoutId = getFirstNonNull(
+        customLayoutHelper?.getShimmer(adType),
+        customLayoutHelper?.getLayout(adType),
+        defaultLayouts[adType]
+    )
 
     val shimmerContainer = LayoutInflater.from(context)
         .inflate(R.layout.shimmer_layout, adFrame, false) as ShimmerFrameLayout
@@ -94,155 +78,49 @@ fun addNativeAdView(
 ) {
 
     try {
-        when (adType) {
-            AdType.JAZZ_LEFT_BOTTOM_CTA -> {
-                val isForCustom = adsCustomLayoutHelper.getSplitNative() != null
-                val layoutId =
-                    adsCustomLayoutHelper.getSplitNative() ?: R.layout.large_native_right_jazz
-                val adView =
-                    LayoutInflater.from(context).inflate(layoutId, adFrame, false)
+        val (layoutId, isCustom) = adsCustomLayoutHelper.getLayout(adType)?.let { it to true }
+            ?: (defaultLayouts[adType] to false)
+        layoutId?.let {
 
-                try {
-                    adView.parent?.let { parent ->
-                        (parent as ViewGroup).removeAllViews()
-                    }
-                } catch (_: Exception) {
-                }
-                if (isForCustom) {
-                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeJazzAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = sdkLayout.nativeAdView,
-                        isCustom = true,
-                        sdkLayout = sdkLayout
-                    )
-                } else {
-                    val nativeAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeJazzAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = nativeAdView
-                    )
-                }
-
-                adFrame.visibility = View.VISIBLE
-                try {
-                    adFrame.removeAllViews()
-                } catch (_: Exception) {
-                }
-                adFrame.addView(adView)
-
+            val adView = LayoutInflater.from(context).inflate(layoutId, adFrame, false)
+            adView.parent?.let { parent ->
+                (parent as ViewGroup).removeAllViews()
             }
 
-            AdType.SMALL_NATIVE_BANNER -> {
-                val isForCustom = adsCustomLayoutHelper.getSmallNativeBanner() != null
-
-                val adView = LayoutInflater.from(context).inflate(
-                    when {
-                        isForCustom -> adsCustomLayoutHelper.getSmallNativeBanner()!!
-                        else -> R.layout.small_native_banner_layout
-                    },
-                    adFrame,
-                    false
+            if (isCustom) {
+                val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
+                populateNativeAd(
+                    nativeControllerConfig = nativeControllerConfig,
+                    nativeAd = ad,
+                    adView = sdkLayout.nativeAdView,
+                    isCustom = true,
+                    customLayout = sdkLayout,
+                    adType = adType
                 )
-                try {
-                    adView.parent?.let { parent ->
-                        (parent as ViewGroup).removeAllViews()
-                    }
-                } catch (_: Exception) {
-                }
-
-                if (isForCustom) {
-                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = sdkLayout.nativeAdView,
-                        isCustom = true,
-                        customLayout = sdkLayout,
-                        isForSmall = true
-                    )
-                } else {
-                    val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = defaultAdView,
-                        isForSmall = true
-                    )
-                }
-
-                adFrame.visibility = View.VISIBLE
-                try {
-                    adFrame.removeAllViews()
-                } catch (_: Exception) {
-                }
-                adFrame.addView(adView)
+            } else {
+                val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
+                populateNativeAd(
+                    nativeControllerConfig = nativeControllerConfig,
+                    nativeAd = ad,
+                    adView = defaultAdView,
+                    adType = adType
+                )
             }
 
-
-            else -> {
-                val isForSmall = adType == AdType.SMALL_BOTTOM_BUTTON
-                val isForCustom = if (isForSmall) {
-                    adsCustomLayoutHelper.getSmallNative() != null
-                } else {
-                    adsCustomLayoutHelper.getBigNative() != null
-                }
-
-                val adView = LayoutInflater.from(context).inflate(
-                    when {
-                        isForSmall && isForCustom -> adsCustomLayoutHelper.getSmallNative()!!
-                        !isForSmall && isForCustom -> adsCustomLayoutHelper.getBigNative()!!
-                        isForSmall -> R.layout.small_native_layout
-                        else -> R.layout.large_native_layout
-                    },
-                    adFrame,
-                    false
-                )
-                try {
-                    adView.parent?.let { parent ->
-                        (parent as ViewGroup).removeAllViews()
-                    }
-                } catch (_: Exception) {
-                }
-
-                if (isForCustom) {
-                    val sdkLayout = adView.findViewById<SdkNativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = sdkLayout.nativeAdView,
-                        isCustom = true,
-                        customLayout = sdkLayout,
-                        isForSmall = isForSmall
-                    )
-                } else {
-                    val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
-                    populateUnifiedNativeAdViewUnified(
-                        nativeControllerConfig = nativeControllerConfig,
-                        nativeAd = ad,
-                        adView = defaultAdView,
-                        isForSmall = isForSmall
-                    )
-                }
-
-                adFrame.visibility = View.VISIBLE
-                try {
-                    adFrame.removeAllViews()
-                } catch (_: Exception) {
-                }
-                adFrame.addView(adView)
+            adFrame.apply {
+                visibility = View.VISIBLE
+                removeAllViews()
+                addView(adView)
             }
         }
 
+
     } catch (e: Exception) {
         e.printStackTrace()
-
     }
 }
 
-fun populateUnifiedNativeAdViewUnified(
+fun populateNativeLayout(
     nativeControllerConfig: NativeControllerConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
@@ -349,7 +227,131 @@ fun populateUnifiedNativeAdViewUnified(
 }
 
 
-fun populateUnifiedNativeJazzAdViewUnified(
+fun populateNativeAd(
+    nativeControllerConfig: NativeControllerConfig,
+    nativeAd: NativeAd,
+    adView: NativeAdView,
+    isCustom: Boolean = false,
+    customLayout: SdkNativeAdView? = null,
+    adType: AdType
+) {
+    try {
+        val colorHex = listOf(
+            AdKit.firebaseHelper.getString(
+                "${nativeControllerConfig.placementKey}_bgColor",
+                nativeControllerConfig.bgColor
+            ),
+            nativeControllerConfig.bgColor,
+            AdKit.firebaseHelper.getString(
+                "overAllNativeBgColor",
+                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+            ),
+            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+        ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+        colorHex?.toColorInt()?.let { colorInt ->
+            adView.setBackgroundColor(colorInt)
+        }
+    } catch (_: Exception) {
+
+    }
+
+    when (adType) {
+        AdType.LARGE_NATIVE, AdType.SMALL_NATIVE_MEDIA_VIEW -> {
+            val mediaView: MediaView? = if (isCustom) {
+                customLayout?.mediaView?.setupMediaView() as? MediaView
+            } else {
+                adView.findViewById(R.id.ad_media)
+            }
+
+            mediaView?.let {
+                adView.mediaView = it
+                it.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                    override fun onChildViewAdded(parent: View?, child: View?) {
+                        if (child is ImageView) {
+                            child.adjustViewBounds = true
+                            child.scaleType = ImageView.ScaleType.CENTER_CROP
+                        }
+                    }
+
+                    override fun onChildViewRemoved(parent: View?, child: View?) {}
+                })
+            }
+        }
+
+        else -> {
+
+        }
+    }
+
+
+    // 🔹 Common views
+    adView.headlineView = adView.findViewById(R.id.ad_headline)
+    adView.bodyView = adView.findViewById(R.id.ad_body)
+    val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
+    adView.callToActionView = button
+
+    // Only for large layouts (withMediaView)
+    if (adType != AdType.SMALL_NATIVE_MEDIA_VIEW) {
+        adView.iconView = adView.findViewById(R.id.ad_app_icon)
+    }
+
+    // Headline
+    (adView.headlineView as? TextView)?.apply {
+        text = nativeAd.headline ?: ""
+        setTextColor(Color.BLACK)
+    }
+
+    // Body
+    (adView.bodyView as? TextView)?.apply {
+        text = nativeAd.body ?: ""
+        visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
+        setTextColor(Color.BLACK)
+    }
+
+    (adView.callToActionView as? AppCompatButton)?.apply {
+        text = nativeAd.callToAction ?: ""
+        visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
+
+        try {
+            val colorHex = listOf(
+                AdKit.firebaseHelper.getString(
+                    "${nativeControllerConfig.placementKey}_ctaColor",
+                    nativeControllerConfig.ctaColor
+                ),
+                nativeControllerConfig.ctaColor,
+                AdKit.firebaseHelper.getString(
+                    "overAllNativeCtaColor",
+                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+                ),
+                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+            ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
+
+            colorHex?.toColorInt()?.let { colorInt ->
+                background?.let {
+                    ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(colorInt))
+                } ?: run {
+                    setBackgroundColor(colorInt)
+                }
+            }
+        } catch (_: Exception) {
+
+        }
+    }
+
+    if (adType != AdType.SMALL_NATIVE_MEDIA_VIEW) {
+        (adView.iconView as? ImageView)?.apply {
+            visibility = if (nativeAd.icon == null) View.GONE else View.VISIBLE
+            setImageDrawable(nativeAd.icon?.drawable)
+        }
+    }
+
+    // 🔹 Bind native ad
+    adView.setNativeAd(nativeAd)
+}
+
+
+fun populateSmallNativeMediaView(
     nativeControllerConfig: NativeControllerConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,

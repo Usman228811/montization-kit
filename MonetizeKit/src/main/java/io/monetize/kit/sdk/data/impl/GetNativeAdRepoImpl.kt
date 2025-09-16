@@ -28,7 +28,7 @@ class GetNativeAdRepoImpl private constructor(
     private var isRequesting: Boolean = false
     private var adFrame: LinearLayout? = null
     private var model: NativeAdSingleModel? = null
-    private var adType: AdType = AdType.SMALL_BOTTOM_BUTTON
+    private var adType: AdType = AdType.SMALL_NATIVE
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
