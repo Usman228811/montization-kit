@@ -24,7 +24,7 @@ class AdKitBannerPreloadHelper private constructor(
 
         if (AdKit.firebaseHelper.getBoolean(
                 "${bannerControllerConfig.placementKey}_isAdEnable",
-                true
+                false
             )
             && !AdKit.firebaseHelper.getBoolean(
                 "${bannerControllerConfig.placementKey}_isCollapsible",

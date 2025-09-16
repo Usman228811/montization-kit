@@ -25,7 +25,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-//                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
                 "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
@@ -44,28 +44,61 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             ),
             mapOfBannerIds = mapOf(
                 "premium_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
-                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
-//                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+//                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
+                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
             defaultRemoteConfigBuilder = {
-                bool("exit_native_isAdEnable", true)
-                bool("splash_inter_isAdEnable", true)
-                bool("inter_btn_plant_isAdEnable", true)
-                bool("inter_btn_plant_isInterInstant", true)
-                bool("inter_btn_plant_isRewardInstant", true)
-                bool("home_native_isAdEnable", true)
-                string("home_native_ctaColor", "#FF03DAC5")
-                string("overAllNativeCtaColor", "#FFFFFF")
-                string("overAllNativeBgColor", "#964B00")
-                bool("home_banner_isAdEnable", true)
-                bool("home_banner_isCollapsible", false)
-                bool("premium_banner_isAdEnable", true)
-                bool("subscription_native_isAdEnable", true)
-                long("home_native_adType", 1L)
-                long("subscription_native_adType", 1L)
+
+                bool("OPEN_AD_ENABLE", true)
+                bool("IS_OPEN_AD_INSTANT", false)
+                bool("INTER_LOADING_ENABLE", true)
+                bool("OPEN_AD_LOADING_ENABLE", true)
+                long("OPEN_AD_INSTANT_TIME", 8)
+                long("INTER_INSTANT_TIME", 8)
+
+                native("exit_native"){
+                    enable(true)
+                    ctaColor("")
+                    bgColor("")
+                    adType(1)
+                }
+                native("home_native"){
+                    enable(true)
+                    ctaColor("#FFFFFF")
+                    adType(2)
+                }
+                native("subscription_native"){
+                    enable(true)
+                    ctaColor("")
+                    bgColor("")
+                    adType(1)
+                }
+
+                fullScreen("splash_inter"){
+                    enable(true)
+                }
+                fullScreen("home_inter"){
+                    enable(true)
+                    instantInter(true)
+                }
+                fullScreen("inter_btn_plant"){
+                    enable(true)
+                }
+                fullScreen("inter_btn_plant"){
+                    enable(true)
+                    instantReward(true)
+                }
+                banner("home_banner"){
+//                    enable(true)
+                    collapsible(true)
+                    isTop(false)
+                }
+                banner("premium_banner"){
+                    enable(true)
+                    collapsible(false)
+                }
+                overAllNativeColor("#964B00", "#FF03DAC5")
             },
-            overAllNativeBgColor = "#1B38B4",
-            overAllNativeCtaColor = "#FFEB3B",
             onInitSdk = {
 
                 AdKit.initializer.disableAds(false)

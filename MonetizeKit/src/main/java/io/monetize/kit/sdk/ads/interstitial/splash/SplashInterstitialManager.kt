@@ -171,7 +171,7 @@ internal class SplashInterstitialManager private constructor(
     private fun adLoadingCheck(
         activity: Activity,
     ) {
-        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable == true) {
+        if (AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", false)) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 adLoadingDialog = AdLoadingDialog(activity)

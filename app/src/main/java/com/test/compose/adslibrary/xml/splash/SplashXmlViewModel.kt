@@ -7,7 +7,6 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -72,15 +71,7 @@ class SplashXmlViewModel : ViewModel() {
                 activity = activity,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
-                interAdsConfigs = InterAdsConfigs(
-                    openAdEnable = true,
-                    interLoadingEnable = true,
-                    openAdLoadingEnable = true,
-                    openAdInstant = true,
-                    instantOpenAdTime = 8,
-                    instantInterTime = 8,
-                    splashTime = AdKit.firebaseHelper.getLong("splash_time", 16)
-                ),
+                splashTime = AdKit.firebaseHelper.getLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdClosed(isInterShowed: Boolean) {
                         _state.update {

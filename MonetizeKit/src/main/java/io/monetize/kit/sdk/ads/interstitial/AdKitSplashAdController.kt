@@ -76,22 +76,16 @@ class AdKitSplashAdController private constructor(
         placementKey: String,
         adIdKey: String,
         loadAndShow: Boolean = true,
-        interAdsConfigs: InterAdsConfigs,
+        splashTime: Long,
         listener: InterstitialControllerListener?,
     ) {
         mInterstitialControllerListener = listener
         this.loadAndShow = loadAndShow
 
 
-        AdKit.initializer.initAdsConfigs(
-            interAdsConfigs = interAdsConfigs
-        )
+        AdKit.initializer.initAdsConfigs()
 
         isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
-        var time = interAdsConfigs.splashTime
-        if (time == 0L) {
-            time = 16L
-        }
 
         if (AdKit.adKitPref.isAppPurchased ||
             !isAdEnable ||
@@ -110,7 +104,7 @@ class AdKitSplashAdController private constructor(
                     placementKey = placementKey,
                     isAdEnable = isAdEnable,
                     adIdKey = adIdKey,
-                    time = time,
+                    time = splashTime,
                     loadAndShow = loadAndShow,
                     listener = mInterstitialControllerListener
                 )
@@ -121,7 +115,7 @@ class AdKitSplashAdController private constructor(
                     placementKey = placementKey,
                     isAdEnable = isAdEnable,
                     adIdKey = adIdKey,
-                    time = time,
+                    time = splashTime,
                     loadAndShow = loadAndShow,
                     listener = listener
                 )

@@ -25,8 +25,11 @@ class BaseSingleBannerActivity private constructor(
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
+
     private var onFail: (() -> Unit)? = null
     private var onAdClick: (() -> Unit)? = null
+
+    private var isAdEnable = false
 
     companion object {
 
@@ -51,6 +54,10 @@ class BaseSingleBannerActivity private constructor(
             }
             return
         }
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean(
+            "${bannerControllerConfig.placementKey}_isAdEnable",
+            false
+        )
         this.bannerControllerConfig = bannerControllerConfig
         this.mContext = mContext
         this.onFail = onFail
@@ -98,7 +105,7 @@ class BaseSingleBannerActivity private constructor(
     private fun loadSingleBannerAd() {
         if (isAdLoadCalled) {
             if (adFrame == null ||
-                AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() ||
+                isAdEnable.not() ||
                 AdKit.adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
@@ -128,6 +135,7 @@ class BaseSingleBannerActivity private constructor(
                                             loadSingleBannerAd()
                                         }
                                     }
+
                                     override fun onAdFailed() {
                                         onFail?.invoke()
                                         isRequesting = false
@@ -148,9 +156,12 @@ class BaseSingleBannerActivity private constructor(
                                     context = mContext,
                                     placementKey = bannerControllerConfig.placementKey,
                                     adIdKey = bannerControllerConfig.adIdKey,
-                                    enable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true),
+                                    enable = isAdEnable,
                                     adFrame = adFrame,
-                                    loadNewAd = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.adIdKey}_loadNewAd", false),
+                                    loadNewAd = AdKit.firebaseHelper.getBoolean(
+                                        "${bannerControllerConfig.adIdKey}_loadNewAd",
+                                        false
+                                    ),
                                     populateCallback = { ad ->
                                         isRequesting = false
                                         if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
@@ -158,7 +169,7 @@ class BaseSingleBannerActivity private constructor(
                                             bannerAd = ad as AdView
 
                                         }
-                                    }, onAdClick ={
+                                    }, onAdClick = {
                                         onAdClick?.invoke()
 
                                     }

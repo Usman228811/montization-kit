@@ -4,14 +4,6 @@ import io.monetize.kit.sdk.core.utils.adtype.AdType
 
 class AdsCustomLayoutHelper private constructor() {
 
-    private var overAllCtaColor = ""
-    private var overAllBgColor = ""
-
-    fun setOverAllBgColor(color: String) { overAllBgColor = color }
-    fun getOverAllBgColor(): String = overAllBgColor
-
-    fun setOverAllCtaColor(color: String) { overAllCtaColor = color }
-    fun getOverAllCtaColor(): String = overAllCtaColor
 
     private val layouts = mutableMapOf<AdType, Int?>()
     private val shimmers = mutableMapOf<AdType, Int?>()

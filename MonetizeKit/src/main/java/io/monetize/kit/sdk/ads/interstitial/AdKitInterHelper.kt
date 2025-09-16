@@ -9,17 +9,16 @@ class AdKitInterHelper private constructor(
     private var isAppInPause = false
     private var isInterInstant = false
     private var isAdEnable = false
-    private var interAdsConfigs: InterAdsConfigs? = null
+//    private var interAdsConfigs: InterAdsConfigs? = null
 
-
-    fun getInterAdsConfigs(): InterAdsConfigs? {
-        return interAdsConfigs
-    }
-
-    fun getInterInstant(): Boolean {
-        return isInterInstant
-
-    }
+//    fun getInterAdsConfigs(): InterAdsConfigs? {
+//        return interAdsConfigs
+//    }
+//
+//    fun getInterInstant(): Boolean {
+//        return isInterInstant
+//
+//    }
 
     companion object {
         @Volatile
@@ -35,11 +34,11 @@ class AdKitInterHelper private constructor(
     }
 
 
-    fun setInterAdsConfigs(
-        interAdsConfigs: InterAdsConfigs,
-    ) {
-        this.interAdsConfigs = interAdsConfigs
-    }
+//    fun setInterAdsConfigs(
+//        interAdsConfigs: InterAdsConfigs,
+//    ) {
+//        this.interAdsConfigs = interAdsConfigs
+//    }
 
     fun getAppInPause() = isAppInPause
 
@@ -59,9 +58,11 @@ class AdKitInterHelper private constructor(
         if (AdKit.initializer.getDisableAds()) {
             return
         }
-        this.isInterInstant =
-            AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+        AdKit.firebaseHelper.apply {
+            isInterInstant = getBoolean("${placementKey}_isInterInstant", false)
+            isAdEnable = getBoolean("${placementKey}_isAdEnable", false)
+        }
+
         if (isAdEnable.not()) {
             return
         }
@@ -108,7 +109,7 @@ class AdKitInterHelper private constructor(
         }
         this.isInterInstant =
             AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
             listener.onAdClosed()
             return
@@ -116,7 +117,7 @@ class AdKitInterHelper private constructor(
 
         if (AdKit.splashAdController.hasAd()) {
             AdKit.splashAdController.showInterstitial(
-                activity,  object : InterstitialControllerListener {
+                activity, object : InterstitialControllerListener {
                     override fun onAdClosed(isInterShowed: Boolean) {
                         listener.onAdClosed(isInterShowed)
                     }

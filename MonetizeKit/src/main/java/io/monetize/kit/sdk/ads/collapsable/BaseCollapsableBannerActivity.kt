@@ -73,7 +73,8 @@ class BaseCollapsableBannerActivity private constructor(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true).not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
+            if (AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable",
+                    false).not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE

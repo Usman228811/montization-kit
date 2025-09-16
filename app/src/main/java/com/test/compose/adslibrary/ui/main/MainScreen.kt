@@ -75,7 +75,6 @@ fun MainScreen(
                         gotoSubscription()
                     }
                 }
-
             )
 
 //            AdKit.rewardHelper.showRewardAd(
@@ -109,8 +108,6 @@ fun MainScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-                ctaColor = "#FFBB86FC",
-                adType = 0
             ), onFail = {
 
             },
@@ -168,7 +165,6 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
                     "exit_native",
-                    2,
                 ), callCustomDestroy = {
                     destroy = it
                 }

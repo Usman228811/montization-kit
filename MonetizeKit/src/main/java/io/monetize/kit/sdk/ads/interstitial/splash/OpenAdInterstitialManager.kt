@@ -59,7 +59,7 @@ internal class OpenAdInterstitialManager private constructor(
     ) {
         this.isAdEnable = isAdEnable
         this.splashTime = time
-        this.isLoadingEnable = AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable ?: true
+        this.isLoadingEnable = AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", false)
         this.loadAndShow = loadAndShow
         this.placementKey = placementKey
         this.adIdKey = adIdKey

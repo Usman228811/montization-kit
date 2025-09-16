@@ -16,7 +16,75 @@ class RemoteConfigBuilder private constructor() {
                 ).also { instance = it }
             }
         }
+    }
 
+    fun banner(placementKey: String, block: BannerConfig.() -> Unit) {
+        BannerConfig(placementKey, configMap).apply(block)
+    }
+
+    class BannerConfig(
+        private val placementKey: String,
+        private val configMap: MutableMap<String, Any>
+    ) {
+        fun enable(value: Boolean) {
+            configMap["${placementKey}_isAdEnable"] = value
+        }
+
+        fun collapsible(value: Boolean = false) {
+            configMap["${placementKey}_isCollapsible"] = value
+        }
+        fun isTop(value: Boolean = false) {
+            configMap["${placementKey}_isCollapsibleTop"] = value
+        }
+    }
+
+    fun native(placementKey: String, block: NativeConfig.() -> Unit) {
+        NativeConfig(placementKey, configMap).apply(block)
+    }
+
+    fun fullScreen(placementKey: String, block: InterstitialConfig.() -> Unit) {
+        InterstitialConfig(placementKey, configMap).apply(block)
+    }
+
+    class NativeConfig(
+        private val placementKey: String,
+        private val configMap: MutableMap<String, Any>
+    ) {
+        fun enable(value: Boolean = true) {
+            configMap["${placementKey}_isAdEnable"] = value
+        }
+
+        fun ctaColor(color: String = "") {
+            configMap["${placementKey}_ctaColor"] = color
+        }
+
+        fun bgColor(color: String = "") {
+            configMap["${placementKey}_bgColor"] = color
+        }
+
+        fun adType(type: Int) {
+            configMap["${placementKey}_adType"] = type
+        }
+    }
+
+    class InterstitialConfig(
+        private val placementKey: String,
+        private val configMap: MutableMap<String, Any>
+    ) {
+        fun enable(value: Boolean) {
+            configMap["${placementKey}_isAdEnable"] = value
+        }
+        fun instantInter(value: Boolean = false) {
+            configMap["${placementKey}_isInterInstant"] = value
+        }
+        fun instantReward(value: Boolean) {
+            configMap["${placementKey}_isRewardInstant"] = value
+        }
+    }
+
+    fun overAllNativeColor(ctaColor:String = "", bgColor:String = ""){
+        configMap["overAllNativeCtaColor"] = ctaColor
+        configMap["overAllNativeBgColor"] = bgColor
     }
 
 
@@ -31,5 +99,14 @@ class RemoteConfigBuilder private constructor() {
     fun string(key: String, value: String) {
         configMap[key] = value
     }
+
+    fun getDefaultLong(key: String, default: Long = 0L): Long =
+        (configMap[key] as? Number)?.toLong() ?: default
+
+    fun getDefaultString(key: String, default: String = ""): String =
+        configMap[key] as? String ?: default
+
+    fun getDefaultBoolean(key: String, default: Boolean = false): Boolean =
+        configMap[key] as? Boolean ?: default
 
 }

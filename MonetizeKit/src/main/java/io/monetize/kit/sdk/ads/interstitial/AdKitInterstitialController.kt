@@ -25,15 +25,15 @@ data class InterAdSingleModel(
 
 val singleInterList = ArrayList<InterAdSingleModel>()
 
-data class InterAdsConfigs(
-    val openAdEnable: Boolean,
-    val openAdInstant: Boolean = false,
-    val splashTime: Long,
-    val instantInterTime: Long = 8L,
-    val instantOpenAdTime: Long = 8L,
-    val interLoadingEnable: Boolean = false,
-    val openAdLoadingEnable: Boolean = false,
-)
+//data class InterAdsConfigs(
+//    val openAdEnable: Boolean,
+//    val openAdInstant: Boolean = false,
+//    val splashTime: Long,
+//    val instantInterTime: Long = 8L,
+//    val instantOpenAdTime: Long = 8L,
+//    val interLoadingEnable: Boolean = false,
+//    val openAdLoadingEnable: Boolean = false,
+//)
 
 class InterstitialController private constructor(
 ) {
@@ -45,7 +45,7 @@ class InterstitialController private constructor(
     }
 
 
-    private var btnKey: String = ""
+    private var placementKey: String = ""
     private var adIdKey: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
@@ -68,7 +68,10 @@ class InterstitialController private constructor(
 
 
     private fun startDelayHandler() {
-        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantInterTime ?: 8L
+        var instantTime = AdKit.firebaseHelper.getLong("INTER_INSTANT_TIME", 8L)
+        if (instantTime == 0L) {
+            instantTime = 8L
+        }
         if (!isHandlerAdDelayRunning) {
             isHandlerAdDelayRunning = true
             handlerAdDelay.postDelayed(
@@ -112,7 +115,7 @@ class InterstitialController private constructor(
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
 
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
@@ -122,7 +125,8 @@ class InterstitialController private constructor(
             if (admobInterAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context, btnKey, adIdKey, true, key, listener)
+                loadAndShow(context,
+                    this@InterstitialController.placementKey, adIdKey, true, key, listener)
             }
         } else if ((savedCount + 1).toLong() >= counter) {
             listener.onAdClosed()
@@ -141,7 +145,7 @@ class InterstitialController private constructor(
         listener: InterstitialControllerListener
     ) {
         mInterstitialControllerListener = listener
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed()
@@ -163,7 +167,7 @@ class InterstitialController private constructor(
         listener: InterstitialControllerListener, key: String, counter: Long,
     ) {
         mInterstitialControllerListener = listener
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
@@ -212,7 +216,7 @@ class InterstitialController private constructor(
         if (!enable) {
             return
         }
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (admobInterAd != null) {
             return
@@ -268,7 +272,7 @@ class InterstitialController private constructor(
         listener: InterstitialControllerListener,
     ) {
 
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
@@ -338,7 +342,7 @@ class InterstitialController private constructor(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
-        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable != false) {
+        if (AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", false)) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 val adLoadingDialog = AdLoadingDialog(activity)
@@ -364,7 +368,7 @@ class InterstitialController private constructor(
                 super.onAdDismissedFullScreenContent()
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null
-                if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
+                if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)) {
                     loadInter(activity)
                 }
             }

@@ -120,133 +120,24 @@ fun addNativeAdView(
     }
 }
 
-fun populateNativeLayout(
-    nativeControllerConfig: NativeControllerConfig,
-    nativeAd: NativeAd,
-    adView: NativeAdView,
-    isCustom: Boolean = false,
-    customLayout: SdkNativeAdView? = null,
-    isForSmall: Boolean
-) {
-    try {
-        val colorHex = listOf(
-            AdKit.firebaseHelper.getString(
-                "${nativeControllerConfig.placementKey}_bgColor",
-                nativeControllerConfig.bgColor
-            ),
-            nativeControllerConfig.bgColor,
-            AdKit.firebaseHelper.getString(
-                "overAllNativeBgColor",
-                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
-            ),
-            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
-        ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
-
-        colorHex?.toColorInt()?.let { colorInt ->
-            adView.setBackgroundColor(colorInt)
-        }
-    } catch (_: Exception) {
-
-    }
-
-    if (!isForSmall) {
-        val mediaView = if (isCustom) {
-            customLayout?.mediaView?.setupMediaView() as? MediaView
-        } else {
-            adView.findViewById(R.id.ad_media)
-        }
-
-        if (mediaView != null) {
-            adView.mediaView = mediaView
-            mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                override fun onChildViewAdded(parent: View?, child: View?) {
-                    if (child is ImageView) {
-                        child.adjustViewBounds = true
-                        child.scaleType = ImageView.ScaleType.CENTER_CROP
-                    }
-                }
-
-                override fun onChildViewRemoved(parent: View?, child: View?) {}
-            })
-        }
-    }
-
-    adView.headlineView = adView.findViewById(R.id.ad_headline)
-    adView.bodyView = adView.findViewById(R.id.ad_body)
-    adView.iconView = adView.findViewById(R.id.ad_app_icon)
-    val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
-    adView.callToActionView = button
-
-    (adView.headlineView as? TextView)?.apply {
-        text = nativeAd.headline
-        setTextColor(Color.BLACK)
-    }
-
-    (adView.bodyView as? TextView)?.apply {
-        text = nativeAd.body ?: ""
-        visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
-        setTextColor(Color.BLACK)
-    }
-
-    (adView.callToActionView as? AppCompatButton)?.apply {
-        text = nativeAd.callToAction ?: ""
-        visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
-
-        try {
-            val colorHex = listOf(
-                AdKit.firebaseHelper.getString(
-                    "${nativeControllerConfig.placementKey}_ctaColor",
-                    nativeControllerConfig.ctaColor
-                ),
-                nativeControllerConfig.ctaColor,
-                AdKit.firebaseHelper.getString(
-                    "overAllNativeCtaColor",
-                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
-                ),
-                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
-            ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
-
-            colorHex?.toColorInt()?.let { colorInt ->
-                background?.let {
-                    ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(colorInt))
-                } ?: run {
-                    setBackgroundColor(colorInt)
-                }
-            }
-        } catch (_: Exception) {
-
-        }
-    }
-
-    (adView.iconView as? ImageView)?.apply {
-        visibility = if (nativeAd.icon == null) View.GONE else View.VISIBLE
-        setImageDrawable(nativeAd.icon?.drawable)
-    }
-
-    adView.setNativeAd(nativeAd)
-}
-
-
 fun populateNativeAd(
     nativeControllerConfig: NativeControllerConfig,
     nativeAd: NativeAd,
     adView: NativeAdView,
     isCustom: Boolean = false,
     customLayout: SdkNativeAdView? = null,
-    adType: AdType
+    adType: AdType,
 ) {
     try {
         val colorHex = listOf(
             AdKit.firebaseHelper.getString(
                 "${nativeControllerConfig.placementKey}_bgColor",
-                nativeControllerConfig.bgColor
+                ""
             ),
-            nativeControllerConfig.bgColor,
             AdKit.firebaseHelper.getString(
                 "overAllNativeBgColor",
-                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
+                ""
             ),
-            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
         ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 
         colorHex?.toColorInt()?.let { colorInt ->
@@ -317,14 +208,12 @@ fun populateNativeAd(
             val colorHex = listOf(
                 AdKit.firebaseHelper.getString(
                     "${nativeControllerConfig.placementKey}_ctaColor",
-                    nativeControllerConfig.ctaColor
+                    ""
                 ),
-                nativeControllerConfig.ctaColor,
                 AdKit.firebaseHelper.getString(
                     "overAllNativeCtaColor",
-                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
+                    ""
                 ),
-                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
             ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
 
             colorHex?.toColorInt()?.let { colorInt ->
@@ -347,103 +236,5 @@ fun populateNativeAd(
     }
 
     // 🔹 Bind native ad
-    adView.setNativeAd(nativeAd)
-}
-
-
-fun populateSmallNativeMediaView(
-    nativeControllerConfig: NativeControllerConfig,
-    nativeAd: NativeAd,
-    adView: NativeAdView,
-    isCustom: Boolean = false,
-    sdkLayout: SdkNativeAdView? = null
-) {
-
-    try {
-        val colorHex = listOf(
-            AdKit.firebaseHelper.getString(
-                "${nativeControllerConfig.placementKey}_bgColor",
-                nativeControllerConfig.bgColor
-            ),
-            nativeControllerConfig.bgColor,
-            AdKit.firebaseHelper.getString(
-                "overAllNativeBgColor",
-                AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
-            ),
-            AdKit.nativeCustomLayoutHelper.getOverAllBgColor()
-        ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
-
-        colorHex?.toColorInt()?.let { colorInt ->
-            adView.setBackgroundColor(colorInt)
-        }
-    } catch (_: Exception) {
-
-    }
-
-    val mediaView: MediaView? = if (isCustom) {
-        sdkLayout?.mediaView?.setupMediaView() as? MediaView
-    } else {
-        adView.findViewById(R.id.ad_media)
-    }
-
-    if (mediaView != null) {
-        adView.mediaView = mediaView
-        mediaView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewAdded(parent: View?, child: View?) {
-                if (child is ImageView) {
-                    child.adjustViewBounds = true
-                }
-            }
-
-            override fun onChildViewRemoved(parent: View?, child: View?) {}
-        })
-    }
-
-    adView.headlineView = adView.findViewById(R.id.ad_headline)
-    adView.bodyView = adView.findViewById(R.id.ad_body)
-    val button = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
-    adView.callToActionView = button
-
-    (adView.bodyView as? TextView)?.apply {
-        setTextColor(Color.BLACK)
-        text = nativeAd.body ?: ""
-        visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
-    }
-
-    (adView.headlineView as? TextView)?.apply {
-        setTextColor(Color.BLACK)
-        text = nativeAd.headline ?: ""
-    }
-
-    (adView.callToActionView as? AppCompatButton)?.apply {
-        text = nativeAd.callToAction ?: ""
-        visibility = if (nativeAd.callToAction == null) View.GONE else View.VISIBLE
-
-        try {
-            val colorHex = listOf(
-                AdKit.firebaseHelper.getString(
-                    "${nativeControllerConfig.placementKey}_ctaColor",
-                    nativeControllerConfig.ctaColor
-                ),
-                nativeControllerConfig.ctaColor,
-                AdKit.firebaseHelper.getString(
-                    "overAllNativeCtaColor",
-                    AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
-                ),
-                AdKit.nativeCustomLayoutHelper.getOverAllCtaColor()
-            ).firstOrNull { it.isNotEmpty() && it.startsWith("#") }
-
-            colorHex?.toColorInt()?.let { colorInt ->
-                background?.let {
-                    ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(colorInt))
-                } ?: run {
-                    setBackgroundColor(colorInt)
-                }
-            }
-        } catch (_: Exception) {
-
-        }
-    }
-
     adView.setNativeAd(nativeAd)
 }

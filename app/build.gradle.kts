@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nas.internet.speedtest.meter.speed.test.meter.app"
+        applicationId = "com.fart.funny.pranks.sounds"
 //        applicationId = "com.plant.identifier.scanplant"
         minSdk = 24
         targetSdk = 35

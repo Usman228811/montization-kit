@@ -8,8 +8,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
-import io.monetize.kit.sdk.core.utils.init.AdKit.interHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -82,16 +80,9 @@ class AdKitInitializer private constructor(
 
 
     internal fun initAdsConfigs(
-        interAdsConfigs: InterAdsConfigs,
+
     ) {
-        interHelper.setInterAdsConfigs(
-            interAdsConfigs = interAdsConfigs,
-        )
-        openAdManager.setOpenAdConfigs(
-            isAdEnable = interAdsConfigs.openAdEnable,
-            isLoadingEnable = interAdsConfigs.openAdLoadingEnable,
-            isOpenAdInstant = interAdsConfigs.openAdInstant
-        )
+        openAdManager.setOpenAdConfigs()
         openAdManager.initOpenAd()
     }
 

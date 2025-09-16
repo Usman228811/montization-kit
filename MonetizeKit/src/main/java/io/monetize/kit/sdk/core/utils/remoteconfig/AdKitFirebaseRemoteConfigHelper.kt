@@ -21,6 +21,8 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     private var isHandlerRunning = false
     private val handlerAd = Handler(Looper.getMainLooper())
 
+    private val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
+
 
     private fun startHandler() {
         var configFetchTime = AdKit.firebaseHelper.getLong("config_fetch_time", 8)
@@ -172,7 +174,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         return try {
             Firebase.remoteConfig.getBoolean(key)
         } catch (e: Exception) {
-            def
+            defaultRemoteConfig.getDefaultBoolean(key, def)
         }
     }
 
@@ -180,7 +182,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         return try {
             Firebase.remoteConfig.getLong(key)
         } catch (e: Exception) {
-            def
+            defaultRemoteConfig.getDefaultLong(key, def)
         }
     }
 
@@ -188,7 +190,8 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         return try {
             Firebase.remoteConfig.getString(key)
         } catch (e: Exception) {
-            def
+            defaultRemoteConfig.getDefaultString(key, def)
+
         }
     }
 

@@ -104,14 +104,12 @@ class AdKitOpenAdManager private constructor(
         this.adId = adId
     }
 
-    fun setOpenAdConfigs(
-        isAdEnable: Boolean,
-        isLoadingEnable: Boolean,
-        isOpenAdInstant: Boolean,
-    ) {
-        this.isOpenAdInstant = isOpenAdInstant
-        this.isAdEnable = isAdEnable
-        this.isLoadingEnable = isLoadingEnable
+    fun setOpenAdConfigs() {
+        AdKit.firebaseHelper.apply {
+            this@AdKitOpenAdManager.isOpenAdInstant = getBoolean("IS_OPEN_AD_INSTANT", false)
+            this@AdKitOpenAdManager.isAdEnable = getBoolean("OPEN_AD_ENABLE", false)
+            this@AdKitOpenAdManager.isLoadingEnable = getBoolean("OPEN_AD_LOADING_ENABLE", false)
+        }
     }
 
     fun initOpenAd() {
@@ -151,7 +149,10 @@ class AdKitOpenAdManager private constructor(
     }
 
     private fun startDelayHandler() {
-        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantOpenAdTime ?: 8L
+        var instantTime = AdKit.firebaseHelper.getLong("OPEN_AD_INSTANT_TIME", 8)
+        if (instantTime == 0L) {
+            instantTime = 8L
+        }
         if (!isHandlerAdDelayRunning) {
             isHandlerAdDelayRunning = true
             handlerAdDelay.postDelayed(

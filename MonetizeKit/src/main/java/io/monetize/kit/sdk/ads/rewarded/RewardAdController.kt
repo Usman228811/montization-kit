@@ -36,7 +36,7 @@ class RewardAdController private constructor(
     }
 
 
-    private var btnKey: String = ""
+    private var placementKey: String = ""
     private var adIdKey: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
@@ -60,7 +60,10 @@ class RewardAdController private constructor(
 
 
     private fun startDelayHandler() {
-        val instantTime = AdKit.interHelper.getInterAdsConfigs()?.instantInterTime ?: 8L
+        var instantTime = AdKit.firebaseHelper.getLong("INTER_INSTANT_TIME", 8L)
+        if (instantTime == 0L) {
+            instantTime = 8
+        }
         if (!isHandlerAdDelayRunning) {
             isHandlerAdDelayRunning = true
             handlerAdDelay.postDelayed(
@@ -107,7 +110,7 @@ class RewardAdController private constructor(
     ) {
 
         isUserEarnReward = false
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
@@ -117,7 +120,8 @@ class RewardAdController private constructor(
             if (rewardAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context, btnKey, adIdKey, true, key, listener)
+                loadAndShow(context,
+                    this@RewardAdController.placementKey, adIdKey, true, key, listener)
             }
         } else if ((savedCount + 1).toLong() >= counter) {
             listener.onRewardDismissed(false)
@@ -137,7 +141,7 @@ class RewardAdController private constructor(
     ) {
         isUserEarnReward = false
         mInterstitialControllerListener = listener
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onRewardDismissed(false)
@@ -160,7 +164,7 @@ class RewardAdController private constructor(
     ) {
         isUserEarnReward = false
         mInterstitialControllerListener = listener
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
@@ -209,7 +213,7 @@ class RewardAdController private constructor(
         if (!enable) {
             return
         }
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (rewardAd != null) {
             return
@@ -267,7 +271,7 @@ class RewardAdController private constructor(
     ) {
 
         isUserEarnReward = false
-        this.btnKey = placementKey
+        this.placementKey = placementKey
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
@@ -284,7 +288,10 @@ class RewardAdController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-                    Log.d("ioioioi", "onAdFailedToLoad: ${AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""}")
+                    Log.d(
+                        "ioioioi",
+                        "onAdFailedToLoad: ${AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""}"
+                    )
 
                     RewardedAd.load(
                         context,
@@ -343,7 +350,7 @@ class RewardAdController private constructor(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
-        if (AdKit.interHelper.getInterAdsConfigs()?.interLoadingEnable != false) {
+        if (AdKit.firebaseHelper.getBoolean("INTER_LOADING_ENABLE", false)) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 val adLoadingDialog = AdLoadingDialog(activity)
@@ -371,7 +378,7 @@ class RewardAdController private constructor(
                     super.onAdDismissedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = false
                     rewardAd = null
-                    if (key.isEmpty() && AdKit.interHelper.getInterInstant().not()) {
+                    if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)) {
                         loadInter(activity)
                     }
                 }

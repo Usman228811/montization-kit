@@ -108,8 +108,6 @@ object AdKit {
         mapOfRewardIds: Map<String, Any>,
         mapOfNativeIds: Map<String, Any>,
         mapOfBannerIds: Map<String, Any>,
-        overAllNativeCtaColor: String = "",
-        overAllNativeBgColor: String = "",
         defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
         resetInterKeyForCommonAds: String? = null,
         onInitSdk: () -> Unit
@@ -134,8 +132,6 @@ object AdKit {
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        nativeCustomLayoutHelper.setOverAllCtaColor(overAllNativeCtaColor)
-        nativeCustomLayoutHelper.setOverAllBgColor(overAllNativeBgColor)
         analytics = AdKitAnalytics.getInstance(context)
         interIdManager = InterIdManager.getInstance()
         rewardAdIdManager = RewardAdIdManager.getInstance()

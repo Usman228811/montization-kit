@@ -1,4 +1,3 @@
-
 import android.animation.ValueAnimator
 import android.app.Activity
 import androidx.activity.result.ActivityResultLauncher
@@ -12,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.BuildConfig
-import io.monetize.kit.sdk.ads.interstitial.InterAdsConfigs
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -45,9 +43,9 @@ class SplashScreenViewModel(
     private var animator: ValueAnimator? = null
 
     init {
-        AdKit.purchaseHelper.initBilling("android.test.purchased")
+        purchaseHelper.initBilling("android.test.purchased")
         AdKit.analytics.postAnalytics("Splash_launch")
-        AdKit.splashAdController.resetSplash()
+        splashAdController.resetSplash()
         collections()
         startProgressAnimation()
 //        purchaseHelper.initBilling("one_time_purchase_id")
@@ -67,7 +65,7 @@ class SplashScreenViewModel(
             animator?.pause()
         }
         if (!isInterAdShowed && isInterAdCalled) {
-            AdKit.splashAdController.pauseAd()
+            splashAdController.pauseAd()
         }
         viewModelScope.launch {
             _state.update { it.copy(isAppResumed = false) }
@@ -184,20 +182,12 @@ class SplashScreenViewModel(
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-            AdKit.splashAdController.initSplashInterstitial(
+            splashAdController.initSplashInterstitial(
+                activity = mContext,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
-                loadAndShow = false,
-                activity = mContext,
-                interAdsConfigs = InterAdsConfigs(
-                    splashTime = firebaseHelper.getLong("splash_time", 16),
-                    openAdEnable = firebaseHelper.getBoolean("OPEN_AD_ENABLE", true),
-                    interLoadingEnable = firebaseHelper.getBoolean("INTER_LOADING_ENABLE", true),
-                    openAdLoadingEnable = firebaseHelper.getBoolean("OPEN_AD_LOADING_ENABLE", true)
-                    // openAdInstant = false,
-                    // instantOpenAdTime = 8,
-                    // instantInterTime = 8
-                ),
+                loadAndShow = true,
+                splashTime = firebaseHelper.getLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()
@@ -207,12 +197,14 @@ class SplashScreenViewModel(
                             _state.update { it.copy(progress = 100) }
                         }
                     }
+
                     override fun onAdClosed(isInterShowed: Boolean) {
                         animator?.cancel()
                         _state.update {
                             it.copy(progress = 100, moveToMain = true)
                         }
                     }
+
                     override fun onAdLoaded() {
                         super.onAdLoaded()
                         _state.update {
@@ -228,14 +220,14 @@ class SplashScreenViewModel(
 
     fun resumeSplashAd(activity: Activity) {
         if (!isInterAdShowed && isInterAdCalled) {
-            AdKit.splashAdController.resumeAd(activity)
+            splashAdController.resumeAd(activity)
         }
     }
 
-    fun showSplashOnClick(activity: Activity){
+    fun showSplashOnClick(activity: Activity) {
         splashAdController.showInterstitial(
             activity = activity,
-            object :InterstitialControllerListener{
+            object : InterstitialControllerListener {
                 override fun onAdClosed(isInterShowed: Boolean) {
                     _state.update {
                         it.copy(

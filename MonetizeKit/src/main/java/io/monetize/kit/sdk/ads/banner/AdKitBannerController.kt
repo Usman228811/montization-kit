@@ -38,11 +38,13 @@ class AdKitBannerController {
     }
 
 
-
     fun loadNewBannerAd(
         bannerControllerConfig: BannerControllerConfig, context: Activity
     ) {
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable", true)
+        this.isAdEnable = AdKit.firebaseHelper.getBoolean(
+            "${bannerControllerConfig.placementKey}_isAdEnable",
+            false
+        )
         setAdControllerListener(null)
         this.adIdKey = bannerControllerConfig.adIdKey
         loadBannerAd(context, isAdEnable)

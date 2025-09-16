@@ -21,7 +21,4 @@ data class CollapsableConfig(
 data class NativeControllerConfig(
     val placementKey: String,
     val adIdKey: String,
-    val adType: Int,
-    val bgColor: String = "",
-    val ctaColor: String = ""
 )

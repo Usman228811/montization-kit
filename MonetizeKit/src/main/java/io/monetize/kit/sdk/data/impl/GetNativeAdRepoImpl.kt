@@ -16,6 +16,7 @@ import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
+import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
@@ -35,6 +36,8 @@ class GetNativeAdRepoImpl private constructor(
     private var onFail: (() -> Unit)? = null
     private var onAdClick: (() -> Unit)? = null
     private var isAdEnable: Boolean = true
+
+    val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
 
 
     companion object {
@@ -67,7 +70,7 @@ class GetNativeAdRepoImpl private constructor(
             adType = AdType.entries.filter {
                 it.type == getLong(
                     "${nativeControllerConfig.placementKey}_adType",
-                    nativeControllerConfig.adType.toLong()
+                    0
                 ).toInt()
             }[0]
             loadNewAd = getBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)

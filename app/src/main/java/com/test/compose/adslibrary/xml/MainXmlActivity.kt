@@ -31,7 +31,6 @@ class MainXmlActivity : AppCompatActivity() {
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-                adType = 2
             )
         )
 
