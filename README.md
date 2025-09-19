@@ -43,7 +43,7 @@ firebaseCrashlyticsPlugin = { id = "com.google.firebase.crashlytics", version.re
 firebasePerfPlugin = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfVersion" }
 ```
 
-Apply plugins in your app-level `build.gradle`:
+Apply plugins in your project-level `build.gradle`:
 
 ```kotlin
 plugins {
@@ -53,7 +53,7 @@ plugins {
 }
 ```
 
-And in your project-level `build.gradle`:
+And in your app-level `build.gradle`:
 
 ```kotlin
 plugins {
