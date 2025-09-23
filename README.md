@@ -324,9 +324,6 @@ AdKitNativeAdView(
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native", // Unique placement key
         adIdKey = "home_native", // Can be common across placements
-        ctaColor = "#FFBB86FC", // Optional: CTA color, changeable remotely
-        bgColor = "#000000", // Optional: Background color, changeable remotely
-        adType = 2
     ), onFail = {
                 // handle onAdFail
             },
@@ -346,9 +343,6 @@ AdKitNativeAdViewDialog(
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native",
         adIdKey = "home_native",
-        ctaColor = "#FFBB86FC",
-        bgColor = "#000000",
-        adType = 2
     ),
    	onFail = {
                 // handle onAdFail
@@ -1020,6 +1014,8 @@ Button(
 
 ## Splash Screen ViewModel
 
+### Compose 
+
 ```kotlin
 data class SplashScreenState(
     val isConsentManager: Boolean = false,
@@ -1245,10 +1241,7 @@ class SplashScreenViewModel(
     }
 }
 ```
-
----
-
-## Splash Screen Implementation
+### Splash Screen Implementation
 
 ```kotlin
 val factory = remember { SplashScreenViewModelFactory() }
@@ -1288,6 +1281,257 @@ val factory = remember { SplashScreenViewModelFactory() }
     })
 ```
 
+### XML 
+
+```kotlin
+data class SplashScreenState(
+    val isConsentManager: Boolean = false,
+    val initializeSplash: Boolean = false,
+    val fireBaseFetch: Boolean = false,
+    val showRestartDialog: Boolean = false,
+    val moveToMain: Boolean = false,
+    val isPurchased: Boolean = false,
+    val runSplash: Boolean = false,
+    val progress: Int = 0
+)
+
+class SplashViewModel(
+) : ViewModel() {
+    private var _state = MutableStateFlow(SplashScreenState())
+    val state = _state.asStateFlow()
+    private var isInterAdShowed = false
+    private var isInterAdCalled = false
+    private var animator: ValueAnimator? = null
+
+
+    init {
+        AdKit.analytics.postAnalytics("Splash_launch")
+        splashAdController.resetSplash()
+        collections()
+        startProgressAnimation()
+//        purchaseHelper.initBilling(productId)
+    }
+
+    fun onResume(activity: Activity) {
+        if (state.value.runSplash) {
+            animator?.resume()
+        }
+        if (!isInterAdShowed && isInterAdCalled) {
+            splashAdController.resumeAd(activity)
+        }
+    }
+
+    fun onPause() {
+        if (state.value.runSplash) {
+            animator?.pause()
+        }
+        if (!isInterAdShowed && isInterAdCalled) {
+            splashAdController.pauseAd()
+        }
+    }
+
+    fun checkForUpdate(activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        inAppUpdateManager.setUpdateStateCallback { updateState ->
+            when (updateState) {
+                UpdateState.Available -> inAppUpdateManager.startUpdateFlow(launcher)
+                UpdateState.Downloaded -> inAppUpdateManager.updateComplete()
+                UpdateState.Failed -> initConsent(activity)
+                UpdateState.Idle -> {}
+            }
+        }
+        inAppUpdateManager.checkUpdate(activity)
+    }
+
+    private fun collections() {
+        viewModelScope.apply {
+            launch {
+                consentManager.googleConsent.collectLatest { initializeSplash() }
+            }
+            launch {
+                firebaseHelper.apply {
+                    configFetched.collectLatest {
+                        try {
+                            assignRemoteValues(this)
+                            runSplash()
+                        } catch (e: Exception) {
+                            runSplash()
+                        }
+                    }
+                }
+            }
+            launch {
+                purchaseHelper.appPurchased.collectLatest { result ->
+                    _state.update { it.copy(isPurchased = result) }
+                }
+            }
+        }
+    }
+
+    fun initConsent(activity: Activity) {
+        viewModelScope.launch {
+            if (state.value.isConsentManager.not()) {
+                _state.update { it.copy(isConsentManager = true) }
+                if (!adKitPref.isAppPurchased && internetController.isConnected) {
+                    consentManager.gatherConsent(activity)
+                    if (consentManager.canRequestAds) {
+                        initializeSplash()
+                    }
+                } else {
+                    initializeSplash()
+                }
+            }
+        }
+    }
+
+    private fun initializeSplash() {
+        viewModelScope.launch {
+            if (state.value.initializeSplash.not()) {
+                _state.update { it.copy(initializeSplash = true) }
+                fetchFirebase()
+            }
+        }
+    }
+
+    private fun fetchFirebase() {
+        if (state.value.fireBaseFetch.not()) {
+            _state.update { it.copy(fireBaseFetch = true) }
+            firebaseHelper.fetchRemoteValues(isDebug = BuildConfig.DEBUG)
+        }
+    }
+
+    private fun runSplash() {
+        viewModelScope.launch {
+            if (state.value.runSplash.not()) {
+                _state.update { it.copy(runSplash = true) }
+            }
+        }
+    }
+
+    private fun startProgressAnimation() {
+        animator?.cancel()
+        animator = ValueAnimator.ofInt(0, 100).apply {
+            duration = 25_000L
+            addUpdateListener { animation ->
+                val value = animation.animatedValue as? Int
+                viewModelScope.launch {
+                    _state.update { it.copy(progress = value ?: 50) }
+                }
+            }
+            start()
+        }
+    }
+
+    fun showSplashAd(mContext: Activity) {
+        if (!isInterAdCalled) {
+            isInterAdCalled = true
+			
+            splashAdController.initSplashInterstitial(
+                placementKey = "splash_inter",
+                adIdKey = "splash_inter",
+                activity = mContext,
+                splashTime = firebaseHelper.getLong("splash_time", 16),
+                listener = object : InterstitialControllerListener {
+                    override fun onAdShow() {
+                        super.onAdShow()
+                        isInterAdShowed = true
+                        animator?.cancel()
+                        viewModelScope.launch {
+                            _state.update { it.copy(progress = 100) }
+                        }
+                    }
+
+                    override fun onAdClosed(isInterShowed: Boolean) {
+                        animator?.cancel()
+
+                        _state.update {
+                            it.copy(progress = 100, moveToMain = true)
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+
+    override fun onCleared() {
+        super.onCleared()
+        inAppUpdateManager.unRegisterLister()
+        animator?.cancel()
+    }
+}
+
+```
+
+### Splash Activity Implementation
+
+```kotlin
+class SplashAppActivity : BaseActivity() {
+
+
+    val viewModel: SplashViewModel by viewModel()
+
+    private var isLaunched = false
+
+    private val updateLauncher = AdKitInAppUpdateManager.registerLauncher(this, onFail = {
+        viewModel.initConsent(this)
+    })
+
+
+    private val binding by lazy {
+        ActivitySplashAppBinding.inflate(layoutInflater)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+        viewModel.checkForUpdate(mContext, updateLauncher)
+
+
+        lifecycleScope.launch {
+            viewModel.state.collectLatest { state ->
+                when {
+                    state.moveToMain -> {
+                        if (isLaunched.not()) {
+                            isLaunched = true
+                            moveToNext()
+                            finish()
+                        }
+                    }
+
+                    state.runSplash -> {
+                        Log.d("ioioio", "onCreate: runSplash")
+                        viewModel.showSplashAd(mContext)
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    fun moveToNext() {
+        startActivity(Intent(mContext, OnBoardingActivity::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResume(mContext)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.onPause()
+    }
+
+
+    override fun onBackPresses() {
+
+    }
+
+}
+```
+
 ---
+
 
 This documentation provides a clean, organized, and visually appealing guide to using the Monetization Kit in your Android app. Each section is clearly separated, with consistent formatting and detailed explanations for seamless integration. Kotlin code blocks are now explicitly marked with triple backticks and the `kotlin` language identifier.
