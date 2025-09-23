@@ -470,50 +470,29 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     android:padding="@dimen/_2sdp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:id="@+id/cvAdAttribution"
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_ad"
                             android:layout_width="@dimen/_20sdp"
                             android:layout_height="@dimen/_15sdp"
-                            android:layout_marginStart="@dimen/_5sdp"
-                            android:layout_marginTop="@dimen/_1sdp"
-                            android:background="@drawable/border_ad">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/tv_ad"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_marginHorizontal="@dimen/_3sdp"
-                                android:gravity="center"
-                                android:paddingBottom="0dp"
-                                android:text="AD"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/_8ssp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="@dimen/_25sdp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginStart="@dimen/_2sdp"
                             android:background="@drawable/border_ad"
-                            android:gravity="center|center_horizontal"
-                            android:padding="@dimen/_2sdp"
+                            android:layout_marginHorizontal="@dimen/_3sdp"
+                            android:gravity="center"
+                            android:paddingBottom="0dp"
                             android:text="AD"
-                            android:textAlignment="center"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/_9ssp"
-                            android:visibility="gone" />
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_8ssp"
+                            android:textStyle="bold" />
+                        
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/ad_headline"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:maxLines="2"
                             android:paddingStart="@dimen/_2sdp"
