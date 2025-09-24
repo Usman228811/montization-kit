@@ -192,7 +192,11 @@ AdKit.init(
 
 ---
 
+
+**docs/ConsentAdManager.md**
+```markdown
 ## Consent Manager
+```
 
 Handle user consent for ads in your ViewModel:
 
