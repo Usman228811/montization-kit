@@ -65,12 +65,11 @@ plugins {
 
 ---
 
-## SDK Initialization
+# SDK Initialization
 
 Initialize the SDK in your `Application` class's `onCreate` method:
 
-
-### Ad Types
+### Important Default Configs
 These configs should be added to your default remote config in your App Class to control ad behavior in the plugin:
 - `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading. 
 - `INTER_INSTANT_TIME`- Time window to show instant Interstitial ad
