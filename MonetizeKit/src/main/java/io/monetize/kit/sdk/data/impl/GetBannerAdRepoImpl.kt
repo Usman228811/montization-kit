@@ -35,13 +35,18 @@ class GetBannerAdRepoImpl private constructor(
         onFail: () -> Unit,
         onAdClick: () -> Unit,
     ) {
-        this.isForCollapse = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsible", false)
+        val bannerType = AdKit.firebaseHelper.getLong(
+            "${bannerControllerConfig.placementKey}_bannerType",
+            0
+        )
+        isForCollapse = bannerType == 3L || bannerType == 4L
         if (isForCollapse) {
             baseCollapsableBannerActivity.initCollapsableBannerAd(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
                 onFail = onFail,
+                bannerType = bannerType,
                 onAdClick = onAdClick,
             )
 
@@ -51,6 +56,7 @@ class GetBannerAdRepoImpl private constructor(
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
                 onFail = onFail,
+                bannerType = bannerType,
                 onAdClick = onAdClick,
             )
         }

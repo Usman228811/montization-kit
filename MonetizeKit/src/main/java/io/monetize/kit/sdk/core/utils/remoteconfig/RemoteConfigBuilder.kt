@@ -29,13 +29,10 @@ class RemoteConfigBuilder private constructor() {
         fun enable(value: Boolean) {
             configMap["${placementKey}_isAdEnable"] = value
         }
+        fun bannerType(value: Long) {
+            configMap["${placementKey}_bannerType"] = value
+        }
 
-        fun collapsible(value: Boolean = false) {
-            configMap["${placementKey}_isCollapsible"] = value
-        }
-        fun isTop(value: Boolean = false) {
-            configMap["${placementKey}_isCollapsibleTop"] = value
-        }
     }
 
     fun native(placementKey: String, block: NativeConfig.() -> Unit) {

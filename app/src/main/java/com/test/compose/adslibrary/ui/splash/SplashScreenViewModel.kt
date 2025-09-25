@@ -9,9 +9,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.test.compose.adslibrary.BuildConfig
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
-import io.monetize.kit.sdk.BuildConfig
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
+import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
@@ -182,6 +183,18 @@ class SplashScreenViewModel(
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
+            AdKit.preloadBanner.preLoadBanner(
+                mContext, BannerControllerConfig(
+                    "home_banner",
+                    "home_banner",
+                )
+            )
+            AdKit.preloadBanner.preLoadBanner(
+                mContext, BannerControllerConfig(
+                    "home_banner_top",
+                    "home_banner_top",
+                )
+            )
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

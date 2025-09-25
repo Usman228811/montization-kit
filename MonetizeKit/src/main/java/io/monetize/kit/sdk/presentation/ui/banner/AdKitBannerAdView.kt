@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
@@ -46,8 +45,7 @@ fun AdKitBannerAdView(
             modifier = Modifier.fillMaxWidth(),
             factory = { ctx ->
                 val inflater = LayoutInflater.from(ctx)
-                val nativeAdLayout = inflater.inflate(R.layout.ad_inflator, null) as LinearLayout
-                nativeAdLayout
+                inflater.inflate(R.layout.ad_inflator, null) as LinearLayout
             },
             update = { adFrame ->
                 adFrame.visibility = View.VISIBLE

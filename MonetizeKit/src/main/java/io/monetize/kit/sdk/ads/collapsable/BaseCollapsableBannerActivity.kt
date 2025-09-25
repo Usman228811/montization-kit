@@ -12,8 +12,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
-import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
@@ -24,6 +23,7 @@ class BaseCollapsableBannerActivity private constructor(
     private var isAdLoadCalled: Boolean = false
     private var isTop: Boolean = true
     private var isRequesting: Boolean = false
+    private var bannerType: Long = 0L
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
 
@@ -51,6 +51,7 @@ class BaseCollapsableBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
+        bannerType: Long,
         onFail: () -> Unit,
         onAdClick: () -> Unit,
     ) {
@@ -62,7 +63,9 @@ class BaseCollapsableBannerActivity private constructor(
             return
         }
         this.bannerControllerConfig = bannerControllerConfig
-        isTop = AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isCollapsibleTop", false)
+        this.bannerType = bannerType
+
+        isTop = bannerType == 4L
         this.onFail = onFail
         this.onAdClick = onAdClick
         this.mContext = mContext
@@ -73,8 +76,12 @@ class BaseCollapsableBannerActivity private constructor(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (AdKit.firebaseHelper.getBoolean("${bannerControllerConfig.placementKey}_isAdEnable",
-                    false).not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)) {
+            if (AdKit.firebaseHelper.getBoolean(
+                    "${bannerControllerConfig.placementKey}_isAdEnable",
+                    false
+                )
+                    .not() || AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)
+            ) {
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -88,17 +95,20 @@ class BaseCollapsableBannerActivity private constructor(
                         }
                         isRequesting = true
                         adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                        addShimmerLayout(
-                            mContext, adFrame, AdType.BANNER
+                        addBannerShimmerLayout(
+                            mContext, adFrame, bannerType
                         )
-                        /*if (BuildConfig.DEBUG) {
-                            Constants.showToast(mContext, "collapse banner ad calling")
-                        }*/
+
                         val collapseBannerAd = AdView(mContext).apply {
                             this.adUnitId =
                                 AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
                                     ?: ""
-                            this.setAdSize(getAdSize(mContext))
+                            this.setAdSize(
+                                getAdSize(
+                                    mContext,
+                                    bannerType
+                                )
+                            )
                             this.loadAd(
                                 AdRequest.Builder()
                                     .addNetworkExtrasBundle(

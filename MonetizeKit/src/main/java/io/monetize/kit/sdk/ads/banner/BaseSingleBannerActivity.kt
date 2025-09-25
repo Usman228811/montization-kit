@@ -7,8 +7,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
-import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
@@ -21,6 +20,7 @@ class BaseSingleBannerActivity private constructor(
     private var model: BannerSingleAdControllerModel? = null
 
     private var isAdLoadCalled: Boolean = false
+    private var bannerType: Long = 0L
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
@@ -44,6 +44,7 @@ class BaseSingleBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
+        bannerType :Long,
         onFail: () -> Unit,
         onAdClick: () -> Unit
     ) {
@@ -67,6 +68,8 @@ class BaseSingleBannerActivity private constructor(
         } catch (_: Exception) {
         }
         this.adFrame = adFrame
+        this.bannerType = bannerType
+
         isAdLoadCalled = true
 
         var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
@@ -121,8 +124,9 @@ class BaseSingleBannerActivity private constructor(
                         if (bannerAd == null) {
                             if (!isRequesting) {
                                 isRequesting = true
-                                addShimmerLayout(
-                                    mContext, adFrame, AdType.BANNER
+                                addBannerShimmerLayout(
+                                    mContext, adFrame,
+                                    bannerType
                                 )
                                 controller.setAdControllerListener(object :
                                     AdControllerListener {
@@ -158,6 +162,7 @@ class BaseSingleBannerActivity private constructor(
                                     adIdKey = bannerControllerConfig.adIdKey,
                                     enable = isAdEnable,
                                     adFrame = adFrame,
+                                    bannerType = bannerType,
                                     loadNewAd = AdKit.firebaseHelper.getBoolean(
                                         "${bannerControllerConfig.adIdKey}_loadNewAd",
                                         false

@@ -6,8 +6,9 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,6 +63,20 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
+
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+
+            AdKitBannerAdView(
+                bannerControllerConfig = BannerControllerConfig(
+                    placementKey = "home_banner_top",
+                    adIdKey = "home_banner_top"
+                ),
+                onAdClick = {
+                    Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
+                        .show()
+                })
+        }
 
         Button(onClick = {
 
@@ -127,7 +142,7 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(

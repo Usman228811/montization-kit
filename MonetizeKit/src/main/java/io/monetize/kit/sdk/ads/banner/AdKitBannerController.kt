@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
@@ -28,8 +27,8 @@ class AdKitBannerController {
     private var isAdEnable = false
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
-    private lateinit var bannerSize: AdSize
     private var onAdClick: (() -> Unit)? = null
+    private var bannerType = 0L
 
 
     fun setAdControllerListener(listener: AdControllerListener?) {
@@ -39,12 +38,14 @@ class AdKitBannerController {
 
 
     fun loadNewBannerAd(
-        bannerControllerConfig: BannerControllerConfig, context: Activity
+        context: Activity, bannerControllerConfig: BannerControllerConfig,
+        bannerType: Long
     ) {
         this.isAdEnable = AdKit.firebaseHelper.getBoolean(
             "${bannerControllerConfig.placementKey}_isAdEnable",
             false
         )
+        this.bannerType = bannerType
         setAdControllerListener(null)
         this.adIdKey = bannerControllerConfig.adIdKey
         loadBannerAd(context, isAdEnable)
@@ -61,12 +62,14 @@ class AdKitBannerController {
                         return
                     }
                     canRequestBannerAd = false
-                    if (!::bannerSize.isInitialized) {
-                        bannerSize = getAdSize(context)
-                    }
                     val bannerAd = AdView(context).apply {
                         this.adUnitId = AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
-                        this.setAdSize(bannerSize)
+                        this.setAdSize(
+                            getAdSize(
+                                context,
+                                bannerType
+                            )
+                        )
                         this.loadAd(AdRequest.Builder().build())
                     }
                     bannerAd.adListener = object : AdListener() {
@@ -100,10 +103,12 @@ class AdKitBannerController {
     fun populateBannerAd(
         context: Activity, placementKey: String, adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
+        bannerType:Long,
         populateCallback: (Any) -> Unit,
         onAdClick: () -> Unit,
     ) {
         try {
+            this.bannerType = bannerType
             this.onAdClick = onAdClick
             this.adIdKey = adIdKey
             this.placementKey = placementKey

@@ -46,6 +46,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "premium_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
                 "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "home_banner_top" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
             defaultRemoteConfigBuilder = {
 
@@ -64,7 +65,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 native("home_native"){
                     enable(true)
-                    ctaColor("#FFFFFF")
+                    ctaColor("#000000")
                     adType(2)
                 }
                 native("subscription_native"){
@@ -89,15 +90,17 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     instantReward(true)
                 }
                 banner("home_banner"){
-//                    enable(true)
-                    collapsible(true)
-                    isTop(false)
+                    enable(true)
+                    bannerType(2)
+                }
+                banner("home_banner_top"){
+                    enable(true)
+                    bannerType(4)
                 }
                 banner("premium_banner"){
                     enable(true)
-                    collapsible(false)
                 }
-                overAllNativeColor("#964B00", "#FF03DAC5")
+//                overAllNativeColor("#964B00", "#FF03DAC5")
             },
             onInitSdk = {
 

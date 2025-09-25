@@ -9,7 +9,7 @@ import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
-import io.monetize.kit.sdk.ads.native_ad.addShimmerLayout
+import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
@@ -163,7 +163,7 @@ class GetNativeAdRepoImpl private constructor(
                                         adFrame.descendantFocusability =
                                             ViewGroup.FOCUS_BLOCK_DESCENDANTS
                                         if (largeNativeAd == null) {
-                                            addShimmerLayout(
+                                            addNativeShimmerLayout(
                                                 context = mContext,
                                                 adFrame = adFrame,
                                                 adType = adType,

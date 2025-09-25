@@ -32,11 +32,18 @@ private val defaultLayouts = mapOf(
     AdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
     AdType.SMALL_NATIVE to R.layout.small_native_layout,
     AdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
-    AdType.BANNER to R.layout.banner_layout
+    AdType.BANNER to R.layout.adaptive_banner_layout
+)
+private val defaultBannerShimmer = mapOf(
+    0 to R.layout.adaptive_banner_layout,
+    1 to R.layout.large_banner_layout,
+    2 to R.layout.medium_rect_banner_layout,
+    3 to R.layout.adaptive_banner_layout,
+    4 to R.layout.adaptive_banner_layout,
 )
 
 
-fun addShimmerLayout(
+fun addNativeShimmerLayout(
     context: Context,
     adFrame: LinearLayout, adType: AdType,
     customLayoutHelper: AdsCustomLayoutHelper? = null
@@ -65,6 +72,34 @@ fun addShimmerLayout(
             .inflate(shimmerLayoutId, adFrame, false)
     )
     adFrame.addView(shimmerContainer)
+}
+
+fun addBannerShimmerLayout(
+    context: Context,
+    adFrame: LinearLayout,
+    bannerType: Long,
+) {
+    val shimmerLayoutId = defaultBannerShimmer[bannerType.toInt()]
+    shimmerLayoutId?.let { shimmerLayoutId ->
+        val shimmerContainer = LayoutInflater.from(context)
+            .inflate(R.layout.shimmer_layout, adFrame, false) as ShimmerFrameLayout
+        try {
+            shimmerContainer.parent?.let { parent ->
+                (parent as ViewGroup).removeAllViews()
+            }
+        } catch (_: Exception) {
+        }
+        adFrame.visibility = View.VISIBLE
+        try {
+            adFrame.removeAllViews()
+        } catch (_: Exception) {
+        }
+        shimmerContainer.addView(
+            LayoutInflater.from(context)
+                .inflate(shimmerLayoutId, adFrame, false)
+        )
+        adFrame.addView(shimmerContainer)
+    }
 }
 
 

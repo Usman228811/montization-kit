@@ -21,15 +21,16 @@ class AdKitBannerPreloadHelper private constructor(
     }
 
     fun preLoadBanner(mContext: Activity, bannerControllerConfig: BannerControllerConfig) {
+        val bannerType =
+            AdKit.firebaseHelper.getLong("${bannerControllerConfig.placementKey}_bannerType", 0)
+
 
         if (AdKit.firebaseHelper.getBoolean(
                 "${bannerControllerConfig.placementKey}_isAdEnable",
                 false
             )
-            && !AdKit.firebaseHelper.getBoolean(
-                "${bannerControllerConfig.placementKey}_isCollapsible",
-                false
-            )
+            && bannerType != 3L
+            && bannerType != 4L
             && AdKit.consentManager.canRequestAds
         ) {
             var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
@@ -47,7 +48,8 @@ class AdKitBannerPreloadHelper private constructor(
             if (index in singleBannerList.indices) {
                 singleBannerList[index].controller?.loadNewBannerAd(
                     context = mContext,
-                    bannerControllerConfig = bannerControllerConfig
+                    bannerControllerConfig = bannerControllerConfig,
+                    bannerType
                 )
             }
         }
