@@ -47,6 +47,8 @@ class QuerySubscriptionProductsUseCase private constructor(
 
     private val _historyFetched = MutableStateFlow(false)
     val historyFetched = _historyFetched.asStateFlow()
+    private val _isAppSubscribed = MutableStateFlow(false)
+    val isAppSubscribed = _isAppSubscribed.asStateFlow()
 
 
     operator fun invoke(activity: Activity, productIds: List<String>) {
@@ -54,7 +56,7 @@ class QuerySubscriptionProductsUseCase private constructor(
             activity = activity,
             object : SubscriptionListener {
                 override fun onBillingInitialized() {
-                    repository.querySubscriptionProducts(activity,productIds)
+                    repository.querySubscriptionProducts(activity, productIds)
                 }
 
                 override fun onQueryProductSuccess(skuList: Map<String, ProductDetails>) {
@@ -74,10 +76,10 @@ class QuerySubscriptionProductsUseCase private constructor(
                 override fun checkPurchaseStatus(purchase: Purchase) {
                     try {
                         if (purchase.isAcknowledged) {
-                            repository.setSubscribed(activity,purchase)
+                            repository.setSubscribed(activity, purchase)
                             onSubscriptionPurchasedFetched()
                         } else {
-                            repository.acknowledgedPurchase(activity,purchase)
+                            repository.acknowledgedPurchase(activity, purchase)
                         }
                     } catch (_: Exception) {
                     }
@@ -87,6 +89,7 @@ class QuerySubscriptionProductsUseCase private constructor(
                     try {
                         _subscribedId.value = subscribedId
                         adKitPref.isAppPurchased = subscribedId.isNotEmpty()
+                        _isAppSubscribed.value = subscribedId.isNotEmpty()
                     } catch (_: Exception) {
                     }
                 }

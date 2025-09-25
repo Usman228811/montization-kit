@@ -1,5 +1,6 @@
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -50,6 +51,10 @@ class SplashScreenViewModel(
         collections()
         startProgressAnimation()
 //        purchaseHelper.initBilling("one_time_purchase_id")
+    }
+
+    fun loadProducts(activity: Activity, list: List<String>) {
+        AdKit.subscriptionHelper.initBilling(activity, list)
     }
 
     private fun onResume() {
@@ -120,7 +125,14 @@ class SplashScreenViewModel(
             }
             launch {
                 purchaseHelper.appPurchased.collectLatest { result ->
+                    Log.d("purchase_status", "oneTimePurchased: $result")
                     _state.update { it.copy(isPurchased = result) }
+                }
+            }
+            launch {
+                AdKit.subscriptionHelper.isAppSubscribed.collectLatest { isAppSubscribed ->
+                    Log.d("purchase_status", "isAppSubscribed: $isAppSubscribed")
+//                    _state.update { it.copy(isPurchased = result) }
                 }
             }
         }

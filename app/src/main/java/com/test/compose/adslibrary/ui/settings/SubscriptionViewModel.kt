@@ -1,6 +1,7 @@
 package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -65,6 +66,17 @@ class SubscriptionViewModel(
                             yearlyPrice = getBillingPrice("yearly_subscription", "P1Y"),
                         )
                     }
+                }
+            }
+
+            launch {
+                AdKit.subscriptionHelper.isAppSubscribed.collectLatest { isSubscribed ->
+                    Log.d("purchase_status", "isAppSubscribed: $isSubscribed")
+                }
+            }
+            launch {
+                AdKit.purchaseHelper.appPurchased.collectLatest { oneTimePurchased ->
+                    Log.d("purchase_status", "oneTimePurchased: $oneTimePurchased")
                 }
             }
             launch {

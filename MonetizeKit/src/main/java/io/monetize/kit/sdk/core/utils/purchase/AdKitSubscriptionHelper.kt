@@ -33,6 +33,7 @@ class AdKitSubscriptionHelper private constructor(
     val subscriptionProducts = queryProducts.products
     val historyFetched = queryProducts.historyFetched
     val subscribedId = queryProducts.subscribedId
+    val isAppSubscribed = queryProducts.isAppSubscribed
 
     fun initBilling(activity: Activity, productIds: List<String>) {
         queryProducts(activity, productIds)
