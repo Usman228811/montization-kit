@@ -4,7 +4,7 @@ A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to 
 
 ---
 
-## Installation
+# Installation
 
 ### Add Dependency
 
@@ -65,12 +65,11 @@ plugins {
 
 ---
 
-## SDK Initialization
+# SDK Initialization
 
 Initialize the SDK in your `Application` class's `onCreate` method:
 
-
-### Ad Types
+### Important Default Configs
 These configs should be added to your default remote config in your App Class to control ad behavior in the plugin:
 - `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading. 
 - `INTER_INSTANT_TIME`- Time window to show instant Interstitial ad
@@ -192,7 +191,7 @@ AdKit.init(
 
 ---
 
-## Consent Manager
+# Consent Manager
 
 Handle user consent for ads in your ViewModel:
 
@@ -297,7 +296,7 @@ fun showSplashInterOnClick(activity: Activity){
 
 ```
 
-## Native Ads
+# Native Ads
 
 ### Ad Types
 - `0`: Large native ad
@@ -543,7 +542,7 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
 
 ---
 
-## Analytics Events
+# Analytics Events
 
 Post analytics events:
 
@@ -565,7 +564,7 @@ onInitSdk = {
 
 ---
 
-## App Open Ads
+# App Open Ads
 
 ### Setup in Application Class
 
@@ -634,7 +633,7 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 
 ---
 
-## Banner Ads
+# Banner Ads
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
@@ -677,7 +676,7 @@ binding.adFrame.loadBanner(
 
 ---
 
-## Interstitial Ads
+# Interstitial Ads
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
@@ -716,7 +715,7 @@ AdKit.interHelper.preLoadInter(
 ---
 
 
-## Rewarded Ads
+# Rewarded Ads
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
@@ -761,7 +760,7 @@ AdKit.interHelper.preLoadRewardAd(
 
 ---
 
-## In-App Update
+# In-App Update
 
 ### Jetpack Compose
 
@@ -810,7 +809,7 @@ override fun onCleared() {
 
 ---
 
-## In-App Review
+# In-App Review
 
 ```kotlin
  AdKit.inAppReviewManager.startReview(activity, object : ReviewListener {
@@ -827,7 +826,7 @@ override fun onCleared() {
 
 ---
 
-## Firebase Remote Configs
+# Firebase Remote Configs
 
 Fetch remote config values:
 
@@ -851,7 +850,7 @@ AdKit.firebaseHelper.apply {
 
 ---
 
-## One-Time Purchase
+# One-Time Purchase
 
 Initialize billing in your splash screen:
 
@@ -884,7 +883,7 @@ val isPurchased = AdKit.adKitPref.isAppPurchased
 
 ---
 
-## Subscriptions
+# Subscriptions
 
 ```kotlin
 // You can check if the app is subscribed using AdKit.
@@ -1012,7 +1011,7 @@ Button(
 
 ---
 
-## Splash Screen ViewModel
+# Splash Screen ViewModel
 
 ### Compose 
 
