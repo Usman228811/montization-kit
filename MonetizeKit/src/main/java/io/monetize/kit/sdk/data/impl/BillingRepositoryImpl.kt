@@ -206,7 +206,7 @@ class BillingRepositoryImpl private constructor(
     }
 
     private fun updatePurchaseStatus(isPurchased: Boolean) {
-        adKitPref.isAppPurchased = isPurchased
+        adKitPref.isLifeTimePurchased = isPurchased
         if (isPurchased) {
 //            context.userAnalytics("Premium_buy_successful")
             coroutineScope.launch { _appPurchased.value = true }

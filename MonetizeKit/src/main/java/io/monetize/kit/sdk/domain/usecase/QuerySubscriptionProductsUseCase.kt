@@ -88,7 +88,7 @@ class QuerySubscriptionProductsUseCase private constructor(
                 override fun updatePref(subscribedId: String) {
                     try {
                         _subscribedId.value = subscribedId
-                        adKitPref.isAppPurchased = subscribedId.isNotEmpty()
+                        adKitPref.isAppSubscribed = subscribedId.isNotEmpty()
                         _isAppSubscribed.value = subscribedId.isNotEmpty()
                     } catch (_: Exception) {
                     }
