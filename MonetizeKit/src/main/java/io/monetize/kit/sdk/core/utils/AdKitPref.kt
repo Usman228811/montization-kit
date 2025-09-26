@@ -16,7 +16,8 @@ class AdKitPref private constructor(context: Context) {
         get() = pref.getBoolean("isAppSubscribed", false)
         set(value) = pref.edit { putBoolean("isAppSubscribed", value) }
 
-    val isAppPurchased = isLifeTimePurchased || isAppSubscribed
+    val isAppPurchased: Boolean
+        get() = isLifeTimePurchased || isAppSubscribed
 
 
 
