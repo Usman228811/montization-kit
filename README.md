@@ -70,7 +70,7 @@ plugins {
 Initialize the SDK in your `Application` class's `onCreate` method:
 
 ### Important Default Configs
-These configs should be added to your default remote config in your App Class to control ad behavior in the plugin:
+These configs should be added to your `defaultRemoteConfigBuilder` in your App Class to control ad behavior in the plugin:
 - `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading. 
 - `INTER_INSTANT_TIME`- Time window to show instant Interstitial ad
 - `OPEN_AD_LOADING_ENABLE`- Enable/disable App-Open-Ad loading.
@@ -145,14 +145,13 @@ AdKit.init(
                 }
                 banner("home_banner"){
 //                    enable(true)
-                    collapsible(true)
-                    isTop(false)
+					  bannerType(0)
                 }
                 banner("premium_banner"){
                     enable(true)
-                    collapsible(false)
+                    bannerType(0)
                 }
-                overAllNativeColor("#964B00", "#FF03DAC5")
+                overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
             },
     onInitSdk = {
         // Optional: Disable toast notifications for analytics
@@ -305,7 +304,7 @@ fun showSplashInterOnClick(activity: Activity){
 - `3`: Small native mini ad
 
 ### Remote Config Values
-Add these to default or remote configs:
+Add these to defaultRemoteConfigBuilder or Firebase Remoteconfigs:
 - `{$placementkey}_isAdEnable`
 - `{$placementkey}_adType`
 - `{$adIdKey}_loadNewAd`
@@ -315,6 +314,21 @@ Add these to default or remote configs:
 For global native ad styling:
 - `overAllNativeBgColor`
 - `overAllNativeCtaColor`
+
+### How to add in defaultRemoteConfigBuilder
+in `App Class` -> defaultRemoteConfigBuilder, add
+
+```kotlin
+native("subscription_native"){
+            enable(true)
+            ctaColor("")
+            bgColor("")
+            adType(1)
+     }
+
+//optional 
+overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
+```
 
 ### Jetpack Compose Support
 
@@ -629,18 +643,40 @@ AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java)
 
 // Conditionally disable open ads
 AdKit.openAdManager.canShowOpenAd(false|true)
+
+// Handle App-Open-Ad behaviour in defaultRemoteConfigBuilder
+
+ bool("OPEN_AD_ENABLE", true)
+ bool("IS_OPEN_AD_INSTANT", false)
+ long("INTER_INSTANT_TIME", 8)
+
 ```
 
 ---
 
 # Banner Ads
 
+### Ad Types
+- `0`: Adaptive Banner
+- `1`: Large Banner
+- `2`: Medium Rectangle Banner
+- `3`: Bottom Collapsible Banner
+- `4`: Top Collapsible Banner
+
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
 - `{$adIdKey}_loadNewAd`
-- `{$placementkey}_isCollapsible`
-- `{$placementkey}_isCollapsibleTop`
+- `{$placementkey}_bannerType`
 
+### How to add in defaultRemoteConfigBuilder
+in `App Class` -> defaultRemoteConfigBuilder, add
+
+```kotlin
+ banner("home_banner"){
+       enable(true)
+       bannerType(2)
+}
+```
 ### Jetpack Compose Support
 
 ```kotlin
@@ -682,6 +718,16 @@ binding.adFrame.loadBanner(
 - `{$placementkey}_isAdEnable`
 - `{$placementkey}_isInterInstant`
 
+### How to add in defaultRemoteConfigBuilder
+in `App Class` -> defaultRemoteConfigBuilder, add
+
+```kotlin
+ fullScreen("home_inter"){
+         enable(true)
+         instantInter(true)
+   }
+```
+
 Show an interstitial ad:
 
 ```kotlin
@@ -720,6 +766,16 @@ AdKit.interHelper.preLoadInter(
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
 - `{$placementkey}_isRewardInstant`
+
+### How to add in defaultRemoteConfigBuilder
+in `App Class` -> defaultRemoteConfigBuilder, add
+
+```kotlin
+ fullScreen("inter_btn_plant"){
+       enable(true)
+       instantReward(true)
+   }
+```
 
 Show an interstitial ad:
 
@@ -877,7 +933,11 @@ viewModelScope.apply {
 // Trigger purchase
 AdKit.purchaseHelper.purchaseProduct(activity)
 
-// You can check if the app is purchased using AdKit.
+// You can check if the app is Life-time purchased using AdKit.
+val isPurchased = AdKit.adKitPref.isLifeTimePurchased
+
+
+// You can check if any purchases has been done using AdKit.
 val isPurchased = AdKit.adKitPref.isAppPurchased
 ```
 
@@ -887,7 +947,11 @@ val isPurchased = AdKit.adKitPref.isAppPurchased
 
 ```kotlin
 // You can check if the app is subscribed using AdKit.
-val isSubscribed = AdKit.adKitPref.isAppPurchased
+val isSubscribed = AdKit.adKitPref.isAppSubscribed
+
+
+// You can check if any purchases has been done using AdKit.
+val isPurchased = AdKit.adKitPref.isAppPurchased
 
 ```
 
