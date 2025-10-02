@@ -8,6 +8,7 @@ import com.test.compose.adslibrary.AppClass.Companion.appContext
 import com.test.compose.adslibrary.databinding.ActivityMainXmlBinding
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 
 class MainXmlActivity : AppCompatActivity() {
 
@@ -31,7 +32,16 @@ class MainXmlActivity : AppCompatActivity() {
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-            )
+            ),
+            adCallBack = object : AdCallBack {
+                override fun onAdFailed(reason: String) {
+
+                }
+
+                override fun onAdClick() {
+                }
+
+            }
         )
 
         binding.adFrame.loadBanner(
@@ -39,7 +49,15 @@ class MainXmlActivity : AppCompatActivity() {
             bannerControllerConfig = BannerControllerConfig(
                 placementKey = "home_banner",
                 adIdKey = "home_banner",
-            )
+            ), adCallBack = object : AdCallBack {
+                override fun onAdFailed(reason: String) {
+
+                }
+
+                override fun onAdClick() {
+                }
+
+            }
         )
 
     }

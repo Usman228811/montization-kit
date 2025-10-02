@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialogFactory
 
@@ -22,9 +23,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialogFactor
 @Composable
 fun AdKitNativeAdViewDialog(
     nativeControllerConfig: NativeControllerConfig,
-    onFail: () -> Unit = {},
-    onAdClick: () -> Unit = {},
-    callCustomDestroy: ((()->Unit) -> Unit) ?= null
+    adCallBack: AdCallBack,
+    callCustomDestroy: ((() -> Unit) -> Unit)? = null
 
 ) {
 
@@ -59,9 +59,9 @@ fun AdKitNativeAdViewDialog(
                     mContext = activity,
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
-                    onFail = onFail,
-                    onAdClick = onAdClick,
-                )
+                    adCallBack = adCallBack,
+
+                    )
             }
         )
     }

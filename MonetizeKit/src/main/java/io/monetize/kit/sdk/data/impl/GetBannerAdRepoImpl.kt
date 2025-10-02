@@ -5,6 +5,7 @@ import android.widget.LinearLayout
 import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
 import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.domain.repo.GetBannerAdRepo
 
@@ -32,8 +33,8 @@ class GetBannerAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit,
+        adCallBack: AdCallBack
+
     ) {
         val bannerType = AdKit.firebaseHelper.getLong(
             "${bannerControllerConfig.placementKey}_bannerType",
@@ -45,9 +46,8 @@ class GetBannerAdRepoImpl private constructor(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
-                onFail = onFail,
                 bannerType = bannerType,
-                onAdClick = onAdClick,
+                adCallBack = adCallBack,
             )
 
         } else {
@@ -55,9 +55,8 @@ class GetBannerAdRepoImpl private constructor(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
-                onFail = onFail,
                 bannerType = bannerType,
-                onAdClick = onAdClick,
+                adCallBack = adCallBack
             )
         }
     }

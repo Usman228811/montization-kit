@@ -3,13 +3,13 @@ package io.monetize.kit.sdk.presentation.ui.native_ad
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialog
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelDialogFactory
 
@@ -21,7 +21,7 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
 
     private var nativeControllerConfig: NativeControllerConfig? = null
 
-    private var mViewModel: NativeAdViewModelDialog ?= null
+    private var mViewModel: NativeAdViewModelDialog? = null
 
 
     init {
@@ -31,17 +31,19 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit = {},
-        onAdClick: () -> Unit = {},
+        adCallBack: AdCallBack,
     ) {
         this.nativeControllerConfig = nativeControllerConfig
 
         if (context is Activity) {
-            visibility = View.VISIBLE
+            visibility = VISIBLE
 
 
             mViewModel = if (context is ViewModelStoreOwner) {
-                ViewModelProvider(context, NativeAdViewModelDialogFactory())[NativeAdViewModelDialog::class.java]
+                ViewModelProvider(
+                    context,
+                    NativeAdViewModelDialogFactory()
+                )[NativeAdViewModelDialog::class.java]
             } else {
                 null
             }
@@ -50,9 +52,9 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                onFail = onFail,
-                onAdClick = onAdClick,
-            )
+                adCallBack = adCallBack,
+
+                )
 
             if (context is LifecycleOwner) {
                 mViewModel?.observeLifecycle(context)
@@ -60,7 +62,7 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
         }
     }
 
-    fun destroyNativeAd(){
+    fun destroyNativeAd() {
         mViewModel?.onDestroy()
     }
 }

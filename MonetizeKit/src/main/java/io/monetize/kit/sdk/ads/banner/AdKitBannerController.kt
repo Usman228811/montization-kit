@@ -46,6 +46,7 @@ class AdKitBannerController {
             false
         )
         this.bannerType = bannerType
+        this.placementKey = bannerControllerConfig.placementKey
         setAdControllerListener(null)
         this.adIdKey = bannerControllerConfig.adIdKey
         loadBannerAd(context, isAdEnable)
@@ -89,12 +90,13 @@ class AdKitBannerController {
                             super.onAdFailedToLoad(p0)
                             canRequestBannerAd = true
                             adView = null
-                            adControllerListener?.onAdFailed()
+                            adControllerListener?.onAdFailed("$placementKey is failed with code: ${p0.code}, message: ${p0.message}")
+
                         }
                     }
                 }
             } else {
-                adControllerListener?.onAdFailed()
+                adControllerListener?.onAdFailed("$placementKey can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
             }
         } catch (_: Exception) {
         }

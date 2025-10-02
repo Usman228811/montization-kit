@@ -9,6 +9,7 @@ import com.google.android.gms.ads.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
@@ -24,10 +25,8 @@ class BaseSingleBannerActivity private constructor(
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
+    private lateinit var adCallBack: AdCallBack
 
-
-    private var onFail: (() -> Unit)? = null
-    private var onAdClick: (() -> Unit)? = null
 
     private var isAdEnable = false
 
@@ -45,10 +44,11 @@ class BaseSingleBannerActivity private constructor(
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
         bannerType :Long,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit
+        adCallBack: AdCallBack
     ) {
+        this.adCallBack = adCallBack
         if (AdKit.initializer.getDisableAds()) {
+            adCallBack.onAdFailed("ads are disabled in app class")
             adFrame.let {
                 it.visibility = View.GONE
                 it.removeAllViews()
@@ -61,8 +61,6 @@ class BaseSingleBannerActivity private constructor(
         )
         this.bannerControllerConfig = bannerControllerConfig
         this.mContext = mContext
-        this.onFail = onFail
-        this.onAdClick = onAdClick
         try {
             adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         } catch (_: Exception) {
@@ -107,12 +105,20 @@ class BaseSingleBannerActivity private constructor(
 
     private fun loadSingleBannerAd() {
         if (isAdLoadCalled) {
-            if (adFrame == null ||
-                isAdEnable.not() ||
-                AdKit.adKitPref.isAppPurchased
+            if (!isAdEnable
+            ) {
+                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
+                adFrame?.let {
+                    it.visibility = View.GONE
+                    it.removeAllViews()
+                }
+            }
+            else if (adFrame == null
+                || AdKit.adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
             ) {
+                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                 adFrame?.let {
                     it.visibility = View.GONE
                     it.removeAllViews()
@@ -140,8 +146,8 @@ class BaseSingleBannerActivity private constructor(
                                         }
                                     }
 
-                                    override fun onAdFailed() {
-                                        onFail?.invoke()
+                                    override fun onAdFailed(reason: String) {
+                                        adCallBack.onAdFailed(reason)
                                         isRequesting = false
                                         if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                             return
@@ -175,7 +181,7 @@ class BaseSingleBannerActivity private constructor(
 
                                         }
                                     }, onAdClick = {
-                                        onAdClick?.invoke()
+                                        adCallBack.onAdClick()
 
                                     }
                                 )

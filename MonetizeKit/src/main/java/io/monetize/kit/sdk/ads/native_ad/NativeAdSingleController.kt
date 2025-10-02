@@ -83,13 +83,13 @@ class NativeAdSingleController {
                             super.onAdFailedToLoad(p0)
                             canRequestLargeAd = true
                             largeAndSmallNativeAd = null
-                            adControllerListener?.onAdFailed()
+                            adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
                         }
                     }).build()
                     adLoader.loadAd(AdManagerAdRequest.Builder().build())
                 }
             } else {
-                adControllerListener?.onAdFailed()
+                adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
             }
         } catch (_: Exception) {
         }

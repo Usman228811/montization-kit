@@ -13,6 +13,7 @@ import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
@@ -33,9 +34,9 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
-    private var onFail: (() -> Unit)? = null
-    private var onAdClick: (() -> Unit)? = null
     private var isAdEnable: Boolean = true
+    private lateinit var adCallBack: AdCallBack
+
 
     val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
 
@@ -53,19 +54,18 @@ class GetNativeAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit
+        adCallBack: AdCallBack,
     ) {
+        this.adCallBack = adCallBack
         if (AdKit.initializer.getDisableAds()) {
+            adCallBack.onAdFailed("ads are disabled in app class")
             hideAdFrame()
             return
         }
 
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
-        this.onFail = onFail
         this.adFrame = adFrame
-        this.onAdClick = onAdClick
         AdKit.firebaseHelper.apply {
             adType = AdType.entries.filter {
                 it.type == getLong(
@@ -150,7 +150,18 @@ class GetNativeAdRepoImpl private constructor(
     private fun loadSingleNativeAd() {
         try {
             if (isAdLoadCalled) {
-                if (adFrame == null || !isAdEnable || adKitPref.isAppPurchased) {
+                if (!isAdEnable
+                ) {
+                    adCallBack.onAdFailed("${nativeControllerConfig.placementKey} ad is disable or not added in remote config")
+                    hideAdFrame()
+                }
+                else if (
+                    adFrame == null
+                    || adKitPref.isAppPurchased
+                    || !AdKit.internetController.isConnected
+                    || !AdKit.consentManager.canRequestAds
+                ) {
+                    adCallBack.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
@@ -183,8 +194,8 @@ class GetNativeAdRepoImpl private constructor(
                                                 }
                                             }
 
-                                            override fun onAdFailed() {
-                                                onFail?.invoke()
+                                            override fun onAdFailed(reason: String) {
+                                                adCallBack.onAdFailed(reason)
                                                 isRequesting = false
                                                 canLoadAdAgain = false
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
@@ -214,7 +225,7 @@ class GetNativeAdRepoImpl private constructor(
                                                     largeNativeAd = ad
                                                 }
                                             }, onAdClick = {
-                                                onAdClick?.invoke()
+                                                adCallBack.onAdClick()
                                             })
                                     }
                                 } else {

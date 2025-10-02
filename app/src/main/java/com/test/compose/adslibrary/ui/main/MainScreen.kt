@@ -32,9 +32,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
+import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
@@ -72,33 +73,43 @@ fun MainScreen(
                     placementKey = "home_banner_top",
                     adIdKey = "home_banner_top"
                 ),
-                onAdClick = {
-                    Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
-                        .show()
+                adCallBack = object : AdCallBack{
+                    override fun onAdFailed(reason: String) {
+                        Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdClick() {
+                        Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 })
         }
 
         Button(onClick = {
 
-            AdKit.interHelper.showInterAd(
-                activity = activity,
-                placementKey = "home_inter",
-                adIdKey = "home_inter",
-                listener = object : InterstitialControllerListener {
-                    override fun onAdClosed(isInterShowed: Boolean) {
-                        Log.d("iooioi", "onAdClosed: $isInterShowed")
-                        gotoSubscription()
-                    }
-                }
-            )
-
-//            AdKit.rewardHelper.showRewardAd(
-//                adIdKey = "reward_main",
-//                placementKey = "inter_btn_plant",
+//            AdKit.interHelper.showInterAd(
 //                activity = activity,
-//                listener = object : RewardedControllerListener {
-//                    override fun onRewardDismissed(isRewarded: Boolean) {
-//                        Log.d("ioioioi", "onRewardDismissed: $isRewarded")
+//                placementKey = "home_inter",
+//                adIdKey = "home_inter",
+//                listener = object : InterstitialControllerListener {
+//                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+//                        Log.d("dddddd", reason)
+//                        gotoSubscription()
+//                    }
+//                }, "testt", 1
+//            )
+
+            AdKit.rewardHelper.showRewardAd(
+                adIdKey = "reward_main",
+                placementKey = "inter_btn_plant",
+                activity = activity,
+                listener = object : RewardedControllerListener {
+                    override fun onRewardDismissed(isRewarded: Boolean, reason: String) {
+
+                        Log.d("dddddd", reason)
+
+                        gotoSubscription()
+
 //                        if (isRewarded.not()) {
 //                            if (AdKit.adKitPref.getInterInt("common_pref", 0) >= 2) {
 //                                Log.d("ioioioi", "onRewardDismissed: try again")
@@ -110,10 +121,10 @@ fun MainScreen(
 //                            gotoSubscription()
 //                            Log.d("ioioioi", "onRewardDismissed: continue")
 //                        }
-//                    }
-//
-//                },
-//            )
+                    }
+
+                }, prefKey = "dddd", counter = 1,
+            )
         }) {
             Text("showinter and to got subscripption screen")
         }
@@ -123,11 +134,15 @@ fun MainScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
-            ), onFail = {
+            ),
+            adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
 
-            },
-            onAdClick = {
-                Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+                }
             }, callCustomDestroy = { callCustomDestroy ->
                 destroy = callCustomDestroy
             }
@@ -149,10 +164,18 @@ fun MainScreen(
                     placementKey = "home_banner",
                     adIdKey = "home_banner"
                 ),
-                onAdClick = {
-                    Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
-                        .show()
-                })
+                adCallBack = object : AdCallBack{
+                    override fun onAdFailed(reason: String) {
+                        Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdClick() {
+                        Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+
+                }
+            )
         }
     }
 }
@@ -180,7 +203,16 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
                     "exit_native",
-                ), callCustomDestroy = {
+                ),
+                adCallBack = object : AdCallBack{
+                    override fun onAdFailed(reason: String) {
+
+                    }
+
+                    override fun onAdClick() {
+                    }
+
+                }, callCustomDestroy = {
                     destroy = it
                 }
             )

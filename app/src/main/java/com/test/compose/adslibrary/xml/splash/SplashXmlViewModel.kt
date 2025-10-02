@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.xml.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
@@ -190,7 +191,8 @@ class SplashXmlViewModel : ViewModel() {
                         }
                     }
 
-                    override fun onAdClosed(isInterShowed: Boolean) {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                        Log.d("dddddd", reason)
                         animator?.cancel()
 
                         _state.update {

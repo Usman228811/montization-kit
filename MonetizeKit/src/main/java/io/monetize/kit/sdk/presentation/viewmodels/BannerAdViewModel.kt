@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.domain.usecase.GetBannerAdUseCase
 
 
@@ -28,15 +29,14 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit,
+        adCallBack: AdCallBack
+
     ) {
         getBannerAdUseCase.invoke(
             mContext = mContext,
             adFrame = adFrame,
             bannerControllerConfig = bannerControllerConfig,
-            onFail = onFail,
-            onAdClick = onAdClick,
+            adCallBack = adCallBack
         )
     }
 

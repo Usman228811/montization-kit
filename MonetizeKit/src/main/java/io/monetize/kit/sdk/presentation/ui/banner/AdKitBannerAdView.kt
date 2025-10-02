@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
@@ -22,8 +23,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 @Composable
 fun AdKitBannerAdView(
     bannerControllerConfig: BannerControllerConfig,
-    onFail: () -> Unit = {},
-    onAdClick: () -> Unit = {},
+    adCallBack: AdCallBack
+
 ) {
 
     val context = LocalContext.current
@@ -54,8 +55,7 @@ fun AdKitBannerAdView(
                     mContext = context as Activity,
                     bannerControllerConfig = bannerControllerConfig,
                     adFrame = adFrame,
-                    onFail = onFail,
-                    onAdClick = onAdClick,
+                    adCallBack = adCallBack
                 )
             }
         )

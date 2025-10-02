@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.presentation.ui.native_ad
 
 import android.app.Activity
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -16,6 +15,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 
@@ -23,10 +23,8 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 @Composable
 fun AdKitNativeAdView(
     nativeControllerConfig: NativeControllerConfig,
-    onFail: () -> Unit = {},
-    onAdClick: () -> Unit = {},
+    adCallBack: AdCallBack,
     callCustomDestroy: ((() -> Unit) -> Unit)? = null
-
 
 ) {
 
@@ -45,7 +43,6 @@ fun AdKitNativeAdView(
 
 
     callCustomDestroy?.invoke {
-        Log.d("opoppop", "call custom destroy: ")
         nativeAdViewModel.onDestroy()
     }
 
@@ -65,9 +62,8 @@ fun AdKitNativeAdView(
                     mContext = tet,
                     adFrame = adFrame,
                     nativeControllerConfig = nativeControllerConfig,
-                    onFail = onFail,
-                    onAdClick = onAdClick,
-                )
+                    adCallBack = adCallBack,
+                    )
             }
         )
     }

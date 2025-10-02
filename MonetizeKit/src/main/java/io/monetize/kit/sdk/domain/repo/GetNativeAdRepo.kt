@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.domain.repo
 import android.app.Activity
 import android.widget.LinearLayout
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 
 interface GetNativeAdRepo {
 
@@ -10,9 +11,8 @@ interface GetNativeAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit,
-    )
+        adCallBack: AdCallBack,
+        )
 
 
     fun onResume()

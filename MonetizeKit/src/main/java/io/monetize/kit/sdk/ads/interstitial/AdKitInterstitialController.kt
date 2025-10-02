@@ -62,7 +62,10 @@ class InterstitialController private constructor(
             } catch (_: Exception) {
             }
             isHandlerAdDelayRunning = false
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onAdClosed(
+                reason = "$placementKey called onAdClosed because: instant ad time is completed"
+
+            )
         }
     }
 
@@ -100,10 +103,15 @@ class InterstitialController private constructor(
                     setInterCount(key, 0)
                 }
             } else {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: App is minimized | Other Ad is showing"
+                )
             }
         } catch (exception: Exception) {
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onAdClosed(
+                reason = "$placementKey called onAdClosed because: Inter Exception"
+
+            )
         }
     }
 
@@ -120,19 +128,29 @@ class InterstitialController private constructor(
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+
+            )
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context,
-                    this@InterstitialController.placementKey, adIdKey, true, key, listener)
+                loadAndShow(
+                    context,
+                    this@InterstitialController.placementKey, adIdKey, true, key, listener
+                )
             }
         } else if ((savedCount + 1).toLong() >= counter) {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: counter is not completed"
+
+            )
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: counter is not completed"
+            )
             setInterCount(key, savedCount + 1)
         }
     }
@@ -148,12 +166,16 @@ class InterstitialController private constructor(
         this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+            )
         } else {
             if (admobInterAd != null) {
                 checkProgressShowAd(context)
             } else {
-                listener.onAdClosed()
+                listener.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: Ad is null"
+                )
                 loadInter(context)
             }
         }
@@ -171,7 +193,9 @@ class InterstitialController private constructor(
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+            )
         } else if (savedCount == -1 || savedCount >= counter) {
             if (admobInterAd != null) {
                 checkProgressShowAd(context, key)
@@ -184,15 +208,21 @@ class InterstitialController private constructor(
                 if (savedCount == -1) {
                     setInterCount(key, 1)
                 }
-                listener.onAdClosed()
+                listener.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: counter is complete but no ad is available"
+                )
 
             }
         } else if ((savedCount + 2).toLong() >= counter) {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: counter is not completed"
+            )
             loadInter(context)
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onAdClosed()
+            listener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: counter is not completed"
+            )
             setInterCount(key, savedCount + 1)
         }
     }
@@ -278,7 +308,9 @@ class InterstitialController private constructor(
         try {
             if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
                 if (!canRequestAd) {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onAdClosed(
+                        reason = "$placementKey called onAdClosed because: Other ad is being request"
+                    )
                     return
                 }
                 if (admobInterAd != null) {
@@ -306,28 +338,34 @@ class InterstitialController private constructor(
 
                             override fun onAdFailedToLoad(p0: LoadAdError) {
                                 canRequestAd = true
-                                handlerRemoveCallback(context)
+                                handlerRemoveCallback(
+                                    reason = "$placementKey ad failed to load code: ${p0.code} message: ${p0.message}"
+                                )
                             }
                         })
                 }
 
             } else {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+                )
             }
         } catch (e: Exception) {
             canRequestAd = true
-            handlerRemoveCallback(context)
+            handlerRemoveCallback("$placementKey called onAdClosed because: Inter Exception")
         } catch (e: OutOfMemoryError) {
             canRequestAd = true
-            handlerRemoveCallback(context)
+            handlerRemoveCallback("$placementKey called onAdClosed because: Inter Exception")
         }
     }
 
-    private fun handlerRemoveCallback(context: Activity) {
+    private fun handlerRemoveCallback(reason: String) {
         if (isHandlerAdDelayRunning) {
             dismissLoadingDialog()
             removeCallBacksDelay()
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onAdClosed(
+                reason = reason
+            )
         }
     }
 
@@ -364,11 +402,18 @@ class InterstitialController private constructor(
         admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 dismissLoadingDialog()
-                mInterstitialControllerListener?.onAdClosed(true)
+                mInterstitialControllerListener?.onAdClosed(
+                    isInterShowed = true,
+                    reason = "$placementKey called onAdClosed because: ad is showed successfully"
+                )
                 super.onAdDismissedFullScreenContent()
                 IS_INTERSTITIAL_Ad_SHOWING = false
                 admobInterAd = null
-                if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)) {
+                if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean(
+                        "${placementKey}_isInterInstant",
+                        false
+                    )
+                ) {
                     loadInter(activity)
                 }
             }
@@ -381,7 +426,9 @@ class InterstitialController private constructor(
 
             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                 dismissLoadingDialog()
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${p0.code} message: ${p0.message}"
+                )
                 super.onAdFailedToShowFullScreenContent(p0)
                 admobInterAd = null
                 IS_INTERSTITIAL_Ad_SHOWING = false

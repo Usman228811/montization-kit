@@ -104,22 +104,22 @@ class AdKitInterHelper private constructor(
         listener: InterstitialControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
         if (AdKit.initializer.getDisableAds()) {
-            listener.onAdClosed()
+            listener.onAdClosed(reason = "$placementKey called onAdClosed because: ads are disabled in app class")
             return
         }
         this.isInterInstant =
             AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
-            listener.onAdClosed()
+            listener.onAdClosed(reason = "$placementKey called onAdClosed because: ad is disable or not added in remote config")
             return
         }
 
         if (AdKit.splashAdController.hasAd()) {
             AdKit.splashAdController.showInterstitial(
                 activity, object : InterstitialControllerListener {
-                    override fun onAdClosed(isInterShowed: Boolean) {
-                        listener.onAdClosed(isInterShowed)
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                        listener.onAdClosed(isInterShowed, reason)
                     }
                 })
         } else {

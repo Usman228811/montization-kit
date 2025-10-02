@@ -27,7 +27,6 @@ internal class SplashInterstitialManager private constructor(
     private var isAppPause = false
 
     private var splashTime: Long = 16L
-    private var isAdEnable: Boolean = false
 
     private var adIdKey: String = ""
     private var placementKey: String = ""
@@ -70,18 +69,10 @@ internal class SplashInterstitialManager private constructor(
     fun resumeAd(activity: Activity) {
         if (isPauseDone) {
             isPauseDone = false
-            if (!isAdEnable) {
-                if (!isHandlerRunning) {
-                    handlerAd.postDelayed({
-                        mInterstitialControllerListener?.onAdClosed()
-                    }, 1000)
-                }
-            } else {
-                if (!isHandlerRunning) {
-                    handlerAd.postDelayed({
-                        showSplashAd(activity)
-                    }, 1000)
-                }
+            if (!isHandlerRunning) {
+                handlerAd.postDelayed({
+                    showSplashAd(activity)
+                }, 1000)
             }
         }
     }
@@ -107,7 +98,9 @@ internal class SplashInterstitialManager private constructor(
 
                             if (isHandlerRunning) {
                                 removeCallBacks()
-                                mInterstitialControllerListener?.onAdLoaded()
+                                mInterstitialControllerListener?.onAdLoaded(
+                                    reason = "$placementKey loaded because: ad loaded successfully"
+                                )
                                 if (loadAndShow) {
                                     showSplashAd(context)
                                 }
@@ -118,28 +111,30 @@ internal class SplashInterstitialManager private constructor(
                             super.onAdFailedToLoad(loadAdError)
                             interstitialAd = null
                             canRequestAd = true
-                            handleException()
+                            handleException(
+                                reason = "ad is failed to load code: ${loadAdError.code}, message:  ${loadAdError.message}"
+                            )
                         }
                     })
             } else {
-                handleException()
+                handleException("")
             }
         } catch (_: Exception) {
             canRequestAd = true
-            handleException()
+            handleException("Exception")
         } catch (_: OutOfMemoryError) {
             canRequestAd = true
-            handleException()
+            handleException("Exception")
         }
     }
 
-    private fun handleException() {
+    private fun handleException(reason: String) {
         if (isHandlerRunning) {
             removeCallBacks()
             if (loadAndShow) {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(reason = "$placementKey called onAdClosed because : $reason")
             } else {
-                mInterstitialControllerListener?.onAdLoaded()
+                mInterstitialControllerListener?.onAdLoaded(reason = "$placementKey called onAdLoaded because : $reason")
 
             }
         }
@@ -159,12 +154,16 @@ internal class SplashInterstitialManager private constructor(
         interstitialControllerListener: InterstitialControllerListener,
     ) {
         mInterstitialControllerListener = interstitialControllerListener
-        if (AdKit.adKitPref.isAppPurchased || !isAdEnable || isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
-            interstitialControllerListener.onAdClosed()
+        if (isAppPause || IS_INTERSTITIAL_Ad_SHOWING) {
+            interstitialControllerListener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: App is minimized | Other Ad is showing"
+            )
         } else if (interstitialAd != null) {
             adLoadingCheck(activity)
         } else {
-            interstitialControllerListener.onAdClosed()
+            interstitialControllerListener.onAdClosed(
+                reason = "$placementKey called onAdClosed because: ad is null"
+            )
         }
     }
 
@@ -196,7 +195,9 @@ internal class SplashInterstitialManager private constructor(
         try {
             when {
                 isAppPause -> {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onAdClosed(
+                        reason = "$placementKey called onAdClosed because: App is minimized"
+                    )
                 }
 
                 interstitialAd != null -> {
@@ -206,13 +207,13 @@ internal class SplashInterstitialManager private constructor(
                 }
 
                 else -> {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onAdClosed(reason = "")
                 }
             }
         } catch (_: Exception) {
-            hideProgressAndNullAd()
+            hideProgressAndNullAd(reason = "Inter Exception")
         } catch (_: OutOfMemoryError) {
-            hideProgressAndNullAd()
+            hideProgressAndNullAd(reason = "Inter Exception")
         }
     }
 
@@ -220,7 +221,6 @@ internal class SplashInterstitialManager private constructor(
 
         activity: Activity,
         placementKey: String,
-        isAdEnable: Boolean,
         adIdKey: String,
         time: Long,
         loadAndShow: Boolean,
@@ -231,16 +231,19 @@ internal class SplashInterstitialManager private constructor(
         this.loadAndShow = loadAndShow
         this.placementKey = placementKey
         this.adIdKey = adIdKey
-        this.isAdEnable = isAdEnable
         this.mInterstitialControllerListener = listener
 
         runnableSplash = Runnable {
             if (mInterstitialControllerListener != null && isHandlerRunning) {
                 isHandlerRunning = false
                 if (this.loadAndShow) {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onAdClosed(
+                        reason = "called onAdClosed because: splash ad time is completed"
+                    )
                 } else {
-                    mInterstitialControllerListener?.onAdLoaded()
+                    mInterstitialControllerListener?.onAdLoaded(
+                        reason = "called onAdLoaded because: splash ad time is completed"
+                    )
                 }
             }
         }
@@ -265,14 +268,18 @@ internal class SplashInterstitialManager private constructor(
 
     private fun showSplashAd(activity: Activity) {
         if (!isPauseDone) {
-            if (!IS_INTERSTITIAL_Ad_SHOWING && isAdEnable) {
+            if (!IS_INTERSTITIAL_Ad_SHOWING) {
                 if (interstitialAd != null) {
                     adLoadingCheck(activity)
                 } else {
-                    mInterstitialControllerListener?.onAdClosed()
+                    mInterstitialControllerListener?.onAdClosed(
+                        reason = "$placementKey called onAdClosed because: Ad is null"
+                    )
                 }
             } else {
-                mInterstitialControllerListener?.onAdClosed()
+                mInterstitialControllerListener?.onAdClosed(
+                    reason = "$placementKey called onAdClosed because: Other Ad is showing"
+                )
             }
         }
     }
@@ -291,7 +298,7 @@ internal class SplashInterstitialManager private constructor(
 
                 override fun onAdDismissedFullScreenContent() {
                     AdKit.analytics.postAnalytics("Splash_inter_cross")
-                    hideProgressAndNullAd(true)
+                    hideProgressAndNullAd(true, reason = "ad is showed successfully")
                     super.onAdDismissedFullScreenContent()
                 }
 
@@ -304,14 +311,16 @@ internal class SplashInterstitialManager private constructor(
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     super.onAdFailedToShowFullScreenContent(adError)
-                    hideProgressAndNullAd()
+                    hideProgressAndNullAd(
+                        reason = "onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
+                    )
                 }
 
             }
     }
 
-    private fun hideProgressAndNullAd(isInterShowed: Boolean = false) {
-        mInterstitialControllerListener?.onAdClosed(isInterShowed)
+    private fun hideProgressAndNullAd(isInterShowed: Boolean = false, reason: String) {
+        mInterstitialControllerListener?.onAdClosed(isInterShowed, "$placementKey called onAdClosed because: $reason")
         IS_INTERSTITIAL_Ad_SHOWING = false
         interstitialAd = null
         hideProgress()

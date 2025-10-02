@@ -16,6 +16,7 @@ class AdKitSplashAdController private constructor(
     private var handlerAd: Handler = Handler(Looper.getMainLooper())
     private var loadAndShow = true
     private var isAdEnable = true
+    private var placementKey = ""
     private var isForOpenAd = false
 
     init {
@@ -38,11 +39,11 @@ class AdKitSplashAdController private constructor(
         }
     }
 
-    private fun closeCallBack() {
+    private fun closeCallBack(reason: String) {
         if (loadAndShow) {
-            mInterstitialControllerListener?.onAdClosed()
+            mInterstitialControllerListener?.onAdClosed(reason = "$placementKey called onAdClosed because: $reason")
         } else {
-            mInterstitialControllerListener?.onAdLoaded()
+            mInterstitialControllerListener?.onAdLoaded("$placementKey called onAdLoaded because: $reason")
         }
     }
 
@@ -56,7 +57,9 @@ class AdKitSplashAdController private constructor(
                     splashInterstitialManager?.showInterstitial(activity, it)
                 }
             } else {
-                it.onAdClosed(false)
+                it.onAdClosed(false,
+                    "$placementKey called onAdClosed because: ad is disable in remote config"
+                    )
             }
         }
     }
@@ -85,16 +88,26 @@ class AdKitSplashAdController private constructor(
 
         AdKit.initializer.initAdsConfigs()
 
+        this.placementKey = placementKey
         isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
 
-        if (AdKit.adKitPref.isAppPurchased ||
-            !isAdEnable ||
+        if (!isAdEnable) {
+            handlerAd.postDelayed({
+                closeCallBack(
+                    reason = "ad is disable or not added in remote config"
+                )
+            }, 2000)
+        }
+
+       else if (AdKit.adKitPref.isAppPurchased ||
             !AdKit.internetController.isConnected ||
             AdKit.initializer.getDisableAds() ||
             AdKit.consentManager.canRequestAds.not()
         ) {
             handlerAd.postDelayed({
-                closeCallBack()
+                closeCallBack(
+                    reason = "can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config"
+                )
             }, 2000)
         } else {
             isForOpenAd = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdOpenAd", false)
@@ -113,7 +126,6 @@ class AdKitSplashAdController private constructor(
                 splashInterstitialManager?.initAd(
                     activity = activity,
                     placementKey = placementKey,
-                    isAdEnable = isAdEnable,
                     adIdKey = adIdKey,
                     time = splashTime,
                     loadAndShow = loadAndShow,

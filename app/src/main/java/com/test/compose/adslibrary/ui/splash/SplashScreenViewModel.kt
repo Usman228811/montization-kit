@@ -223,15 +223,17 @@ class SplashScreenViewModel(
                         }
                     }
 
-                    override fun onAdClosed(isInterShowed: Boolean) {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                        Log.d("dddddd", reason)
                         animator?.cancel()
                         _state.update {
                             it.copy(progress = 100, moveToMain = true)
                         }
                     }
 
-                    override fun onAdLoaded() {
-                        super.onAdLoaded()
+                    override fun onAdLoaded(reason: String) {
+                        Log.d("dddddd", reason)
+                        super.onAdLoaded(reason)
                         _state.update {
                             it.copy(
                                 onAdLoaded = true,
@@ -253,7 +255,8 @@ class SplashScreenViewModel(
         splashAdController.showInterstitial(
             activity = activity,
             object : InterstitialControllerListener {
-                override fun onAdClosed(isInterShowed: Boolean) {
+                override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                    Log.d("dddddd", reason)
                     _state.update {
                         it.copy(
                             moveToMain = true,

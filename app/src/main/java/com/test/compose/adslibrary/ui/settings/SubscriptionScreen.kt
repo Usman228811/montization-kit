@@ -1,6 +1,7 @@
 package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
@@ -41,7 +43,7 @@ fun SubscriptionScreen(
 
 ) {
 
-    val context = LocalContext.current
+    LocalContext.current
     val factory = remember { SubscriptionViewModelFactory() }
     val subscriptionViewModel: SubscriptionViewModel = viewModel(factory = factory)
 
@@ -67,7 +69,7 @@ fun SubscriptionScreen(
             price = state.weeklyPrice,
             isSelected = state.selectedButtonPos == 0,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity,0)
+                subscriptionViewModel.updateSelectedButtonPos(activity, 0)
 
             }
         )
@@ -77,7 +79,7 @@ fun SubscriptionScreen(
             price = state.monthlyPrice,
             isSelected = state.selectedButtonPos == 1,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity,1)
+                subscriptionViewModel.updateSelectedButtonPos(activity, 1)
 
             }
         )
@@ -87,7 +89,7 @@ fun SubscriptionScreen(
             price = state.yearlyPrice,
             isSelected = state.selectedButtonPos == 2,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity,2)
+                subscriptionViewModel.updateSelectedButtonPos(activity, 2)
 
             }
         )
@@ -105,10 +107,16 @@ fun SubscriptionScreen(
             )
         }
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp), thickness = 1.dp, color = Color.Black)
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp), thickness = 1.dp, color = Color.Black
+        )
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 50.dp),
             textAlign = TextAlign.Center,
             text = state.oneTimePrice,
             color = Color.Black,
@@ -131,10 +139,24 @@ fun SubscriptionScreen(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "subscription_native",
                 adIdKey = "home_native",
-            )
+            ),
+            adCallBack = object : AdCallBack {
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+
+                }
+
+            }
         )
 
-        Spacer(modifier = Modifier.fillMaxWidth().weight(1f))
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
 
         Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -142,7 +164,15 @@ fun SubscriptionScreen(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "premium_banner",
                     adIdKey = "premium_banner"
-                )
+                ), adCallBack = object : AdCallBack {
+                    override fun onAdFailed(reason: String) {
+                        Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdClick() {
+                    }
+
+                }
             )
         }
     }

@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.domain.repo
 import android.app.Activity
 import android.widget.LinearLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 
 interface GetBannerAdRepo {
 
@@ -10,8 +11,8 @@ interface GetBannerAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit,
+        adCallBack: AdCallBack
+
     )
 
 

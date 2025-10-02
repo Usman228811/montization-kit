@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModel
 import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 
@@ -28,8 +29,8 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     fun loadBanner(
         context: Context,
         bannerControllerConfig: BannerControllerConfig,
-        onFail: () -> Unit = {},
-        onAdClick: () -> Unit = {},
+        adCallBack: AdCallBack
+
     ) {
         this.bannerControllerConfig = bannerControllerConfig
 
@@ -47,8 +48,7 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = this,
-                onFail = onFail,
-                onAdClick = onAdClick,
+                adCallBack = adCallBack,
             )
 
             // Optional lifecycle observe

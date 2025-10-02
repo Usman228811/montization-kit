@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -54,7 +53,10 @@ class RewardAdController private constructor(
             } catch (_: Exception) {
             }
             isHandlerAdDelayRunning = false
-            mInterstitialControllerListener?.onRewardDismissed(false)
+            mInterstitialControllerListener?.onRewardDismissed(
+                false,
+                "$placementKey called onRewardDismissed because: INTER_INSTANT_TIME is completed"
+            )
         }
     }
 
@@ -94,10 +96,17 @@ class RewardAdController private constructor(
                     setInterCount(key, 0)
                 }
             } else {
-                mInterstitialControllerListener?.onRewardDismissed(false)
+                mInterstitialControllerListener?.onRewardDismissed(
+                    false,
+                    "$placementKey called onRewardDismissed because: App is minimized | Other Ad is showing"
+                )
             }
         } catch (exception: Exception) {
-            mInterstitialControllerListener?.onRewardDismissed(false)
+            mInterstitialControllerListener?.onRewardDismissed(
+                false,
+                "$placementKey called onRewardDismissed because: Reward Ad Exception"
+            )
+
         }
     }
 
@@ -115,19 +124,30 @@ class RewardAdController private constructor(
         mInterstitialControllerListener = listener
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+            )
         } else if (savedCount == -1 || savedCount >= counter) {
             if (rewardAd != null) {
                 checkProgressShowAd(context, key)
             } else {
-                loadAndShow(context,
-                    this@RewardAdController.placementKey, adIdKey, true, key, listener)
+                loadAndShow(
+                    context,
+                    this@RewardAdController.placementKey, adIdKey, true, key, listener
+                )
             }
         } else if ((savedCount + 1).toLong() >= counter) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: counter is not completed"
+            )
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: counter is not completed"
+            )
             setInterCount(key, savedCount + 1)
         }
     }
@@ -144,12 +164,18 @@ class RewardAdController private constructor(
         this.placementKey = placementKey
         this.adIdKey = adIdKey
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+            )
         } else {
             if (rewardAd != null) {
                 checkProgressShowAd(context)
             } else {
-                listener.onRewardDismissed(false)
+                listener.onRewardDismissed(
+                    false,
+                    reason = "$placementKey called onRewardDismissed because: Ad is null"
+                )
                 loadInter(context)
             }
         }
@@ -168,7 +194,10 @@ class RewardAdController private constructor(
         this.adIdKey = adIdKey
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
+            )
         } else if (savedCount == -1 || savedCount >= counter) {
             if (rewardAd != null) {
                 checkProgressShowAd(context, key)
@@ -181,15 +210,24 @@ class RewardAdController private constructor(
                 if (savedCount == -1) {
                     setInterCount(key, 1)
                 }
-                listener.onRewardDismissed(false)
+                listener.onRewardDismissed(
+                    false,
+                    reason = "$placementKey called onRewardDismissed because: counter is complete but no ad is available"
+                )
 
             }
         } else if ((savedCount + 2).toLong() >= counter) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: counter is not completed"
+            )
             loadInter(context)
             setInterCount(key, savedCount + 1)
         } else {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(
+                false,
+                reason = "$placementKey called onRewardDismissed because: counter is not completed"
+            )
             setInterCount(key, savedCount + 1)
         }
     }
@@ -277,7 +315,10 @@ class RewardAdController private constructor(
         try {
             if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
                 if (!canRequestAd) {
-                    mInterstitialControllerListener?.onRewardDismissed(false)
+                    mInterstitialControllerListener?.onRewardDismissed(
+                        false,
+                        reason = "$placementKey called onRewardDismissed because: Other ad is being request"
+                    )
                     return
                 }
                 if (rewardAd != null) {
@@ -288,11 +329,6 @@ class RewardAdController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-                    Log.d(
-                        "ioioioi",
-                        "onAdFailedToLoad: ${AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""}"
-                    )
-
                     RewardedAd.load(
                         context,
                         AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",
@@ -311,8 +347,10 @@ class RewardAdController private constructor(
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
                                 canRequestAd = true
-                                Log.d("ioioioi", "onAdFailedToLoad: $adError")
-                                handlerRemoveCallback(context)
+                                handlerRemoveCallback(
+                                    reason = "ad failed to load code: ${adError.code} message: ${adError.message}"
+
+                                )
                             }
                         },
                     )
@@ -320,22 +358,29 @@ class RewardAdController private constructor(
 
 
             } else {
-                mInterstitialControllerListener?.onRewardDismissed(false)
+                mInterstitialControllerListener?.onRewardDismissed(
+                    false,
+                    reason = "$placementKey called onRewardDismissed because:  internet connection | consent manager | app purchased | ad is disable in remote config"
+
+                )
             }
         } catch (e: Exception) {
             canRequestAd = true
-            handlerRemoveCallback(context)
+            handlerRemoveCallback("Reward Ad Exception")
         } catch (e: OutOfMemoryError) {
             canRequestAd = true
-            handlerRemoveCallback(context)
+            handlerRemoveCallback("Reward Ad Exception")
         }
     }
 
-    private fun handlerRemoveCallback(context: Activity) {
+    private fun handlerRemoveCallback(reason: String) {
         if (isHandlerAdDelayRunning) {
             dismissLoadingDialog()
             removeCallBacksDelay()
-            mInterstitialControllerListener?.onRewardDismissed(false)
+            mInterstitialControllerListener?.onRewardDismissed(
+                false,
+                "$placementKey called onRewardDismissed because: $reason"
+            )
         }
     }
 
@@ -374,18 +419,28 @@ class RewardAdController private constructor(
             object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     dismissLoadingDialog()
-                    mInterstitialControllerListener?.onRewardDismissed(isUserEarnReward)
+                    mInterstitialControllerListener?.onRewardDismissed(
+                        isUserEarnReward,
+                        reason = "$placementKey called onRewardDismissed because: ad is showed successfully"
+                    )
                     super.onAdDismissedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = false
                     rewardAd = null
-                    if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)) {
+                    if (key.isEmpty() && !AdKit.firebaseHelper.getBoolean(
+                            "${placementKey}_isInterInstant",
+                            false
+                        )
+                    ) {
                         loadInter(activity)
                     }
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     dismissLoadingDialog()
-                    mInterstitialControllerListener?.onRewardDismissed(false)
+                    mInterstitialControllerListener?.onRewardDismissed(
+                        false,
+                        reason = "$placementKey called onRewardDismissed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
+                    )
                     super.onAdFailedToShowFullScreenContent(adError)
                     rewardAd = null
                     IS_INTERSTITIAL_Ad_SHOWING = false

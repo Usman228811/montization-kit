@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.domain.usecase.GetNativeAdUseCase
 
 class NativeAdViewModelFactory(
@@ -29,16 +30,15 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit,
-        onAdClick: () -> Unit,
-    ) {
+        adCallBack: AdCallBack,
+        ) {
         getNativeAdUseCase.invoke(
             mContext = mContext,
             nativeControllerConfig = nativeControllerConfig,
             adFrame = adFrame,
-            onFail = onFail,
-            onAdClick = onAdClick,
-        )
+            adCallBack= adCallBack,
+
+            )
     }
 
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 
@@ -30,9 +31,8 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        onFail: () -> Unit = {},
-        onAdClick: () -> Unit = {},
-    ) {
+        adCallBack: AdCallBack,
+        ) {
         this.nativeControllerConfig = nativeControllerConfig
 
         if (context is Activity) {
@@ -48,9 +48,8 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                onFail = onFail,
-                onAdClick = onAdClick,
-            )
+                adCallBack= adCallBack,
+                )
 
             if (context is LifecycleOwner) {
                 mViewModel?.observeLifecycle(context)

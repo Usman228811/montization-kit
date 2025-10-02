@@ -45,17 +45,19 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             mapOfBannerIds = mapOf(
                 "premium_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
-                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "home_banner" to "ca-app-pub-3940256099942544/9214589741", // collapsible
                 "home_banner_top" to "ca-app-pub-3940256099942544/2014213617", // collapsible
             ),
             defaultRemoteConfigBuilder = {
 
                 bool("OPEN_AD_ENABLE", true)
+                bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
                 bool("INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)
                 long("INTER_INSTANT_TIME", 8)
+                long("splash_time", 16)
 
                 native("exit_native"){
                     enable(true)
@@ -91,7 +93,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner"){
                     enable(true)
-                    bannerType(2)
+                    bannerType(0)
                 }
                 banner("home_banner_top"){
                     enable(true)

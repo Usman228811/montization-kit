@@ -76,14 +76,14 @@ class AdKitRewardHelper private constructor(
         listener: RewardedControllerListener, prefKey: String = "", counter: Long = -1L,
     ) {
         if (AdKit.initializer.getDisableAds()) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(false, "ads are disabled in app class")
             return
         }
         this.isRewardInstant =
             AdKit.firebaseHelper.getBoolean("${placementKey}_isRewardInstant", true)
         this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
         if (!isAdEnable) {
-            listener.onRewardDismissed(false)
+            listener.onRewardDismissed(false, "$placementKey ad is disable or not added in remote config")
             return
         }
 
