@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v2.0.5")
+    implementation("com.github.Usman228811:montization-kit:v2.0.7")
 }
 ```
 
@@ -35,8 +35,8 @@ Define the required plugins in your `.toml` file:
 ```toml
 [plugins]
 gmsServiceVersion = "4.4.3"
-firebaseCrashlyticsVersion = "3.0.4"
-firebasePerfVersion = "1.4.2"
+firebaseCrashlyticsVersion = "3.0.6"
+firebasePerfVersion = "2.0.1"
 
 gmsServicePlugin = { id = "com.google.gms.google-services", version.ref = "gmsServiceVersion" }
 firebaseCrashlyticsPlugin = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsVersion" }
@@ -171,7 +171,6 @@ AdKit.init(
 			smallNativeMiniShimmer
 			smallNativeMediaViewLayout
 			smallNativeMediaViewShimmer
-			bannerShimmer
 
         )
 
@@ -250,7 +249,7 @@ private fun showSplashAd(mContext: Activity) {
                             _state.update { it.copy(progress = 100) }
                         }
                     }
-                    override fun onAdClosed(isInterShowed: Boolean) {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
 
 						// it will be called if `loadAndShow` is true
 
@@ -259,7 +258,7 @@ private fun showSplashAd(mContext: Activity) {
                             it.copy(progress = 100, moveToMain = true)
                         }
                     }
-                    override fun onAdLoaded() {
+                    override fun onAdLoaded(reason: String) {
                         super.onAdLoaded()
 
 						// it will be called if `loadAndShow` is false
@@ -285,7 +284,7 @@ fun showSplashInterOnClick(activity: Activity){
         splashAdController.showInterstitial(
             activity = activity,
             object :InterstitialControllerListener{
-                override fun onAdClosed(isInterShowed: Boolean) {
+                override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                     sendOneTimeEvent(SplashOneTimeEventEvents.MoveToMain)
                 }
 
@@ -357,12 +356,16 @@ AdKitNativeAdViewDialog(
         placementKey = "home_native",
         adIdKey = "home_native",
     ),
-   	onFail = {
-                // handle onAdFail
+   	//optional
+    adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+                }
             },
-    onAdClick = {
-                // handle onAdClick
-    },
     callCustomDestroy = { callCustomDestroy ->
 				//handle Custom Destroy
                 destroy = callCustomDestroy
@@ -406,12 +409,16 @@ binding.adFrameNative.loadNative(
         bgColor = "#000000",
         adType = 2
     ),
-    onFail = {
-                // handle onAdFail
-            },
-    onAdClick = {
-                // handle onAdClick
-    }
+	//optional
+    adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+                }
+            }
 )
 
 //custom destroy native ad
@@ -684,7 +691,17 @@ AdKitBannerAdView(
     bannerControllerConfig = BannerControllerConfig(
         placementKey = "home_banner",
         adIdKey = "home_banner"
-    )
+    ),
+   //optional
+    adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home banner ad click", Toast.LENGTH_SHORT).show()
+                }
+            }
 )
 ```
 
@@ -707,6 +724,16 @@ binding.adFrame.loadBanner(
         placementKey = "home_native",
         adIdKey = "home_native"
     )
+//optional
+    adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home banner ad click", Toast.LENGTH_SHORT).show()
+                }
+            }
 )
 ```
 
@@ -736,7 +763,7 @@ AdKit.interHelper.showInterAd(
     placementKey = "inter_btn_plant",
     activity = activity,
     listener = object : InterstitialControllerListener {
-        override fun onAdClosed(isInterShowed: Boolean) {}
+        override fun onAdClosed(isInterShowed: Boolean, reason: String) {}
     },
     // Optional
     prefKey = "common_pref",
@@ -785,7 +812,7 @@ AdKit.rewardHelper.showRewardAd(
     placementKey = "inter_btn_plant",
     activity = activity,
      listener = object : RewardedControllerListener {
-                    override fun onRewardDismissed(isRewarded: Boolean) {
+                    override fun onRewardDismissed(isRewarded: Boolean, reason: String) {
                         if (isRewarded.not()) {
                             
                         }else{
@@ -1256,13 +1283,13 @@ class SplashScreenViewModel(
                             _state.update { it.copy(progress = 100) }
                         }
                     }
-                    override fun onAdClosed(isInterShowed: Boolean) {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                         animator?.cancel()
                         _state.update {
                             it.copy(progress = 100, moveToMain = true)
                         }
                     }
-                    override fun onAdLoaded() {
+					override fun onAdLoaded(reason: String) {
                         super.onAdLoaded()
                         _state.update {
                             it.copy(
@@ -1285,7 +1312,7 @@ class SplashScreenViewModel(
         splashAdController.showInterstitial(
             activity = activity,
             object :InterstitialControllerListener{
-                override fun onAdClosed(isInterShowed: Boolean) {
+                override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                     _state.update {
                         it.copy(
                             moveToMain = true,
@@ -1503,7 +1530,7 @@ class SplashViewModel(
                         }
                     }
 
-                    override fun onAdClosed(isInterShowed: Boolean) {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                         animator?.cancel()
 
                         _state.update {
