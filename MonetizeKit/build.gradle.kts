@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "v2.0.6"
+version = "v2.0.7"
 
 
 afterEvaluate {
@@ -52,7 +52,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "v2.0.6"
+                version = "v2.0.7"
             }
         }
     }
@@ -66,7 +66,7 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
 
     implementation("androidx.activity:activity-compose:1.10.1")
-    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
+    implementation(platform("androidx.compose:compose-bom:2025.09.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -81,12 +81,12 @@ dependencies {
     implementation("network.chaintech:sdp-ssp-compose-multiplatform:1.0.7")
 
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.3")
-    implementation("androidx.lifecycle:lifecycle-process:2.9.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-process:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")

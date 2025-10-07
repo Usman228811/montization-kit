@@ -29,7 +29,7 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
 
     ) {
         getBannerAdUseCase.invoke(

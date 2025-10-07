@@ -27,7 +27,7 @@ class NativeAdViewModelDialog(private val getNativeAdUseCase: GetNativeAdUseCase
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack?,
         ) {
         getNativeAdUseCase.invoke(
             mContext = mContext,

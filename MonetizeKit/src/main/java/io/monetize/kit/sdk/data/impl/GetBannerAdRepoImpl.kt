@@ -33,7 +33,7 @@ class GetBannerAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
 
     ) {
         val bannerType = AdKit.firebaseHelper.getLong(

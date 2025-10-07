@@ -3,7 +3,6 @@ package io.monetize.kit.sdk.presentation.ui.native_ad
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -22,7 +21,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
     private var nativeControllerConfig: NativeControllerConfig? = null
 
-    var  mViewModel : NativeAdViewModel ?= null
+    var mViewModel: NativeAdViewModel? = null
 
     init {
         inflate(context, R.layout.ad_inflator, this)
@@ -31,15 +30,18 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
-        ) {
+        adCallBack: AdCallBack? = null,
+    ) {
         this.nativeControllerConfig = nativeControllerConfig
 
         if (context is Activity) {
-            visibility = View.VISIBLE
+            visibility = VISIBLE
 
             mViewModel = if (context is ViewModelStoreOwner) {
-                ViewModelProvider(context, NativeAdViewModelFactory())[NativeAdViewModel::class.java]
+                ViewModelProvider(
+                    context,
+                    NativeAdViewModelFactory()
+                )[NativeAdViewModel::class.java]
             } else {
                 null
             }
@@ -48,8 +50,8 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
                 mContext = context,
                 adFrame = this,
                 nativeControllerConfig = nativeControllerConfig,
-                adCallBack= adCallBack,
-                )
+                adCallBack = adCallBack,
+            )
 
             if (context is LifecycleOwner) {
                 mViewModel?.observeLifecycle(context)
@@ -57,7 +59,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
         }
     }
 
-    fun destroyNativeAd(){
+    fun destroyNativeAd() {
         mViewModel?.onDestroy()
     }
 }

@@ -30,7 +30,7 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack?,
         ) {
         getNativeAdUseCase.invoke(
             mContext = mContext,

@@ -11,7 +11,7 @@ interface GetBannerAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
 
     )
 

@@ -73,7 +73,7 @@ fun MainScreen(
                     placementKey = "home_banner_top",
                     adIdKey = "home_banner_top"
                 ),
-                adCallBack = object : AdCallBack{
+                /*adCallBack = object : AdCallBack{
                     override fun onAdFailed(reason: String) {
                         Log.d("dddddd", reason)
                     }
@@ -82,7 +82,7 @@ fun MainScreen(
                         Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
                             .show()
                     }
-                })
+                }*/)
         }
 
         Button(onClick = {

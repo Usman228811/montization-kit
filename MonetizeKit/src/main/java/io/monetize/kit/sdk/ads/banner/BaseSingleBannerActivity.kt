@@ -25,7 +25,7 @@ class BaseSingleBannerActivity private constructor(
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
-    private lateinit var adCallBack: AdCallBack
+    private var adCallBack: AdCallBack?= null
 
 
     private var isAdEnable = false
@@ -44,11 +44,11 @@ class BaseSingleBannerActivity private constructor(
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
         bannerType :Long,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
     ) {
         this.adCallBack = adCallBack
         if (AdKit.initializer.getDisableAds()) {
-            adCallBack.onAdFailed("ads are disabled in app class")
+            adCallBack?.onAdFailed("ads are disabled in app class")
             adFrame.let {
                 it.visibility = View.GONE
                 it.removeAllViews()
@@ -107,7 +107,7 @@ class BaseSingleBannerActivity private constructor(
         if (isAdLoadCalled) {
             if (!isAdEnable
             ) {
-                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
+                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
                 adFrame?.let {
                     it.visibility = View.GONE
                     it.removeAllViews()
@@ -118,7 +118,7 @@ class BaseSingleBannerActivity private constructor(
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
             ) {
-                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
+                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                 adFrame?.let {
                     it.visibility = View.GONE
                     it.removeAllViews()
@@ -147,7 +147,7 @@ class BaseSingleBannerActivity private constructor(
                                     }
 
                                     override fun onAdFailed(reason: String) {
-                                        adCallBack.onAdFailed(reason)
+                                        adCallBack?.onAdFailed(reason)
                                         isRequesting = false
                                         if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                             return
@@ -181,7 +181,7 @@ class BaseSingleBannerActivity private constructor(
 
                                         }
                                     }, onAdClick = {
-                                        adCallBack.onAdClick()
+                                        adCallBack?.onAdClick()
 
                                     }
                                 )

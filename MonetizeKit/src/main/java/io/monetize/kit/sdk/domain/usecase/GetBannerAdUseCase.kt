@@ -27,7 +27,7 @@ class GetBannerAdUseCase private constructor(private val repo: GetBannerAdRepo) 
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
 
 
     ) {

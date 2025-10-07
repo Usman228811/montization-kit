@@ -29,7 +29,7 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     fun loadBanner(
         context: Context,
         bannerControllerConfig: BannerControllerConfig,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack? = null
 
     ) {
         this.bannerControllerConfig = bannerControllerConfig

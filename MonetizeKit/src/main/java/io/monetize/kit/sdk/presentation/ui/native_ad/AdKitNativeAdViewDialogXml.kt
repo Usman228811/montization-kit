@@ -31,7 +31,7 @@ class AdKitNativeAdViewDialogXml @JvmOverloads constructor(
     fun loadNative(
         context: Context,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack? = null,
     ) {
         this.nativeControllerConfig = nativeControllerConfig
 

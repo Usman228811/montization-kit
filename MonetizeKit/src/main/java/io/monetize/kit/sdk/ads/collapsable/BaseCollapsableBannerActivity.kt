@@ -27,7 +27,7 @@ class BaseCollapsableBannerActivity private constructor(
     private var bannerType: Long = 0L
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
-    private lateinit var adCallBack: AdCallBack
+    private var adCallBack: AdCallBack ?= null
 
 
 
@@ -53,12 +53,12 @@ class BaseCollapsableBannerActivity private constructor(
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
         bannerType: Long,
-        adCallBack: AdCallBack
+        adCallBack: AdCallBack?
 
     ) {
         this.adCallBack = adCallBack
         if (AdKit.initializer.getDisableAds()) {
-            adCallBack.onAdFailed("ads are disabled in app class")
+            adCallBack?.onAdFailed("ads are disabled in app class")
             adFrame.let {
                 it.visibility = View.GONE
                 it.removeAllViews()
@@ -82,7 +82,7 @@ class BaseCollapsableBannerActivity private constructor(
                     false
                 ).not()
             ) {
-                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
+                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
                 adFrame?.let {
                     it.visibility = View.GONE
                     it.removeAllViews()
@@ -91,7 +91,7 @@ class BaseCollapsableBannerActivity private constructor(
 
             if (AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)
             ) {
-                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
+                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                 destroyCollapsableBannerAd()
                 adFrame?.let {
                     it.visibility = View.GONE
@@ -150,7 +150,7 @@ class BaseCollapsableBannerActivity private constructor(
 
                             override fun onAdClicked() {
                                 super.onAdClicked()
-                                adCallBack.onAdClick()
+                                adCallBack?.onAdClick()
                             }
 
                             override fun onAdFailedToLoad(p0: LoadAdError) {
@@ -159,7 +159,7 @@ class BaseCollapsableBannerActivity private constructor(
                                     collapseBannerAd.destroy()
                                     return
                                 }
-                                adCallBack.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
+                                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
                                 isRequesting = false
                                 bannerAd = null
                                 adFrame.removeAllViews()

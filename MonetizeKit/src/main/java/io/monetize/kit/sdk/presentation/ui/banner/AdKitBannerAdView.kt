@@ -23,7 +23,7 @@ import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 @Composable
 fun AdKitBannerAdView(
     bannerControllerConfig: BannerControllerConfig,
-    adCallBack: AdCallBack
+    adCallBack: AdCallBack ?= null
 
 ) {
 

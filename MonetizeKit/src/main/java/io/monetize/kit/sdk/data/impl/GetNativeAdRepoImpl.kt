@@ -35,7 +35,7 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var isAdEnable: Boolean = true
-    private lateinit var adCallBack: AdCallBack
+    private var adCallBack: AdCallBack?= null
 
 
     val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
@@ -54,11 +54,11 @@ class GetNativeAdRepoImpl private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack?,
     ) {
         this.adCallBack = adCallBack
         if (AdKit.initializer.getDisableAds()) {
-            adCallBack.onAdFailed("ads are disabled in app class")
+            adCallBack?.onAdFailed("ads are disabled in app class")
             hideAdFrame()
             return
         }
@@ -152,7 +152,7 @@ class GetNativeAdRepoImpl private constructor(
             if (isAdLoadCalled) {
                 if (!isAdEnable
                 ) {
-                    adCallBack.onAdFailed("${nativeControllerConfig.placementKey} ad is disable or not added in remote config")
+                    adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} ad is disable or not added in remote config")
                     hideAdFrame()
                 }
                 else if (
@@ -161,7 +161,7 @@ class GetNativeAdRepoImpl private constructor(
                     || !AdKit.internetController.isConnected
                     || !AdKit.consentManager.canRequestAds
                 ) {
-                    adCallBack.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
+                    adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()
                 } else {
                     model?.controller?.let { nativeAdController ->
@@ -195,7 +195,7 @@ class GetNativeAdRepoImpl private constructor(
                                             }
 
                                             override fun onAdFailed(reason: String) {
-                                                adCallBack.onAdFailed(reason)
+                                                adCallBack?.onAdFailed(reason)
                                                 isRequesting = false
                                                 canLoadAdAgain = false
                                                 if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
@@ -225,7 +225,7 @@ class GetNativeAdRepoImpl private constructor(
                                                     largeNativeAd = ad
                                                 }
                                             }, onAdClick = {
-                                                adCallBack.onAdClick()
+                                                adCallBack?.onAdClick()
                                             })
                                     }
                                 } else {

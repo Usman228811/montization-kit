@@ -23,7 +23,7 @@ import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
 @Composable
 fun AdKitNativeAdView(
     nativeControllerConfig: NativeControllerConfig,
-    adCallBack: AdCallBack,
+    adCallBack: AdCallBack ?= null,
     callCustomDestroy: ((() -> Unit) -> Unit)? = null
 
 ) {

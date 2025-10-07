@@ -11,7 +11,7 @@ interface GetNativeAdRepo {
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack?,
         )
 
 

@@ -24,7 +24,7 @@ class GetNativeAdUseCase private constructor(private val repo: GetNativeAdRepo) 
         mContext: Activity,
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
-        adCallBack: AdCallBack,
+        adCallBack: AdCallBack?,
 
         ) {
 
