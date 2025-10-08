@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v2.0.7")
+    implementation("com.github.Usman228811:montization-kit:v2.0.8")
 }
 ```
 
@@ -219,6 +219,32 @@ fun initConsent(activity: Activity) {
         }
     }
 }
+```
+
+---
+
+# Locale Helper
+
+Handle user app language with AdKit LocaleHelper, add this code in your activity, default language code is "en"
+
+### Keep Folder Name for specific languages
+- **Chinese**
+  - Simplified  
+    - Folder name: `values-zh-rCN`  
+    - Language code: `zh_rCN`
+  - Traditional  
+    - Folder name: `values-zh-rTW`  
+    - Language code: `zh_rTW`
+
+```kotlin
+override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(
+            AdKit.localeHelper.setAppLanguage(
+                newBase,
+                AdKit.adKitPref.appLanguageCode
+            )
+        )
+    }
 ```
 
 ---
