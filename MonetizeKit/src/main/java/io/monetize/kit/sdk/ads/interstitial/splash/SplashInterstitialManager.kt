@@ -99,7 +99,7 @@ internal class SplashInterstitialManager private constructor(
                             if (isHandlerRunning) {
                                 removeCallBacks()
                                 mInterstitialControllerListener?.onAdLoaded(
-                                    reason = "$placementKey loaded because: ad loaded successfully"
+                                    reason = "$placementKey called onAdLoaded because: ad loaded successfully"
                                 )
                                 if (loadAndShow) {
                                     showSplashAd(context)

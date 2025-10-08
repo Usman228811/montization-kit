@@ -27,8 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,13 +37,14 @@ import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
+import network.chaintech.sdpcomposemultiplatform.sdp
+import network.chaintech.sdpcomposemultiplatform.ssp
 
 @Composable
 fun SubscriptionScreen(
 
 ) {
 
-    LocalContext.current
     val factory = remember { SubscriptionViewModelFactory() }
     val subscriptionViewModel: SubscriptionViewModel = viewModel(factory = factory)
 
@@ -63,6 +64,14 @@ fun SubscriptionScreen(
                 )
             )
         }
+
+        Text(
+            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            text = "Subscription Plans",
+            fontSize = 12.ssp,
+            textDecoration = TextDecoration.Underline,
+            textAlign = TextAlign.Center
+        )
 
         SubscriptionOption(
             title = "weekly",
@@ -111,6 +120,14 @@ fun SubscriptionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 20.dp), thickness = 1.dp, color = Color.Black
+        )
+
+        Text(
+            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            text = "Life Time Plan",
+            fontSize = 12.ssp,
+            textDecoration = TextDecoration.Underline,
+            textAlign = TextAlign.Center
         )
 
         Text(

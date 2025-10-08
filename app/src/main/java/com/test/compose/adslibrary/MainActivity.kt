@@ -1,5 +1,6 @@
 package com.test.compose.adslibrary
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,8 @@ class MainActivity : ComponentActivity() {
         (appContext as AppClass).initializeAppClass()
         AdKit.openAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
 
+        val languageChange = intent?.extras?.getBoolean("languageChange", false) ?: false
+
 
         setContent {
             val navHostController = rememberNavController()
@@ -43,11 +46,20 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
-                    AppNavHost(navHostController)
+                    AppNavHost(navHostController, languageChange)
                 }
             }
 
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(
+            AdKit.localeHelper.setAppLanguage(
+                newBase,
+                AdKit.adKitPref.appLanguageCode
+            )
+        )
     }
 }
 

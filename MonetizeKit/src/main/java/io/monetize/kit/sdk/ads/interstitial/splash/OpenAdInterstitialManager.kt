@@ -162,7 +162,7 @@ internal class OpenAdInterstitialManager private constructor(
                                 if (isHandlerAdDelayRunning) {
                                     removeCallBacksDelay()
                                     listener?.onAdLoaded(
-                                        reason = "$placementKey loaded because: ad loaded successfully"
+                                        reason = "$placementKey called onAdLoaded because: ad loaded successfully"
                                     )
                                     if (loadAndShow) {
                                         showAdIfAvailable(activity)

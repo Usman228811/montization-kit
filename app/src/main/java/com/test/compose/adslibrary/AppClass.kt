@@ -78,7 +78,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
 
                 fullScreen("splash_inter"){
-                    enable(true)
+                    enable(false)
                 }
                 fullScreen("home_inter"){
                     enable(true)

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">AdsLibrary</string>
+    <string name="app_name" translatable="false">AdsLibrary</string>
+    <string name="hello">Hello how are you</string>
 </resources>

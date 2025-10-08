@@ -11,12 +11,18 @@ import com.test.compose.adslibrary.ui.splash.SplashScreen
 @Composable
 fun AppNavHost(
     navHostController: NavHostController,
+    languageChange : Boolean
 ) {
 
     val navigationActions = NavigationActions(navHostController)
+    val startDestination = if (languageChange) {
+        AppRoute.MainRoute.route
+    }else{
+        AppRoute.SplashRoute.route
+    }
 
     NavHost(
-        navController = navHostController, startDestination = AppRoute.SplashRoute.route
+        navController = navHostController, startDestination = startDestination
     ) {
         composable(AppRoute.SplashRoute.route) {
             SplashScreen(

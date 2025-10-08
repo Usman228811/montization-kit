@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nas.sdf.app"
+        applicationId = "com.nas.sdf.appd"
 //        applicationId = "com.plant.identifier.scanplant"
         minSdk = 24
         targetSdk = 35

@@ -12,14 +12,16 @@ class AdKitPref private constructor(context: Context) {
     var isLifeTimePurchased: Boolean
         get() = pref.getBoolean("isLifeTimePurchased", false)
         set(value) = pref.edit { putBoolean("isLifeTimePurchased", value) }
+
+    var appLanguageCode: String
+        get() = pref.getString("appLanguageCode", "en").toString()
+        set(value) = pref.edit { putString("appLanguageCode", value) }
     var isAppSubscribed: Boolean
         get() = pref.getBoolean("isAppSubscribed", false)
         set(value) = pref.edit { putBoolean("isAppSubscribed", value) }
 
     val isAppPurchased: Boolean
         get() = isLifeTimePurchased || isAppSubscribed
-
-
 
 
     fun getInterInt(key: String, defValue: Int): Int {
@@ -34,7 +36,7 @@ class AdKitPref private constructor(context: Context) {
         @Volatile
         private var instance: AdKitPref? = null
 
-       internal fun getInstance(context: Context): AdKitPref {
+        internal fun getInstance(context: Context): AdKitPref {
             return instance ?: synchronized(this) {
                 instance ?: AdKitPref(context.applicationContext).also {
                     instance = it

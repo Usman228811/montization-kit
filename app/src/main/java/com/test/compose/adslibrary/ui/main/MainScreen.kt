@@ -1,23 +1,21 @@
 package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,11 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.test.compose.adslibrary.MainActivity
+import com.test.compose.adslibrary.utils.Color579B68
+import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
@@ -40,12 +40,12 @@ import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
+import network.chaintech.sdpcomposemultiplatform.sdp
 
 @Composable
 fun MainScreen(
     gotoSubscription: () -> Unit
 ) {
-    LocalContext.current
     val activity = LocalActivity.current as Activity
     var destroy: (() -> Unit)? = null
 
@@ -62,7 +62,8 @@ fun MainScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
 
@@ -82,22 +83,68 @@ fun MainScreen(
                         Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
                             .show()
                     }
-                }*/)
+                }*/
+            )
         }
 
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color579B68
+                )
+                .padding(10.sdp), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.sdp),
+                textAlign = TextAlign.Center,
+                text = stringResource(com.test.compose.adslibrary.R.string.hello)
+            )
+
+
+
+            Button(onClick = {
+                AdKit.adKitPref.appLanguageCode =
+                    if (AdKit.adKitPref.appLanguageCode == "en") "ur" else "en"
+                activity.startActivity(
+                    Intent(activity, MainActivity::class.java)
+                        .putExtra("languageChange", true)
+                )
+                activity.finish()
+            }) {
+                Text("change language")
+            }
+        }
+
+
+        Button(onClick = {
+            gotoSubscription()
+        }) {
+            Text("goto subscription screen")
+        }
         Button(onClick = {
 
-//            AdKit.interHelper.showInterAd(
-//                activity = activity,
-//                placementKey = "home_inter",
-//                adIdKey = "home_inter",
-//                listener = object : InterstitialControllerListener {
-//                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
-//                        Log.d("dddddd", reason)
-//                        gotoSubscription()
-//                    }
-//                }, "testt", 1
-//            )
+
+            AdKit.interHelper.showInterAd(
+                activity = activity,
+                placementKey = "home_inter",
+                adIdKey = "home_inter",
+                listener = object : InterstitialControllerListener {
+                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                        Log.d("dddddd", reason)
+                        gotoSubscription()
+                    }
+                }, "testt", 1
+            )
+
+        }) {
+            Text("show inter and goto subscription screen")
+        }
+        Button(onClick = {
 
             AdKit.rewardHelper.showRewardAd(
                 adIdKey = "reward_main",
@@ -123,30 +170,34 @@ fun MainScreen(
 //                        }
                     }
 
-                }, prefKey = "dddd", counter = 1,
+                },
+                prefKey = "dddd", counter = 1,
             )
         }) {
-            Text("showinter and to got subscripption screen")
+            Text("show reward and goto subscription screen")
         }
-        Spacer(modifier = Modifier.weight(1f))
 
-        AdKitNativeAdView(
-            nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native",
-                adIdKey = "home_native",
-            ),
-            adCallBack =object: AdCallBack{
-                override fun onAdFailed(reason: String) {
-                    Log.d("dddddd", reason)
-                }
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 20.sdp)) {
 
-                override fun onAdClick() {
-                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+            AdKitNativeAdView(
+                nativeControllerConfig = NativeControllerConfig(
+                    placementKey = "home_native",
+                    adIdKey = "home_native",
+                ),
+                adCallBack = object : AdCallBack {
+                    override fun onAdFailed(reason: String) {
+                        Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdClick() {
+                        Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }, callCustomDestroy = { callCustomDestroy ->
+                    destroy = callCustomDestroy
                 }
-            }, callCustomDestroy = { callCustomDestroy ->
-                destroy = callCustomDestroy
-            }
-        )
+            )
+        }
 
         Button(onClick = {
             destroy?.invoke()
@@ -164,7 +215,7 @@ fun MainScreen(
                     placementKey = "home_banner",
                     adIdKey = "home_banner"
                 ),
-                adCallBack = object : AdCallBack{
+                adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
                         Log.d("dddddd", reason)
                     }
@@ -184,6 +235,7 @@ fun MainScreen(
 fun ExitDialog(onDismissRequest: () -> Unit) {
 
     var destroy: (() -> Unit)? = null
+    val activity = LocalActivity.current as Activity
 
     Dialog(
         properties = DialogProperties(
@@ -204,7 +256,7 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                     "exit_native",
                     "exit_native",
                 ),
-                adCallBack = object : AdCallBack{
+                adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
 
                     }
@@ -217,19 +269,13 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 }
             )
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 15.sdp), onClick = {
+                activity.finish()
+            }) {
                 Text(
-                    text = "This is a minimal dialog",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentSize(Alignment.Center),
-                    textAlign = TextAlign.Center,
+                    text = "Exit"
                 )
             }
         }
