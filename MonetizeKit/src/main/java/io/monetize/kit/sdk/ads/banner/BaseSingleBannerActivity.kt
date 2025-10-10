@@ -10,6 +10,7 @@ import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
@@ -55,7 +56,7 @@ class BaseSingleBannerActivity private constructor(
             }
             return
         }
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean(
+        this.isAdEnable = firebaseBoolean(
             "${bannerControllerConfig.placementKey}_isAdEnable",
             false
         )
@@ -169,7 +170,7 @@ class BaseSingleBannerActivity private constructor(
                                     enable = isAdEnable,
                                     adFrame = adFrame,
                                     bannerType = bannerType,
-                                    loadNewAd = AdKit.firebaseHelper.getBoolean(
+                                    loadNewAd = firebaseBoolean(
                                         "${bannerControllerConfig.adIdKey}_loadNewAd",
                                         false
                                     ),

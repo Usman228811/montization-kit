@@ -19,7 +19,7 @@ import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
 
 private fun getFirstNonNull(vararg values: Int?): Int {
@@ -165,11 +165,11 @@ fun populateNativeAd(
 ) {
     try {
         val colorHex = listOf(
-            AdKit.firebaseHelper.getString(
+            firebaseString(
                 "${nativeControllerConfig.placementKey}_bgColor",
                 ""
             ),
-            AdKit.firebaseHelper.getString(
+            firebaseString(
                 "overAllNativeBgColor",
                 ""
             ),
@@ -241,11 +241,11 @@ fun populateNativeAd(
 
         try {
             val colorHex = listOf(
-                AdKit.firebaseHelper.getString(
+                firebaseString(
                     "${nativeControllerConfig.placementKey}_ctaColor",
                     ""
                 ),
-                AdKit.firebaseHelper.getString(
+                firebaseString(
                     "overAllNativeCtaColor",
                     ""
                 ),

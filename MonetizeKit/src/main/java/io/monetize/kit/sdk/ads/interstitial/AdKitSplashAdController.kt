@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import io.monetize.kit.sdk.ads.interstitial.splash.OpenAdInterstitialManager
 import io.monetize.kit.sdk.ads.interstitial.splash.SplashInterstitialManager
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
@@ -89,7 +90,7 @@ class AdKitSplashAdController private constructor(
         AdKit.initializer.initAdsConfigs()
 
         this.placementKey = placementKey
-        isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+        isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
 
         if (!isAdEnable) {
             handlerAd.postDelayed({
@@ -110,7 +111,7 @@ class AdKitSplashAdController private constructor(
                 )
             }, 2000)
         } else {
-            isForOpenAd = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdOpenAd", false)
+            isForOpenAd = firebaseBoolean("${placementKey}_isAdOpenAd", false)
             if (isForOpenAd) {
                 openAdInterstitialManager?.initOpenAdInterstitial(
                     activity = activity,

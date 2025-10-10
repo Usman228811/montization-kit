@@ -17,6 +17,8 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
@@ -105,11 +107,9 @@ class AdKitOpenAdManager private constructor(
     }
 
     fun setOpenAdConfigs() {
-        AdKit.firebaseHelper.apply {
-            this@AdKitOpenAdManager.isOpenAdInstant = getBoolean("IS_OPEN_AD_INSTANT", false)
-            this@AdKitOpenAdManager.isAdEnable = getBoolean("OPEN_AD_ENABLE", false)
-            this@AdKitOpenAdManager.isLoadingEnable = getBoolean("OPEN_AD_LOADING_ENABLE", false)
-        }
+        this@AdKitOpenAdManager.isOpenAdInstant = firebaseBoolean("IS_OPEN_AD_INSTANT", false)
+        this@AdKitOpenAdManager.isAdEnable = firebaseBoolean("OPEN_AD_ENABLE", false)
+        this@AdKitOpenAdManager.isLoadingEnable = firebaseBoolean("OPEN_AD_LOADING_ENABLE", false)
     }
 
     fun initOpenAd() {
@@ -149,7 +149,7 @@ class AdKitOpenAdManager private constructor(
     }
 
     private fun startDelayHandler() {
-        var instantTime = AdKit.firebaseHelper.getLong("OPEN_AD_INSTANT_TIME", 8)
+        var instantTime = firebaseLong("OPEN_AD_INSTANT_TIME", 8)
         if (instantTime == 0L) {
             instantTime = 8L
         }

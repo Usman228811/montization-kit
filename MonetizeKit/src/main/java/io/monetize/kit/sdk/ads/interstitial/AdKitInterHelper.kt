@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.interstitial
 
 import android.app.Activity
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AdKitInterHelper private constructor(
@@ -58,10 +59,8 @@ class AdKitInterHelper private constructor(
         if (AdKit.initializer.getDisableAds()) {
             return
         }
-        AdKit.firebaseHelper.apply {
-            isInterInstant = getBoolean("${placementKey}_isInterInstant", false)
-            isAdEnable = getBoolean("${placementKey}_isAdEnable", false)
-        }
+        isInterInstant = firebaseBoolean("${placementKey}_isInterInstant", false)
+        isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
 
         if (isAdEnable.not()) {
             return
@@ -108,8 +107,8 @@ class AdKitInterHelper private constructor(
             return
         }
         this.isInterInstant =
-            AdKit.firebaseHelper.getBoolean("${placementKey}_isInterInstant", false)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", false)
+            firebaseBoolean("${placementKey}_isInterInstant", false)
+        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
             listener.onAdClosed(reason = "$placementKey called onAdClosed because: ad is disable or not added in remote config")
             return

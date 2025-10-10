@@ -11,7 +11,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
-import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
@@ -25,7 +25,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
 
     private fun startHandler() {
-        var configFetchTime = AdKit.firebaseHelper.getLong("config_fetch_time", 8)
+        var configFetchTime = firebaseLong("config_fetch_time", 8)
         if (configFetchTime == 0L) {
             configFetchTime = 8L
         }
@@ -170,7 +170,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         })
     }
 
-    fun getBoolean(key: String, def: Boolean): Boolean {
+    internal fun getBoolean(key: String, def: Boolean): Boolean {
         return try {
             Firebase.remoteConfig.getBoolean(key)
         } catch (e: Exception) {
@@ -178,7 +178,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
-    fun getLong(key: String, def: Long): Long {
+    internal fun getLong(key: String, def: Long): Long {
         return try {
             Firebase.remoteConfig.getLong(key)
         } catch (e: Exception) {
@@ -186,7 +186,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
-    fun getString(key: String, def: String): String {
+    internal fun getString(key: String, def: String): String {
         return try {
             Firebase.remoteConfig.getString(key)
         } catch (e: Exception) {
@@ -194,6 +194,5 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
         }
     }
-
 
 }

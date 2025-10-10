@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.rewarded
 
 import android.app.Activity
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AdKitRewardHelper private constructor(
@@ -35,8 +36,8 @@ class AdKitRewardHelper private constructor(
             return
         }
         this.isRewardInstant =
-            AdKit.firebaseHelper.getBoolean("${placementKey}_isRewardInstant", true)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+            firebaseBoolean("${placementKey}_isRewardInstant", true)
+        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
         if (isAdEnable.not()) {
             return
         }
@@ -80,8 +81,8 @@ class AdKitRewardHelper private constructor(
             return
         }
         this.isRewardInstant =
-            AdKit.firebaseHelper.getBoolean("${placementKey}_isRewardInstant", true)
-        this.isAdEnable = AdKit.firebaseHelper.getBoolean("${placementKey}_isAdEnable", true)
+            firebaseBoolean("${placementKey}_isRewardInstant", true)
+        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
         if (!isAdEnable) {
             listener.onRewardDismissed(false, "$placementKey ad is disable or not added in remote config")
             return

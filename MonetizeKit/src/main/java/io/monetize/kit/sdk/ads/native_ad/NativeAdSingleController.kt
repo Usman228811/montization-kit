@@ -11,6 +11,8 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
@@ -107,7 +109,7 @@ class NativeAdSingleController {
     ) {
         this.onAdClick = onAdClick
         this.isAdEnable =
-            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
+            firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
         if (isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd != null) {
             largeAndSmallNativeAd?.let {
@@ -117,7 +119,7 @@ class NativeAdSingleController {
                             nativeControllerConfig = nativeControllerConfig,
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
                             adType = AdType.entries.filter { entries ->
-                                entries.type == AdKit.firebaseHelper.getLong(
+                                entries.type == firebaseLong(
                                     "${nativeControllerConfig.placementKey}_adType",
                                     0
                                 ).toInt()
@@ -149,7 +151,7 @@ class NativeAdSingleController {
         nativeControllerConfig: NativeControllerConfig, context: Context
     ) {
         this.isAdEnable =
-            AdKit.firebaseHelper.getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
+            firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
         setNativeControllerListener(null)
         loadNativeAd(context, isAdEnable)

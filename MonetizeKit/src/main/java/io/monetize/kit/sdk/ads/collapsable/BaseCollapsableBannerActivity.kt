@@ -15,6 +15,7 @@ import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class BaseCollapsableBannerActivity private constructor(
@@ -77,7 +78,7 @@ class BaseCollapsableBannerActivity private constructor(
 
     private fun loadCollapsableBannerAd() {
         if (isAdLoadCalled) {
-            if (AdKit.firebaseHelper.getBoolean(
+            if (firebaseBoolean(
                     "${bannerControllerConfig.placementKey}_isAdEnable",
                     false
                 ).not()

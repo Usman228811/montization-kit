@@ -14,6 +14,7 @@ import com.test.compose.adslibrary.BuildConfig
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
@@ -212,7 +213,7 @@ class SplashScreenViewModel(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
                 loadAndShow = false,
-                splashTime = firebaseHelper.getLong("splash_time", 16),
+                splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()

@@ -14,10 +14,11 @@ import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
-import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 
 
@@ -36,9 +37,6 @@ class GetNativeAdRepoImpl private constructor(
     private var canLoadAdAgain = true
     private var isAdEnable: Boolean = true
     private var adCallBack: AdCallBack?= null
-
-
-    val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
 
 
     companion object {
@@ -66,16 +64,14 @@ class GetNativeAdRepoImpl private constructor(
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext
         this.adFrame = adFrame
-        AdKit.firebaseHelper.apply {
-            adType = AdType.entries.filter {
-                it.type == getLong(
-                    "${nativeControllerConfig.placementKey}_adType",
-                    0
-                ).toInt()
-            }[0]
-            loadNewAd = getBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
-            isAdEnable = getBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
-        }
+        adType = AdType.entries.filter {
+            it.type == firebaseLong(
+                "${nativeControllerConfig.placementKey}_adType",
+                0
+            ).toInt()
+        }[0]
+        loadNewAd = firebaseBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
+        isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         isAdLoadCalled = true
 
         var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }

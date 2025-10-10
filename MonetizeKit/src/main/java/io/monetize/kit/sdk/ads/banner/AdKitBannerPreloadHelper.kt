@@ -2,6 +2,8 @@ package io.monetize.kit.sdk.ads.banner
 
 import android.app.Activity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
+import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AdKitBannerPreloadHelper private constructor(
@@ -22,10 +24,10 @@ class AdKitBannerPreloadHelper private constructor(
 
     fun preLoadBanner(mContext: Activity, bannerControllerConfig: BannerControllerConfig) {
         val bannerType =
-            AdKit.firebaseHelper.getLong("${bannerControllerConfig.placementKey}_bannerType", 0)
+            firebaseLong("${bannerControllerConfig.placementKey}_bannerType", 0)
 
 
-        if (AdKit.firebaseHelper.getBoolean(
+        if (firebaseBoolean(
                 "${bannerControllerConfig.placementKey}_isAdEnable",
                 false
             )
