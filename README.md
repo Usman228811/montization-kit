@@ -225,9 +225,9 @@ fun initConsent(activity: Activity) {
 
 # Locale Helper
 
-Handle user app language with AdKit LocaleHelper, add this code in your activity, default language code is "en"
+Handle user app language with AdKit LocaleHelper, add this code in your activity, default language code is "en".
 
-### Keep Folder Name for specific languages
+Keep Folder Name for specific languages
 - **Chinese**
   - Simplified  
     - Folder name: `values-zh-rCN`  
@@ -245,6 +245,20 @@ override fun attachBaseContext(newBase: Context?) {
             )
         )
     }
+```
+Change the application language when the user clicks the button
+
+```kotlin
+ Button(onClick = {
+                AdKit.adKitPref.appLanguageCode = list[position].languageCode
+                activity.startActivity(
+                    Intent(activity, MainActivity::class.java)
+                        .putExtra("languageChange", true)
+                )
+                activity.finish()
+            }) {
+                Text("change language")
+            }
 ```
 
 ---
