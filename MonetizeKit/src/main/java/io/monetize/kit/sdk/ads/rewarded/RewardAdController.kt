@@ -12,6 +12,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -285,6 +286,8 @@ class RewardAdController private constructor(
                     object : RewardedAdLoadCallback() {
                         override fun onAdLoaded(ad: RewardedAd) {
                             rewardAd = ad
+                            rewardAd?.revenueListener(AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",)
+
                             canRequestAd = true
                         }
 

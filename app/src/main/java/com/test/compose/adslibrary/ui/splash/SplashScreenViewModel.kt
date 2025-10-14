@@ -212,7 +212,7 @@ class SplashScreenViewModel(
                 activity = mContext,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
-                loadAndShow = false,
+                loadAndShow = true,
                 splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {

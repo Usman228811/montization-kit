@@ -21,32 +21,33 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
         AdKit.init(
             isDebug = BuildConfig.DEBUG,
+            appFlyerSdkKey = "",
             context = this,
             admobId = "ca-app-pub-3940256099942544~3347511713",
-            openAdId = "ca-app-pub-3940256099942544/9257395921",
+            openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
-                "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
-                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_inter" to "/21775744923/example/interstitial",
+                "splash_open_ad" to "/21775744923/example/app-open",
+                "home_inter" to "/21775744923/example/interstitial",
                 "inter_common" to listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
+                    "/21775744923/example/interstitial",
+                    "/21775744923/example/interstitial",
+                    "/21775744923/example/interstitial"
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
+                "reward_main" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
-                "exit_native" to "ca-app-pub-3940256099942544/2247696110",
-                "home_native" to "ca-app-pub-3940256099942544/2247696110",
-                "subscription_native" to "ca-app-pub-3940256099942544/2247696110",
+                "exit_native" to "/21775744923/example/native",
+                "home_native" to "/21775744923/example/native",
+                "subscription_native" to "/21775744923/example/native",
             ),
             mapOfBannerIds = mapOf(
-                "premium_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
-//                "home_banner" to "ca-app-pub-3940256099942544/9214589741", //banner
-                "home_banner" to "ca-app-pub-3940256099942544/9214589741", // collapsible
-                "home_banner_top" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "premium_banner" to "/21775744923/example/adaptive-banner", //banner
+//                "home_banner" to "/21775744923/example/adaptive-banner", //banner
+                "home_banner" to "/21775744923/example/adaptive-banner", // collapsible
+                "home_banner_top" to "/21775744923/example/adaptive-banner", // collapsible
             ),
             defaultRemoteConfigBuilder = {
 
@@ -74,7 +75,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(1)
+                    adType(2)
                 }
 
                 fullScreen("splash_inter"){
@@ -97,7 +98,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner_top"){
                     enable(true)
-                    bannerType(4)
+                    bannerType(0)
                 }
                 banner("premium_banner"){
                     enable(true)

@@ -42,3 +42,6 @@
 # Keep Google Play Services classes
 -keep class com.google.android.gms.** { *; }
 -keep class com.google.android.gms.ads.** { *; }
+
+-keep class com.appsflyer.** { *; }
+-keep class kotlin.jvm.internal.** { *; }

@@ -15,6 +15,7 @@ import io.monetize.kit.sdk.ads.rewarded.RewardAdIdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
 import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
+import io.monetize.kit.sdk.core.utils.appflyer.AppsFlyer
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_review.AdKitInAppReviewManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
@@ -57,6 +58,9 @@ object AdKit {
 
 
     lateinit var firebaseHelper: AdKitFirebaseRemoteConfigHelper
+        private set
+
+    lateinit var appsFlyer: AppsFlyer
         private set
 
 
@@ -106,6 +110,7 @@ object AdKit {
     fun init(
         isDebug:Boolean,
         context: Context, admobId: String,
+        appFlyerSdkKey: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
         mapOfRewardIds: Map<String, Any>,
@@ -119,6 +124,7 @@ object AdKit {
         val configDefaults = configBuilder.configMap
 
         initializer = AdKitInitializer.getInstance()
+        appsFlyer = AppsFlyer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
         interHelper = AdKitInterHelper.getInstance()
         localeHelper = LocaleHelper.getInstance()
@@ -160,6 +166,11 @@ object AdKit {
             onInit = {
 
             }
+        )
+        appsFlyer.initAppFlyer(
+            context,
+            appFlyerSdkKey,
+            isDebug
         )
         onInitSdk()
     }

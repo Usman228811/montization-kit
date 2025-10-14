@@ -12,6 +12,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -279,6 +280,8 @@ class InterstitialController private constructor(
                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
                             super.onAdLoaded(interstitialAd)
                             admobInterAd = interstitialAd
+                            admobInterAd?.revenueListener( AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+
                             canRequestAd = true
                         }
 
@@ -330,6 +333,8 @@ class InterstitialController private constructor(
                             override fun onAdLoaded(p0: InterstitialAd) {
                                 super.onAdLoaded(p0)
                                 admobInterAd = p0
+                                admobInterAd?.revenueListener( AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+
                                 canRequestAd = true
                                 if (isHandlerAdDelayRunning) {
                                     dismissLoadingDialog()

@@ -17,6 +17,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -195,6 +196,8 @@ class AdKitOpenAdManager private constructor(
                                         Log.d("AdKit_Logs", "instant open ad loaded")
                                         canRequestAd = true
                                         mAppOpenAd = appOpenAd
+                                        mAppOpenAd?.revenueListener(adId)
+
                                         setFullScreenCallBacks()
                                         loadTime = Date().time
 
@@ -292,6 +295,8 @@ class AdKitOpenAdManager private constructor(
                         Log.d("AdKit_Logs", "preload open ad loaded")
                         canRequestAd = true
                         mAppOpenAd = appOpenAd
+                        mAppOpenAd?.revenueListener(adId)
+
                         loadTime = Date().time
                     }
 
@@ -323,7 +328,7 @@ class AdKitOpenAdManager private constructor(
                                     setFullScreenCallBacks()
                                     checkProgressShowAd(it)
                                 } else {
-                                    mAppOpenAd?.show(it)
+                                    showAppOpenAd(it)
                                 }
 
                             }
@@ -348,14 +353,18 @@ class AdKitOpenAdManager private constructor(
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                    mAppOpenAd?.show(activity)
+                    showAppOpenAd(activity)
                 }, 1 * 1000)
             } catch (e: Exception) {
-                mAppOpenAd?.show(activity)
+                showAppOpenAd(activity)
             }
         } else {
-            mAppOpenAd?.show(activity)
+            showAppOpenAd(activity)
         }
+    }
+
+    fun showAppOpenAd(activity: Activity){
+        mAppOpenAd?.show(activity)
     }
 
     private fun wasLoadTimeLessThanNHoursAgo(): Boolean {

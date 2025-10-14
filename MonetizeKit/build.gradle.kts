@@ -42,7 +42,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "v2.0.9"
+version = "v3.0.0"
 
 
 afterEvaluate {
@@ -52,7 +52,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "v2.0.9"
+                version = "v3.0.0"
             }
         }
     }
@@ -96,6 +96,8 @@ dependencies {
     implementation("com.android.billingclient:billing-ktx:8.0.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
+    implementation("com.appsflyer:af-android-sdk:6.17.3")
+    implementation("com.android.installreferrer:installreferrer:2.2")
 
 
 }

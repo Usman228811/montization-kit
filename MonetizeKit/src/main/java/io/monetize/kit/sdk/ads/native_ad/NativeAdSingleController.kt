@@ -11,12 +11,16 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 data class NativeAdSingleModel(
@@ -66,6 +70,13 @@ class NativeAdSingleController {
                     builder.forNativeAd { newNativeAd: NativeAd ->
                         canRequestLargeAd = true
                         largeAndSmallNativeAd = newNativeAd
+                        CoroutineScope(Dispatchers.Main).launch {
+                            largeAndSmallNativeAd?.revenueListener(
+                                AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
+                                    ?: ""
+                            )
+                        }
+
                         adControllerListener?.onAdLoaded()
                     }
                     builder.withNativeAdOptions(

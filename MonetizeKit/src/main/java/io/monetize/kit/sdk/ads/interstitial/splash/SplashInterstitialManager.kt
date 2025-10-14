@@ -12,6 +12,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
@@ -85,8 +86,8 @@ internal class SplashInterstitialManager private constructor(
                     return
                 }
                 canRequestAd = false
-                val adId = AdKit.interIdManager.getNextInterId(adIdKey)
-                if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
+                val adId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
+//                if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
                     context, adId,
@@ -95,6 +96,8 @@ internal class SplashInterstitialManager private constructor(
                         override fun onAdLoaded(splashAd: InterstitialAd) {
                             super.onAdLoaded(splashAd)
                             interstitialAd = splashAd
+                            interstitialAd?.revenueListener(AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+
                             canRequestAd = true
 
                             if (isHandlerRunning) {

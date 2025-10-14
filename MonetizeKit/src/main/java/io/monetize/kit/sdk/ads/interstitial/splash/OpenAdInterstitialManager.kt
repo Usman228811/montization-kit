@@ -12,6 +12,7 @@ import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
@@ -160,6 +161,7 @@ internal class OpenAdInterstitialManager private constructor(
                                 super.onAdLoaded(appOpenAd)
                                 canRequestAd = true
                                 mAppOpenAd = appOpenAd
+                                mAppOpenAd?.revenueListener(adId)
                                 if (isHandlerAdDelayRunning) {
                                     removeCallBacksDelay()
                                     listener?.onAdLoaded(
@@ -294,14 +296,18 @@ internal class OpenAdInterstitialManager private constructor(
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                    mAppOpenAd?.show(activity)
+                    showAppOpenAd(activity)
                 }, 1 * 1000)
             } catch (e: Exception) {
-                mAppOpenAd?.show(activity)
+                showAppOpenAd(activity)
             }
         } else {
-            mAppOpenAd?.show(activity)
+            showAppOpenAd(activity)
         }
+    }
+
+    fun showAppOpenAd(activity: Activity){
+        mAppOpenAd?.show(activity)
     }
 
     fun hasAd(): Boolean {

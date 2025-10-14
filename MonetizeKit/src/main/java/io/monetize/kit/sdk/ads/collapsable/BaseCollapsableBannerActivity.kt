@@ -14,6 +14,7 @@ import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -147,6 +148,8 @@ class BaseCollapsableBannerActivity private constructor(
                                 adFrame.visibility = View.VISIBLE
                                 adFrame.removeAllViews()
                                 adFrame.addView(bannerAd)
+                                bannerAd?.revenueListener( AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
+                                    ?: "")
                             }
 
                             override fun onAdClicked() {

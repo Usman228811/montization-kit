@@ -10,6 +10,7 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
@@ -79,6 +80,8 @@ class AdKitBannerController {
                             super.onAdLoaded()
                             canRequestBannerAd = true
                             adView = bannerAd
+                            adView?.revenueListener(AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: "")
+
                             adControllerListener?.onAdLoaded()
                         }
 
@@ -106,7 +109,7 @@ class AdKitBannerController {
     fun populateBannerAd(
         context: Activity, placementKey: String, adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
-        bannerType:Long,
+        bannerType: Long,
         populateCallback: (Any) -> Unit,
         onAdClick: () -> Unit,
     ) {
