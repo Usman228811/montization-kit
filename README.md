@@ -1,6 +1,6 @@
 # Monetization Kit Documentation
 
-A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app review, in-app purchases, subscriptions, and analytics.
+A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app review, in-app purchases, subscriptions, App-Flyer, and analytics.
 
 ---
 
@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v2.0.8")
+    implementation("com.github.Usman228811:montization-kit:v3.0.0")
 }
 ```
 
@@ -80,8 +80,9 @@ These configs should be added to your `defaultRemoteConfigBuilder` in your App C
 
 ```kotlin
 AdKit.init(
-    isDebug = BuildConfig.DEBUG,
+    isDebug = BuildConfig.DEBUG,  
     context = this,
+	appFlyerSdkKey = "", // If App-Flyer-Dev-key is provided, AppFlyer will post the events; otherwise, it won’t.
     admobId = "ca-app-pub-3940256099942544~3347511713",
     openAdId = "ca-app-pub-3940256099942544/9257395921",
     mapOfInterIds = mapOf(
@@ -279,7 +280,7 @@ private fun showSplashAd(mContext: Activity) {
                 adIdKey = "splash_inter",
                 loadAndShow = false,
                 activity = mContext,
-				splashTime = firebaseHelper.getLong("splash_time", 16),
+				splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()
@@ -958,9 +959,10 @@ AdKit.firebaseHelper.apply {
     viewModelScope.launch {
         configFetched.collectLatest {
             try {
-                val SPLASH_TIME = getLong("SPLASH_TIME", 16L)
-                val HOME_NATIVE_ENABLE = getBoolean("HOME_NATIVE_ENABLE", true)
-                val IS_AI = getString("IS_AI", "YES")
+				//examples
+				val HOME_NATIVE_BANNER_AB = firebaseBoolean("HOME_NATIVE_BANNER_AB", false)
+                val MAIN_NATIVE_TIME = firebaseLong("MAIN_NATIVE_TIME", 16L)
+                val IS_AI = firebaseString("IS_AI", "YES")
                 // Continue
             } catch (e: Exception) {
                 // Continue
@@ -1312,7 +1314,7 @@ class SplashScreenViewModel(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
                 loadAndShow = false,
-				splashTime = firebaseHelper.getLong("splash_time", 16),
+				splashTime = firebaseLong("splash_time", 16),
                 activity = mContext,
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
@@ -1559,7 +1561,7 @@ class SplashViewModel(
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
                 activity = mContext,
-                splashTime = firebaseHelper.getLong("splash_time", 16),
+                splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {
                         super.onAdShow()
