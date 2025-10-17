@@ -20,13 +20,14 @@ class BaseSingleBannerActivity private constructor(
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
     private var model: BannerSingleAdControllerModel? = null
+    private var canLoadAdAgain = true
 
     private var isAdLoadCalled: Boolean = false
     private var bannerType: Long = 0L
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
-    private var adCallBack: AdCallBack?= null
+    private var adCallBack: AdCallBack? = null
 
 
     private var isAdEnable = false
@@ -44,7 +45,7 @@ class BaseSingleBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        bannerType :Long,
+        bannerType: Long,
         adCallBack: AdCallBack?
     ) {
         this.adCallBack = adCallBack
@@ -97,6 +98,7 @@ class BaseSingleBannerActivity private constructor(
 
     private fun destroyBannerAd() {
         try {
+            canLoadAdAgain = true
             bannerAd?.destroy()
             bannerAd = null
             model?.controller?.setAdControllerListener(null)
@@ -113,8 +115,7 @@ class BaseSingleBannerActivity private constructor(
                     it.visibility = View.GONE
                     it.removeAllViews()
                 }
-            }
-            else if (adFrame == null
+            } else if (adFrame == null
                 || AdKit.adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
@@ -128,75 +129,78 @@ class BaseSingleBannerActivity private constructor(
                 model?.controller?.let { controller ->
 
                     adFrame?.let { adFrame ->
-                        if (bannerAd == null) {
-                            if (!isRequesting) {
-                                isRequesting = true
-                                addBannerShimmerLayout(
-                                    mContext, adFrame,
-                                    bannerType
-                                )
-                                controller.setAdControllerListener(object :
-                                    AdControllerListener {
-                                    override fun onAdLoaded() {
-                                        isRequesting = false
-                                        if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                            return
+                        if (canLoadAdAgain) {
+                            if (bannerAd == null) {
+                                if (!isRequesting) {
+                                    isRequesting = true
+                                    addBannerShimmerLayout(
+                                        mContext, adFrame,
+                                        bannerType
+                                    )
+                                    controller.setAdControllerListener(object :
+                                        AdControllerListener {
+                                        override fun onAdLoaded() {
+                                            isRequesting = false
+                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                return
+                                            }
+                                            if (bannerAd == null) {
+                                                loadSingleBannerAd()
+                                            }
                                         }
-                                        if (bannerAd == null) {
-                                            loadSingleBannerAd()
-                                        }
-                                    }
 
-                                    override fun onAdFailed(reason: String) {
-                                        adCallBack?.onAdFailed(reason)
-                                        isRequesting = false
-                                        if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                            return
+                                        override fun onAdFailed(reason: String) {
+                                            adCallBack?.onAdFailed(reason)
+                                            isRequesting = false
+                                            canLoadAdAgain = false
+                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                return
+                                            }
+                                            adFrame.let {
+                                                it.visibility = View.GONE
+                                                it.removeAllViews()
+                                            }
                                         }
-                                        adFrame.let {
-                                            it.visibility = View.GONE
-                                            it.removeAllViews()
+
+                                        override fun resetRequesting() {
+                                            isRequesting = false
                                         }
-                                    }
+                                    })
+                                    controller.populateBannerAd(
+                                        context = mContext,
+                                        placementKey = bannerControllerConfig.placementKey,
+                                        adIdKey = bannerControllerConfig.adIdKey,
+                                        enable = isAdEnable,
+                                        adFrame = adFrame,
+                                        bannerType = bannerType,
+                                        loadNewAd = firebaseBoolean(
+                                            "${bannerControllerConfig.adIdKey}_loadNewAd",
+                                            false
+                                        ),
+                                        populateCallback = { ad ->
+                                            isRequesting = false
+                                            if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                                                controller.setAdControllerListener(null)
+                                                bannerAd = ad as AdView
 
-                                    override fun resetRequesting() {
-                                        isRequesting = false
-                                    }
-                                })
-                                controller.populateBannerAd(
-                                    context = mContext,
-                                    placementKey = bannerControllerConfig.placementKey,
-                                    adIdKey = bannerControllerConfig.adIdKey,
-                                    enable = isAdEnable,
-                                    adFrame = adFrame,
-                                    bannerType = bannerType,
-                                    loadNewAd = firebaseBoolean(
-                                        "${bannerControllerConfig.adIdKey}_loadNewAd",
-                                        false
-                                    ),
-                                    populateCallback = { ad ->
-                                        isRequesting = false
-                                        if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                            controller.setAdControllerListener(null)
-                                            bannerAd = ad as AdView
+                                            }
+                                        }, onAdClick = {
+                                            adCallBack?.onAdClick()
 
                                         }
-                                    }, onAdClick = {
-                                        adCallBack?.onAdClick()
-
-                                    }
-                                )
-                            }
-                        } else {
-                            try {
-                                bannerAd?.parent?.let { parent ->
-                                    (parent as ViewGroup).removeAllViews()
+                                    )
                                 }
-                            } catch (_: Exception) {
+                            } else {
+                                try {
+                                    bannerAd?.parent?.let { parent ->
+                                        (parent as ViewGroup).removeAllViews()
+                                    }
+                                } catch (_: Exception) {
+                                }
+                                adFrame.visibility = View.VISIBLE
+                                adFrame.removeAllViews()
+                                adFrame.addView(bannerAd)
                             }
-                            adFrame.visibility = View.VISIBLE
-                            adFrame.removeAllViews()
-                            adFrame.addView(bannerAd)
                         }
                     }
                 }
@@ -210,6 +214,7 @@ class BaseSingleBannerActivity private constructor(
     }
 
     fun onPause() {
+        canLoadAdAgain = true
         bannerAd?.pause()
     }
 

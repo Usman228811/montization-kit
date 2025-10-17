@@ -26,6 +26,8 @@ class BaseCollapsableBannerActivity private constructor(
     private var isAdLoadCalled: Boolean = false
     private var isTop: Boolean = true
     private var isRequesting: Boolean = false
+    private var canLoadAdAgain = true
+
     private var bannerType: Long = 0L
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
@@ -42,6 +44,7 @@ class BaseCollapsableBannerActivity private constructor(
     }
 
     private fun destroyCollapsableBannerAd() {
+        canLoadAdAgain = true
         bannerAd?.destroy()
         try {
             adFrame?.removeAllViews()
@@ -101,6 +104,7 @@ class BaseCollapsableBannerActivity private constructor(
                 }
             } else {
                 adFrame?.let { adFrame ->
+                    if (canLoadAdAgain) {
                     if (bannerAd == null) {
                         if (isRequesting) {
                             return
@@ -165,6 +169,7 @@ class BaseCollapsableBannerActivity private constructor(
                                 }
                                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
                                 isRequesting = false
+                                canLoadAdAgain = false
                                 bannerAd = null
                                 adFrame.removeAllViews()
                                 adFrame.visibility = View.GONE
@@ -181,6 +186,7 @@ class BaseCollapsableBannerActivity private constructor(
                         adFrame.removeAllViews()
                         adFrame.addView(bannerAd)
                     }
+                    }
                 }
             }
         }
@@ -192,6 +198,7 @@ class BaseCollapsableBannerActivity private constructor(
     }
 
     fun onPause() {
+        canLoadAdAgain = true
         bannerAd?.pause()
     }
 
