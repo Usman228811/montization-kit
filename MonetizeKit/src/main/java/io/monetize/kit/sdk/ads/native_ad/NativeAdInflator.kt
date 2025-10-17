@@ -32,7 +32,6 @@ private val defaultLayouts = mapOf(
     AdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
     AdType.SMALL_NATIVE to R.layout.small_native_layout,
     AdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
-    AdType.BANNER to R.layout.adaptive_banner_layout
 )
 private val defaultBannerShimmer = mapOf(
     0 to R.layout.adaptive_banner_layout,

@@ -46,7 +46,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             mapOfBannerIds = mapOf(
                 "premium_banner" to "/21775744923/example/adaptive-banner", //banner
 //                "home_banner" to "/21775744923/example/adaptive-banner", //banner
-                "home_banner" to "/21775744923/example/adaptive-banner", // collapsible
+//                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
                 "home_banner_top" to "/21775744923/example/adaptive-banner", // collapsible
             ),
             defaultRemoteConfigBuilder = {
@@ -94,7 +95,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner"){
                     enable(true)
-                    bannerType(0)
+                    bannerType(3)
                 }
                 banner("home_banner_top"){
                     enable(true)

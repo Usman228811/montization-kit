@@ -5,7 +5,6 @@ enum class AdType(val type: Int) {
     SMALL_NATIVE_MEDIA_VIEW(1),
     SMALL_NATIVE(2),
     SMALL_NATIVE_MINI(3),
-    BANNER(4),
 }
 
 data class BannerControllerConfig(
