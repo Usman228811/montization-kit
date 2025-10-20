@@ -3,13 +3,12 @@ package com.test.compose.adslibrary.xml.splash
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.test.compose.adslibrary.R
 import com.test.compose.adslibrary.xml.MainXmlActivity
+import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -19,8 +18,9 @@ class SplashXmlActivity : AppCompatActivity() {
     private var splashXmlViewModel: SplashXmlViewModel? = null
     private var isLaunched = false
 
-    private lateinit var updateLauncher: ActivityResultLauncher<IntentSenderRequest>
-
+    private val updateLauncher = AdKitInAppUpdateManager.registerLauncher(this, onFail = {
+        splashXmlViewModel?.initConsent(this@SplashXmlActivity)
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
