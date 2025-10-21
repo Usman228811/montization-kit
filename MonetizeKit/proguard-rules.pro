@@ -45,3 +45,14 @@
 
 -keep class com.appsflyer.** { *; }
 -keep class kotlin.jvm.internal.** { *; }
+
+
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+-dontwarn net.premiumads.**
+-dontwarn net.premiumads.sdk.**
+-keepclassmembers class net.premiumads.** { public *; }
+-keep public class net.premiumads.**
+-keep class net.premiumads.sdk.** { *;}
+-keep class net.premiumads.sdk.admob.** { *;}
