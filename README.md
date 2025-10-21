@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v3.0.0")
+    implementation("com.github.Usman228811:montization-kit:v3.0.3")
 }
 ```
 
@@ -34,7 +34,7 @@ Define the required plugins in your `.toml` file:
 
 ```toml
 [plugins]
-gmsServiceVersion = "4.4.3"
+gmsServiceVersion = "4.4.4"
 firebaseCrashlyticsVersion = "3.0.6"
 firebasePerfVersion = "2.0.1"
 
@@ -62,7 +62,45 @@ plugins {
     alias(libs.plugins.firebasePerfPlugin)
 }
 ```
+---
 
+## Mediation
+
+### Mediation Networks
+-  Pangle
+-  Liftoff/Vungle
+-  Meta
+-  Mintegral
+-  Inmobi
+
+To integrate the Monetization Kit with mediation networks into your project, include the following in your app's `build.gradle`:
+
+```kotlin
+dependencies {
+    implementation("com.github.Usman228811:montization-kit:v3.0.4-mediation")
+}
+```
+
+### Configure JitPack Repository
+
+In your `settings.gradle`, add the JitPack repository:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://www.jitpack.io") }
+		maven {
+            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
+        }
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+    }
+}
+```
 ---
 
 # SDK Initialization
