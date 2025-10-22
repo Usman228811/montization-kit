@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v3.0.3")
+    implementation("com.github.Usman228811:montization-kit:v3.0.4")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v3.0.4-mediation")
+    implementation("com.github.Usman228811:montization-kit:v0.0.2-med")
 }
 ```
 
