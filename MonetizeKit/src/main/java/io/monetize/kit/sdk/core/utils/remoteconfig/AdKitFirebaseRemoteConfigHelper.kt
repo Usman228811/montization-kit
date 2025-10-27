@@ -195,4 +195,37 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
+    fun setDefaultBool(key: String, value: Boolean) {
+        defaultRemoteConfig.bool(key, value)
+        try {
+            Firebase.remoteConfig.apply {
+                setDefaultsAsync(defaultRemoteConfig.configMap)
+            }
+        } catch (e: Exception) {
+
+        }
+    }
+
+    fun setDefaultString(key: String, value: String) {
+        defaultRemoteConfig.string(key, value)
+        try {
+            Firebase.remoteConfig.apply {
+                setDefaultsAsync(defaultRemoteConfig.configMap)
+            }
+        } catch (e: Exception) {
+
+        }
+    }
+
+    fun setDefaultLong(key: String, value: Long) {
+        defaultRemoteConfig.long(key, value)
+        try {
+            Firebase.remoteConfig.apply {
+                setDefaultsAsync(defaultRemoteConfig.configMap)
+            }
+        } catch (e: Exception) {
+
+        }
+    }
+
 }
