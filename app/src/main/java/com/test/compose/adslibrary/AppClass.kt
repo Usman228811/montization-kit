@@ -40,6 +40,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             ),
             mapOfNativeIds = mapOf(
                 "exit_native" to "/21775744923/example/native",
+                "lang_native_ad" to "/21775744923/example/native",
                 "home_native" to "/21775744923/example/native",
                 "subscription_native" to "/21775744923/example/native",
             ),
@@ -78,9 +79,13 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     bgColor("")
                     adType(2)
                 }
+                native("lang_native_ad"){
+                    enable(true)
+                    adType(2)
+                }
 
                 fullScreen("splash_inter"){
-                    enable(false)
+                    enable(true)
                 }
                 fullScreen("home_inter"){
                     enable(true)

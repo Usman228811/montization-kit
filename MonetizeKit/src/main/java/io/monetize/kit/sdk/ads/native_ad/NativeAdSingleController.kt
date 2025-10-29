@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.content.Context
+import android.util.Log
 import android.widget.LinearLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -42,6 +43,9 @@ class NativeAdSingleController {
     fun hasLargeAdOrLoading(): Boolean {
         return (largeAndSmallNativeAd != null || !canRequestLargeAd)
     }
+    fun hasNativeAd(): Boolean {
+        return largeAndSmallNativeAd != null
+    }
 
     fun setNativeControllerListener(listener: AdControllerListener?) {
         adControllerListener?.resetRequesting()
@@ -68,6 +72,9 @@ class NativeAdSingleController {
                             ?: ""
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
+
+                        Log.d("abbbsccc", "onAdLoaded: ${nativeControllerConfig.adIdKey}")
+
                         canRequestLargeAd = true
                         largeAndSmallNativeAd = newNativeAd
                         CoroutineScope(Dispatchers.Main).launch {
@@ -126,6 +133,7 @@ class NativeAdSingleController {
             largeAndSmallNativeAd?.let {
                 try {
                     try {
+                        Log.d("abbbsccc", "populateNativeAd: ${nativeControllerConfig.adIdKey}")
                         addNativeAdView(
                             nativeControllerConfig = nativeControllerConfig,
                             adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,

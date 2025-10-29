@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -86,8 +87,17 @@ class GetNativeAdRepoImpl private constructor(
             }
             index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
         }
+
+        if (nativeControllerConfig.consumeAnyAd) {
+            model = AdKit.preLoadNative.getControllerWithAd()
+            Log.d("abbbsccc", "init: ${model?.key}")
+
+        }
+
         if (index != -1) {
-            model = singleNativeList[index]
+            if (model == null) {
+                model = singleNativeList[index]
+            }
             loadSingleNativeAd()
         }
 
@@ -160,6 +170,7 @@ class GetNativeAdRepoImpl private constructor(
                     adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()
                 } else {
+                    Log.d("abbbsccc", "loadSingleNativeAd: ${model}")
                     model?.controller?.let { nativeAdController ->
                         adFrame?.let { adFrame ->
                             if (canLoadAdAgain) {

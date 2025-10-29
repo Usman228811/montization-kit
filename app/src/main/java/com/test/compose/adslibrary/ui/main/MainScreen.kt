@@ -183,6 +183,7 @@ fun MainScreen(
                 nativeControllerConfig = NativeControllerConfig(
                     placementKey = "home_native",
                     adIdKey = "home_native",
+                    consumeAnyAd = false
                 ),
                 adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {

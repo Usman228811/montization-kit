@@ -44,4 +44,9 @@ class AdKitNativePreloadHelper private constructor(
             }
         }
     }
+
+    fun getControllerWithAd(): NativeAdSingleModel? {
+        return singleNativeList
+            .firstOrNull { it.controller?.hasNativeAd() == true }
+    }
 }
