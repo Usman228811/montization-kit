@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v3.0.5")
+    implementation("com.github.Usman228811:montization-kit:v3.0.6")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v0.0.3-med")
+    implementation("com.github.Usman228811:montization-kit:0.0.4-med")
 }
 ```
 
@@ -414,13 +414,18 @@ overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
 AdKitNativeAdView(
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native", // Unique placement key
-        adIdKey = "home_native", // Can be common across placements
-    ), onFail = {
-                // handle onAdFail
+        adIdKey = "home_native", // Can be common across placements,
+		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
+    ),	//optional
+    adCallBack =object: AdCallBack{
+                override fun onAdFailed(reason: String) {
+                    Log.d("dddddd", reason)
+                }
+
+                override fun onAdClick() {
+                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
+                }
             },
-    onAdClick = {
-                // handle onAdClick
-    },
    callCustomDestroy = { callCustomDestroy ->
 				//handle Custom Destroy
                 destroy = callCustomDestroy
@@ -434,6 +439,7 @@ AdKitNativeAdViewDialog(
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native",
         adIdKey = "home_native",
+		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
     ),
    	//optional
     adCallBack =object: AdCallBack{
@@ -484,9 +490,7 @@ binding.adFrameNative.loadNative(
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native",
         adIdKey = "home_native",
-        ctaColor = "#FFBB86FC",
-        bgColor = "#000000",
-        adType = 2
+      	consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
     ),
 	//optional
     adCallBack =object: AdCallBack{
