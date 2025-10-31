@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:v3.0.6")
+    implementation("com.github.Usman228811:montization-kit:3.0.7")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:0.0.4-med")
+    implementation("com.github.Usman228811:montization-kit:3.0.7-adapter")
 }
 ```
 
@@ -160,6 +160,7 @@ AdKit.init(
                     enable(true)
                     ctaColor("#FFFFFF")
                     adType(2)
+					refreshTime(7) // If provided, the native ad will refresh after 7 seconds
                 }
                 native("subscription_native"){
                     enable(true)
@@ -203,7 +204,6 @@ AdKit.init(
             largeNativeLayout = R.layout.large_native_layout_custom,
             largeNativeShimmer = R.layout.large_native_layout_shimmer,
             // As per your requirement
-            largeNativeLayout
 			smallNativeLayout
 			smallNativeShimmer
 			smallNativeMiniLayout
@@ -388,6 +388,7 @@ Add these to defaultRemoteConfigBuilder or Firebase Remoteconfigs:
 - `{$adIdKey}_loadNewAd`
 - `{$placementkey}_ctaColor`
 - `{$placementkey}_bgColor`
+- `{$placementkey}_refreshTime`
 
 For global native ad styling:
 - `overAllNativeBgColor`
@@ -402,6 +403,8 @@ native("subscription_native"){
             ctaColor("")
             bgColor("")
             adType(1)
+			refreshTime(7)
+
      }
 
 //optional 
