@@ -62,6 +62,9 @@ class RemoteConfigBuilder private constructor() {
         fun adType(type: Int) {
             configMap["${placementKey}_adType"] = type
         }
+        fun refreshTime(type: Int) {
+            configMap["${placementKey}_refreshTime"] = type
+        }
     }
 
     class InterstitialConfig(

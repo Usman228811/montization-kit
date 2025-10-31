@@ -27,7 +27,7 @@ class SdkNativeAdView @JvmOverloads constructor(
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-
+        if (::nativeAdView.isInitialized) return
         // Step 1: Create NativeAdView
         nativeAdView = NativeAdView(context)
         nativeAdView.layoutParams = LayoutParams(
@@ -58,6 +58,8 @@ class SdkNativeAdView @JvmOverloads constructor(
         nativeAdView.headlineView = headlineView
         nativeAdView.bodyView = bodyView
         nativeAdView.iconView = iconView
-        nativeAdView.callToActionView = callToActionView
+        callToActionView?.let {
+            nativeAdView.callToActionView = it
+        }
     }
 }

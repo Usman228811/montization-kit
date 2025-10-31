@@ -9,6 +9,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
+import io.monetize.kit.sdk.ads.native_ad.NativeRefreshListener
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
@@ -37,7 +38,7 @@ class GetNativeAdRepoImpl private constructor(
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
     private var isAdEnable: Boolean = true
-    private var adCallBack: AdCallBack?= null
+    private var adCallBack: AdCallBack? = null
 
 
     companion object {
@@ -90,7 +91,6 @@ class GetNativeAdRepoImpl private constructor(
 
         if (nativeControllerConfig.consumeAnyAd) {
             model = AdKit.preLoadNative.getControllerWithAd()
-            Log.d("abbbsccc", "init: ${model?.key}")
 
         }
 
@@ -104,7 +104,33 @@ class GetNativeAdRepoImpl private constructor(
     }
 
     override fun onResume() {
-        loadSingleNativeAd()
+        Log.d("ssssdfd", "onResume: adavailable ${largeNativeAd != null}")
+
+        if (largeNativeAd == null) {
+            loadSingleNativeAd()
+        } else {
+            attachRefreshListener(true)
+        }
+    }
+
+    fun attachRefreshListener(fromResume: Boolean) {
+        model?.controller?.let { nativeAdController ->
+            nativeAdController.setNativeRefreshListener(object :
+                NativeRefreshListener {
+                override fun refreshNativeAd() {
+                    isRequesting = false
+                    if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                        Log.d("ssssdfd", "refreshNativeAd: ")
+                        requestNative(true)
+                    }
+                }
+
+            })
+            if (fromResume) {
+                nativeAdController.startRefreshTime()
+            }
+        }
+
     }
 
     override fun onPause() {
@@ -112,13 +138,19 @@ class GetNativeAdRepoImpl private constructor(
         if (isRequesting) {
             model?.controller?.setNativeControllerListener(null)
         }
+        nullRefreshListener()
     }
 
     override fun onDestroy() {
         try {
             destroyNativeAd()
+            nullRefreshListener()
         } catch (_: Exception) {
         }
+    }
+
+    private fun nullRefreshListener() {
+        model?.controller?.setNativeRefreshListener(null)
     }
 
 
@@ -160,8 +192,7 @@ class GetNativeAdRepoImpl private constructor(
                 ) {
                     adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} ad is disable or not added in remote config")
                     hideAdFrame()
-                }
-                else if (
+                } else if (
                     adFrame == null
                     || adKitPref.isAppPurchased
                     || !AdKit.internetController.isConnected
@@ -170,84 +201,7 @@ class GetNativeAdRepoImpl private constructor(
                     adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()
                 } else {
-                    Log.d("abbbsccc", "loadSingleNativeAd: ${model}")
-                    model?.controller?.let { nativeAdController ->
-                        adFrame?.let { adFrame ->
-                            if (canLoadAdAgain) {
-                                if (largeNativeAd == null) {
-
-                                    if (!isRequesting) {
-                                        isRequesting = true
-                                        adFrame.descendantFocusability =
-                                            ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                                        if (largeNativeAd == null) {
-                                            addNativeShimmerLayout(
-                                                context = mContext,
-                                                adFrame = adFrame,
-                                                adType = adType,
-                                                customLayoutHelper = nativeCustomLayoutHelper
-                                            )
-                                        }
-                                        nativeAdController.setNativeControllerListener(object :
-                                            AdControllerListener {
-
-                                            override fun onAdLoaded() {
-                                                isRequesting = false
-                                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                                    return
-                                                }
-                                                if (largeNativeAd == null) {
-                                                    loadSingleNativeAd()
-                                                }
-                                            }
-
-                                            override fun onAdFailed(reason: String) {
-                                                adCallBack?.onAdFailed(reason)
-                                                isRequesting = false
-                                                canLoadAdAgain = false
-                                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                                    return
-                                                }
-                                                if (largeNativeAd == null) {
-                                                    hideAdFrame()
-                                                }
-
-                                            }
-
-                                            override fun resetRequesting() {
-                                                isRequesting = false
-                                            }
-                                        })
-                                        nativeAdController.populateNativeAd(
-                                            context = mContext,
-                                            nativeControllerConfig = nativeControllerConfig,
-                                            adFrame = adFrame,
-                                            loadNewAd = loadNewAd,
-                                            populateCallback = { ad ->
-                                                isRequesting = false
-                                                if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                    nativeAdController.setNativeControllerListener(
-                                                        null
-                                                    )
-                                                    largeNativeAd = ad
-                                                }
-                                            }, onAdClick = {
-                                                adCallBack?.onAdClick()
-                                            })
-                                    }
-                                } else {
-                                    addNativeAdView(
-                                        nativeControllerConfig = nativeControllerConfig,
-                                        adsCustomLayoutHelper = nativeCustomLayoutHelper,
-                                        adType = adType,
-                                        context = mContext,
-                                        adFrame = adFrame,
-                                        ad = largeNativeAd as NativeAd,
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    requestNative(false)
                 }
             }
         } catch (e: Exception) {
@@ -255,15 +209,97 @@ class GetNativeAdRepoImpl private constructor(
         }
     }
 
-    fun requestNewNativeId(stopNextRequest: Boolean) {
-        if (isAdEnable) {
-            loadNewAd = !stopNextRequest
-            if (!isRequesting) {
-                loadSingleNativeAd()
+
+    private fun requestNative(forRefresh: Boolean) {
+        model?.controller?.let { nativeAdController ->
+            adFrame?.let { adFrame ->
+                if (canLoadAdAgain) {
+                    if (largeNativeAd == null || forRefresh) {
+
+                        if (!isRequesting) {
+                            isRequesting = true
+                            adFrame.descendantFocusability =
+                                ViewGroup.FOCUS_BLOCK_DESCENDANTS
+                            if (largeNativeAd == null) {
+                                addNativeShimmerLayout(
+                                    context = mContext,
+                                    adFrame = adFrame,
+                                    adType = adType,
+                                    customLayoutHelper = nativeCustomLayoutHelper
+                                )
+                            }
+                            nativeAdController.setNativeControllerListener(object :
+                                AdControllerListener {
+
+                                override fun onAdLoaded() {
+                                    isRequesting = false
+                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                        return
+                                    }
+                                    if (largeNativeAd == null || forRefresh) {
+                                        Log.d("ssssdfd", "populateNativeAd: forrefresh:$forRefresh")
+
+                                        nativeAdController.populateNativeAd(
+                                            context = mContext,
+                                            adFrame = adFrame,
+                                            loadNewAd = loadNewAd,
+                                            onPopulated = { ad ->
+                                                isRequesting = false
+                                                if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
+                                                    nativeAdController.setNativeControllerListener(
+                                                        null
+                                                    )
+                                                    largeNativeAd = ad
+                                                    Log.d("ssssdfd", "onadloaded: ")
+                                                    nativeAdController.startRefreshTime()
+                                                }
+                                            }, onAdClick = {
+                                                adCallBack?.onAdClick()
+                                            })
+                                    }
+                                }
+
+                                override fun onAdFailed(reason: String) {
+                                    adCallBack?.onAdFailed(reason)
+                                    Log.d("ssssdfd", "onadfailed: ")
+
+                                    isRequesting = false
+                                    canLoadAdAgain = false
+                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                        return
+                                    }
+                                    if (largeNativeAd == null) {
+                                        hideAdFrame()
+                                    }
+
+                                }
+
+                                override fun resetRequesting() {
+                                    isRequesting = false
+                                }
+                            })
+
+                            attachRefreshListener(false)
+
+                            nativeAdController.requestNativeAd(
+                                context = mContext,
+                                nativeControllerConfig = nativeControllerConfig
+                            )
+                        }
+                    } else {
+                        addNativeAdView(
+                            nativeControllerConfig = nativeControllerConfig,
+                            adsCustomLayoutHelper = nativeCustomLayoutHelper,
+                            adType = adType,
+                            context = mContext,
+                            adFrame = adFrame,
+                            ad = largeNativeAd as NativeAd,
+                        )
+                    }
+                }
             }
         }
     }
-
 
 
 }

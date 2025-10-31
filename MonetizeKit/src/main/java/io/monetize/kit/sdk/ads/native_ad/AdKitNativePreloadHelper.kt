@@ -37,7 +37,7 @@ class AdKitNativePreloadHelper private constructor(
                 index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             }
             if (index in singleNativeList.indices) {
-                singleNativeList[index].controller?.loadNewNativeAd(
+                singleNativeList[index].controller?.preloadNativeAd(
                     context = mContext,
                     nativeControllerConfig = nativeControllerConfig
                 )

@@ -5,3 +5,6 @@ interface AdControllerListener {
     fun onAdFailed(reason: String)
     fun resetRequesting()
 }
+interface NativeRefreshListener {
+    fun refreshNativeAd()
+}

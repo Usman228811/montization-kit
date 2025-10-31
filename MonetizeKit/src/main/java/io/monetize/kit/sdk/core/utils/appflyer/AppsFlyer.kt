@@ -80,16 +80,9 @@ class AppsFlyer {
         adapterResponseInfo: AdapterResponseInfo? = null
     ) {
         if (sdkKey.isNotEmpty()) {
-
-            Log.d(TAG, "logAdmobRevenue: $adValue")
-
             val mediationNetwork = MediationNetwork.GOOGLE_ADMOB
             val currencyIso4217Code = adValue.currencyCode
             val revenue = adValue.valueMicros / 1000000.0
-            Log.d(TAG, "logAdmobRevenue: advalue micros= ${adValue.valueMicros}")
-            Log.d(TAG, "logAdmobRevenue: divrevenue= $revenue")
-
-
             val adRevenueData = AFAdRevenueData(
                 monetizationNetwork = "admob",
                 mediationNetwork = mediationNetwork,
@@ -117,7 +110,6 @@ class AppsFlyer {
 
             extras.forEach {
                 additionalParameters[it.key] = it.value
-                Log.d(TAG, "key = ${it.key}, value = ${it.value}")
             }
             logAdRevenue(adRevenueData, additionalParameters)
         }

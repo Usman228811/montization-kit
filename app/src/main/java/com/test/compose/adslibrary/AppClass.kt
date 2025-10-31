@@ -72,9 +72,10 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("#000000")
                     adType(2)
+                    refreshTime(7)
                 }
                 native("subscription_native"){
-                    enable(true)
+                    enable(false)
                     ctaColor("")
                     bgColor("")
                     adType(2)
@@ -85,7 +86,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
 
                 fullScreen("splash_inter"){
-                    enable(true)
+                    enable(false)
                 }
                 fullScreen("home_inter"){
                     enable(true)
