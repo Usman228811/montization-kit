@@ -29,6 +29,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
 
     fun loadNative(
         context: Context,
+        owner: ViewModelStoreOwner,
         nativeControllerConfig: NativeControllerConfig,
         adCallBack: AdCallBack? = null,
     ) {
@@ -37,14 +38,10 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
         if (context is Activity) {
             visibility = VISIBLE
 
-            mViewModel = if (context is ViewModelStoreOwner) {
-                ViewModelProvider(
-                    context,
-                    NativeAdViewModelFactory()
-                )[NativeAdViewModel::class.java]
-            } else {
-                null
-            }
+            mViewModel =  ViewModelProvider(
+                owner,
+                NativeAdViewModelFactory()
+            )[NativeAdViewModel::class.java]
 
             mViewModel?.initNativeSingleAdData(
                 mContext = context,

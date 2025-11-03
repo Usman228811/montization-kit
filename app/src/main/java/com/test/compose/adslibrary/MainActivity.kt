@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         (appContext as AppClass).initializeAppClass()
-        AdKit.openAdManager.setCurrentComposeRoute(AppRoute.SplashRoute.route)
+        AdKit.openAdManager.setCurrentNavigationRoute(AppRoute.SplashRoute.route)
 
         val languageChange = intent?.extras?.getBoolean("languageChange", false) ?: false
 
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 
                 navHostController.currentBackStackEntryFlow.collect { backStackEntry ->
                     val route = backStackEntry.destination.route
-                    AdKit.openAdManager.setCurrentComposeRoute(route)
+                    AdKit.openAdManager.setCurrentNavigationRoute(route)
                 }
             }
 

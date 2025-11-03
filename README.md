@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.0.7")
+    implementation("com.github.Usman228811:montization-kit:3.0.8")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.0.7-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.0.8-adapter")
 }
 ```
 
@@ -217,11 +217,20 @@ AdKit.init(
         AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java)
 
         // Exclude Compose routes from showing open ads
-        AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
+        AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(
             AppRoute.SplashRoute::class.qualifiedName ?: "",
             AppRoute.FeedbackRoute::class.qualifiedName ?: "",
             AppRoute.PrivacyPolicy::class.qualifiedName ?: ""
         )
+
+       // Exclude Nav Graph Xml fragments from showing open ads
+		/*
+			add label name available in nav_graph 
+		*/
+        AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(
+                     "fragment_splash",
+                     "SettingsFragment",
+		)
     }
 )
 ```
@@ -490,6 +499,7 @@ Load the ad in your Activity or Fragment:
 ```kotlin
 binding.adFrameNative.loadNative(
     this@MainXmlActivity,
+	owner = this,
     nativeControllerConfig = NativeControllerConfig(
         placementKey = "home_native",
         adIdKey = "home_native",
@@ -709,13 +719,15 @@ override fun onActivityDestroyed(activity: Activity) {
 }
 ```
 
-### In Main Activity
+### Jetpack Compose Support
+
+In onCreate in Main Activity
 
 ```kotlin
 (appContext as AppClass).initializeAppClass()
 ```
 
-For Jetpack Compose, manage open ads in Main Activity:
+For Jetpack Compose, manage open ads in onCreate in Main Activity:
 
 ```kotlin
 // Set current Compose route
@@ -728,10 +740,33 @@ val currentRoute = currentDestination?.destination?.route
 AdKit.openAdManager.setCurrentComposeRoute(currentRoute)
 ```
 
-Exclude screens from open ads:
+### NavGraph Xml Support
+In onCreate in Main Activity
 
 ```kotlin
-AdKit.openAdManager.excludeComposeRoutesFromOpenAd(SplashRoute::class.qualifiedName ?: "")
+(appContext as AppClass).initializeAppClass()
+```
+
+For NavGraph Xml Support, manage open ads in onCreate in Main Activity:
+
+```kotlin
+// Set current Compose route
+// this is the label you have added in nav_graph.xml for each fragment
+AdKit.openAdManager.setCurrentNavigationRoute("SplashFragment")
+
+// Track navigation
+val navController = findNavController(R.id.my_nav_host_fragment)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            AdKit.openAdManager.setCurrentNavigationRoute(destination.label?.toString() ?: "")
+        }
+
+```
+
+Exclude screens from open ads, add it in App-Class in onInitSdk function:
+
+```kotlin
+AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(SplashRoute::class.qualifiedName ?: "") // compose
+AdKit.openAdManager.excludeNavigationRoutesFromOpenAd("splash_fragment", "settings_fragment") // nav_graph xml
 AdKit.openAdManager.excludeActivitiesFromOpenAd(MainActivity::class.java)
 
 // Conditionally disable open ads
@@ -806,6 +841,7 @@ Load the banner ad:
 ```kotlin
 binding.adFrame.loadBanner(
     this@MainXmlActivity,
+	owner = this,
     bannerControllerConfig = BannerControllerConfig(
         placementKey = "home_native",
         adIdKey = "home_native"

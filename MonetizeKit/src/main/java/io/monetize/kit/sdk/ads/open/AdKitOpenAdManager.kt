@@ -83,14 +83,14 @@ class AdKitOpenAdManager private constructor(
 
     }
 
-    fun setCurrentComposeRoute(route: String?) {
+    fun setCurrentNavigationRoute(route: String?) {
         currentRoute = route
     }
 
     private val excludedActivities = mutableSetOf<String>()
     private val excludedComposeRoutes = mutableSetOf<String>()
 
-    fun excludeComposeRoutesFromOpenAd(vararg routes: String) {
+    fun excludeNavigationRoutesFromOpenAd(vararg routes: String) {
         excludedComposeRoutes.addAll(routes)
     }
 
