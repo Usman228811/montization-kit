@@ -122,7 +122,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
                 )
 
-                AdKit.openAdManager.excludeComposeRoutesFromOpenAd(
+                AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(
                     AppRoute.SplashRoute.route,
                     AppRoute.SubscriptionRoute.route
                 )

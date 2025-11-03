@@ -29,6 +29,7 @@ class MainXmlActivity : AppCompatActivity() {
 
         binding.adFrameNative.loadNative(
             this@MainXmlActivity,
+            this,
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "home_native",
                 adIdKey = "home_native",
@@ -46,6 +47,7 @@ class MainXmlActivity : AppCompatActivity() {
 
         binding.adFrame.loadBanner(
             this@MainXmlActivity,
+            owner = this,
             bannerControllerConfig = BannerControllerConfig(
                 placementKey = "home_banner",
                 adIdKey = "home_banner",

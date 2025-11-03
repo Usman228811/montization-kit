@@ -28,23 +28,20 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
     fun loadBanner(
         context: Context,
+        owner: ViewModelStoreOwner,
         bannerControllerConfig: BannerControllerConfig,
         adCallBack: AdCallBack? = null
 
     ) {
         this.bannerControllerConfig = bannerControllerConfig
 
-        val viewModel = if (context is ViewModelStoreOwner) {
-            ViewModelProvider(context, BannerAdViewModelFactory())[BannerAdViewModel::class.java]
-        } else {
-            null
-        }
+        val viewModel = ViewModelProvider(owner, BannerAdViewModelFactory())[BannerAdViewModel::class.java]
 
 
 
         if (context is Activity) {
             visibility = View.VISIBLE
-            viewModel?.initSingleBannerData(
+            viewModel.initSingleBannerData(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = this,
@@ -53,7 +50,7 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
             // Optional lifecycle observe
             if (context is LifecycleOwner) {
-                viewModel?.observeLifecycle(context)
+                viewModel.observeLifecycle(context)
             }
         }
     }
