@@ -3,26 +3,16 @@ package io.monetize.kit.sdk.core.utils.consent
 
 import android.app.Activity
 import android.content.Context
-import android.os.Bundle
-import com.google.ads.mediation.admob.AdMobAdapter
-import com.google.ads.mediation.pangle.PangleMediationAdapter
-import com.google.android.gms.ads.AdRequest
 import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
-import com.mbridge.msdk.MBridgeConstans
-import com.mbridge.msdk.out.MBridgeSDKFactory
-import com.vungle.ads.VunglePrivacySettings
 import io.monetize.kit.sdk.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.premiumads.sdk.admob.PremiumBannerAd
-import net.premiumads.sdk.admob.PremiumInterstitialAd
-import net.premiumads.sdk.admob.PremiumRewardedAd
 
 
 class AdKitConsentManager private constructor(context: Context) {
@@ -91,28 +81,28 @@ class AdKitConsentManager private constructor(context: Context) {
 
     fun onConsent(activity: Activity){
         try {
-            MBridgeSDKFactory.getMBridgeSDK().apply {
-                setConsentStatus(
-                    activity,
-                    if (canRequestAds) {
-                        MBridgeConstans.IS_SWITCH_ON
-                    } else {
-                        MBridgeConstans.IS_SWITCH_OFF
-                    }
-                )
-            }
-            PangleMediationAdapter.setGDPRConsent(if (canRequestAds) 1 else 0)
-            PangleMediationAdapter.setPAConsent(if (canRequestAds) 1 else 0)
-            VunglePrivacySettings.setGDPRStatus(canRequestAds, "v1.0.0")
-            VunglePrivacySettings.setCCPAStatus(canRequestAds)
-
-            val builder = AdRequest.Builder()
-            val extras = Bundle()
-            extras.putString("npa", "1")
-            builder.addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
-            builder.addNetworkExtrasBundle(PremiumBannerAd::class.java, extras)
-            builder.addNetworkExtrasBundle(PremiumInterstitialAd::class.java, extras)
-            builder.addNetworkExtrasBundle(PremiumRewardedAd::class.java, extras)
+//            MBridgeSDKFactory.getMBridgeSDK().apply {
+//                setConsentStatus(
+//                    activity,
+//                    if (canRequestAds) {
+//                        MBridgeConstans.IS_SWITCH_ON
+//                    } else {
+//                        MBridgeConstans.IS_SWITCH_OFF
+//                    }
+//                )
+//            }
+//            PangleMediationAdapter.setGDPRConsent(if (canRequestAds) 1 else 0)
+//            PangleMediationAdapter.setPAConsent(if (canRequestAds) 1 else 0)
+//            VunglePrivacySettings.setGDPRStatus(canRequestAds, "v1.0.0")
+//            VunglePrivacySettings.setCCPAStatus(canRequestAds)
+//
+//            val builder = AdRequest.Builder()
+//            val extras = Bundle()
+//            extras.putString("npa", "1")
+//            builder.addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+//            builder.addNetworkExtrasBundle(PremiumBannerAd::class.java, extras)
+//            builder.addNetworkExtrasBundle(PremiumInterstitialAd::class.java, extras)
+//            builder.addNetworkExtrasBundle(PremiumRewardedAd::class.java, extras)
 
             callConsent()
         } catch (e: Exception){
