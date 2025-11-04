@@ -16,15 +16,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
-        }
-        maven {
-            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
-        }
-        maven {
-            url = uri("https://artifact.bytedance.com/repository/pangle/")
-        }
     }
 }
 
