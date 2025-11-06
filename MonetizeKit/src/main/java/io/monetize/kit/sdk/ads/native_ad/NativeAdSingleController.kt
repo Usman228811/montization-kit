@@ -130,8 +130,12 @@ class NativeAdSingleController {
         this.isAdEnable =
             firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
-        if (isAdEnable && !adKitPref.isAppPurchased && largeAndSmallNativeAd == null) {
-            loadNativeAd(context, isAdEnable)
+        if (isAdEnable && !adKitPref.isAppPurchased ) {
+            if (largeAndSmallNativeAd == null) {
+                loadNativeAd(context, isAdEnable)
+            }else{
+                adControllerListener?.onAdLoaded()
+            }
         }
     }
 
