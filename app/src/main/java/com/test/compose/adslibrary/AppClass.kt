@@ -48,7 +48,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "premium_banner" to "/21775744923/example/adaptive-banner", //banner
 //                "home_banner" to "/21775744923/example/adaptive-banner", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
-                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "banner_common" to "ca-app-pub-3940256099942544/2014213617", // collapsible
                 "home_banner_top" to "/21775744923/example/adaptive-banner", // collapsible
             ),
             defaultRemoteConfigBuilder = {
@@ -109,6 +109,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("premium_banner"){
                     enable(true)
+                    bannerType(3)
                 }
 //                overAllNativeColor("#964B00", "#FF03DAC5")
             },

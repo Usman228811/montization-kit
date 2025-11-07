@@ -214,7 +214,7 @@ fun MainScreen(
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "home_banner",
-                    adIdKey = "home_banner"
+                    adIdKey = "banner_common"
                 ),
                 adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
