@@ -117,7 +117,7 @@ class BaseCollapsableBannerActivity private constructor(
 
                         val collapseBannerAd = AdView(mContext).apply {
                             this.adUnitId =
-                                AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
+                                AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
                                     ?: ""
                             this.setAdSize(
                                 getAdSize(
@@ -152,7 +152,7 @@ class BaseCollapsableBannerActivity private constructor(
                                 adFrame.visibility = View.VISIBLE
                                 adFrame.removeAllViews()
                                 adFrame.addView(bannerAd)
-                                bannerAd?.revenueListener( AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.placementKey)
+                                bannerAd?.revenueListener( AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
                                     ?: "")
                             }
 
