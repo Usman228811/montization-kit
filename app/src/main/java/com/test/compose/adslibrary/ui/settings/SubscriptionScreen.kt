@@ -180,7 +180,7 @@ fun SubscriptionScreen(
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "premium_banner",
-                    adIdKey = "premium_banner"
+                    adIdKey = "banner_common"
                 ), adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
                         Log.d("dddddd", reason)
