@@ -1413,7 +1413,7 @@ class SplashScreenViewModel(
                         }
                     }
 					override fun onAdLoaded(reason: String) {
-                        super.onAdLoaded()
+                        super.onAdLoaded(reason)
                         _state.update {
                             it.copy(
                                 onAdLoaded = true,
