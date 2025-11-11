@@ -32,6 +32,7 @@ private val defaultLayouts = mapOf(
     AdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
     AdType.SMALL_NATIVE to R.layout.small_native_layout,
     AdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
+    AdType.FULL_NATIVE to R.layout.full_native_layout,
 )
 private val defaultBannerShimmer = mapOf(
     0 to R.layout.adaptive_banner_layout,
@@ -182,7 +183,7 @@ fun populateNativeAd(
     }
 
     when (adType) {
-        AdType.LARGE_NATIVE, AdType.SMALL_NATIVE_MEDIA_VIEW -> {
+        AdType.LARGE_NATIVE, AdType.SMALL_NATIVE_MEDIA_VIEW, AdType.FULL_NATIVE -> {
             val mediaView: MediaView? = if (isCustom) {
                 customLayout?.mediaView?.setupMediaView() as? MediaView
             } else {
