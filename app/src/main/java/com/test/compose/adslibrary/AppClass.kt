@@ -66,7 +66,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(1)
+                    adType(4)
                 }
                 native("home_native"){
                     enable(true)

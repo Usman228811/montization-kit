@@ -13,20 +13,24 @@ class AdsCustomLayoutHelper private constructor() {
         smallNativeLayout: Int? = null,
         smallNativeMiniLayout: Int? = null,
         smallNativeMediaViewLayout: Int? = null,
+        fullScreenNativeLayout: Int? = null,
         largeNativeShimmer: Int? = null,
         smallNativeShimmer: Int? = null,
         smallNativeMiniShimmer: Int? = null,
         smallNativeMediaViewShimmer: Int? = null,
+        fullScreenNativeShimmer: Int? = null,
     ) {
         layouts[AdType.LARGE_NATIVE] = largeNativeLayout
         layouts[AdType.SMALL_NATIVE] = smallNativeLayout
         layouts[AdType.SMALL_NATIVE_MINI] = smallNativeMiniLayout
         layouts[AdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewLayout
+        layouts[AdType.FULL_NATIVE] = fullScreenNativeLayout
 
         shimmers[AdType.LARGE_NATIVE] = largeNativeShimmer
         shimmers[AdType.SMALL_NATIVE] = smallNativeShimmer
         shimmers[AdType.SMALL_NATIVE_MINI] = smallNativeMiniShimmer
         shimmers[AdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewShimmer
+        shimmers[AdType.FULL_NATIVE] = fullScreenNativeShimmer
     }
 
     fun getLayout(type: AdType): Int? = layouts[type]
