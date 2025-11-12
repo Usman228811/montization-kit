@@ -45,6 +45,33 @@ class AdKitNativePreloadHelper private constructor(
         }
     }
 
+    fun hasNativeAd(nativeControllerConfig: NativeControllerConfig): Boolean {
+        if (firebaseBoolean(
+                "${nativeControllerConfig.placementKey}_isAdEnable",
+                true
+            ) && AdKit.consentManager.canRequestAds
+        ) {
+            var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
+            if (index == -1) {
+                singleNativeList.apply {
+                    add(
+                        NativeAdSingleModel(
+                            nativeControllerConfig.adIdKey,
+                            NativeAdSingleController()
+                        )
+                    )
+                }
+                index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
+            }
+            if (index in singleNativeList.indices) {
+                return singleNativeList[index].controller?.hasNativeAd() == true
+            }
+            return false
+        } else {
+            return false
+        }
+    }
+
     fun getControllerWithAd(): NativeAdSingleModel? {
         return singleNativeList
             .firstOrNull { it.controller?.hasNativeAd() == true }
