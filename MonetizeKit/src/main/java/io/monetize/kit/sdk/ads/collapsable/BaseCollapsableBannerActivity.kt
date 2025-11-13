@@ -31,8 +31,7 @@ class BaseCollapsableBannerActivity private constructor(
     private var bannerType: Long = 0L
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
-    private var adCallBack: AdCallBack ?= null
-
+    private var adCallBack: AdCallBack? = null
 
 
     companion object {
@@ -105,87 +104,91 @@ class BaseCollapsableBannerActivity private constructor(
             } else {
                 adFrame?.let { adFrame ->
                     if (canLoadAdAgain) {
-                    if (bannerAd == null) {
-                        if (isRequesting) {
-                            return
-                        }
-                        isRequesting = true
-                        adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                        addBannerShimmerLayout(
-                            mContext, adFrame, bannerType
-                        )
+                        if (bannerAd == null) {
+                            if (isRequesting) {
+                                return
+                            }
+                            isRequesting = true
+                            adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+                            addBannerShimmerLayout(
+                                mContext, adFrame, bannerType
+                            )
 
-                        val collapseBannerAd = AdView(mContext).apply {
-                            this.adUnitId =
-                                AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
-                                    ?: ""
-                            this.setAdSize(
-                                getAdSize(
-                                    mContext,
-                                    bannerType
+                            val collapseBannerAd = AdView(mContext).apply {
+                                this.adUnitId =
+                                    AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
+                                        ?: ""
+                                this.setAdSize(
+                                    getAdSize(
+                                        mContext,
+                                        bannerType
+                                    )
                                 )
-                            )
-                            this.loadAd(
-                                AdRequest.Builder()
-                                    .addNetworkExtrasBundle(
-                                        AdMobAdapter::class.java,
-                                        Bundle().apply {
-                                            if (isTop.not()) {
-                                                putString("collapsible", "bottom")
-                                            } else {
-                                                putString("collapsible", "top")
+                                this.loadAd(
+                                    AdRequest.Builder()
+                                        .addNetworkExtrasBundle(
+                                            AdMobAdapter::class.java,
+                                            Bundle().apply {
+                                                if (isTop.not()) {
+                                                    putString("collapsible", "bottom")
+                                                } else {
+                                                    putString("collapsible", "top")
 
-                                            }
-                                        }).build()
-                            )
-                        }
-                        collapseBannerAd.adListener = object : AdListener() {
-                            override fun onAdLoaded() {
-                                super.onAdLoaded()
-                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                    collapseBannerAd.destroy()
-                                    return
+                                                }
+                                            }).build()
+                                )
+                            }
+                            collapseBannerAd.adListener = object : AdListener() {
+                                override fun onAdLoaded() {
+                                    super.onAdLoaded()
+                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                        collapseBannerAd.destroy()
+                                        return
+                                    }
+                                    isRequesting = false
+
+                                    bannerAd = collapseBannerAd
+                                    adFrame.visibility = View.VISIBLE
+                                    adFrame.removeAllViews()
+                                    adFrame.addView(bannerAd)
+                                    adCallBack?.onAdShow()
+                                    bannerAd?.revenueListener(
+                                        AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
+                                            ?: ""
+                                    )
                                 }
-                                isRequesting = false
 
-                                bannerAd = collapseBannerAd
-                                adFrame.visibility = View.VISIBLE
-                                adFrame.removeAllViews()
-                                adFrame.addView(bannerAd)
-                                bannerAd?.revenueListener( AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
-                                    ?: "")
-                            }
-
-                            override fun onAdClicked() {
-                                super.onAdClicked()
-                                adCallBack?.onAdClick()
-                            }
-
-                            override fun onAdFailedToLoad(p0: LoadAdError) {
-                                super.onAdFailedToLoad(p0)
-                                if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                    collapseBannerAd.destroy()
-                                    return
+                                override fun onAdClicked() {
+                                    super.onAdClicked()
+                                    adCallBack?.onAdClick()
                                 }
-                                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
-                                isRequesting = false
-                                canLoadAdAgain = false
-                                bannerAd = null
-                                adFrame.removeAllViews()
-                                adFrame.visibility = View.GONE
+
+                                override fun onAdFailedToLoad(p0: LoadAdError) {
+                                    super.onAdFailedToLoad(p0)
+                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                        collapseBannerAd.destroy()
+                                        return
+                                    }
+                                    adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
+                                    isRequesting = false
+                                    canLoadAdAgain = false
+                                    bannerAd = null
+                                    adFrame.removeAllViews()
+                                    adFrame.visibility = View.GONE
+                                }
                             }
-                        }
-                    } else {
-                        try {
-                            bannerAd?.parent?.let { parent ->
-                                (parent as ViewGroup).removeAllViews()
+                        } else {
+                            try {
+                                bannerAd?.parent?.let { parent ->
+                                    (parent as ViewGroup).removeAllViews()
+                                }
+                            } catch (_: Exception) {
                             }
-                        } catch (_: Exception) {
+                            adFrame.visibility = View.VISIBLE
+                            adFrame.removeAllViews()
+                            adFrame.addView(bannerAd)
+                            adCallBack?.onAdShow()
                         }
-                        adFrame.visibility = View.VISIBLE
-                        adFrame.removeAllViews()
-                        adFrame.addView(bannerAd)
-                    }
                     }
                 }
             }

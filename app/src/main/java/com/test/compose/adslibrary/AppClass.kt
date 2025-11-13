@@ -72,7 +72,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("#000000")
                     adType(2)
-                    refreshTime(7)
+                    refreshTime(0)
                 }
                 native("subscription_native"){
                     enable(false)
