@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.content.Context
-import android.util.Log
 import android.widget.LinearLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -202,26 +201,12 @@ class NativeAdSingleController {
             canRefreshAd
         ) {
             canRefreshAd = false
-            Log.d("ssssdfd", "startRefreshTime: 1 ")
             CoroutineScope(Dispatchers.IO).launch {
-//                Log.d(
-//                    "nativeeeeeeee",
-//                    "${getScreenName()} ${if (isForFail) "fail" else "refresh"} time start"
-//                )
-
-                Log.d("ssssdfd", "startRefreshTime: time $refreshTime ")
-
                 delay(
                     refreshTime
                 )
                 largeAndSmallNativeAd?.destroy()
                 withContext(Dispatchers.Main) {
-//                    if (BuildConfig.DEBUG) {
-//                        Log.d(
-//                            "nativeeeeeeee",
-//                            "${getScreenName()} ${if (isForFail) "fail" else "refresh"} time finish"
-//                        )
-//                    }
                     largeAndSmallNativeAd = null
                     canRefreshAd = true
                     nativeRefreshListener?.refreshNativeAd()

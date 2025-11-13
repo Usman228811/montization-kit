@@ -162,6 +162,11 @@ fun SubscriptionScreen(
                     Log.d("dddddd", reason)
                 }
 
+                override fun onAdShow() {
+
+
+                }
+
                 override fun onAdClick() {
 
                 }
@@ -184,6 +189,11 @@ fun SubscriptionScreen(
                 ), adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
                         Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdShow() {
+
+
                     }
 
                     override fun onAdClick() {
