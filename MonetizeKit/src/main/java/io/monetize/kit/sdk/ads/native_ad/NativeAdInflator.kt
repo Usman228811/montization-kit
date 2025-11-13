@@ -2,7 +2,6 @@ package io.monetize.kit.sdk.ads.native_ad
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -225,14 +224,12 @@ fun populateNativeAd(
     // Headline
     (adView.headlineView as? TextView)?.apply {
         text = nativeAd.headline ?: ""
-        setTextColor(Color.BLACK)
     }
 
     // Body
     (adView.bodyView as? TextView)?.apply {
         text = nativeAd.body ?: ""
         visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
-        setTextColor(Color.BLACK)
     }
 
     (adView.callToActionView as? AppCompatButton)?.apply {
