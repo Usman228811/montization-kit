@@ -79,6 +79,10 @@ fun MainScreen(
                         Log.d("dddddd", reason)
                     }
 
+                    override fun onAdShow() {
+
+                    }
+
                     override fun onAdClick() {
                         Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
                             .show()
@@ -190,6 +194,10 @@ fun MainScreen(
                         Log.d("dddddd", reason)
                     }
 
+                    override fun onAdShow() {
+
+                    }
+
                     override fun onAdClick() {
                         Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT)
                             .show()
@@ -219,6 +227,10 @@ fun MainScreen(
                 adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
                         Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdShow() {
+
                     }
 
                     override fun onAdClick() {
@@ -259,6 +271,10 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 ),
                 adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {
+
+                    }
+
+                    override fun onAdShow() {
 
                     }
 

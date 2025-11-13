@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -104,8 +103,6 @@ class GetNativeAdRepoImpl private constructor(
     }
 
     override fun onResume() {
-        Log.d("ssssdfd", "onResume: adavailable ${largeNativeAd != null}")
-
         if (largeNativeAd == null) {
             loadSingleNativeAd()
         } else {
@@ -120,7 +117,6 @@ class GetNativeAdRepoImpl private constructor(
                 override fun refreshNativeAd() {
                     isRequesting = false
                     if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                        Log.d("ssssdfd", "refreshNativeAd: ")
                         requestNative(true)
                     }
                 }
@@ -237,7 +233,6 @@ class GetNativeAdRepoImpl private constructor(
                                         return
                                     }
                                     if (largeNativeAd == null || forRefresh) {
-                                        Log.d("ssssdfd", "populateNativeAd: forrefresh:$forRefresh")
 
                                         nativeAdController.populateNativeAd(
                                             context = mContext,
@@ -249,8 +244,8 @@ class GetNativeAdRepoImpl private constructor(
                                                     nativeAdController.setNativeControllerListener(
                                                         null
                                                     )
+                                                    adCallBack?.onAdShow()
                                                     largeNativeAd = ad
-                                                    Log.d("ssssdfd", "onadloaded: ")
                                                     nativeAdController.startRefreshTime()
                                                 }
                                             }, onAdClick = {
@@ -261,7 +256,6 @@ class GetNativeAdRepoImpl private constructor(
 
                                 override fun onAdFailed(reason: String) {
                                     adCallBack?.onAdFailed(reason)
-                                    Log.d("ssssdfd", "onadfailed: ")
 
                                     isRequesting = false
                                     canLoadAdAgain = false
@@ -295,6 +289,7 @@ class GetNativeAdRepoImpl private constructor(
                             adFrame = adFrame,
                             ad = largeNativeAd as NativeAd,
                         )
+                        adCallBack?.onAdShow()
                     }
                 }
             }

@@ -182,6 +182,7 @@ class BaseSingleBannerActivity private constructor(
                                             if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
                                                 controller.setAdControllerListener(null)
                                                 bannerAd = ad as AdView
+                                                adCallBack?.onAdShow()
 
                                             }
                                         }, onAdClick = {
@@ -200,6 +201,7 @@ class BaseSingleBannerActivity private constructor(
                                 adFrame.visibility = View.VISIBLE
                                 adFrame.removeAllViews()
                                 adFrame.addView(bannerAd)
+                                adCallBack?.onAdShow()
                             }
                         }
                     }

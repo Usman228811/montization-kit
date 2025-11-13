@@ -39,6 +39,10 @@ class MainXmlActivity : AppCompatActivity() {
 
                 }
 
+                override fun onAdShow() {
+
+                }
+
                 override fun onAdClick() {
                 }
 
@@ -53,6 +57,10 @@ class MainXmlActivity : AppCompatActivity() {
                 adIdKey = "home_banner",
             ), adCallBack = object : AdCallBack {
                 override fun onAdFailed(reason: String) {
+
+                }
+
+                override fun onAdShow() {
 
                 }
 
