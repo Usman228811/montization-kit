@@ -107,6 +107,18 @@ class GetNativeAdRepoImpl private constructor(
             loadSingleNativeAd()
         } else {
             attachRefreshListener(true)
+
+            adFrame?.let { adFrame ->
+                addNativeAdView(
+                    nativeControllerConfig = nativeControllerConfig,
+                    adsCustomLayoutHelper = nativeCustomLayoutHelper,
+                    adType = adType,
+                    context = mContext,
+                    adFrame = adFrame,
+                    ad = largeNativeAd as NativeAd,
+                )
+                adCallBack?.onAdShow()
+            }
         }
     }
 
