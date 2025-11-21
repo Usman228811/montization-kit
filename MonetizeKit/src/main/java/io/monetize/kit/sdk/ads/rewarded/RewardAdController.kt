@@ -432,7 +432,7 @@ class RewardAdController private constructor(
                     IS_INTERSTITIAL_Ad_SHOWING = false
                     rewardAd = null
                     if (key.isEmpty() && !firebaseBoolean(
-                            "${placementKey}_isInterInstant",
+                            "${placementKey}_isRewardInstant",
                             false
                         )
                     ) {
