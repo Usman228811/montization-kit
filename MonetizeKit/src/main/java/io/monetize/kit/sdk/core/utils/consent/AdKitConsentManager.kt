@@ -25,7 +25,10 @@ import net.premiumads.sdk.admob.PremiumInterstitialAd
 import net.premiumads.sdk.admob.PremiumRewardedAd
 
 
-class AdKitConsentManager private constructor(context: Context) {
+class AdKitConsentManager private constructor(
+    context: Context,
+    private val isDebug: Boolean
+) {
     private val coroutineScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }
@@ -46,10 +49,12 @@ class AdKitConsentManager private constructor(context: Context) {
 
         internal fun getInstance(
             context: Context,
+            isDebug: Boolean
         ): AdKitConsentManager {
             return instance ?: synchronized(this) {
                 instance ?: AdKitConsentManager(
                     context.applicationContext,
+                    isDebug
                 ).also { instance = it }
             }
         }
@@ -62,7 +67,7 @@ class AdKitConsentManager private constructor(context: Context) {
         }
         isRequestingConsent = true
         try {
-            val params: ConsentRequestParameters = if (BuildConfig.DEBUG) {
+            val params: ConsentRequestParameters = if (isDebug) {
                 val debugSettings = ConsentDebugSettings.Builder(activity)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
                     .addTestDeviceHashedId("F6A02AFF47CB6BB7BF2AF64A8CC1D411").build()
