@@ -1,6 +1,5 @@
 package io.monetize.kit.sdk.core.utils.analytics
 
-import android.R.id.message
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -9,9 +8,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
-import io.monetize.kit.sdk.BuildConfig
 
-class AdKitAnalytics private constructor(private val context: Context) {
+class AdKitAnalytics private constructor(private val context: Context, private val isDebug: Boolean) {
 
     private var showToast = false
 
@@ -25,10 +23,11 @@ class AdKitAnalytics private constructor(private val context: Context) {
 
 
         fun getInstance(
-            context:Context
+            context:Context,
+            isDebug: Boolean,
         ): AdKitAnalytics {
             return instance ?: synchronized(this) {
-                instance ?: AdKitAnalytics(context).also { instance = it }
+                instance ?: AdKitAnalytics(context, isDebug = isDebug).also { instance = it }
             }
         }
     }
@@ -40,8 +39,8 @@ class AdKitAnalytics private constructor(private val context: Context) {
 
     fun postAnalytics(message: String) {
         try {
-            Log.d("AdKit_Logs", "is debug ${BuildConfig.DEBUG}")
-            if (!BuildConfig.DEBUG) {
+            Log.d("AdKit_Logs", "is debug ${isDebug}")
+            if (!isDebug) {
                 var event = message
                 if (message.contains(" ")) {
                     event = event.replace(" ", "_")
@@ -61,7 +60,7 @@ class AdKitAnalytics private constructor(private val context: Context) {
 
     fun postScreenName(screenName: String, className: String) {
         try {
-            if (!BuildConfig.DEBUG) {
+            if (!isDebug) {
                 Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
                     param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
                     param(FirebaseAnalytics.Param.SCREEN_CLASS, className)

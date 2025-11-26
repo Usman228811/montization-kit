@@ -78,12 +78,12 @@ dependencies {
     implementation("network.chaintech:sdp-ssp-compose-multiplatform:1.0.7")
 
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-process:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
@@ -93,7 +93,7 @@ dependencies {
     implementation("com.android.billingclient:billing-ktx:8.0.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
-    implementation("com.appsflyer:af-android-sdk:6.17.3")
+    implementation("com.appsflyer:af-android-sdk:6.17.4")
     implementation("com.android.installreferrer:installreferrer:2.2")
 
 
