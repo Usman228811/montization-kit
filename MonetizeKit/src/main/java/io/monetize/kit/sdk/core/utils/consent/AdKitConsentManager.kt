@@ -3,19 +3,20 @@ package io.monetize.kit.sdk.core.utils.consent
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
-import io.monetize.kit.sdk.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class AdKitConsentManager private constructor(context: Context) {
+class AdKitConsentManager private constructor(
+    context: Context,
+    private val isDebug: Boolean
+) {
     private val coroutineScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }
@@ -36,10 +37,12 @@ class AdKitConsentManager private constructor(context: Context) {
 
         internal fun getInstance(
             context: Context,
+            isDebug: Boolean
         ): AdKitConsentManager {
             return instance ?: synchronized(this) {
                 instance ?: AdKitConsentManager(
                     context.applicationContext,
+                    isDebug
                 ).also { instance = it }
             }
         }
@@ -52,7 +55,7 @@ class AdKitConsentManager private constructor(context: Context) {
         }
         isRequestingConsent = true
         try {
-            val params: ConsentRequestParameters = if (BuildConfig.DEBUG) {
+            val params: ConsentRequestParameters = if (isDebug) {
                 val debugSettings = ConsentDebugSettings.Builder(activity)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
                     .addTestDeviceHashedId("F6A02AFF47CB6BB7BF2AF64A8CC1D411").build()

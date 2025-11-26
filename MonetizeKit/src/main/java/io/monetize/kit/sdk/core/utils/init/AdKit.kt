@@ -108,7 +108,7 @@ object AdKit {
 
 
     fun init(
-        isDebug:Boolean,
+        isDebug: Boolean,
         context: Context, admobId: String,
         appFlyerSdkKey: String,
         openAdId: String,
@@ -132,7 +132,7 @@ object AdKit {
         inAppUpdateManager = AdKitInAppUpdateManager.getInstance()
         inAppReviewManager = AdKitInAppReviewManager.getInstance()
         internetController = AdKitInternetController.getInstance(context)
-        consentManager = AdKitConsentManager.getInstance(context)
+        consentManager = AdKitConsentManager.getInstance(context, isDebug = isDebug)
         firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
         firebaseHelper.setDefaultRemoteConfigs(configDefaults)
         preLoadNative = AdKitNativePreloadHelper.getInstance()
@@ -142,7 +142,7 @@ object AdKit {
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        analytics = AdKitAnalytics.getInstance(context)
+        analytics = AdKitAnalytics.getInstance(context, isDebug)
         interIdManager = InterIdManager.getInstance()
         rewardAdIdManager = RewardAdIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
