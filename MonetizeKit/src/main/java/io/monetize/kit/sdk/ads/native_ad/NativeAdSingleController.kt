@@ -11,6 +11,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.monetize.kit.sdk.core.utils.adtype.AdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
@@ -103,6 +104,11 @@ class NativeAdSingleController {
                         override fun onAdClicked() {
                             super.onAdClicked()
                             onAdClick?.invoke()
+                        }
+
+                        override fun onAdImpression() {
+                            super.onAdImpression()
+                           postAdImpression("NativeAd")
                         }
 
                         override fun onAdFailedToLoad(p0: LoadAdError) {

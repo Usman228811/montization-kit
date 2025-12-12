@@ -14,6 +14,7 @@ import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
@@ -161,6 +162,11 @@ class BaseCollapsableBannerActivity private constructor(
                                 override fun onAdClicked() {
                                     super.onAdClicked()
                                     adCallBack?.onAdClick()
+                                }
+
+                                override fun onAdImpression() {
+                                    super.onAdImpression()
+                                    postAdImpression("Banner")
                                 }
 
                                 override fun onAdFailedToLoad(p0: LoadAdError) {

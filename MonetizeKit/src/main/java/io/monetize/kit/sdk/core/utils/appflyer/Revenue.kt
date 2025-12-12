@@ -8,6 +8,10 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
+fun postAdImpression(type:String){
+    //Log.d("usmaaaaaaaan", "ad_impression: $type")
+}
+
 fun AdView.revenueListener(adId: String){
     setOnPaidEventListener { adValue ->
         val extras = responseInfo?.responseExtras

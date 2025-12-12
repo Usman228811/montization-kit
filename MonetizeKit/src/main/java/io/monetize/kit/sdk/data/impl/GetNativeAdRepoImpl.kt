@@ -56,15 +56,15 @@ class GetNativeAdRepoImpl private constructor(
         adCallBack: AdCallBack?,
     ) {
         this.adCallBack = adCallBack
+        this.nativeControllerConfig = nativeControllerConfig
+        this.mContext = mContext
+        this.adFrame = adFrame
         if (AdKit.initializer.getDisableAds()) {
             adCallBack?.onAdFailed("ads are disabled in app class")
             hideAdFrame()
             return
         }
 
-        this.nativeControllerConfig = nativeControllerConfig
-        this.mContext = mContext
-        this.adFrame = adFrame
         adType = AdType.entries.filter {
             it.type == firebaseLong(
                 "${nativeControllerConfig.placementKey}_adType",

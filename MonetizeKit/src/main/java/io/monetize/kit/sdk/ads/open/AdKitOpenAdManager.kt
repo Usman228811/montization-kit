@@ -17,6 +17,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
@@ -241,6 +242,11 @@ class AdKitOpenAdManager private constructor(
                     if (isOpenAdInstant.not()) {
                         preloadOpenAd()
                     }
+                }
+
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    postAdImpression("AppOpenAd")
                 }
 
                 override fun onAdFailedToShowFullScreenContent(

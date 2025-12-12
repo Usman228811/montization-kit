@@ -10,6 +10,7 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -88,6 +89,11 @@ class AdKitBannerController {
                         override fun onAdClicked() {
                             super.onAdClicked()
                             onAdClick?.invoke()
+                        }
+
+                        override fun onAdImpression() {
+                            super.onAdImpression()
+                           postAdImpression("Banner")
                         }
 
                         override fun onAdFailedToLoad(p0: LoadAdError) {
