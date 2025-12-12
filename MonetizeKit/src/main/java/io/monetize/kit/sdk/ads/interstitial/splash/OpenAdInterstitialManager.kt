@@ -12,6 +12,7 @@ import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -224,6 +225,11 @@ internal class OpenAdInterstitialManager private constructor(
                     listener?.onAdClosed(true,
                         reason = "$placementKey called onAdClosed because: ad is showed successfully"
                         )
+                }
+
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    postAdImpression("AppOpenAd")
                 }
 
                 override fun onAdFailedToShowFullScreenContent(
