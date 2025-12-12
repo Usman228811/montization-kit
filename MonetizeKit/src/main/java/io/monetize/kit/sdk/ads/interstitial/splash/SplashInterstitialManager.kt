@@ -12,6 +12,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -298,6 +299,11 @@ internal class SplashInterstitialManager private constructor(
                     super.onAdClicked()
                     AdKit.analytics.postAnalytics("Splash_inter_click")
 
+                }
+
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    postAdImpression("InterstitialAd")
                 }
 
                 override fun onAdDismissedFullScreenContent() {
