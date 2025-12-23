@@ -1,21 +1,22 @@
 {
   "project_info": {
-    "project_number": "247304139028",
-    "project_id": "prank-sound-571d4",
-    "storage_bucket": "prank-sound-571d4.firebasestorage.app"
+    "project_number": "348561956593",
+    "firebase_url": "https://my-app-c7548.firebaseio.com",
+    "project_id": "my-app-c7548",
+    "storage_bucket": "my-app-c7548.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:247304139028:android:a51b2cd16b325dbc2d1201",
+        "mobilesdk_app_id": "1:348561956593:android:c423769c739b6358",
         "android_client_info": {
-          "package_name": "com.fart.funny.pranks.sounds"
+          "package_name": "com.example.exampletest"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAkoPyiY6TdZWQXIXKgPNsLso53lhwzy-E"
+          "current_key": "AIzaSyDxrvS2uJ8gu_dEJx-ai0Deez_fqozVVl8"
         }
       ],
       "services": {

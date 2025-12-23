@@ -4,10 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.analytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.monetize.kit.sdk.core.utils.init.AdKit.openAdManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +29,7 @@ class AdKitInitializer private constructor(
         }
     }
 
-    fun initMobileAds(isDebug:Boolean, context: Context, adMobAppId: String, onInit: () -> Unit) {
+    fun initMobileAds(context: Context, adMobAppId: String, onInit: () -> Unit) {
 
         try {
             val applicationInfo = context.packageManager.getApplicationInfo(
@@ -49,17 +45,6 @@ class AdKitInitializer private constructor(
             e.printStackTrace()
         }
 
-        try {
-            FirebaseApp.initializeApp(context)
-            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
-            Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
-        } catch (_: Exception) {
-        }
-        try {
-            FirebaseApp.initializeApp(context)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 MobileAds.initialize(context) {
