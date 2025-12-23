@@ -1,6 +1,10 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.analytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.monetize.kit.sdk.ads.banner.AdKitBannerPreloadHelper
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
@@ -123,6 +127,13 @@ object AdKit {
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
 
+        try {
+            FirebaseApp.initializeApp(context)
+            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
+            Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
+        } catch (_: Exception) {
+        }
+
         initializer = AdKitInitializer.getInstance()
         appsFlyer = AppsFlyer.getInstance()
         adKitPref = AdKitPref.getInstance(context)
@@ -160,7 +171,6 @@ object AdKit {
         }
 
         initializer.initMobileAds(
-            isDebug = isDebug,
             context = context,
             adMobAppId = admobId,
             onInit = {
