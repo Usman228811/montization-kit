@@ -24,7 +24,7 @@ import androidx.annotation.Px;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-;import io.monetize.kit.sdk.R;
+import io.monetize.kit.sdk.R;
 
 /**
  * A Shimmer is an object detailing all of the configuration options available for {@link
