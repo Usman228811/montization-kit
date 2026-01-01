@@ -274,14 +274,16 @@ class InterstitialController private constructor(
                     return
                 }
                 canRequestAd = false
+
+                val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
                 InterstitialAd.load(
-                    context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
+                    context, id,
                     AdRequest.Builder().build(),
                     object : InterstitialAdLoadCallback() {
                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
                             super.onAdLoaded(interstitialAd)
                             admobInterAd = interstitialAd
-                            admobInterAd?.revenueListener( AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+                            admobInterAd?.revenueListener(id)
 
                             canRequestAd = true
                         }
@@ -327,14 +329,17 @@ class InterstitialController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
+                    val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
                     InterstitialAd.load(
-                        context, AdKit.interIdManager.getNextInterId(adIdKey) ?: "",
+                        context, id,
                         AdRequest.Builder().build(),
                         object : InterstitialAdLoadCallback() {
                             override fun onAdLoaded(p0: InterstitialAd) {
                                 super.onAdLoaded(p0)
                                 admobInterAd = p0
-                                admobInterAd?.revenueListener( AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+                                admobInterAd?.revenueListener(
+                                    id
+                                )
 
                                 canRequestAd = true
                                 if (isHandlerAdDelayRunning) {

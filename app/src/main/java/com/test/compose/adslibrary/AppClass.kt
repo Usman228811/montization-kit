@@ -20,29 +20,36 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         appContext = this
 
         AdKit.init(
-            isDebug = BuildConfig.DEBUG,
+            isDebug = true,
             appFlyerSdkKey = "",
+            postRevenueOnFireBase = true,
             context = this,
             admobId = "ca-app-pub-3940256099942544~3347511713",
-            openAdId = "/21775744923/example/app-open",
+            openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to "/21775744923/example/interstitial",
-                "splash_open_ad" to "/21775744923/example/app-open",
-                "home_inter" to "/21775744923/example/interstitial",
+                "splash_inter" to "ca-app-pub-3940256099942544/9257395921",
+                "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
+                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
                 "inter_common" to listOf(
-                    "/21775744923/example/interstitial",
-                    "/21775744923/example/interstitial",
-                    "/21775744923/example/interstitial"
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "/21775744923/example/rewarded"
+                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
             ),
             mapOfNativeIds = mapOf(
-                "exit_native" to "/21775744923/example/native",
-                "lang_native_ad" to "/21775744923/example/native",
-                "home_native" to "/21775744923/example/native",
-                "subscription_native" to "/21775744923/example/native",
+                "exit_native" to "ca-app-pub-3940256099942544/1044960115",
+                "lang_native_ad" to "ca-app-pub-3940256099942544/1044960115",
+                "home_native" to "ca-app-pub-3940256099942544/1044960115",
+                "native_common" to listOf(
+                    "ca-app-pub-3940256099942544/2247696110",
+                    "native_2",
+                    "ca-app-pub-3940256099942544/2247696110",
+                    "native_4",
+                ),
+                "subscription_native" to "ca-app-pub-3940256099942544/1044960115",
             ),
             mapOfBannerIds = mapOf(
                 "premium_banner" to "/21775744923/example/adaptive-banner", //banner
@@ -62,52 +69,52 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 long("INTER_INSTANT_TIME", 8)
                 long("splash_time", 16)
 
-                native("exit_native"){
+                native("exit_native") {
                     enable(true)
                     ctaColor("")
                     bgColor("")
                     adType(4)
                 }
-                native("home_native"){
+                native("home_native") {
                     enable(true)
                     ctaColor("#000000")
                     adType(2)
                     refreshTime(0)
                 }
-                native("subscription_native"){
-                    enable(false)
+                native("subscription_native") {
+                    enable(true)
                     ctaColor("")
                     bgColor("")
                     adType(2)
                 }
-                native("lang_native_ad"){
+                native("lang_native_ad") {
                     enable(true)
                     adType(2)
                 }
 
-                fullScreen("splash_inter"){
+                fullScreen("splash_inter") {
                     enable(true)
                 }
-                fullScreen("home_inter"){
+                fullScreen("home_inter") {
                     enable(true)
                     instantInter(true)
                 }
-                fullScreen("inter_btn_plant"){
+                fullScreen("inter_btn_plant") {
                     enable(true)
                 }
-                fullScreen("inter_btn_plant"){
+                fullScreen("inter_btn_plant") {
                     enable(true)
                     instantReward(true)
                 }
-                banner("home_banner"){
+                banner("home_banner") {
                     enable(true)
                     bannerType(3)
                 }
-                banner("home_banner_top"){
+                banner("home_banner_top") {
                     enable(true)
                     bannerType(0)
                 }
-                banner("premium_banner"){
+                banner("premium_banner") {
                     enable(true)
                     bannerType(3)
                 }

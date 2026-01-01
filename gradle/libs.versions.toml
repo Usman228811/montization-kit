@@ -13,9 +13,9 @@ navigationCompose = "2.9.5"
 sdpCompose = "1.0.7"
 
 
-gmsServiceVersion = "4.4.3"
+gmsServiceVersion = "4.4.4"
 firebaseCrashlyticsVersion = "3.0.6"
-firebasePerfVersion = "2.0.1"
+firebasePerfVersion = "2.0.2"
 
 
 
