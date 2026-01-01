@@ -1,5 +1,7 @@
 package io.monetize.kit.sdk.ads.native_ad
 
+import android.util.Log
+
 class NativeIdManager private constructor() {
 
 
@@ -44,6 +46,7 @@ class NativeIdManager private constructor() {
         // Update index for next call
         currentIndexMap[placement] = (currentIndex + 1) % list.size
 
+        Log.d("usman", "selectedId: $selectedId")
         return selectedId
     }
 }

@@ -186,7 +186,7 @@ fun MainScreen(
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
                     placementKey = "home_native",
-                    adIdKey = "home_native",
+                    adIdKey = "native_common",
                     consumeAnyAd = false
                 ),
                 adCallBack = object : AdCallBack {
@@ -267,7 +267,8 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
             AdKitNativeAdViewDialog(
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
-                    "exit_native",
+                    "native_common",
+                    loadNextAd = false
                 ),
                 adCallBack = object : AdCallBack {
                     override fun onAdFailed(reason: String) {

@@ -113,8 +113,8 @@ object AdKit {
 
     fun init(
         isDebug: Boolean,
-        context: Context, admobId: String,
-        appFlyerSdkKey: String,
+        context: Context,
+        admobId: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
         mapOfRewardIds: Map<String, Any>,
@@ -122,6 +122,8 @@ object AdKit {
         mapOfBannerIds: Map<String, Any>,
         defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
         resetInterKeyForCommonAds: String? = null,
+        postRevenueOnFireBase: Boolean = false,
+        appFlyerSdkKey: String,
         onInitSdk: () -> Unit
     ) {
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
@@ -153,7 +155,7 @@ object AdKit {
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        analytics = AdKitAnalytics.getInstance(context, isDebug)
+        analytics = AdKitAnalytics.getInstance(context, isDebug, postRevenueOnFireBase)
         interIdManager = InterIdManager.getInstance()
         rewardAdIdManager = RewardAdIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()

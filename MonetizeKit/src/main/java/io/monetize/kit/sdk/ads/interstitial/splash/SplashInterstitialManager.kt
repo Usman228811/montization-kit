@@ -97,7 +97,7 @@ internal class SplashInterstitialManager private constructor(
                         override fun onAdLoaded(splashAd: InterstitialAd) {
                             super.onAdLoaded(splashAd)
                             interstitialAd = splashAd
-                            interstitialAd?.revenueListener(AdKit.interIdManager.getNextInterId(adIdKey) ?: "")
+                            interstitialAd?.revenueListener(adId)
 
                             canRequestAd = true
 

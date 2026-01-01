@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils.appflyer
 
+import android.util.Log
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -8,11 +9,11 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
-fun postAdImpression(type:String){
+fun postAdImpression(type: String) {
     //Log.d("usmaaaaaaaan", "ad_impression: $type")
 }
 
-fun AdView.revenueListener(adId: String){
+fun AdView.revenueListener(adId: String) {
     setOnPaidEventListener { adValue ->
         val extras = responseInfo?.responseExtras
         val extraMap: MutableMap<String, Any> = mutableMapOf()
@@ -35,7 +36,7 @@ fun AdView.revenueListener(adId: String){
     }
 }
 
-fun RewardedAd.revenueListener(adId: String){
+fun RewardedAd.revenueListener(adId: String) {
     setOnPaidEventListener { adValue ->
         val extras = responseInfo.responseExtras
         val extraMap: MutableMap<String, Any> = mutableMapOf()
@@ -57,7 +58,7 @@ fun RewardedAd.revenueListener(adId: String){
     }
 }
 
-fun InterstitialAd.revenueListener(adId: String){
+fun InterstitialAd.revenueListener(adId: String) {
     setOnPaidEventListener { adValue ->
         val extras = responseInfo.responseExtras
         val extraMap: MutableMap<String, Any> = mutableMapOf()
@@ -79,7 +80,7 @@ fun InterstitialAd.revenueListener(adId: String){
     }
 }
 
-fun AppOpenAd.revenueListener(adId: String){
+fun AppOpenAd.revenueListener(adId: String) {
     setOnPaidEventListener { adValue ->
         val extras = responseInfo.responseExtras
         val extraMap: MutableMap<String, Any> = mutableMapOf()
@@ -102,9 +103,12 @@ fun AppOpenAd.revenueListener(adId: String){
 }
 
 fun NativeAd.revenueListener(adUnitId: String) {
+
     setOnPaidEventListener { adValue ->
         val extras = responseInfo?.responseExtras
         val extraMap: MutableMap<String, Any> = mutableMapOf()
+
+        Log.d("usman", "revenueListener: $adUnitId")
 
         extras?.getString("mediation_group_name")
             ?.let { value -> extraMap["mediation_group_name"] = value }

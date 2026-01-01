@@ -280,14 +280,16 @@ class RewardAdController private constructor(
                 }
                 canRequestAd = false
 
+                val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
+
                 RewardedAd.load(
-                    context,
-                    AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",
+                    context,id
+                    ,
                     AdRequest.Builder().build(),
                     object : RewardedAdLoadCallback() {
                         override fun onAdLoaded(ad: RewardedAd) {
                             rewardAd = ad
-                            rewardAd?.revenueListener(AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",)
+                            rewardAd?.revenueListener(id)
 
                             canRequestAd = true
                         }
@@ -333,16 +335,16 @@ class RewardAdController private constructor(
                     canRequestAd = false
                     dismissLoadingDialog()
                     adLoadingDialog = AdLoadingDialog(context)
+                    val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
                     RewardedAd.load(
-                        context,
-                        AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: "",
+                        context,id,
                         AdRequest.Builder().build(),
                         object : RewardedAdLoadCallback() {
                             override fun onAdLoaded(ad: RewardedAd) {
-
                                 rewardAd = ad
+                                rewardAd?.revenueListener(id)
                                 canRequestAd = true
                                 if (isHandlerAdDelayRunning) {
                                     dismissLoadingDialog()

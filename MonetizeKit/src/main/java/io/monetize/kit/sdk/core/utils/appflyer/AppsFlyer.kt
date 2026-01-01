@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.appflyer
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import com.appsflyer.AFAdRevenueData
 import com.appsflyer.AdRevenueScheme
@@ -9,6 +10,7 @@ import com.appsflyer.MediationNetwork
 import com.appsflyer.attribution.AppsFlyerRequestListener
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdapterResponseInfo
+import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AppsFlyer {
 
@@ -70,6 +72,8 @@ class AppsFlyer {
         }
     }
 
+
+
     fun logAdmobRevenue(
         adValue: AdValue,
         extras: Map<String, Any> = emptyMap(),
@@ -79,6 +83,13 @@ class AppsFlyer {
         placement: String? = null,
         adapterResponseInfo: AdapterResponseInfo? = null
     ) {
+
+        logFirebaseAdRevenue(
+            adValue = adValue,
+            adUnitId = adUnitId?: "-",
+            adFormat = adType?: "-",
+            adSource = "Admob"
+        )
         if (sdkKey.isNotEmpty()) {
             val mediationNetwork = MediationNetwork.GOOGLE_ADMOB
             val currencyIso4217Code = adValue.currencyCode
@@ -112,6 +123,29 @@ class AppsFlyer {
                 additionalParameters[it.key] = it.value
             }
             logAdRevenue(adRevenueData, additionalParameters)
+        }
+    }
+
+
+    fun logFirebaseAdRevenue(adValue: AdValue?, adUnitId: String, adFormat: String, adSource: String) {
+        adValue?.let {
+            val revenue = adValue.valueMicros / 1_000_000.0 // micros -> standard unit
+            val bundle = Bundle().apply {
+                putString("ad_platform", adSource)
+                putString("currency", adValue.currencyCode)
+                putDouble("value", revenue)
+                putString("ad_source", adValue.precisionType.toString())
+                putString("ad_unit_id", adUnitId)
+                putString("ad_format", adFormat)
+//            putString("ad_placement", placementName)
+            }
+
+            AdKit.analytics.postRevenue("admob_revenue", bundle)
+
+            Log.d(
+                "AdMobRevenue",
+                "ValueMicros=${adValue.valueMicros}, Currency=${adValue.currencyCode}, adSource=${adSource}, adFormat=${adFormat}"
+            )
         }
     }
 
