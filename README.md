@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.1.9")
+    implementation("com.github.Usman228811:montization-kit:3.2.1")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.1.9-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.2.1-adapter")
 }
 ```
 
@@ -431,7 +431,9 @@ AdKitNativeAdView(
         placementKey = "home_native", // Unique placement key
         adIdKey = "home_native", // Can be common across placements,
 		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
-    ),	//optional
+		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
+    ),
+	//optional
     adCallBack =object: AdCallBack{
                 override fun onAdFailed(reason: String) {
                     Log.d("dddddd", reason)
@@ -456,9 +458,10 @@ AdKitNativeAdView(
 // For dialogs on the same screen
 AdKitNativeAdViewDialog(
     nativeControllerConfig = NativeControllerConfig(
-        placementKey = "home_native",
-        adIdKey = "home_native",
+        placementKey = "home_native", // Unique placement key
+        adIdKey = "home_native", // Can be common across placements,
 		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
+		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
     ),
    	//optional
     adCallBack =object: AdCallBack{
@@ -512,9 +515,10 @@ binding.adFrameNative.loadNative(
     this@MainXmlActivity,
 	owner = this,
     nativeControllerConfig = NativeControllerConfig(
-        placementKey = "home_native",
-        adIdKey = "home_native",
-      	consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
+        placementKey = "home_native", // Unique placement key
+        adIdKey = "home_native", // Can be common across placements,
+		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
+		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
     ),
 	//optional
     adCallBack =object: AdCallBack{
