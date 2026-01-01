@@ -22,5 +22,6 @@ data class CollapsableConfig(
 data class NativeControllerConfig(
     val placementKey: String,
     val adIdKey: String,
-    val consumeAnyAd: Boolean = false
+    val consumeAnyAd: Boolean = false,
+    val loadNextAd: Boolean = true
 )

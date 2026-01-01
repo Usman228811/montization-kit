@@ -74,21 +74,22 @@ class NativeAdSingleController {
                     }
                     canRequestLargeAd = false
 
-
-                    val builder = AdLoader.Builder(
-                        context,
+                    val id =
                         AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
                             ?: ""
+
+                    val builder = AdLoader.Builder(
+                        context, id
+
                     )
                     builder.forNativeAd { newNativeAd: NativeAd ->
                         canRequestLargeAd = true
                         largeAndSmallNativeAd = newNativeAd
-                        CoroutineScope(Dispatchers.Main).launch {
-                            largeAndSmallNativeAd?.revenueListener(
-                                AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
-                                    ?: ""
-                            )
-                        }
+//                        CoroutineScope(Dispatchers.Main).launch {
+                        largeAndSmallNativeAd?.revenueListener(
+                            id
+                        )
+//                        }
 
                         adControllerListener?.onAdLoaded()
                     }
@@ -108,7 +109,7 @@ class NativeAdSingleController {
 
                         override fun onAdImpression() {
                             super.onAdImpression()
-                           postAdImpression("NativeAd")
+                            postAdImpression("NativeAd")
                         }
 
                         override fun onAdFailedToLoad(p0: LoadAdError) {
@@ -135,10 +136,10 @@ class NativeAdSingleController {
         this.isAdEnable =
             firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
         this.nativeControllerConfig = nativeControllerConfig
-        if (isAdEnable && !adKitPref.isAppPurchased ) {
+        if (isAdEnable && !adKitPref.isAppPurchased) {
             if (largeAndSmallNativeAd == null) {
                 loadNativeAd(context, isAdEnable)
-            }else{
+            } else {
                 adControllerListener?.onAdLoaded()
             }
         }

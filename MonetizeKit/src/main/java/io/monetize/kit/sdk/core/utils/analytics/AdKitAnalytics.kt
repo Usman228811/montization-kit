@@ -9,11 +9,15 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 
-class AdKitAnalytics private constructor(private val context: Context, private val isDebug: Boolean) {
+class AdKitAnalytics private constructor(
+    private val context: Context,
+    private val isDebug: Boolean,
+    private val postRevenueOnFireBase: Boolean,
+) {
 
     private var showToast = false
 
-    fun showToast(show:Boolean){
+    fun showToast(show: Boolean) {
         showToast = show
     }
 
@@ -23,11 +27,12 @@ class AdKitAnalytics private constructor(private val context: Context, private v
 
 
         fun getInstance(
-            context:Context,
+            context: Context,
             isDebug: Boolean,
+            postRevenueOnFireBase: Boolean,
         ): AdKitAnalytics {
             return instance ?: synchronized(this) {
-                instance ?: AdKitAnalytics(context, isDebug = isDebug).also { instance = it }
+                instance ?: AdKitAnalytics(context, isDebug = isDebug, postRevenueOnFireBase = postRevenueOnFireBase).also { instance = it }
             }
         }
     }
@@ -50,11 +55,22 @@ class AdKitAnalytics private constructor(private val context: Context, private v
 
         } catch (_: Exception) {
         } catch (_: OutOfMemoryError) {
-        }
-        finally {
-            if (showToast){
+        } finally {
+            if (showToast) {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun postRevenue(name: String, bundle: Bundle) {
+        try {
+            if (postRevenueOnFireBase) {
+                if (!isDebug) {
+                    firebaseAnalytics.logEvent(name, bundle)
+                }
+            }
+        } catch (_: Exception) {
+        } catch (_: OutOfMemoryError) {
         }
     }
 

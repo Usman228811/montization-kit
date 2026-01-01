@@ -66,8 +66,9 @@ class AdKitBannerController {
                         return
                     }
                     canRequestBannerAd = false
+                    val id =AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
                     val bannerAd = AdView(context).apply {
-                        this.adUnitId = AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
+                        this.adUnitId = id
                         this.setAdSize(
                             getAdSize(
                                 context,
@@ -81,7 +82,7 @@ class AdKitBannerController {
                             super.onAdLoaded()
                             canRequestBannerAd = true
                             adView = bannerAd
-                            adView?.revenueListener(AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: "")
+                            adView?.revenueListener(id)
 
                             adControllerListener?.onAdLoaded()
                         }

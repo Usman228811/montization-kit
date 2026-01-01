@@ -249,7 +249,7 @@ class GetNativeAdRepoImpl private constructor(
                                         nativeAdController.populateNativeAd(
                                             context = mContext,
                                             adFrame = adFrame,
-                                            loadNewAd = loadNewAd,
+                                            loadNewAd = loadNewAd && nativeControllerConfig.loadNextAd,
                                             onPopulated = { ad ->
                                                 isRequesting = false
                                                 if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {

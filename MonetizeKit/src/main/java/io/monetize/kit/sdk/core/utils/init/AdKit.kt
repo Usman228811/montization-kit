@@ -1,6 +1,10 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.analytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.monetize.kit.sdk.ads.banner.AdKitBannerPreloadHelper
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
@@ -109,8 +113,8 @@ object AdKit {
 
     fun init(
         isDebug: Boolean,
-        context: Context, admobId: String,
-        appFlyerSdkKey: String,
+        context: Context,
+        admobId: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
         mapOfRewardIds: Map<String, Any>,
@@ -118,10 +122,19 @@ object AdKit {
         mapOfBannerIds: Map<String, Any>,
         defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
         resetInterKeyForCommonAds: String? = null,
+        postRevenueOnFireBase: Boolean = false,
+        appFlyerSdkKey: String,
         onInitSdk: () -> Unit
     ) {
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
+
+        try {
+            FirebaseApp.initializeApp(context)
+            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
+            Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
+        } catch (_: Exception) {
+        }
 
         initializer = AdKitInitializer.getInstance()
         appsFlyer = AppsFlyer.getInstance()
@@ -142,7 +155,7 @@ object AdKit {
         purchaseHelper = AdKitPurchaseHelper.getInstance(context)
         subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
         nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        analytics = AdKitAnalytics.getInstance(context, isDebug)
+        analytics = AdKitAnalytics.getInstance(context, isDebug, postRevenueOnFireBase)
         interIdManager = InterIdManager.getInstance()
         rewardAdIdManager = RewardAdIdManager.getInstance()
         nativeIdManager = NativeIdManager.getInstance()
@@ -160,7 +173,6 @@ object AdKit {
         }
 
         initializer.initMobileAds(
-            isDebug = isDebug,
             context = context,
             adMobAppId = admobId,
             onInit = {

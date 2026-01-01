@@ -155,7 +155,7 @@ fun SubscriptionScreen(
         AdKitNativeAdView(
             nativeControllerConfig = NativeControllerConfig(
                 placementKey = "subscription_native",
-                adIdKey = "home_native",
+                adIdKey = "native_common",
             ),
             adCallBack = object : AdCallBack {
                 override fun onAdFailed(reason: String) {
