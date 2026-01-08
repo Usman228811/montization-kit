@@ -31,6 +31,8 @@ class SubscriptionRepositoryImpl private constructor(
 
     private val context = mContext.applicationContext
 
+    private var mActivity: Activity ?= null
+
     companion object {
         @Volatile
         private var instance: SubscriptionRepositoryImpl? = null
@@ -263,20 +265,20 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, list: List<Purchase>?) {
-//        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-//            if (!list.isNullOrEmpty()) {
-//                for (purchase in list) {
-//                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-//                        checkSubscriptionsId(getSku(purchase.products))
-//                    ) {
-//                        mActivity?.runOnUiThread {
-//                            subscriptionListener?.checkPurchaseStatus(purchase)
-//                        }
-//                        break
-//                    }
-//                }
-//            }
-//        }
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            if (!list.isNullOrEmpty()) {
+                for (purchase in list) {
+                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                        checkSubscriptionsId(getSku(purchase.products))
+                    ) {
+                        mActivity?.runOnUiThread {
+                            subscriptionListener?.checkPurchaseStatus(purchase)
+                        }
+                        break
+                    }
+                }
+            }
+        }
     }
 
     override fun getSelectedSubscriptionId(selectedPosition: Int): String {
@@ -344,6 +346,7 @@ class SubscriptionRepositoryImpl private constructor(
         activity: Activity,
         listener: SubscriptionListener?
     ) {
+        mActivity = activity
         this.subscriptionListener = listener
         if (isBillingReady) {
             subscriptionListener?.onBillingInitialized()

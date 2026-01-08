@@ -48,7 +48,7 @@ class AdKitSubscriptionHelper private constructor(
 
     fun getBillingPrice(
         productId: String,
-        offerId: String,
+        offerId: String = "",
         billingPeriod: String
     ): PriceModel {
         return queryProducts.getBillingPrice(productId, offerId, billingPeriod)
