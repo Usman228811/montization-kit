@@ -68,9 +68,9 @@ class SubscriptionViewModel(
                         )
 
                         it.copy(
-                            weeklyPrice = "${price.price} ${price.offerPrice}" ,
-                            monthlyPrice = getBillingPrice("monthly", "","P1M").price,
-                            yearlyPrice = getBillingPrice("yearly", "","P1Y").price,
+                            weeklyPrice = "${price.price} ${price.offerPrice}",
+                            monthlyPrice = getBillingPrice("monthly", "", "P1M").price,
+                            yearlyPrice = getBillingPrice("yearly", "", "P1Y").price,
                         )
                     }
                 }
@@ -121,7 +121,7 @@ class SubscriptionViewModel(
 
     private fun getBillingPrice(
         productId: String,
-        offerId: String = "",
+        offerId: String,
         billingPeriod: String
     ): PriceModel {
         return AdKit.subscriptionHelper.getBillingPrice(productId, offerId, billingPeriod)

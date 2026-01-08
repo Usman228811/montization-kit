@@ -17,8 +17,8 @@ data class Products(
 )
 
 data class PriceModel(
-    val price:String,
-    val offerPrice:String,
+    val price: String,
+    val offerPrice: String,
 )
 
 
