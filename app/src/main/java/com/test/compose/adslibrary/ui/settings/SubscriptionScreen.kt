@@ -58,9 +58,9 @@ fun SubscriptionScreen(
             subscriptionViewModel.loadProducts(
                 activity,
                 listOf(
-                    "weekly_subscription2",
-                    "monthly1_subscription",
-                    "yearly_subscription"
+                    "weekly_without_free_trail",
+                    "monthly",
+                    "yearly"
                 )
             )
         }

@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.1")
+    implementation("com.github.Usman228811:montization-kit:3.2.2")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.1-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.2.2-adapter")
 }
 ```
 
@@ -1156,11 +1156,19 @@ class SubscriptionViewModel : ViewModel() {
         viewModelScope.apply {
             launch {
                 AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
+
+							val weeklyPriceModel = getBillingPrice("weekly_subscription2", "P1W")
+							val weeklyPrice = weeklyPriceModel.price
+							val weeklyPriceOffer = weeklyPriceModel.offerPrice
+                            val monthlyPrice = getBillingPrice("monthly1_subscription", "P1M").price
+                            val yearlyPrice = getBillingPrice("yearly_subscription", "P1Y").price
+
+
                     _state.update {
                         it.copy(
-                            weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
-                            monthlyPrice = getBillingPrice("monthly1_subscription", "P1M"),
-                            yearlyPrice = getBillingPrice("yearly_subscription", "P1Y")
+                            weeklyPrice = weeklyPrice,
+                            monthlyPrice = monthlyPrice,
+                            yearlyPrice = yearlyPrice
                         )
                     }
                 }
@@ -1192,8 +1200,8 @@ class SubscriptionViewModel : ViewModel() {
         AdKit.subscriptionHelper.initBilling(activity, list)
     }
 
-    private fun getBillingPrice(productId: String, billingPeriod: String): String {
-        return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
+    private fun getBillingPrice(productId: String, billingPeriod: String): PriceModel {
+        return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod)
     }
 
     fun updateSelectedButtonPos(activity:Activity, selectedButtonPos: Int) {
