@@ -16,6 +16,11 @@ data class Products(
     val products: Map<String, ProductDetails>? = null
 )
 
+data class PriceModel(
+    val price:String,
+    val offerPrice:String,
+)
+
 
 class QuerySubscriptionProductsUseCase private constructor(
     private val repository: SubscriptionRepository
@@ -108,27 +113,40 @@ class QuerySubscriptionProductsUseCase private constructor(
         repository.querySubscriptionHistory(activity)
     }
 
-    fun getBillingPrice(productId: String, billingPeriod: String): String {
-        products.value.let { products ->
-            products.products?.let {
+    fun getBillingPrice(
+        productId: String,
+        offerId: String,
+        billingPeriod: String
+    ): PriceModel {
 
-                it[productId]?.subscriptionOfferDetails?.let { skuDetail ->
-                    skuDetail[0].pricingPhases.pricingPhaseList.let { priceList ->
-                        if (priceList.size == 1) {
-                            return priceList[0].formattedPrice
-                        }
-                    }
-                    val list = skuDetail[0].pricingPhases.pricingPhaseList.filter { priceList ->
-                        priceList.billingPeriod == billingPeriod
-                    }
-                    return if (list.isNotEmpty()) {
-                        list[0].formattedPrice
-                    } else {
-                        "Error fetching Price"
-                    }
-                }
-            }
-        }
-        return "Empty"
+        val product = products.value.products?.get(productId)
+            ?: return PriceModel("Empty", "Empty")
+
+        val offers = product.subscriptionOfferDetails
+            ?: return PriceModel("Empty", "Empty")
+
+        // 🔹 Offer price (intro / discounted)
+        val offerPrice = offers
+            .firstOrNull { it.offerId == offerId }
+            ?.pricingPhases
+            ?.pricingPhaseList
+            ?.firstOrNull()
+            ?.formattedPrice
+            .orEmpty()
+
+        // 🔹 Billing (recurring) price
+        val billingPrice = offers
+            .firstOrNull() // base plan
+            ?.pricingPhases
+            ?.pricingPhaseList
+            ?.firstOrNull { it.billingPeriod == billingPeriod }
+            ?.formattedPrice
+            ?: "Error fetching Price"
+
+        return PriceModel(
+            price = billingPrice,
+            offerPrice = offerPrice
+        )
     }
+
 }

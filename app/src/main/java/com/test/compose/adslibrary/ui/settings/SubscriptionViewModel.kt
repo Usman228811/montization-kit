@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.domain.usecase.PriceModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -38,9 +39,9 @@ class SubscriptionViewModel(
     val state = _state.asStateFlow()
 
     private val subscriptionMap = mapOf(
-        0 to "weekly_subscription2",
-        1 to "monthly1_subscription",
-        2 to "yearly_subscription"
+        0 to "weekly_without_free_trail",
+        1 to "monthly",
+        2 to "yearly"
     )
 
     private fun selectedId() = subscriptionMap[state.value.selectedButtonPos]
@@ -60,10 +61,16 @@ class SubscriptionViewModel(
             launch {
                 AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
                     _state.update {
+                        val price = getBillingPrice(
+                            "weekly_without_free_trail",
+                            "paid-trail",
+                            "P1W"
+                        )
+
                         it.copy(
-                            weeklyPrice = getBillingPrice("weekly_subscription2", "P1W"),
-                            monthlyPrice = getBillingPrice("monthly1_subscription", "P1M"),
-                            yearlyPrice = getBillingPrice("yearly_subscription", "P1Y"),
+                            weeklyPrice = "${price.price} ${price.offerPrice}" ,
+                            monthlyPrice = getBillingPrice("monthly", "","P1M").price,
+                            yearlyPrice = getBillingPrice("yearly", "","P1Y").price,
                         )
                     }
                 }
@@ -112,13 +119,17 @@ class SubscriptionViewModel(
     }
 
 
-    private fun getBillingPrice(productId: String, billingPeriod: String): String {
-        return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod).ifEmpty { "..." }
+    private fun getBillingPrice(
+        productId: String,
+        offerId: String = "",
+        billingPeriod: String
+    ): PriceModel {
+        return AdKit.subscriptionHelper.getBillingPrice(productId, offerId, billingPeriod)
 
 
     }
 
-    fun updateSelectedButtonPos(activity: Activity,selectedButtonPos: Int) {
+    fun updateSelectedButtonPos(activity: Activity, selectedButtonPos: Int) {
         _state.update {
             it.copy(
                 selectedButtonPos = selectedButtonPos

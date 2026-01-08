@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.core.utils.purchase
 import android.app.Activity
 import android.content.Context
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
+import io.monetize.kit.sdk.domain.usecase.PriceModel
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
 
@@ -45,8 +46,12 @@ class AdKitSubscriptionHelper private constructor(
 
     fun isSubscriptionUpdateSupported() = queryProducts.isSubscriptionUpdateSupported()
 
-    fun getBillingPrice(productId: String, billingPeriod: String): String {
-        return queryProducts.getBillingPrice(productId, billingPeriod)
+    fun getBillingPrice(
+        productId: String,
+        offerId: String,
+        billingPeriod: String
+    ): PriceModel {
+        return queryProducts.getBillingPrice(productId, offerId, billingPeriod)
     }
 
     fun purchase(
@@ -60,7 +65,10 @@ class AdKitSubscriptionHelper private constructor(
             }
 
             subscribedId.value == productId -> {
-                purchaseProduct.viewUrl(activity,"https://play.google.com/store/account/subscriptions?sku=${productId}&package=${activity.packageName}")
+                purchaseProduct.viewUrl(
+                    activity,
+                    "https://play.google.com/store/account/subscriptions?sku=${productId}&package=${activity.packageName}"
+                )
             }
 
             subscribedId.value == "" -> {
