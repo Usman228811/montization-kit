@@ -5,7 +5,9 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import com.test.compose.adslibrary.navigation.AppRoute
+import io.monetize.kit.sdk.ads.open.OpenAdListener
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
@@ -121,6 +123,26 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 //                overAllNativeColor("#964B00", "#FF03DAC5")
             },
             onInitSdk = {
+
+                AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener{
+                    override fun onAdShow() {
+                        Log.d("opoppp", "onAdShow: ")
+                    }
+
+                    override fun onAdLoaded() {
+                        Log.d("opoppp", "onAdLoaded: ")
+                    }
+
+                    override fun onAdDismissed() {
+                        Log.d("opoppp", "onAdDismissed: ")
+
+                    }
+
+                    override fun onAdFailed(error: String) {
+                        Log.d("opoppp", "onAdFailed: $error")
+                    }
+
+                })
 
                 AdKit.initializer.disableAds(false)
                 AdKit.analytics.showToast(false)

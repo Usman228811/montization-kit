@@ -26,6 +26,13 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import java.util.Date
 
+interface OpenAdListener{
+    fun onAdShow()
+    fun onAdLoaded()
+    fun onAdDismissed()
+    fun onAdFailed(error: String)
+}
+
 class AdKitOpenAdManager private constructor(
     context: Context,
 ) : DefaultLifecycleObserver {
@@ -33,6 +40,7 @@ class AdKitOpenAdManager private constructor(
     private val mContext = context.applicationContext
 
     private var mAppOpenAd: AppOpenAd? = null
+    private var openAdListener: OpenAdListener? = null
     private var loadTime: Long = 0
     private var canRequestAd = true
 
@@ -59,6 +67,10 @@ class AdKitOpenAdManager private constructor(
             }
             isHandlerAdDelayRunning = false
         }
+    }
+
+    fun setOpenAdListeners(openAdListener: OpenAdListener){
+        this.openAdListener = openAdListener
     }
 
 
@@ -198,6 +210,7 @@ class AdKitOpenAdManager private constructor(
                                         canRequestAd = true
                                         mAppOpenAd = appOpenAd
                                         mAppOpenAd?.revenueListener(adId)
+                                        openAdListener?.onAdLoaded()
 
                                         setFullScreenCallBacks()
                                         loadTime = Date().time
@@ -217,6 +230,8 @@ class AdKitOpenAdManager private constructor(
 
                                         canRequestAd = true
                                         mAppOpenAd = null
+                                        openAdListener?.onAdFailed("OpenAd is failed with code: ${loadAdError.code}, message: ${loadAdError.message}")
+
 
                                         if (isHandlerAdDelayRunning) {
                                             dismissLoadingDialog()
@@ -239,6 +254,7 @@ class AdKitOpenAdManager private constructor(
                 override fun onAdDismissedFullScreenContent() {
                     mAppOpenAd = null
                     IS_OPEN_Ad_SHOWING = false
+                    openAdListener?.onAdDismissed()
                     if (isOpenAdInstant.not()) {
                         preloadOpenAd()
                     }
@@ -257,6 +273,7 @@ class AdKitOpenAdManager private constructor(
 
                 override fun onAdShowedFullScreenContent() {
                     IS_OPEN_Ad_SHOWING = true
+                    openAdListener?.onAdShow()
                 }
             }
     }
@@ -302,6 +319,8 @@ class AdKitOpenAdManager private constructor(
                         canRequestAd = true
                         mAppOpenAd = appOpenAd
                         mAppOpenAd?.revenueListener(adId)
+                        openAdListener?.onAdLoaded()
+
 
                         loadTime = Date().time
                     }
