@@ -181,7 +181,9 @@ fun MainScreen(
             Text("show reward and goto subscription screen")
         }
 
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 20.sdp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.sdp)) {
 
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(

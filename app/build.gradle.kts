@@ -14,8 +14,8 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.plant.identifier.scanplant"
 //        applicationId = "com.plant.identifier.scanplant"
+        applicationId = "com.plant.identifier.scanplant.tttt"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
