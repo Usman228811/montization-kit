@@ -23,7 +23,7 @@ class AdKitNativePreloadHelper private constructor(
 
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
 
-        if (firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true) && AdKit.consentManager.canRequestAds) {
+        if (firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false) && AdKit.consentManager.canRequestAds) {
             var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
             if (index == -1) {
                 singleNativeList.apply {
@@ -48,7 +48,7 @@ class AdKitNativePreloadHelper private constructor(
     fun hasNativeAd(nativeControllerConfig: NativeControllerConfig): Boolean {
         if (firebaseBoolean(
                 "${nativeControllerConfig.placementKey}_isAdEnable",
-                true
+                false
             ) && AdKit.consentManager.canRequestAds
         ) {
             var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }

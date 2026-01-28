@@ -37,7 +37,7 @@ class AdKitRewardHelper private constructor(
         }
         this.isRewardInstant =
             firebaseBoolean("${placementKey}_isRewardInstant", true)
-        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
+        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
         if (isAdEnable.not()) {
             return
         }
@@ -82,7 +82,7 @@ class AdKitRewardHelper private constructor(
         }
         this.isRewardInstant =
             firebaseBoolean("${placementKey}_isRewardInstant", true)
-        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
+        this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
             listener.onRewardDismissed(false, "$placementKey ad is disable or not added in remote config")
             return

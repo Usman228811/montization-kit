@@ -72,7 +72,7 @@ class GetNativeAdRepoImpl private constructor(
             ).toInt()
         }[0]
         loadNewAd = firebaseBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
-        isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", true)
+        isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         isAdLoadCalled = true
 
         var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
