@@ -90,7 +90,7 @@ class AdKitSplashAdController private constructor(
         AdKit.initializer.initAdsConfigs()
 
         this.placementKey = placementKey
-        isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", true)
+        isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
 
         if (!isAdEnable) {
             handlerAd.postDelayed({

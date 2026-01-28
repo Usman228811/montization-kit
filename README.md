@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.3")
+    implementation("com.github.Usman228811:montization-kit:3.2.5")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.3-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.2.5-adapter")
 }
 ```
 
@@ -732,6 +732,31 @@ override fun onActivityDestroyed(activity: Activity) {
     AdKit.openAdManager.setActivity(null)
     AdKit.interHelper.setAppInPause(false)
 }
+```
+
+(Optional) To attach listeners of App Open Ad,  add it in App-Class in onInitSdk function:
+
+```kotlin
+     AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener{
+                    override fun onAdShow() {
+                        Log.d("opoppp", "onAdShow: ")
+                    }
+
+                    override fun onAdLoaded() {
+                        Log.d("opoppp", "onAdLoaded: ")
+                    }
+
+                    override fun onAdDismissed() {
+                        Log.d("opoppp", "onAdDismissed: ")
+
+                    }
+
+                    override fun onAdFailed(error: String) {
+                        Log.d("opoppp", "onAdFailed: $error")
+                    }
+
+                })
+
 ```
 
 ### Jetpack Compose Support
