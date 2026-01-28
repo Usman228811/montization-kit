@@ -27,31 +27,31 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             postRevenueOnFireBase = true,
             context = this,
             admobId = "ca-app-pub-3940256099942544~3347511713",
-            openAdId = "ca-app-pub-3940256099942544/9257395921",
+            openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
-                "splash_inter" to "ca-app-pub-3940256099942544/9257395921",
-                "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
-                "home_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_inter" to "/21775744923/example/interstitial",
+                "splash_open_ad" to "/21775744923/example/app-open",
+                "home_inter" to "/21775744923/example/interstitial",
                 "inter_common" to listOf(
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712",
-                    "ca-app-pub-3940256099942544/1033173712"
+                    "/21775744923/example/interstitial",
+                    "/21775744923/example/interstitial",
+                    "/21775744923/example/interstitial"
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
+                "reward_main" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
-                "exit_native" to "ca-app-pub-3940256099942544/1044960115",
-                "lang_native_ad" to "ca-app-pub-3940256099942544/1044960115",
-                "home_native" to "ca-app-pub-3940256099942544/1044960115",
+                "exit_native" to "/21775744923/example/native-video",
+                "lang_native_ad" to "/21775744923/example/native-video",
+                "home_native" to "/21775744923/example/native-video",
                 "native_common" to listOf(
                     "ca-app-pub-3940256099942544/2247696110",
                     "native_2",
                     "ca-app-pub-3940256099942544/2247696110",
                     "native_4",
                 ),
-                "subscription_native" to "ca-app-pub-3940256099942544/1044960115",
+                "subscription_native" to "/21775744923/example/native-video",
             ),
             mapOfBannerIds = mapOf(
                 "premium_banner" to "/21775744923/example/adaptive-banner", //banner
