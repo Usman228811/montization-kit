@@ -12,11 +12,11 @@ import io.monetize.kit.sdk.ads.native_ad.NativeRefreshListener
 import io.monetize.kit.sdk.ads.native_ad.addNativeAdView
 import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
-import io.monetize.kit.sdk.core.utils.firebaseLong
+import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.nativeCustomLayoutHelper
@@ -32,7 +32,7 @@ class GetNativeAdRepoImpl private constructor(
     private var isRequesting: Boolean = false
     private var adFrame: LinearLayout? = null
     private var model: NativeAdSingleModel? = null
-    private var adType: AdType = AdType.SMALL_NATIVE
+    private var nativeAdType: NativeAdType = NativeAdType.SMALL_NATIVE
     private lateinit var mContext: Activity
     private lateinit var nativeControllerConfig: NativeControllerConfig
     private var canLoadAdAgain = true
@@ -65,11 +65,11 @@ class GetNativeAdRepoImpl private constructor(
             return
         }
 
-        adType = AdType.entries.filter {
-            it.type == firebaseLong(
-                "${nativeControllerConfig.placementKey}_adType",
-                0
-            ).toInt()
+        nativeAdType = NativeAdType.entries.filter {
+            it.name == firebaseString(
+                "${nativeControllerConfig.placementKey}_nativeAdType",
+                NativeAdType.LARGE_NATIVE.name
+            )
         }[0]
         loadNewAd = firebaseBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
         isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
@@ -113,7 +113,7 @@ class GetNativeAdRepoImpl private constructor(
                     addNativeAdView(
                         nativeControllerConfig = nativeControllerConfig,
                         adsCustomLayoutHelper = nativeCustomLayoutHelper,
-                        adType = adType,
+                        nativeAdType = nativeAdType,
                         context = mContext,
                         adFrame = adFrame,
                         ad = largeNativeAd as NativeAd,
@@ -236,7 +236,7 @@ class GetNativeAdRepoImpl private constructor(
                                 addNativeShimmerLayout(
                                     context = mContext,
                                     adFrame = adFrame,
-                                    adType = adType,
+                                    nativeAdType = nativeAdType,
                                     customLayoutHelper = nativeCustomLayoutHelper
                                 )
                             }
@@ -254,6 +254,7 @@ class GetNativeAdRepoImpl private constructor(
                                             context = mContext,
                                             adFrame = adFrame,
                                             loadNewAd = loadNewAd && nativeControllerConfig.loadNextAd,
+                                            nativeAdType = nativeAdType,
                                             onPopulated = { ad ->
                                                 isRequesting = false
                                                 if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
@@ -300,7 +301,7 @@ class GetNativeAdRepoImpl private constructor(
                         addNativeAdView(
                             nativeControllerConfig = nativeControllerConfig,
                             adsCustomLayoutHelper = nativeCustomLayoutHelper,
-                            adType = adType,
+                            nativeAdType = nativeAdType,
                             context = mContext,
                             adFrame = adFrame,
                             ad = largeNativeAd as NativeAd,

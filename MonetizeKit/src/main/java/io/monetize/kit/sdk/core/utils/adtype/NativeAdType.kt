@@ -1,12 +1,19 @@
 package io.monetize.kit.sdk.core.utils.adtype
 
-enum class AdType(val type: Int) {
-    LARGE_NATIVE(0),
-    SMALL_NATIVE_MEDIA_VIEW(1),
-    SMALL_NATIVE(2),
-    SMALL_NATIVE_MINI(3),
+enum class NativeAdType {
+    LARGE_NATIVE,
+    SMALL_NATIVE_MEDIA_VIEW,
+    SMALL_NATIVE,
+    SMALL_NATIVE_MINI,
+    FULL_NATIVE,
+}
 
-    FULL_NATIVE(4),
+enum class BannerAdType {
+    ADAPTIVE_BANNER,
+    LARGE_BANNER,
+    MEDIUM_RECTANGLE_BANNER,
+    BOTTOM_COLLAPSIBLE_BANNER,
+    TOP_COLLAPSIBLE_BANNER,
 }
 
 data class BannerControllerConfig(

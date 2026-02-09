@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.5")
+    implementation("com.github.Usman228811:montization-kit:3.2.6")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.5-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.2.6-adapter")
 }
 ```
 
@@ -109,7 +109,8 @@ Initialize the SDK in your `Application` class's `onCreate` method:
 
 ### Important Default Configs
 These configs should be added to your `defaultRemoteConfigBuilder` in your App Class to control ad behavior in the plugin:
-- `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading. 
+- `INTER_LOADING_ENABLE`- Enable/disable Interstitial & Reward ads loading dialog.
+- `SPLASH_INTER_LOADING_ENABLE`- Enable/disable Splash Interstitial ads loading dialog. 
 - `INTER_INSTANT_TIME`- Time window to show instant Interstitial ad
 - `OPEN_AD_LOADING_ENABLE`- Enable/disable App-Open-Ad loading.
 - `IS_OPEN_AD_INSTANT`- Enable/disable instant App-Open-Ad.
@@ -136,7 +137,8 @@ AdKit.init(
         "home_native" to "ca-app-pub-3940256099942544/2247696110"
     ),
     mapOfBannerIds = mapOf(
-        "home_banner" to "ca-app-pub-3940256099942544/9214589741"
+        "home_banner" to "ca-app-pub-3940256099942544/9214589741",
+		"premium_banner" to "ca-app-pub-3940256099942544/2014213617",
     ),
 	mapOfRewardIds = mapOf(
        "reward_id" to getString(com.plantcare.ai.plant.framework.R.string.chat_reward_id),
@@ -146,27 +148,30 @@ AdKit.init(
                 bool("OPEN_AD_ENABLE", true)
                 bool("IS_OPEN_AD_INSTANT", false)
                 bool("INTER_LOADING_ENABLE", true)
+				bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)
                 long("INTER_INSTANT_TIME", 8)
+				long("splash_time", 16)
+
 
                 native("exit_native"){
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(1)
+                    adType(NativeAdType.SMALL_NATIVE)
                 }
                 native("home_native"){
                     enable(true)
                     ctaColor("#FFFFFF")
-                    adType(2)
+                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
 					refreshTime(7) // If provided, the native ad will refresh after 7 seconds
                 }
                 native("subscription_native"){
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(1)
+                    adType(NativeAdType.SMALL_NATIVE)
                 }
 
                 fullScreen("splash_inter"){
@@ -185,11 +190,11 @@ AdKit.init(
                 }
                 banner("home_banner"){
 //                    enable(true)
-					  bannerType(0)
+					  bannerType(BannerAdType.ADAPTIVE_BANNER)
                 }
                 banner("premium_banner"){
                     enable(true)
-                    bannerType(0)
+                   bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
             },
@@ -387,16 +392,16 @@ fun showSplashInterOnClick(activity: Activity){
 # Native Ads
 
 ### Ad Types
-- `0`: Large native ad
-- `1`: Small native with media view ad
-- `2`: Small native ad
-- `3`: Small native mini ad
-- `4`: Full Screen native ad
+- `NativeAdType.LARGE_NATIVE`: Large native ad
+- `NativeAdType.SMALL_NATIVE_MEDIA_VIEW`: Small native with media view ad
+- `NativeAdType.SMALL_NATIVE`: Small native ad
+- `NativeAdType.SMALL_NATIVE_MINI`: Small native mini ad
+- `NativeAdType.FULL_NATIVE`: Full Screen native ad
 
 ### Remote Config Values
 Add these to defaultRemoteConfigBuilder or Firebase Remoteconfigs:
 - `{$placementkey}_isAdEnable`
-- `{$placementkey}_adType`
+- `{$placementkey}_nativeAdType`// add LARGE_NATIVE or SMALL_NATIVE_MEDIA_VIEW etc to change native type in remote config console
 - `{$adIdKey}_loadNewAd`
 - `{$placementkey}_ctaColor`
 - `{$placementkey}_bgColor`
@@ -414,7 +419,7 @@ native("subscription_native"){
             enable(true)
             ctaColor("")
             bgColor("")
-            adType(1)
+            adType(NativeAdType.SMALL_NATIVE)
 			refreshTime(7)
 
      }
@@ -825,16 +830,16 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 # Banner Ads
 
 ### Ad Types
-- `0`: Adaptive Banner
-- `1`: Large Banner
-- `2`: Medium Rectangle Banner
-- `3`: Bottom Collapsible Banner
-- `4`: Top Collapsible Banner
+- `BannerAdType.ADAPTIVE_BANNER`: Adaptive Banner
+- `BannerAdType.LARGE_BANNER`: Large Banner
+- `BannerAdType.MEDIUM_RECTANGLE_BANNER`: Medium Rectangle Banner
+- `BannerAdType.BOTTOM_COLLAPSIBLE_BANNER`: Bottom Collapsible Banner
+- `BannerAdTypeTOP_COLLAPSIBLE_BANNER`: Top Collapsible Banner
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
 - `{$adIdKey}_loadNewAd`
-- `{$placementkey}_bannerType`
+- `{$placementkey}_bannerAdType`  // add ADAPTIVE_BANNER or LARGE_BANNER etc to change banner type in remote config console
 
 ### How to add in defaultRemoteConfigBuilder
 in `App Class` -> defaultRemoteConfigBuilder, add
@@ -842,7 +847,7 @@ in `App Class` -> defaultRemoteConfigBuilder, add
 ```kotlin
  banner("home_banner"){
        enable(true)
-       bannerType(2)
+       bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
 }
 ```
 ### Jetpack Compose Support

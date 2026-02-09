@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import com.google.android.gms.ads.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
@@ -23,7 +24,7 @@ class BaseSingleBannerActivity private constructor(
     private var canLoadAdAgain = true
 
     private var isAdLoadCalled: Boolean = false
-    private var bannerType: Long = 0L
+    private var bannerType: String = BannerAdType.ADAPTIVE_BANNER.name
     private var isRequesting: Boolean = false
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
@@ -45,7 +46,7 @@ class BaseSingleBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        bannerType: Long,
+        bannerType: String,
         adCallBack: AdCallBack?
     ) {
         this.adCallBack = adCallBack

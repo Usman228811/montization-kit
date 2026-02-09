@@ -1,12 +1,12 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 
 class AdsCustomLayoutHelper private constructor() {
 
 
-    private val layouts = mutableMapOf<AdType, Int?>()
-    private val shimmers = mutableMapOf<AdType, Int?>()
+    private val layouts = mutableMapOf<NativeAdType, Int?>()
+    private val shimmers = mutableMapOf<NativeAdType, Int?>()
 
     fun setNativeCustomLayouts(
         largeNativeLayout: Int? = null,
@@ -20,21 +20,21 @@ class AdsCustomLayoutHelper private constructor() {
         smallNativeMediaViewShimmer: Int? = null,
         fullScreenNativeShimmer: Int? = null,
     ) {
-        layouts[AdType.LARGE_NATIVE] = largeNativeLayout
-        layouts[AdType.SMALL_NATIVE] = smallNativeLayout
-        layouts[AdType.SMALL_NATIVE_MINI] = smallNativeMiniLayout
-        layouts[AdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewLayout
-        layouts[AdType.FULL_NATIVE] = fullScreenNativeLayout
+        layouts[NativeAdType.LARGE_NATIVE] = largeNativeLayout
+        layouts[NativeAdType.SMALL_NATIVE] = smallNativeLayout
+        layouts[NativeAdType.SMALL_NATIVE_MINI] = smallNativeMiniLayout
+        layouts[NativeAdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewLayout
+        layouts[NativeAdType.FULL_NATIVE] = fullScreenNativeLayout
 
-        shimmers[AdType.LARGE_NATIVE] = largeNativeShimmer
-        shimmers[AdType.SMALL_NATIVE] = smallNativeShimmer
-        shimmers[AdType.SMALL_NATIVE_MINI] = smallNativeMiniShimmer
-        shimmers[AdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewShimmer
-        shimmers[AdType.FULL_NATIVE] = fullScreenNativeShimmer
+        shimmers[NativeAdType.LARGE_NATIVE] = largeNativeShimmer
+        shimmers[NativeAdType.SMALL_NATIVE] = smallNativeShimmer
+        shimmers[NativeAdType.SMALL_NATIVE_MINI] = smallNativeMiniShimmer
+        shimmers[NativeAdType.SMALL_NATIVE_MEDIA_VIEW] = smallNativeMediaViewShimmer
+        shimmers[NativeAdType.FULL_NATIVE] = fullScreenNativeShimmer
     }
 
-    fun getLayout(type: AdType): Int? = layouts[type]
-    fun getShimmer(type: AdType): Int? = shimmers[type]
+    fun getLayout(type: NativeAdType): Int? = layouts[type]
+    fun getShimmer(type: NativeAdType): Int? = shimmers[type]
 
     companion object {
         @Volatile private var instance: AdsCustomLayoutHelper? = null

@@ -62,7 +62,7 @@ internal class OpenAdInterstitialManager private constructor(
     ) {
         this.isAdEnable = isAdEnable
         this.splashTime = time
-        this.isLoadingEnable = firebaseBoolean("INTER_LOADING_ENABLE", false)
+        this.isLoadingEnable = firebaseBoolean("SPLASH_INTER_LOADING_ENABLE", false)
         this.loadAndShow = loadAndShow
         this.placementKey = placementKey
         this.adIdKey = adIdKey

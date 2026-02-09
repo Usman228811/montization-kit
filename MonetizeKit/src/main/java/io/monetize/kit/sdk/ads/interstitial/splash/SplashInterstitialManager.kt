@@ -175,7 +175,7 @@ internal class SplashInterstitialManager private constructor(
     private fun adLoadingCheck(
         activity: Activity,
     ) {
-        if (firebaseBoolean("INTER_LOADING_ENABLE", false)) {
+        if (firebaseBoolean("SPLASH_INTER_LOADING_ENABLE", false)) {
             try {
                 mInterstitialControllerListener?.onAdShow()
                 adLoadingDialog = AdLoadingDialog(activity)
@@ -330,7 +330,10 @@ internal class SplashInterstitialManager private constructor(
     }
 
     private fun hideProgressAndNullAd(isInterShowed: Boolean = false, reason: String) {
-        mInterstitialControllerListener?.onAdClosed(isInterShowed, "$placementKey called onAdClosed because: $reason")
+        mInterstitialControllerListener?.onAdClosed(
+            isInterShowed,
+            "$placementKey called onAdClosed because: $reason"
+        )
         IS_INTERSTITIAL_Ad_SHOWING = false
         interstitialAd = null
         hideProgress()
