@@ -9,7 +9,7 @@ import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
@@ -149,6 +149,7 @@ class NativeAdSingleController {
         context: Context,
         adFrame: LinearLayout,
         loadNewAd: Boolean = true,
+        nativeAdType: NativeAdType,
         onPopulated: (NativeAd) -> Unit,
         onAdClick: () -> Unit,
     ) {
@@ -160,12 +161,7 @@ class NativeAdSingleController {
                     addNativeAdView(
                         nativeControllerConfig = nativeControllerConfig,
                         adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
-                        adType = AdType.entries.filter { entries ->
-                            entries.type == firebaseLong(
-                                "${nativeControllerConfig.placementKey}_adType",
-                                0
-                            ).toInt()
-                        }[0],
+                        nativeAdType = nativeAdType,
                         context = context,
                         adFrame = adFrame,
                         ad = it,

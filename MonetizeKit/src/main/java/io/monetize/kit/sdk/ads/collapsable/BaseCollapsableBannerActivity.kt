@@ -13,6 +13,7 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
@@ -29,7 +30,7 @@ class BaseCollapsableBannerActivity private constructor(
     private var isRequesting: Boolean = false
     private var canLoadAdAgain = true
 
-    private var bannerType: Long = 0L
+    private var bannerType: String = BannerAdType.ADAPTIVE_BANNER.name
     private lateinit var mContext: Activity
     private lateinit var bannerControllerConfig: BannerControllerConfig
     private var adCallBack: AdCallBack? = null
@@ -57,7 +58,7 @@ class BaseCollapsableBannerActivity private constructor(
         mContext: Activity,
         adFrame: LinearLayout,
         bannerControllerConfig: BannerControllerConfig,
-        bannerType: Long,
+        bannerType: String,
         adCallBack: AdCallBack?
 
     ) {
@@ -73,7 +74,7 @@ class BaseCollapsableBannerActivity private constructor(
         this.bannerControllerConfig = bannerControllerConfig
         this.bannerType = bannerType
 
-        isTop = bannerType == 4L
+        isTop = bannerType == BannerAdType.TOP_COLLAPSIBLE_BANNER.name
         this.mContext = mContext
         this.adFrame = adFrame
         this.isAdLoadCalled = true
