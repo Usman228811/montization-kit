@@ -9,6 +9,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
@@ -31,7 +32,7 @@ class AdKitBannerController {
     private var adView: AdView? = null
     private var adControllerListener: AdControllerListener? = null
     private var onAdClick: (() -> Unit)? = null
-    private var bannerType = 0L
+    private var bannerType = BannerAdType.ADAPTIVE_BANNER.name
 
 
     fun setAdControllerListener(listener: AdControllerListener?) {
@@ -42,7 +43,7 @@ class AdKitBannerController {
 
     fun loadNewBannerAd(
         context: Activity, bannerControllerConfig: BannerControllerConfig,
-        bannerType: Long
+        bannerType: String
     ) {
         this.isAdEnable = firebaseBoolean(
             "${bannerControllerConfig.placementKey}_isAdEnable",
@@ -116,7 +117,7 @@ class AdKitBannerController {
     fun populateBannerAd(
         context: Activity, placementKey: String, adIdKey: String, enable: Boolean,
         adFrame: LinearLayout, loadNewAd: Boolean = false,
-        bannerType: Long,
+        bannerType: String,
         populateCallback: (Any) -> Unit,
         onAdClick: () -> Unit,
     ) {

@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.util.Log
 import com.test.compose.adslibrary.navigation.AppRoute
 import io.monetize.kit.sdk.ads.open.OpenAdListener
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
@@ -47,9 +49,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "home_native" to "/21775744923/example/native-video",
                 "native_common" to listOf(
                     "ca-app-pub-3940256099942544/2247696110",
-                    "native_2",
-                    "ca-app-pub-3940256099942544/2247696110",
-                    "native_4",
                 ),
                 "subscription_native" to "/21775744923/example/native-video",
             ),
@@ -57,7 +56,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "premium_banner" to "/21775744923/example/adaptive-banner", //banner
 //                "home_banner" to "/21775744923/example/adaptive-banner", //banner
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
-                "banner_common" to "ca-app-pub-3940256099942544/2014213617", // collapsible
+                "banner_common" to "ca-app-pub-3940256099942544/9214589741", // collapsible
                 "home_banner_top" to "/21775744923/example/adaptive-banner", // collapsible
             ),
             defaultRemoteConfigBuilder = {
@@ -65,7 +64,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("OPEN_AD_ENABLE", true)
                 bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
-                bool("INTER_LOADING_ENABLE", true)
+                bool("INTER_LOADING_ENABLE", false)
+                bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)
                 long("INTER_INSTANT_TIME", 8)
@@ -75,23 +75,23 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(4)
+                    adType(NativeAdType.SMALL_NATIVE_MINI)
                 }
                 native("home_native") {
                     enable(true)
                     ctaColor("#000000")
-                    adType(2)
+                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
                     refreshTime(0)
                 }
                 native("subscription_native") {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(2)
+                    adType(NativeAdType.SMALL_NATIVE)
                 }
                 native("lang_native_ad") {
                     enable(true)
-                    adType(2)
+                    adType(NativeAdType.SMALL_NATIVE)
                 }
 
                 fullScreen("splash_inter") {
@@ -99,7 +99,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 fullScreen("home_inter") {
                     enable(true)
-                    instantInter(true)
                 }
                 fullScreen("inter_btn_plant") {
                     enable(true)
@@ -110,15 +109,15 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner") {
                     enable(true)
-                    bannerType(3)
+                    bannerType(BannerAdType.LARGE_BANNER)
                 }
                 banner("home_banner_top") {
-                    enable(true)
-                    bannerType(0)
+                    enable(false)
+                    bannerType(BannerAdType.ADAPTIVE_BANNER)
                 }
                 banner("premium_banner") {
                     enable(true)
-                    bannerType(3)
+                    bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
 //                overAllNativeColor("#964B00", "#FF03DAC5")
             },

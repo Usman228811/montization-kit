@@ -16,7 +16,8 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
-import io.monetize.kit.sdk.core.utils.adtype.AdType
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.core.utils.shimmer_effect.ShimmerFrameLayout
@@ -27,30 +28,30 @@ private fun getFirstNonNull(vararg values: Int?): Int {
 }
 
 private val defaultLayouts = mapOf(
-    AdType.LARGE_NATIVE to R.layout.large_native_layout,
-    AdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
-    AdType.SMALL_NATIVE to R.layout.small_native_layout,
-    AdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
-    AdType.FULL_NATIVE to R.layout.full_native_layout,
+    NativeAdType.LARGE_NATIVE to R.layout.large_native_layout,
+    NativeAdType.SMALL_NATIVE_MEDIA_VIEW to R.layout.small_native_media_view_layout,
+    NativeAdType.SMALL_NATIVE to R.layout.small_native_layout,
+    NativeAdType.SMALL_NATIVE_MINI to R.layout.small_native_mini_layout,
+    NativeAdType.FULL_NATIVE to R.layout.full_native_layout,
 )
 private val defaultBannerShimmer = mapOf(
-    0 to R.layout.adaptive_banner_layout,
-    1 to R.layout.large_banner_layout,
-    2 to R.layout.medium_rect_banner_layout,
-    3 to R.layout.adaptive_banner_layout,
-    4 to R.layout.adaptive_banner_layout,
+    BannerAdType.ADAPTIVE_BANNER.name to R.layout.adaptive_banner_layout,
+    BannerAdType.LARGE_BANNER.name to R.layout.large_banner_layout,
+    BannerAdType.MEDIUM_RECTANGLE_BANNER.name to R.layout.medium_rect_banner_layout,
+    BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name to R.layout.adaptive_banner_layout,
+    BannerAdType.TOP_COLLAPSIBLE_BANNER.name to R.layout.adaptive_banner_layout,
 )
 
 
 fun addNativeShimmerLayout(
     context: Context,
-    adFrame: LinearLayout, adType: AdType,
+    adFrame: LinearLayout, nativeAdType: NativeAdType,
     customLayoutHelper: AdsCustomLayoutHelper? = null
 ) {
     val shimmerLayoutId = getFirstNonNull(
-        customLayoutHelper?.getShimmer(adType),
-        customLayoutHelper?.getLayout(adType),
-        defaultLayouts[adType]
+        customLayoutHelper?.getShimmer(nativeAdType),
+        customLayoutHelper?.getLayout(nativeAdType),
+        defaultLayouts[nativeAdType]
     )
 
     val shimmerContainer = LayoutInflater.from(context)
@@ -76,9 +77,9 @@ fun addNativeShimmerLayout(
 fun addBannerShimmerLayout(
     context: Context,
     adFrame: LinearLayout,
-    bannerType: Long,
+    bannerType: String,
 ) {
-    val shimmerLayoutId = defaultBannerShimmer[bannerType.toInt()]
+    val shimmerLayoutId = defaultBannerShimmer[bannerType]
     shimmerLayoutId?.let { shimmerLayoutId ->
         val shimmerContainer = LayoutInflater.from(context)
             .inflate(R.layout.shimmer_layout, adFrame, false) as ShimmerFrameLayout
@@ -105,15 +106,15 @@ fun addBannerShimmerLayout(
 fun addNativeAdView(
     nativeControllerConfig: NativeControllerConfig,
     adsCustomLayoutHelper: AdsCustomLayoutHelper,
-    adType: AdType,
+    nativeAdType: NativeAdType,
     context: Context,
     adFrame: LinearLayout,
     ad: NativeAd,
 ) {
 
     try {
-        val (layoutId, isCustom) = adsCustomLayoutHelper.getLayout(adType)?.let { it to true }
-            ?: (defaultLayouts[adType] to false)
+        val (layoutId, isCustom) = adsCustomLayoutHelper.getLayout(nativeAdType)?.let { it to true }
+            ?: (defaultLayouts[nativeAdType] to false)
         layoutId?.let {
 
             val adView = LayoutInflater.from(context).inflate(layoutId, adFrame, false)
@@ -129,7 +130,7 @@ fun addNativeAdView(
                     adView = sdkLayout.nativeAdView,
                     isCustom = true,
                     customLayout = sdkLayout,
-                    adType = adType
+                    nativeAdType = nativeAdType
                 )
             } else {
                 val defaultAdView = adView.findViewById<NativeAdView>(R.id.ad_view)
@@ -137,7 +138,7 @@ fun addNativeAdView(
                     nativeControllerConfig = nativeControllerConfig,
                     nativeAd = ad,
                     adView = defaultAdView,
-                    adType = adType
+                    nativeAdType = nativeAdType
                 )
             }
 
@@ -160,7 +161,7 @@ fun populateNativeAd(
     adView: NativeAdView,
     isCustom: Boolean = false,
     customLayout: SdkNativeAdView? = null,
-    adType: AdType,
+    nativeAdType: NativeAdType,
 ) {
     try {
         val colorHex = listOf(
@@ -181,8 +182,8 @@ fun populateNativeAd(
 
     }
 
-    when (adType) {
-        AdType.LARGE_NATIVE, AdType.SMALL_NATIVE_MEDIA_VIEW, AdType.FULL_NATIVE -> {
+    when (nativeAdType) {
+        NativeAdType.LARGE_NATIVE, NativeAdType.SMALL_NATIVE_MEDIA_VIEW, NativeAdType.FULL_NATIVE -> {
             val mediaView: MediaView? = if (isCustom) {
                 customLayout?.mediaView?.setupMediaView() as? MediaView
             } else {
@@ -217,7 +218,7 @@ fun populateNativeAd(
     adView.callToActionView = button
 
     // Only for large layouts (withMediaView)
-    if (adType != AdType.SMALL_NATIVE_MEDIA_VIEW) {
+    if (nativeAdType != NativeAdType.SMALL_NATIVE_MEDIA_VIEW) {
         adView.iconView = adView.findViewById(R.id.ad_app_icon)
     }
 
@@ -260,7 +261,7 @@ fun populateNativeAd(
         }
     }
 
-    if (adType != AdType.SMALL_NATIVE_MEDIA_VIEW) {
+    if (nativeAdType != NativeAdType.SMALL_NATIVE_MEDIA_VIEW) {
         (adView.iconView as? ImageView)?.apply {
             visibility = if (nativeAd.icon == null) View.GONE else View.VISIBLE
             setImageDrawable(nativeAd.icon?.drawable)

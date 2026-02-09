@@ -1,5 +1,8 @@
 package io.monetize.kit.sdk.core.utils.remoteconfig
 
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
+import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
+
 class RemoteConfigBuilder private constructor() {
     val configMap = mutableMapOf<String, Any>()
 
@@ -29,8 +32,8 @@ class RemoteConfigBuilder private constructor() {
         fun enable(value: Boolean) {
             configMap["${placementKey}_isAdEnable"] = value
         }
-        fun bannerType(value: Long) {
-            configMap["${placementKey}_bannerType"] = value
+        fun bannerType(value: BannerAdType) {
+            configMap["${placementKey}_bannerAdType"] = value.name
         }
 
     }
@@ -59,8 +62,8 @@ class RemoteConfigBuilder private constructor() {
             configMap["${placementKey}_bgColor"] = color
         }
 
-        fun adType(type: Int) {
-            configMap["${placementKey}_adType"] = type
+        fun adType(type: NativeAdType) {
+            configMap["${placementKey}_nativeAdType"] = type.name
         }
         fun refreshTime(type: Int) {
             configMap["${placementKey}_refreshTime"] = type

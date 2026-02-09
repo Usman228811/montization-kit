@@ -4,9 +4,10 @@ import android.app.Activity
 import android.widget.LinearLayout
 import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
 import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
-import io.monetize.kit.sdk.core.utils.firebaseLong
+import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.domain.repo.GetBannerAdRepo
 
 class GetBannerAdRepoImpl private constructor(
@@ -36,11 +37,11 @@ class GetBannerAdRepoImpl private constructor(
         adCallBack: AdCallBack?
 
     ) {
-        val bannerType = firebaseLong(
-            "${bannerControllerConfig.placementKey}_bannerType",
-            0
+        val bannerType = firebaseString(
+            "${bannerControllerConfig.placementKey}_bannerAdType",
+            BannerAdType.ADAPTIVE_BANNER.name
         )
-        isForCollapse = bannerType == 3L || bannerType == 4L
+        isForCollapse = bannerType == BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name || bannerType == BannerAdType.TOP_COLLAPSIBLE_BANNER.name
         if (isForCollapse) {
             baseCollapsableBannerActivity.initCollapsableBannerAd(
                 mContext = mContext,

@@ -1,9 +1,10 @@
 package io.monetize.kit.sdk.ads.banner
 
 import android.app.Activity
+import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
-import io.monetize.kit.sdk.core.utils.firebaseLong
+import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 class AdKitBannerPreloadHelper private constructor(
@@ -24,15 +25,15 @@ class AdKitBannerPreloadHelper private constructor(
 
     fun preLoadBanner(mContext: Activity, bannerControllerConfig: BannerControllerConfig) {
         val bannerType =
-            firebaseLong("${bannerControllerConfig.placementKey}_bannerType", 0)
+            firebaseString("${bannerControllerConfig.placementKey}_bannerAdType", BannerAdType.ADAPTIVE_BANNER.name)
 
 
         if (firebaseBoolean(
                 "${bannerControllerConfig.placementKey}_isAdEnable",
                 false
             )
-            && bannerType != 3L
-            && bannerType != 4L
+            && bannerType != BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name
+            && bannerType != BannerAdType.TOP_COLLAPSIBLE_BANNER.name
             && AdKit.consentManager.canRequestAds
         ) {
             var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
