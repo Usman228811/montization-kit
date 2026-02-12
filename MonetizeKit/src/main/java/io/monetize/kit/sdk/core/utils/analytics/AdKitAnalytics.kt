@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils.analytics
 
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -27,12 +28,12 @@ class AdKitAnalytics private constructor(
 
 
         fun getInstance(
-            context: Context,
+            context: Application,
             isDebug: Boolean,
             postRevenueOnFireBase: Boolean,
         ): AdKitAnalytics {
             return instance ?: synchronized(this) {
-                instance ?: AdKitAnalytics(context, isDebug = isDebug, postRevenueOnFireBase = postRevenueOnFireBase).also { instance = it }
+                instance ?: AdKitAnalytics(context.applicationContext, isDebug = isDebug, postRevenueOnFireBase = postRevenueOnFireBase).also { instance = it }
             }
         }
     }

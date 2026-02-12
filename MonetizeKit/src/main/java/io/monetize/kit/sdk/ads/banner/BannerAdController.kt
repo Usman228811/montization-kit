@@ -13,10 +13,11 @@ import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 
-class BaseSingleBannerActivity private constructor(
+class BannerAdController private constructor(
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
@@ -36,8 +37,8 @@ class BaseSingleBannerActivity private constructor(
     companion object {
 
         fun getInstance(
-        ): BaseSingleBannerActivity {
-            return BaseSingleBannerActivity()
+        ): BannerAdController {
+            return BannerAdController()
         }
     }
 
@@ -50,12 +51,11 @@ class BaseSingleBannerActivity private constructor(
         adCallBack: AdCallBack?
     ) {
         this.adCallBack = adCallBack
+        this.adFrame = adFrame
+
         if (AdKit.initializer.getDisableAds()) {
             adCallBack?.onAdFailed("ads are disabled in app class")
-            adFrame.let {
-                it.visibility = View.GONE
-                it.removeAllViews()
-            }
+            hideFrame()
             return
         }
         this.isAdEnable = firebaseBoolean(
@@ -68,7 +68,6 @@ class BaseSingleBannerActivity private constructor(
             adFrame.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         } catch (_: Exception) {
         }
-        this.adFrame = adFrame
         this.bannerType = bannerType
 
         isAdLoadCalled = true
@@ -89,12 +88,16 @@ class BaseSingleBannerActivity private constructor(
             model = singleBannerList[index]
             loadSingleBannerAd()
         } else {
-            adFrame.let {
-                it.visibility = View.GONE
-                it.removeAllViews()
-            }
+            hideFrame()
         }
 
+    }
+
+    private fun hideFrame(){
+        adFrame?.let {
+            it.visibility = View.GONE
+            it.removeAllViews()
+        }
     }
 
     private fun destroyBannerAd() {
@@ -102,7 +105,6 @@ class BaseSingleBannerActivity private constructor(
             canLoadAdAgain = true
             bannerAd?.destroy()
             bannerAd = null
-            model?.controller?.setAdControllerListener(null)
         } catch (_: Exception) {
         }
     }
@@ -112,20 +114,14 @@ class BaseSingleBannerActivity private constructor(
             if (!isAdEnable
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
-                adFrame?.let {
-                    it.visibility = View.GONE
-                    it.removeAllViews()
-                }
+                hideFrame()
             } else if (adFrame == null
                 || AdKit.adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
-                adFrame?.let {
-                    it.visibility = View.GONE
-                    it.removeAllViews()
-                }
+                hideFrame()
             } else {
                 model?.controller?.let { controller ->
 
@@ -157,16 +153,13 @@ class BaseSingleBannerActivity private constructor(
                                             if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                                 return
                                             }
-                                            adFrame.let {
-                                                it.visibility = View.GONE
-                                                it.removeAllViews()
-                                            }
+                                            hideFrame()
                                         }
 
                                         override fun resetRequesting() {
                                             isRequesting = false
                                         }
-                                    })
+                                    }, "when request")
                                     controller.populateBannerAd(
                                         context = mContext,
                                         placementKey = bannerControllerConfig.placementKey,
@@ -181,7 +174,7 @@ class BaseSingleBannerActivity private constructor(
                                         populateCallback = { ad ->
                                             isRequesting = false
                                             if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                controller.setAdControllerListener(null)
+                                                controller.setAdControllerListener(null, "after populated")
                                                 bannerAd = ad as AdView
                                                 adCallBack?.onAdShow()
 
@@ -212,12 +205,32 @@ class BaseSingleBannerActivity private constructor(
     }
 
     fun onResume() {
-        loadSingleBannerAd()
-        bannerAd?.resume()
+        if (bannerAd == null) {
+            loadSingleBannerAd()
+        } else {
+            if (adKitPref.isAppPurchased.not()) {
+
+                adFrame?.let { adFrame ->
+                    try {
+                        bannerAd?.parent?.let { parent ->
+                            (parent as ViewGroup).removeAllViews()
+                        }
+                    } catch (_: Exception) {
+                    }
+                    adFrame.visibility = View.VISIBLE
+                    adFrame.removeAllViews()
+                    adFrame.addView(bannerAd)
+                    bannerAd?.resume()
+                }
+            } else {
+                hideFrame()
+            }
+        }
     }
 
     fun onPause() {
         canLoadAdAgain = true
+        model?.controller?.setAdControllerListener(null, "ondestroy")
         bannerAd?.pause()
     }
 

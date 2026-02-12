@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.open
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -34,10 +35,10 @@ interface OpenAdListener{
 }
 
 class AdKitOpenAdManager private constructor(
-    context: Context,
+   private val mContext: Context,
 ) : DefaultLifecycleObserver {
 
-    private val mContext = context.applicationContext
+
 
     private var mAppOpenAd: AppOpenAd? = null
     private var openAdListener: OpenAdListener? = null
@@ -84,12 +85,11 @@ class AdKitOpenAdManager private constructor(
 
 
         internal fun getInstance(
-            context: Context,
+            context: Application,
         ): AdKitOpenAdManager {
             return instance ?: synchronized(this) {
                 instance ?: AdKitOpenAdManager(
                     context,
-
                     ).also { instance = it }
             }
         }

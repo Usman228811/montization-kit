@@ -1,6 +1,5 @@
 package io.monetize.kit.sdk.data.impl
 
-
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -26,10 +25,9 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 
 
 class SubscriptionRepositoryImpl private constructor(
-    mContext: Context
+    private val context: Context
 ) : SubscriptionRepository, PurchasesUpdatedListener {
 
-    private val context = mContext.applicationContext
 
     private var mActivity: Activity ?= null
 

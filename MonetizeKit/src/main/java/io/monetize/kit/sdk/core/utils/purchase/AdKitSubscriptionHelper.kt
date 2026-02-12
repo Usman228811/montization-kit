@@ -1,7 +1,7 @@
 package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
-import android.content.Context
+import android.app.Application
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.domain.usecase.PriceModel
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
@@ -18,12 +18,12 @@ class AdKitSubscriptionHelper private constructor(
 
 
         internal fun getInstance(
-            context: Context
+            context: Application
         ): AdKitSubscriptionHelper {
             return instance ?: synchronized(this) {
                 instance ?: AdKitSubscriptionHelper(
-                    QuerySubscriptionProductsUseCase.getInstance(context),
-                    PurchaseSubscriptionUseCase.getInstance(context),
+                    QuerySubscriptionProductsUseCase.getInstance(context.applicationContext),
+                    PurchaseSubscriptionUseCase.getInstance(context.applicationContext),
 
                     ).also { instance = it }
             }
