@@ -2,8 +2,8 @@ package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
 import android.widget.LinearLayout
-import io.monetize.kit.sdk.ads.banner.BaseSingleBannerActivity
-import io.monetize.kit.sdk.ads.collapsable.BaseCollapsableBannerActivity
+import io.monetize.kit.sdk.ads.banner.BannerAdController
+import io.monetize.kit.sdk.ads.collapsable.CollapsableBannerAdController
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
@@ -11,8 +11,8 @@ import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.domain.repo.GetBannerAdRepo
 
 class GetBannerAdRepoImpl private constructor(
-    private val baseSingleBannerActivity: BaseSingleBannerActivity,
-    private val baseCollapsableBannerActivity: BaseCollapsableBannerActivity
+    private val bannerAdController: BannerAdController,
+    private val collapsableBannerAdController: CollapsableBannerAdController
 ) : GetBannerAdRepo {
 
 
@@ -21,8 +21,8 @@ class GetBannerAdRepoImpl private constructor(
         fun getInstance(
         ): GetBannerAdRepoImpl {
             return GetBannerAdRepoImpl(
-                baseSingleBannerActivity = BaseSingleBannerActivity.getInstance(),
-                baseCollapsableBannerActivity = BaseCollapsableBannerActivity.getInstance(),
+                bannerAdController = BannerAdController.getInstance(),
+                collapsableBannerAdController = CollapsableBannerAdController.getInstance(),
             )
         }
     }
@@ -43,7 +43,7 @@ class GetBannerAdRepoImpl private constructor(
         )
         isForCollapse = bannerType == BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name || bannerType == BannerAdType.TOP_COLLAPSIBLE_BANNER.name
         if (isForCollapse) {
-            baseCollapsableBannerActivity.initCollapsableBannerAd(
+            collapsableBannerAdController.initCollapsableBannerAd(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
@@ -52,7 +52,7 @@ class GetBannerAdRepoImpl private constructor(
             )
 
         } else {
-            baseSingleBannerActivity.initSingleBannerData(
+            bannerAdController.initSingleBannerData(
                 mContext = mContext,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = adFrame,
@@ -65,27 +65,27 @@ class GetBannerAdRepoImpl private constructor(
 
     override fun onResume() {
         if (isForCollapse) {
-            baseCollapsableBannerActivity.onResume()
+            collapsableBannerAdController.onResume()
         } else {
-            baseSingleBannerActivity.onResume()
+            bannerAdController.onResume()
         }
     }
 
 
     override fun onPause() {
         if (isForCollapse) {
-            baseCollapsableBannerActivity.onPause()
+            collapsableBannerAdController.onPause()
         } else {
-            baseSingleBannerActivity.onPause()
+            bannerAdController.onPause()
         }
     }
 
 
     override fun onDestroy() {
         if (isForCollapse) {
-            baseCollapsableBannerActivity.onDestroy()
+            collapsableBannerAdController.onDestroy()
         } else {
-            baseSingleBannerActivity.onDestroy()
+            bannerAdController.onDestroy()
         }
     }
 

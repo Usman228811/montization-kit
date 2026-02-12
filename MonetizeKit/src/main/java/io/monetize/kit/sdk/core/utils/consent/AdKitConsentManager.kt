@@ -2,6 +2,7 @@ package io.monetize.kit.sdk.core.utils.consent
 
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import com.google.ads.mediation.admob.AdMobAdapter
@@ -48,7 +49,7 @@ class AdKitConsentManager private constructor(
 
 
         internal fun getInstance(
-            context: Context,
+            context: Application,
             isDebug: Boolean
         ): AdKitConsentManager {
             return instance ?: synchronized(this) {

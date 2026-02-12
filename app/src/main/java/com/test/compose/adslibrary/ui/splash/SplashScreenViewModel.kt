@@ -1,3 +1,4 @@
+package com.test.compose.adslibrary.ui.splash
 
 import android.animation.ValueAnimator
 import android.app.Activity
@@ -15,6 +16,7 @@ import com.test.compose.adslibrary.BuildConfig
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
+import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -197,23 +199,17 @@ class SplashScreenViewModel(
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-//            AdKit.preLoadNative.preLoadNativeAd(
-//                mContext,
-//                nativeControllerConfig = NativeControllerConfig(
-//                    placementKey = "home_native",
-//                    adIdKey = "home_native"
-//                )
-//            )
-            AdKit.preloadBanner.preLoadBanner(
-                mContext, BannerControllerConfig(
-                    "home_banner",
-                    "home_banner",
+            AdKit.preLoadNative.preLoadNativeAd(
+                mContext,
+                nativeControllerConfig = NativeControllerConfig(
+                    placementKey = "home_native",
+                    adIdKey = "native_common"
                 )
             )
             AdKit.preloadBanner.preLoadBanner(
                 mContext, BannerControllerConfig(
-                    "home_banner_top",
-                    "home_banner_top",
+                    "home_banner",
+                    "banner_common",
                 )
             )
             splashAdController.initSplashInterstitial(

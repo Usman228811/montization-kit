@@ -21,7 +21,7 @@ import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
-class BaseCollapsableBannerActivity private constructor(
+class CollapsableBannerAdController private constructor(
 ) {
     private var bannerAd: AdView? = null
     private var adFrame: LinearLayout? = null
@@ -39,8 +39,8 @@ class BaseCollapsableBannerActivity private constructor(
     companion object {
 
         fun getInstance(
-        ): BaseCollapsableBannerActivity {
-            return BaseCollapsableBannerActivity()
+        ): CollapsableBannerAdController {
+            return CollapsableBannerAdController()
         }
     }
 
@@ -63,12 +63,10 @@ class BaseCollapsableBannerActivity private constructor(
 
     ) {
         this.adCallBack = adCallBack
+        this.adFrame = adFrame
         if (AdKit.initializer.getDisableAds()) {
             adCallBack?.onAdFailed("ads are disabled in app class")
-            adFrame.let {
-                it.visibility = View.GONE
-                it.removeAllViews()
-            }
+            hideFrame()
             return
         }
         this.bannerControllerConfig = bannerControllerConfig
@@ -76,9 +74,16 @@ class BaseCollapsableBannerActivity private constructor(
 
         isTop = bannerType == BannerAdType.TOP_COLLAPSIBLE_BANNER.name
         this.mContext = mContext
-        this.adFrame = adFrame
         this.isAdLoadCalled = true
         loadCollapsableBannerAd()
+    }
+
+
+    fun hideFrame() {
+        adFrame?.let {
+            it.visibility = View.GONE
+            it.removeAllViews()
+        }
     }
 
     private fun loadCollapsableBannerAd() {
@@ -89,20 +94,14 @@ class BaseCollapsableBannerActivity private constructor(
                 ).not()
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
-                adFrame?.let {
-                    it.visibility = View.GONE
-                    it.removeAllViews()
-                }
+                hideFrame()
             }
 
             if (AdKit.consentManager.canRequestAds.not() || AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                 destroyCollapsableBannerAd()
-                adFrame?.let {
-                    it.visibility = View.GONE
-                    it.removeAllViews()
-                }
+                hideFrame()
             } else {
                 adFrame?.let { adFrame ->
                     if (canLoadAdAgain) {
@@ -181,8 +180,7 @@ class BaseCollapsableBannerActivity private constructor(
                                     isRequesting = false
                                     canLoadAdAgain = false
                                     bannerAd = null
-                                    adFrame.removeAllViews()
-                                    adFrame.visibility = View.GONE
+                                    hideFrame()
                                 }
                             }
                         } else {

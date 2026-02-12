@@ -1,6 +1,6 @@
 package io.monetize.kit.sdk.core.utils.init
 
-import android.content.Context
+import android.app.Application
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
@@ -31,89 +31,140 @@ import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 
 object AdKit {
 
-    lateinit var initializer: AdKitInitializer
-        private set
-
-    lateinit var adKitPref: AdKitPref
-        private set
-
-    lateinit var inAppUpdateManager: AdKitInAppUpdateManager
-        private set
-
-    lateinit var inAppReviewManager: AdKitInAppReviewManager
-        private set
+    private lateinit var mContext: Application
+    private var isDebug: Boolean = true
+    private var postRevenueOnFireBase: Boolean = false
 
 
-    lateinit var interHelper: AdKitInterHelper
-        private set
-    lateinit var localeHelper: LocaleHelper
-        private set
+    val  initializer: AdKitInitializer
+            by lazy {
+                AdKitInitializer.getInstance()
+            }
 
-    lateinit var rewardHelper: AdKitRewardHelper
-        private set
+    val adKitPref: AdKitPref
+            by lazy {
+                AdKitPref.getInstance(mContext)
+            }
 
+    val inAppUpdateManager: AdKitInAppUpdateManager
+            by lazy {
+                AdKitInAppUpdateManager.getInstance()
+            }
 
-    lateinit var internetController: AdKitInternetController
-        private set
-
-
-    lateinit var consentManager: AdKitConsentManager
-        private set
-
-
-    lateinit var firebaseHelper: AdKitFirebaseRemoteConfigHelper
-        private set
-
-    lateinit var appsFlyer: AppsFlyer
-        private set
+    val inAppReviewManager: AdKitInAppReviewManager
+            by lazy {
+                AdKitInAppReviewManager.getInstance()
+            }
 
 
-    lateinit var preLoadNative: AdKitNativePreloadHelper
-        private set
+    val interHelper: AdKitInterHelper
+            by lazy {
+                AdKitInterHelper.getInstance()
+            }
+    val localeHelper: LocaleHelper
+            by lazy {
+                LocaleHelper.getInstance()
+            }
 
-    lateinit var preloadBanner: AdKitBannerPreloadHelper
-        private set
-
-
-    lateinit var splashAdController: AdKitSplashAdController
-        private set
-
-
-    lateinit var openAdManager: AdKitOpenAdManager
-        private set
-
-
-    lateinit var purchaseHelper: AdKitPurchaseHelper
-        private set
+    val rewardHelper: AdKitRewardHelper
+            by lazy {
+                AdKitRewardHelper.getInstance()
+            }
 
 
-    lateinit var subscriptionHelper: AdKitSubscriptionHelper
-        private set
+    val internetController: AdKitInternetController
+            by lazy {
+                AdKitInternetController.getInstance(mContext)
+            }
 
 
-    lateinit var nativeIdManager: NativeIdManager
-        private set
-
-    lateinit var bannerIdManager: BannerIdManager
-        private set
-
-
-    lateinit var nativeCustomLayoutHelper: AdsCustomLayoutHelper
-        private set
-
-    lateinit var analytics: AdKitAnalytics
-        private set
+    val consentManager: AdKitConsentManager
+            by lazy {
+                AdKitConsentManager.getInstance(mContext, isDebug = isDebug)
+            }
 
 
-    lateinit var interIdManager: InterIdManager
-        private set
-    lateinit var rewardAdIdManager: RewardAdIdManager
-        private set
+    val firebaseHelper: AdKitFirebaseRemoteConfigHelper
+            by lazy {
+                AdKitFirebaseRemoteConfigHelper.getInstance()
+            }
+
+    val  appsFlyer: AppsFlyer
+            by lazy {
+                AppsFlyer.getInstance()
+            }
+
+
+    val preLoadNative: AdKitNativePreloadHelper
+            by lazy {
+                AdKitNativePreloadHelper.getInstance()
+            }
+
+    val preloadBanner: AdKitBannerPreloadHelper
+            by lazy {
+                AdKitBannerPreloadHelper.getInstance()
+            }
+
+
+    val splashAdController: AdKitSplashAdController
+            by lazy {
+                AdKitSplashAdController.getInstance()
+            }
+
+
+    val openAdManager: AdKitOpenAdManager
+            by lazy {
+                AdKitOpenAdManager.getInstance(mContext)
+            }
+
+
+    val purchaseHelper: AdKitPurchaseHelper
+            by lazy {
+                AdKitPurchaseHelper.getInstance(mContext)
+            }
+
+
+    val subscriptionHelper: AdKitSubscriptionHelper
+            by lazy {
+                AdKitSubscriptionHelper.getInstance(mContext)
+            }
+
+
+    val nativeIdManager: NativeIdManager
+            by lazy {
+                NativeIdManager.getInstance()
+            }
+
+    val bannerIdManager: BannerIdManager
+            by lazy {
+                BannerIdManager.getInstance()
+            }
+
+
+    val nativeCustomLayoutHelper: AdsCustomLayoutHelper
+            by lazy {
+                AdsCustomLayoutHelper.getInstance()
+            }
+
+    val analytics: AdKitAnalytics
+            by lazy {
+                AdKitAnalytics.getInstance(mContext, isDebug, postRevenueOnFireBase)
+            }
+
+
+    val interIdManager: InterIdManager
+            by lazy {
+                InterIdManager.getInstance()
+            }
+    val rewardAdIdManager: RewardAdIdManager
+            by lazy {
+                RewardAdIdManager.getInstance()
+            }
 
 
     fun init(
         isDebug: Boolean,
-        context: Context,
+        context: Application,
         admobId: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
@@ -126,6 +177,9 @@ object AdKit {
         appFlyerSdkKey: String,
         onInitSdk: () -> Unit
     ) {
+        mContext = context
+        this.isDebug = isDebug
+        this.postRevenueOnFireBase = postRevenueOnFireBase
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
 
@@ -136,38 +190,17 @@ object AdKit {
         } catch (_: Exception) {
         }
 
-        initializer = AdKitInitializer.getInstance()
-        appsFlyer = AppsFlyer.getInstance()
-        adKitPref = AdKitPref.getInstance(context)
-        interHelper = AdKitInterHelper.getInstance()
-        localeHelper = LocaleHelper.getInstance()
-        rewardHelper = AdKitRewardHelper.getInstance()
-        inAppUpdateManager = AdKitInAppUpdateManager.getInstance()
-        inAppReviewManager = AdKitInAppReviewManager.getInstance()
-        internetController = AdKitInternetController.getInstance(context)
-        consentManager = AdKitConsentManager.getInstance(context, isDebug = isDebug)
-        firebaseHelper = AdKitFirebaseRemoteConfigHelper.getInstance()
         firebaseHelper.setDefaultRemoteConfigs(configDefaults)
-        preLoadNative = AdKitNativePreloadHelper.getInstance()
-        preloadBanner = AdKitBannerPreloadHelper.getInstance()
-        splashAdController = AdKitSplashAdController.getInstance()
-        openAdManager = AdKitOpenAdManager.getInstance(context)
-        purchaseHelper = AdKitPurchaseHelper.getInstance(context)
-        subscriptionHelper = AdKitSubscriptionHelper.getInstance(context)
-        nativeCustomLayoutHelper = AdsCustomLayoutHelper.getInstance()
-        analytics = AdKitAnalytics.getInstance(context, isDebug, postRevenueOnFireBase)
-        interIdManager = InterIdManager.getInstance()
-        rewardAdIdManager = RewardAdIdManager.getInstance()
-        nativeIdManager = NativeIdManager.getInstance()
-        bannerIdManager = BannerIdManager.getInstance()
+
         openAdManager.setOpenAdId(
             adId = openAdId
         )
-
         interIdManager.setInterIds(mapOfInterIds)
         rewardAdIdManager.setRewardAdIds(mapOfRewardIds)
         nativeIdManager.setNativeIds(mapOfNativeIds)
         bannerIdManager.setBannerIds(mapOfBannerIds)
+
+
         resetInterKeyForCommonAds?.let {
             adKitPref.putInterInt(it, 0)
         }

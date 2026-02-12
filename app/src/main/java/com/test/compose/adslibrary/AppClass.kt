@@ -22,7 +22,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
     override fun onCreate() {
         super.onCreate()
         appContext = this
-
+        val start = System.currentTimeMillis()
         AdKit.init(
             isDebug = true,
             appFlyerSdkKey = "",
@@ -53,11 +53,15 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "subscription_native" to "/21775744923/example/native-video",
             ),
             mapOfBannerIds = mapOf(
-                "premium_banner" to "/21775744923/example/adaptive-banner", //banner
-//                "home_banner" to "/21775744923/example/adaptive-banner", //banner
-//                "home_banner" to "ca-app-pub-3940256099942544/2014213617", // collapsible
-                "banner_common" to "ca-app-pub-3940256099942544/9214589741", // collapsible
-                "home_banner_top" to "/21775744923/example/adaptive-banner", // collapsible
+                //   ca-app-pub-3940256099942544/9214589741  banner
+                //   ca-app-pub-3940256099942544/2014213617  collapsible
+
+
+                "premium_banner" to "ca-app-pub-3940256099942544/9214589741",
+//                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
+//                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
+                "banner_common" to "ca-app-pub-3940256099942544/2014213617",
+                "home_banner_top" to "ca-app-pub-3940256099942544/9214589741",
             ),
             defaultRemoteConfigBuilder = {
 
@@ -109,7 +113,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner") {
                     enable(true)
-                    bannerType(BannerAdType.LARGE_BANNER)
+                    bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 banner("home_banner_top") {
                     enable(false)
@@ -156,6 +160,9 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     AppRoute.SubscriptionRoute.route
                 )
             })
+
+        val end = System.currentTimeMillis()
+        Log.d("AdKitInit_sdk", "SDK init time = ${end - start} ms")
     }
 
     fun initializeAppClass() {
