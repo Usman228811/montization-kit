@@ -1,7 +1,5 @@
 package com.test.compose.adslibrary.ui.splash
 
-import SplashScreenViewModel
-import SplashScreenViewModelFactory
 import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable

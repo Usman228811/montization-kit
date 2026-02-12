@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils
 
+import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -13,7 +14,7 @@ class AdKitInternetController private constructor(context: Context) {
 
 
         internal fun getInstance(
-            context: Context,
+            context: Application,
         ): AdKitInternetController {
             return instance ?: synchronized(this) {
                 instance ?: AdKitInternetController(

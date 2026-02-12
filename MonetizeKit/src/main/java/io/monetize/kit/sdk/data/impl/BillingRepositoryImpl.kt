@@ -33,7 +33,7 @@ class BillingRepositoryImpl private constructor(
     mContext: Context,
 ) : BillingRepository {
 
-    private val context = mContext.applicationContext
+    private val context = mContext
 
     companion object {
         @Volatile

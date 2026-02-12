@@ -1,7 +1,7 @@
 package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
-import android.content.Context
+import android.app.Application
 import io.monetize.kit.sdk.data.impl.BillingRepositoryImpl
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.usecase.InitBillingUseCase
@@ -25,10 +25,10 @@ class AdKitPurchaseHelper private constructor(
         private var instance: AdKitPurchaseHelper? = null
 
         internal fun getInstance(
-            context: Context,
+            context: Application,
         ): AdKitPurchaseHelper {
             val billingRepo = BillingRepositoryImpl.getInstance(
-                context,
+                context.applicationContext,
             )
 
             return instance ?: synchronized(this) {
