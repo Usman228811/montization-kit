@@ -11,11 +11,17 @@ import com.appsflyer.attribution.AppsFlyerRequestListener
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdapterResponseInfo
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppsFlyer {
 
     private val TAG = "AppsFlyerTAG"
     private var sdkKey = ""
+
+    private var isInitialized = false
+    private var isDebug = true
 
     companion object {
         @Volatile
@@ -32,46 +38,32 @@ class AppsFlyer {
 
     fun initAppFlyer(context: Context, sdkKey: String, isDebug: Boolean) {
         this.sdkKey = sdkKey
-        Log.d(TAG, "init: ")
-//        val conversionListener = object : AppsFlyerConversionListener {
-//            override fun onConversionDataSuccess(data: MutableMap<String, Any>?) {
-//                data?.forEach { (key, value) ->
-//                    Log.d(TAG, "onConversionDataSuccess: attribute: $key = $value")
-//                }
-//            }
-//
-//            override fun onConversionDataFail(error: String?) {
-//                Log.e(TAG, "onConversionDataFail: $error")
-//            }
-//
-//            override fun onAppOpenAttribution(data: MutableMap<String, String>?) {
-//                data?.forEach { (key, value) ->
-//                    Log.d(TAG, "onAppOpenAttribution: attribution -> $key = $value")
-//                }
-//            }
-//
-//            override fun onAttributionFailure(error: String?) {
-//                Log.d(TAG, "onAttributionFailure: $error")
-//            }
-//        }
+        this.isDebug = isDebug
+        Log.d(TAG, "init: $sdkKey")
         if (sdkKey.isNotEmpty()) {
-            AppsFlyerLib.getInstance().init(sdkKey, null, context)
-            AppsFlyerLib.getInstance()
-                .start(context, "", object : AppsFlyerRequestListener {
-                    override fun onSuccess() {
-                        Log.d(TAG, "onSuccess: ")
-                    }
+            if (!isInitialized) {
+                CoroutineScope(Dispatchers.IO).launch {
 
-                    override fun onError(p0: Int, p1: String) {
-                        Log.e(TAG, "onError: $p0 $p1")
+                    AppsFlyerLib.getInstance().init(sdkKey, null, context)
+                    AppsFlyerLib.getInstance()
+                        .start(context, "", object : AppsFlyerRequestListener {
+                            override fun onSuccess() {
+                                Log.d(TAG, "onSuccess: ")
+                                isInitialized = true
+                            }
+
+                            override fun onError(p0: Int, p1: String) {
+                                Log.e(TAG, "onError: $p0 $p1")
+                                isInitialized = false
+                            }
+                        })
+                    if (isDebug) {
+                        AppsFlyerLib.getInstance().setDebugLog(true)
                     }
-                })
-            if (isDebug) {
-                AppsFlyerLib.getInstance().setDebugLog(true)
+                }
             }
         }
     }
-
 
 
     fun logAdmobRevenue(
@@ -86,11 +78,11 @@ class AppsFlyer {
 
         logFirebaseAdRevenue(
             adValue = adValue,
-            adUnitId = adUnitId?: "-",
-            adFormat = adType?: "-",
+            adUnitId = adUnitId ?: "-",
+            adFormat = adType ?: "-",
             adSource = "Admob"
         )
-        if (sdkKey.isNotEmpty()) {
+        if (sdkKey.isNotEmpty() && isInitialized) {
             val mediationNetwork = MediationNetwork.GOOGLE_ADMOB
             val currencyIso4217Code = adValue.currencyCode
             val revenue = adValue.valueMicros / 1000000.0
@@ -127,7 +119,12 @@ class AppsFlyer {
     }
 
 
-    fun logFirebaseAdRevenue(adValue: AdValue?, adUnitId: String, adFormat: String, adSource: String) {
+    fun logFirebaseAdRevenue(
+        adValue: AdValue?,
+        adUnitId: String,
+        adFormat: String,
+        adSource: String
+    ) {
         adValue?.let {
             val revenue = adValue.valueMicros / 1_000_000.0 // micros -> standard unit
             val bundle = Bundle().apply {
@@ -154,7 +151,9 @@ class AppsFlyer {
         afAdRevenueData: AFAdRevenueData,
         map: Map<String, Any>
     ) {
-        Log.d(TAG, "logRevenue: logging $afAdRevenueData -> $map")
-        AppsFlyerLib.getInstance().logAdRevenue(afAdRevenueData, map)
+        if (!isDebug && isInitialized) {
+            Log.d(TAG, "logRevenue: logging $afAdRevenueData -> $map")
+            AppsFlyerLib.getInstance().logAdRevenue(afAdRevenueData, map)
+        }
     }
 }
