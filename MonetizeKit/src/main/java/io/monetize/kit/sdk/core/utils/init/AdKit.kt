@@ -28,6 +28,9 @@ import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object AdKit {
 
@@ -36,7 +39,7 @@ object AdKit {
     private var postRevenueOnFireBase: Boolean = false
 
 
-    val  initializer: AdKitInitializer
+    val initializer: AdKitInitializer
             by lazy {
                 AdKitInitializer.getInstance()
             }
@@ -89,7 +92,7 @@ object AdKit {
                 AdKitFirebaseRemoteConfigHelper.getInstance()
             }
 
-    val  appsFlyer: AppsFlyer
+    val appsFlyer: AppsFlyer
             by lazy {
                 AppsFlyer.getInstance()
             }
@@ -183,11 +186,13 @@ object AdKit {
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
 
-        try {
-            FirebaseApp.initializeApp(context)
-            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
-            Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
-        } catch (_: Exception) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                FirebaseApp.initializeApp(context)
+                FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
+                Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
+            } catch (_: Exception) {
+            }
         }
 
         firebaseHelper.setDefaultRemoteConfigs(configDefaults)
