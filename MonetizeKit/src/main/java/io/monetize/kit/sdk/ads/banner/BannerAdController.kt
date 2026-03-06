@@ -5,7 +5,7 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
@@ -93,7 +93,7 @@ class BannerAdController private constructor(
 
     }
 
-    private fun hideFrame(){
+    private fun hideFrame() {
         adFrame?.let {
             it.visibility = View.GONE
             it.removeAllViews()
@@ -116,7 +116,7 @@ class BannerAdController private constructor(
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} ad is disable or not added in remote config")
                 hideFrame()
             } else if (adFrame == null
-                || AdKit.adKitPref.isAppPurchased
+                || adKitPref.isAppPurchased
                 || consentManager.canRequestAds.not()
                 || internetController.isConnected.not()
             ) {
@@ -174,7 +174,10 @@ class BannerAdController private constructor(
                                         populateCallback = { ad ->
                                             isRequesting = false
                                             if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                controller.setAdControllerListener(null, "after populated")
+                                                controller.setAdControllerListener(
+                                                    null,
+                                                    "after populated"
+                                                )
                                                 bannerAd = ad as AdView
                                                 adCallBack?.onAdShow()
 
@@ -220,7 +223,7 @@ class BannerAdController private constructor(
                     adFrame.visibility = View.VISIBLE
                     adFrame.removeAllViews()
                     adFrame.addView(bannerAd)
-                    bannerAd?.resume()
+//                    bannerAd?.resume()
                 }
             } else {
                 hideFrame()
@@ -231,7 +234,7 @@ class BannerAdController private constructor(
     fun onPause() {
         canLoadAdAgain = true
         model?.controller?.setAdControllerListener(null, "ondestroy")
-        bannerAd?.pause()
+//        bannerAd?.pause()
     }
 
     fun onDestroy() {

@@ -7,7 +7,7 @@
     android:background="@drawable/native_bg"
     android:layoutDirection="ltr">
 
-    <com.google.android.gms.ads.nativead.NativeAdView
+    <com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
         android:id="@+id/ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
 
             </LinearLayout>
 
-            <com.google.android.gms.ads.nativead.MediaView
+            <com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
                 android:id="@+id/ad_media"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_130sdp"
@@ -136,5 +136,5 @@
                 android:textSize="@dimen/_14ssp"
                 app:backgroundTint="@null" />
         </RelativeLayout>
-    </com.google.android.gms.ads.nativead.NativeAdView>
+    </com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView>
 </FrameLayout>

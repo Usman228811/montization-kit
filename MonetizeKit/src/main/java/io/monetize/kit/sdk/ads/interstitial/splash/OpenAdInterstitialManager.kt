@@ -3,11 +3,13 @@ package io.monetize.kit.sdk.ads.interstitial.splash
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.appopen.AppOpenAd
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
@@ -117,7 +119,13 @@ internal class OpenAdInterstitialManager private constructor(
             } else {
                 if (!isHandlerAdDelayRunning) {
                     handlerAdDelay.postDelayed({
-                        checkProgressShowAd(activity)
+                        if (hasAd()) {
+                            checkProgressShowAd(activity)
+                        } else {
+                            listener?.onAdClosed(
+                                reason = "$placementKey called onAdClosed because: Ad is null"
+                            )
+                        }
                     }, 1000)
                 }
             }
@@ -154,15 +162,12 @@ internal class OpenAdInterstitialManager private constructor(
                     startDelayHandler()
 
                     AppOpenAd.load(
-                        activity,
-                        adId,
-                        AdRequest.Builder().build(),
-                        object : AppOpenAd.AppOpenAdLoadCallback() {
-                            override fun onAdLoaded(appOpenAd: AppOpenAd) {
-                                super.onAdLoaded(appOpenAd)
+                        AdRequest.Builder(adId).build(),
+                        object : AdLoadCallback<AppOpenAd> {
+                            override fun onAdLoaded(ad: AppOpenAd) {
+                                super.onAdLoaded(ad)
                                 canRequestAd = true
-                                mAppOpenAd = appOpenAd
-                                mAppOpenAd?.revenueListener(adId)
+                                mAppOpenAd = ad
                                 if (isHandlerAdDelayRunning) {
                                     removeCallBacksDelay()
                                     listener?.onAdLoaded(
@@ -174,16 +179,49 @@ internal class OpenAdInterstitialManager private constructor(
                                 }
                             }
 
-                            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                                super.onAdFailedToLoad(loadAdError)
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
+                                super.onAdFailedToLoad(adError)
                                 canRequestAd = true
                                 mAppOpenAd = null
                                 handleException(
-                                    reason = "ad is failed to load code: ${loadAdError.code}, message:  ${loadAdError.message}"
+                                    reason = "ad is failed to load code: ${adError.code}, message:  ${adError.message}"
 
                                 )
                             }
-                        })
+                        },
+                    )
+
+//                    AppOpenAd.load(
+//                        activity,
+//                        adId,
+//                        AdRequest.Builder().build(),
+//                        object : AppOpenAd.AppOpenAdLoadCallback() {
+//                            override fun onAdLoaded(appOpenAd: AppOpenAd) {
+//                                super.onAdLoaded(appOpenAd)
+//                                canRequestAd = true
+//                                mAppOpenAd = appOpenAd
+//                                mAppOpenAd?.revenueListener(adId)
+//                                if (isHandlerAdDelayRunning) {
+//                                    removeCallBacksDelay()
+//                                    listener?.onAdLoaded(
+//                                        reason = "$placementKey called onAdLoaded because: ad loaded successfully"
+//                                    )
+//                                    if (loadAndShow) {
+//                                        showAdIfAvailable(activity)
+//                                    }
+//                                }
+//                            }
+//
+//                            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+//                                super.onAdFailedToLoad(loadAdError)
+//                                canRequestAd = true
+//                                mAppOpenAd = null
+//                                handleException(
+//                                    reason = "ad is failed to load code: ${loadAdError.code}, message:  ${loadAdError.message}"
+//
+//                                )
+//                            }
+//                        })
 
                 }
 
@@ -208,23 +246,30 @@ internal class OpenAdInterstitialManager private constructor(
         if (isHandlerAdDelayRunning) {
             removeCallBacksDelay()
             if (loadAndShow) {
-                listener?.onAdClosed(reason="$placementKey called onAdClosed because: $reason")
+                listener?.onAdClosed(reason = "$placementKey called onAdClosed because: $reason")
             } else {
-                listener?.onAdLoaded(reason="$placementKey called onAdLoaded because: $reason")
+                listener?.onAdLoaded(reason = "$placementKey called onAdLoaded because: $reason")
 
             }
         }
     }
 
-    fun setFullScreenCallBacks() {
-        mAppOpenAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
+    fun setFullScreenCallBacks(activity: Activity) {
+        mAppOpenAd?.adEventCallback =
+
+            object : AppOpenAdEventCallback {
+
+                override fun onAdPaid(value: AdValue) {
+                    super.onAdPaid(value)
+                    revenueListener(adId, adValue = value, "APP_OPEN")
+                }
                 override fun onAdDismissedFullScreenContent() {
                     mAppOpenAd = null
                     IS_INTERSTITIAL_Ad_SHOWING = false
-                    listener?.onAdClosed(true,
+                    listener?.onAdClosed(
+                        true,
                         reason = "$placementKey called onAdClosed because: ad is showed successfully"
-                        )
+                    )
                 }
 
                 override fun onAdImpression() {
@@ -232,14 +277,15 @@ internal class OpenAdInterstitialManager private constructor(
                     postAdImpression("AppOpenAd")
                 }
 
-                override fun onAdFailedToShowFullScreenContent(
-                    adError: AdError
-                ) {
-                    IS_INTERSTITIAL_Ad_SHOWING = false
-                    listener?.onAdClosed(true,
-                        reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
-                    )
+                override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
+                    super.onAdFailedToShowFullScreenContent(fullScreenContentError)
+                        IS_INTERSTITIAL_Ad_SHOWING = false
+                        listener?.onAdClosed(
+                            true,
+                            reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
+                        )
                 }
+
 
                 override fun onAdShowedFullScreenContent() {
                     IS_INTERSTITIAL_Ad_SHOWING = true
@@ -281,7 +327,7 @@ internal class OpenAdInterstitialManager private constructor(
             if (!IS_INTERSTITIAL_Ad_SHOWING) {
                 if (!IS_OPEN_Ad_SHOWING && hasAd()) {
                     if (!isAppInPause) {
-                        setFullScreenCallBacks()
+                        setFullScreenCallBacks(activity)
                         checkProgressShowAd(activity)
                     }
                 }
@@ -291,7 +337,7 @@ internal class OpenAdInterstitialManager private constructor(
     }
 
     private fun checkProgressShowAd(activity: Activity) {
-        setFullScreenCallBacks()
+        setFullScreenCallBacks(activity)
         if (isLoadingEnable) {
             try {
                 val adLoadingDialog = AdLoadingDialog(activity)
@@ -312,7 +358,7 @@ internal class OpenAdInterstitialManager private constructor(
         }
     }
 
-    fun showAppOpenAd(activity: Activity){
+    fun showAppOpenAd(activity: Activity) {
         mAppOpenAd?.show(activity)
     }
 

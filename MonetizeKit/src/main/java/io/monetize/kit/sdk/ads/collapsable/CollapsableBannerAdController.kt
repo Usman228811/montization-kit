@@ -6,11 +6,14 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.ads.mediation.admob.AdMobAdapter
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import io.monetize.kit.sdk.ads.banner.getAdSize
 import io.monetize.kit.sdk.ads.native_ad.addBannerShimmerLayout
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
@@ -118,71 +121,167 @@ class CollapsableBannerAdController private constructor(
                             val id =
                                 AdKit.bannerIdManager.getNextBannerId(bannerControllerConfig.adIdKey)
                                     ?: ""
-                            val collapseBannerAd = AdView(mContext).apply {
-                                this.adUnitId = id
 
-                                this.setAdSize(
-                                    getAdSize(
-                                        mContext,
-                                        bannerType
-                                    )
-                                )
-                                this.loadAd(
-                                    AdRequest.Builder()
-                                        .addNetworkExtrasBundle(
-                                            AdMobAdapter::class.java,
-                                            Bundle().apply {
-                                                if (isTop.not()) {
-                                                    putString("collapsible", "bottom")
-                                                } else {
-                                                    putString("collapsible", "top")
+                            val extras = Bundle()
+                            extras.putString(
+                                "collapsible",
+                                if (isTop.not()) {
+                                    "bottom"
+                                } else {
+                                    "top"
+                                }
+                            )
 
-                                                }
-                                            }).build()
-                                )
-                            }
-                            collapseBannerAd.adListener = object : AdListener() {
-                                override fun onAdLoaded() {
-                                    super.onAdLoaded()
-                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                        collapseBannerAd.destroy()
-                                        return
+                            val adRequest =
+                                BannerAdRequest.Builder(id, getAdSize(mContext, bannerType))
+                                    .setGoogleExtrasBundle(extras).build()
+
+                            val collapseBannerAd = AdView(mContext)
+                            collapseBannerAd.loadAd(
+                                adRequest,
+                                adLoadCallback = object : AdLoadCallback<BannerAd> {
+                                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                                        super.onAdFailedToLoad(adError)
+                                        mContext.runOnUiThread {
+                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                collapseBannerAd.destroy()
+                                            } else {
+                                                adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${adError.code}, message: ${adError.message}")
+                                                isRequesting = false
+                                                canLoadAdAgain = false
+                                                bannerAd = null
+                                                hideFrame()
+                                            }
+                                        }
+
                                     }
-                                    isRequesting = false
 
-                                    bannerAd = collapseBannerAd
-                                    adFrame.visibility = View.VISIBLE
-                                    adFrame.removeAllViews()
-                                    adFrame.addView(bannerAd)
-                                    adCallBack?.onAdShow()
-                                    bannerAd?.revenueListener(
-                                        id
-                                    )
-                                }
+                                    override fun onAdLoaded(ad: BannerAd) {
+                                        super.onAdLoaded(ad)
 
-                                override fun onAdClicked() {
-                                    super.onAdClicked()
-                                    adCallBack?.onAdClick()
-                                }
+                                        mContext.runOnUiThread {
 
-                                override fun onAdImpression() {
-                                    super.onAdImpression()
-                                    postAdImpression("Banner")
-                                }
 
-                                override fun onAdFailedToLoad(p0: LoadAdError) {
-                                    super.onAdFailedToLoad(p0)
-                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
-                                        collapseBannerAd.destroy()
-                                        return
+                                            if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+                                                collapseBannerAd.destroy()
+                                            } else {
+
+                                                isRequesting = false
+
+                                                bannerAd = collapseBannerAd
+                                                adFrame.visibility = View.VISIBLE
+                                                adFrame.removeAllViews()
+                                                adFrame.addView(bannerAd)
+                                                adCallBack?.onAdShow()
+//                                        bannerAd?.revenueListener(
+//                                            id
+//                                        )
+                                                ad.adEventCallback =
+                                                    object : BannerAdEventCallback {
+
+                                                        override fun onAdPaid(value: AdValue) {
+                                                            super.onAdPaid(value)
+                                                            revenueListener(id, value, "Banner")
+                                                        }
+
+                                                        override fun onAdImpression() {
+                                                            mContext.runOnUiThread {
+                                                                postAdImpression("Banner")
+                                                            }
+                                                        }
+
+                                                        override fun onAdClicked() {
+                                                            mContext.runOnUiThread {
+                                                                adCallBack?.onAdClick()
+                                                            }
+                                                        }
+
+                                                        override fun onAdShowedFullScreenContent() {
+
+                                                        }
+
+                                                        override fun onAdDismissedFullScreenContent() {
+
+                                                        }
+
+                                                        override fun onAdFailedToShowFullScreenContent(
+                                                            fullScreenContentError: FullScreenContentError
+                                                        ) {
+
+                                                        }
+                                                    }
+                                            }
+                                        }
                                     }
-                                    adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
-                                    isRequesting = false
-                                    canLoadAdAgain = false
-                                    bannerAd = null
-                                    hideFrame()
                                 }
-                            }
+                            )
+
+
+//                                .apply {
+//                                this.adUnitId = id
+//
+//                                this.setAdSize(
+//                                    getAdSize(
+//                                        mContext,
+//                                        bannerType
+//                                    )
+//                                )
+//                                this.loadAd(
+//                                    AdRequest.Builder()
+//                                        .addNetworkExtrasBundle(
+//                                            AdMobAdapter::class.java,
+//                                            Bundle().apply {
+//                                                if (isTop.not()) {
+//                                                    putString("collapsible", "bottom")
+//                                                } else {
+//                                                    putString("collapsible", "top")
+//
+//                                                }
+//                                            }).build()
+//                                )
+//                            }
+//                            collapseBannerAd.adListener = object : AdListener() {
+//                                override fun onAdLoaded() {
+//                                    super.onAdLoaded()
+//                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+//                                        collapseBannerAd.destroy()
+//                                        return
+//                                    }
+//                                    isRequesting = false
+//
+//                                    bannerAd = collapseBannerAd
+//                                    adFrame.visibility = View.VISIBLE
+//                                    adFrame.removeAllViews()
+//                                    adFrame.addView(bannerAd)
+//                                    adCallBack?.onAdShow()
+//                                    bannerAd?.revenueListener(
+//                                        id
+//                                    )
+//                                }
+//
+//                                override fun onAdClicked() {
+//                                    super.onAdClicked()
+//                                    adCallBack?.onAdClick()
+//                                }
+//
+//                                override fun onAdImpression() {
+//                                    super.onAdImpression()
+//                                    postAdImpression("Banner")
+//                                }
+//
+//                                override fun onAdFailedToLoad(p0: LoadAdError) {
+//                                    super.onAdFailedToLoad(p0)
+//                                    if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
+//                                        collapseBannerAd.destroy()
+//                                        return
+//                                    }
+//                                    adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
+//                                    isRequesting = false
+//                                    canLoadAdAgain = false
+//                                    bannerAd = null
+//                                    hideFrame()
+//                                }
+//                            }
                         } else {
                             try {
                                 bannerAd?.parent?.let { parent ->
@@ -203,12 +302,12 @@ class CollapsableBannerAdController private constructor(
 
     fun onResume() {
         loadCollapsableBannerAd()
-        bannerAd?.resume()
+//        bannerAd?.resume()
     }
 
     fun onPause() {
         canLoadAdAgain = true
-        bannerAd?.pause()
+//        bannerAd?.pause()
     }
 
     fun onDestroy() {

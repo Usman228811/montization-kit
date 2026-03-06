@@ -11,7 +11,6 @@ class AdKitRewardHelper private constructor(
     private var isRewardInstant = true
 
 
-
     companion object {
         @Volatile
         private var instance: AdKitRewardHelper? = null
@@ -84,70 +83,94 @@ class AdKitRewardHelper private constructor(
             firebaseBoolean("${placementKey}_isRewardInstant", true)
         this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
-            listener.onRewardDismissed(false, "$placementKey ad is disable or not added in remote config")
+            listener.onRewardDismissed(
+                false,
+                "$placementKey ad is disable or not added in remote config"
+            )
             return
         }
 
-            var interstitialController: RewardAdController? = null
-            var index = singleRewardAdList.indexOfFirst { it.key == adIdKey }
-            if (index == -1) {
-                singleRewardAdList.apply {
-                    add(
-                        RewardAdSingleModel(
-                            adIdKey,
-                            RewardAdController.Companion.getInstance()
-                        )
-                    )
-                }
-                index = singleRewardAdList.indexOfFirst { it.key == adIdKey }
-            }
-            if (index != -1) {
-                interstitialController = singleRewardAdList[index].controller
+
+        val adListener = object : RewardedControllerListener {
+            override fun onRewardDismissed(isRewarded: Boolean, reason: String) {
+                activity.runOnUiThread { listener.onRewardDismissed(isRewarded, reason) }
             }
 
+            override fun onAdLoaded() {
+                super.onAdLoaded()
+                activity.runOnUiThread { listener.onAdLoaded() }
 
-            if (isRewardInstant.not()) {
+            }
 
-                if (counter != -1L) {
-                    interstitialController?.showWithCounter(
-                        context = activity,
-                        placementKey = placementKey,
-                        adIdKey = adIdKey,
-                        enable = isAdEnable,
-                        listener = listener,
-                        key = prefKey,
-                        counter = counter
+            override fun onAdShow() {
+                super.onAdShow()
+                activity.runOnUiThread { listener.onAdShow() }
+
+            }
+
+
+        }
+
+        var interstitialController: RewardAdController? = null
+        var index = singleRewardAdList.indexOfFirst { it.key == adIdKey }
+        if (index == -1) {
+            singleRewardAdList.apply {
+                add(
+                    RewardAdSingleModel(
+                        adIdKey,
+                        RewardAdController.Companion.getInstance()
                     )
+                )
+            }
+            index = singleRewardAdList.indexOfFirst { it.key == adIdKey }
+        }
+        if (index != -1) {
+            interstitialController = singleRewardAdList[index].controller
+        }
 
-                } else {
-                    interstitialController?.showWithoutCounter(
-                        context = activity,
-                        placementKey = placementKey,
-                        adIdKey = adIdKey,
-                        enable = isAdEnable,
-                        listener = listener,
-                    )
-                }
+
+        if (isRewardInstant.not()) {
+
+            if (counter != -1L) {
+                interstitialController?.showWithCounter(
+                    context = activity,
+                    placementKey = placementKey,
+                    adIdKey = adIdKey,
+                    enable = isAdEnable,
+                    listener = adListener,
+                    key = prefKey,
+                    counter = counter
+                )
+
             } else {
-                if (counter != -1L) {
-                    interstitialController?.loadAndShowWithCounter(
-                        context = activity,
-                        placementKey = placementKey,
-                        adIdKey = adIdKey,
-                        enable = isAdEnable,
-                        listener = listener,
-                        key = prefKey,
-                        counter = counter
-                    )
-                } else {
-                    interstitialController?.loadAndShow(
-                        context = activity,
-                        placementKey = placementKey,
-                        adIdKey = adIdKey,
-                        enable = true,
-                        listener = listener,
-                    )
-                }
+                interstitialController?.showWithoutCounter(
+                    context = activity,
+                    placementKey = placementKey,
+                    adIdKey = adIdKey,
+                    enable = isAdEnable,
+                    listener = adListener,
+                )
             }
+        } else {
+            if (counter != -1L) {
+                interstitialController?.loadAndShowWithCounter(
+                    context = activity,
+                    placementKey = placementKey,
+                    adIdKey = adIdKey,
+                    enable = isAdEnable,
+                    listener = adListener,
+                    key = prefKey,
+                    counter = counter
+                )
+            } else {
+                interstitialController?.loadAndShow(
+                    context = activity,
+                    placementKey = placementKey,
+                    adIdKey = adIdKey,
+                    enable = true,
+                    listener = adListener,
+                )
+            }
+        }
     }
 }

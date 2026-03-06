@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,7 +67,9 @@ fun SubscriptionScreen(
         }
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 5.sdp),
             text = "Subscription Plans",
             fontSize = 12.ssp,
             textDecoration = TextDecoration.Underline,
@@ -123,7 +126,9 @@ fun SubscriptionScreen(
         )
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 5.sdp),
             text = "Life Time Plan",
             fontSize = 12.ssp,
             textDecoration = TextDecoration.Underline,
@@ -168,6 +173,7 @@ fun SubscriptionScreen(
                 }
 
                 override fun onAdClick() {
+                    Toast.makeText(activity, "subscription_native ad clicked", Toast.LENGTH_SHORT).show()
 
                 }
 
@@ -197,6 +203,9 @@ fun SubscriptionScreen(
                     }
 
                     override fun onAdClick() {
+                        Toast.makeText(activity, "subscription screen banner ad click", Toast.LENGTH_SHORT)
+                            .show()
+
                     }
 
                 }

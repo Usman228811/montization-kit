@@ -40,7 +40,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.2.8"
+version = "0.0.1-next-gen"
 
 
 afterEvaluate {
@@ -50,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.2.8"
+                version = "0.0.1-next-gen"
             }
         }
     }
@@ -70,7 +70,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
 
-    implementation("com.google.android.gms:play-services-ads:24.9.0")
+//    implementation("com.google.android.gms:play-services-ads:24.9.0")
+    implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:0.24.0-beta02")
     implementation("com.intuit.sdp:sdp-android:1.1.1")
     implementation("com.intuit.ssp:ssp-android:1.1.1")
 

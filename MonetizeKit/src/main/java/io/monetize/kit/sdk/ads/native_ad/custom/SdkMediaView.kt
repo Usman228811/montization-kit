@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
-import com.google.android.gms.ads.nativead.MediaView
+import com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
 
 
 class SdkMediaView : FrameLayout {

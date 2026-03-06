@@ -41,7 +41,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "/21775744923/example/rewarded"
+                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
+//                "reward_main" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
                 "exit_native" to "/21775744923/example/native-video",
@@ -60,7 +61,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "premium_banner" to "ca-app-pub-3940256099942544/9214589741",
 //                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
 //                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
-                "banner_common" to "ca-app-pub-3940256099942544/2014213617",
+                "banner_common" to "ca-app-pub-3940256099942544/9214589741",
                 "home_banner_top" to "ca-app-pub-3940256099942544/9214589741",
             ),
             defaultRemoteConfigBuilder = {
@@ -68,7 +69,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("OPEN_AD_ENABLE", true)
                 bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
-                bool("INTER_LOADING_ENABLE", false)
+                bool("INTER_LOADING_ENABLE", true)
                 bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)
@@ -83,7 +84,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 native("home_native") {
                     enable(true)
-                    ctaColor("#000000")
+//                    ctaColor("#000000")
                     adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
                     refreshTime(0)
                 }
@@ -91,7 +92,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(NativeAdType.SMALL_NATIVE)
+                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
                 }
                 native("lang_native_ad") {
                     enable(true)
@@ -103,17 +104,15 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 fullScreen("home_inter") {
                     enable(true)
+//                    instantInter(true)
                 }
                 fullScreen("inter_btn_plant") {
                     enable(true)
-                }
-                fullScreen("inter_btn_plant") {
-                    enable(true)
-                    instantReward(true)
+                    instantReward(false)
                 }
                 banner("home_banner") {
                     enable(true)
-                    bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
+                    bannerType(BannerAdType.ADAPTIVE_BANNER)
                 }
                 banner("home_banner_top") {
                     enable(false)
@@ -152,7 +151,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     largeNativeLayout = R.layout.large_native_layout_custom,
                     smallNativeLayout = R.layout.small_native_layout_custom,
-                    smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
+//                    smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
                 )
 
                 AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(

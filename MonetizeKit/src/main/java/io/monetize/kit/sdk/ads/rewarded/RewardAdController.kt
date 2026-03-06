@@ -4,12 +4,17 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.common.PreloadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.PreloadConfiguration
+import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdPreloader
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
@@ -41,6 +46,7 @@ class RewardAdController private constructor(
 
     private var placementKey: String = ""
     private var adIdKey: String = ""
+    private var adUnitId: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
     private var isUserEarnReward = false
@@ -167,12 +173,14 @@ class RewardAdController private constructor(
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         this.adIdKey = adIdKey
+        adUnitId = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onRewardDismissed(
                 false,
                 reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else {
+            rewardAd = RewardedAdPreloader.pollAd(adUnitId)
             if (rewardAd != null) {
                 checkProgressShowAd(context)
             } else {
@@ -196,6 +204,7 @@ class RewardAdController private constructor(
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         this.adIdKey = adIdKey
+        adUnitId = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onRewardDismissed(
@@ -257,6 +266,7 @@ class RewardAdController private constructor(
         }
         this.placementKey = placementKey
         this.adIdKey = adIdKey
+        adUnitId = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
         if (rewardAd != null) {
             return
         }
@@ -280,26 +290,73 @@ class RewardAdController private constructor(
                 }
                 canRequestAd = false
 
-                val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
+//                val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
 
-                RewardedAd.load(
-                    context,id
-                    ,
-                    AdRequest.Builder().build(),
-                    object : RewardedAdLoadCallback() {
-                        override fun onAdLoaded(ad: RewardedAd) {
-                            rewardAd = ad
-                            rewardAd?.revenueListener(id)
+                val adRequest = AdRequest.Builder(adUnitId).build()
+                val preloadConfig = PreloadConfiguration(adRequest)
+                RewardedAdPreloader.start(adUnitId, preloadConfig, preloadCallback = object :
+                    PreloadCallback {
+                    override fun onAdFailedToPreload(
+                        preloadId: String,
+                        adError: LoadAdError
+                    ) {
+                        canRequestAd = true
+                    }
 
-                            canRequestAd = true
-                        }
+                    override fun onAdPreloaded(
+                        preloadId: String,
+                        responseInfo: ResponseInfo
+                    ) {
+                        canRequestAd = true
 
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            rewardAd = null
-                            canRequestAd = true
-                        }
-                    },
-                )
+                    }
+
+                    override fun onAdsExhausted(preloadId: String) {
+                        canRequestAd = true
+
+                    }
+
+                })
+
+
+//                RewardedAd.load(
+//                    AdRequest.Builder(id).build(),
+//                    object : AdLoadCallback<RewardedAd> {
+//
+//                        override fun onAdLoaded(ad: RewardedAd) {
+//                            super.onAdLoaded(ad)
+//                            rewardAd = ad
+//                            rewardAd?.revenueListener(id)
+//
+//                            canRequestAd = true
+//                        }
+//
+//                        override fun onAdFailedToLoad(adError: LoadAdError) {
+//                            super.onAdFailedToLoad(adError)
+//                            rewardAd = null
+//                            canRequestAd = true
+//                        }
+//                    },
+//                )
+
+//                RewardedAd.load(
+//                    context,id
+//                    ,
+//                    AdRequest.Builder().build(),
+//                    object : RewardedAdLoadCallback() {
+//                        override fun onAdLoaded(ad: RewardedAd) {
+//                            rewardAd = ad
+//                            rewardAd?.revenueListener(id)
+//
+//                            canRequestAd = true
+//                        }
+//
+//                        override fun onAdFailedToLoad(adError: LoadAdError) {
+//                            rewardAd = null
+//                            canRequestAd = true
+//                        }
+//                    },
+//                )
             }
         } catch (ignored: Exception) {
             canRequestAd = true
@@ -335,16 +392,16 @@ class RewardAdController private constructor(
                     canRequestAd = false
                     dismissLoadingDialog()
                     adLoadingDialog = AdLoadingDialog(context)
-                    val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
+                    adUnitId = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
                     RewardedAd.load(
-                        context,id,
-                        AdRequest.Builder().build(),
-                        object : RewardedAdLoadCallback() {
+                        AdRequest.Builder(adUnitId).build(),
+                        object : AdLoadCallback<RewardedAd> {
                             override fun onAdLoaded(ad: RewardedAd) {
+                                super.onAdLoaded(ad)
                                 rewardAd = ad
-                                rewardAd?.revenueListener(id)
+//                                rewardAd?.revenueListener(adUnitId)
                                 canRequestAd = true
                                 if (isHandlerAdDelayRunning) {
                                     dismissLoadingDialog()
@@ -354,6 +411,7 @@ class RewardAdController private constructor(
                             }
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
+                                super.onAdFailedToLoad(adError)
                                 canRequestAd = true
                                 handlerRemoveCallback(
                                     reason = "ad failed to load code: ${adError.code} message: ${adError.message}"
@@ -362,6 +420,30 @@ class RewardAdController private constructor(
                             }
                         },
                     )
+//                    RewardedAd.load(
+//                        context, id,
+//                        AdRequest.Builder().build(),
+//                        object : RewardedAdLoadCallback() {
+//                            override fun onAdLoaded(ad: RewardedAd) {
+//                                rewardAd = ad
+//                                rewardAd?.revenueListener(id)
+//                                canRequestAd = true
+//                                if (isHandlerAdDelayRunning) {
+//                                    dismissLoadingDialog()
+//                                    removeCallBacksDelay()
+//                                    showRewardAd(context, key)
+//                                }
+//                            }
+//
+//                            override fun onAdFailedToLoad(adError: LoadAdError) {
+//                                canRequestAd = true
+//                                handlerRemoveCallback(
+//                                    reason = "ad failed to load code: ${adError.code} message: ${adError.message}"
+//
+//                                )
+//                            }
+//                        },
+//                    )
                 }
 
 
@@ -423,8 +505,12 @@ class RewardAdController private constructor(
 
     private fun setAdmobFullScreen(activity: Activity, key: String) {
 
-        rewardAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
+        rewardAd?.adEventCallback =
+            object : RewardedAdEventCallback {
+                override fun onAdPaid(value: AdValue) {
+                    super.onAdPaid(value)
+                    revenueListener(adUnitId, value, "REWARDED")
+                }
                 override fun onAdDismissedFullScreenContent() {
                     dismissLoadingDialog()
                     mInterstitialControllerListener?.onRewardDismissed(
@@ -434,27 +520,28 @@ class RewardAdController private constructor(
                     super.onAdDismissedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = false
                     rewardAd = null
-                    if (key.isEmpty() && !firebaseBoolean(
-                            "${placementKey}_isRewardInstant",
-                            false
-                        )
-                    ) {
-                        loadInter(activity)
-                    }
+//                        if (key.isEmpty() && !firebaseBoolean(
+//                                "${placementKey}_isRewardInstant",
+//                                false
+//                            )
+//                        ) {
+//                            loadInter(activity)
+//                        }
                 }
 
                 override fun onAdImpression() {
                     super.onAdImpression()
                     postAdImpression("Rewarded")
+
                 }
 
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
                     dismissLoadingDialog()
                     mInterstitialControllerListener?.onRewardDismissed(
                         false,
-                        reason = "$placementKey called onRewardDismissed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
+                        reason = "$placementKey called onRewardDismissed because: onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
                     )
-                    super.onAdFailedToShowFullScreenContent(adError)
+                    super.onAdFailedToShowFullScreenContent(fullScreenContentError)
                     rewardAd = null
                     IS_INTERSTITIAL_Ad_SHOWING = false
                 }

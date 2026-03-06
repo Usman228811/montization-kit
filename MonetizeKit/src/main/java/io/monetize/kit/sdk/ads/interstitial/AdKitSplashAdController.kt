@@ -50,17 +50,40 @@ class AdKitSplashAdController private constructor(
 
     fun showInterstitial(activity: Activity, listener: InterstitialControllerListener?) {
         this.mInterstitialControllerListener = listener
+
+        val adListener = object : InterstitialControllerListener {
+
+            override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                activity.runOnUiThread { listener?.onAdClosed(isInterShowed, reason) }
+            }
+
+            override fun onAdLoaded(reason: String) {
+                super.onAdLoaded(reason)
+                activity.runOnUiThread { listener?.onAdLoaded(reason) }
+            }
+
+            override fun onAdShow() {
+                super.onAdShow()
+                activity.runOnUiThread { listener?.onAdShow() }
+            }
+        }
+
         mInterstitialControllerListener?.let {
             if (isAdEnable) {
                 if (isForOpenAd) {
-                    openAdInterstitialManager?.showOpenAd(activity, it)
+                    openAdInterstitialManager?.showOpenAd(
+                        activity,
+                        interstitialControllerListener = adListener)
                 } else {
-                    splashInterstitialManager?.showInterstitial(activity, it)
+                    splashInterstitialManager?.showInterstitial(
+                        activity,
+                        interstitialControllerListener = adListener)
                 }
             } else {
-                it.onAdClosed(false,
+                it.onAdClosed(
+                    false,
                     "$placementKey called onAdClosed because: ad is disable in remote config"
-                    )
+                )
             }
         }
     }
@@ -98,9 +121,7 @@ class AdKitSplashAdController private constructor(
                     reason = "ad is disable or not added in remote config"
                 )
             }, 2000)
-        }
-
-       else if (AdKit.adKitPref.isAppPurchased ||
+        } else if (AdKit.adKitPref.isAppPurchased ||
             !AdKit.internetController.isConnected ||
             AdKit.initializer.getDisableAds() ||
             AdKit.consentManager.canRequestAds.not()
@@ -120,7 +141,38 @@ class AdKitSplashAdController private constructor(
                     adIdKey = adIdKey,
                     time = splashTime,
                     loadAndShow = loadAndShow,
-                    listener = mInterstitialControllerListener
+                    listener = object : InterstitialControllerListener {
+                        override fun onAdClosed(
+                            isInterShowed: Boolean,
+                            reason: String
+                        ) {
+                            activity.runOnUiThread {
+                                listener?.onAdClosed(
+                                    isInterShowed, reason
+                                )
+                            }
+
+                        }
+
+                        override fun onAdLoaded(reason: String) {
+                            super.onAdLoaded(reason)
+                            activity.runOnUiThread {
+                                listener?.onAdLoaded(
+                                    reason
+                                )
+                            }
+
+                        }
+
+                        override fun onAdShow() {
+                            super.onAdShow()
+
+                            activity.runOnUiThread {
+                                listener?.onAdShow()
+                            }
+                        }
+
+                    }
                 )
 
             } else {
@@ -130,7 +182,38 @@ class AdKitSplashAdController private constructor(
                     adIdKey = adIdKey,
                     time = splashTime,
                     loadAndShow = loadAndShow,
-                    listener = listener
+                    listener = object : InterstitialControllerListener {
+                        override fun onAdClosed(
+                            isInterShowed: Boolean,
+                            reason: String
+                        ) {
+                            activity.runOnUiThread {
+                                listener?.onAdClosed(
+                                    isInterShowed, reason
+                                )
+                            }
+
+                        }
+
+                        override fun onAdLoaded(reason: String) {
+                            super.onAdLoaded(reason)
+                            activity.runOnUiThread {
+                                listener?.onAdLoaded(
+                                    reason
+                                )
+                            }
+
+                        }
+
+                        override fun onAdShow() {
+                            super.onAdShow()
+
+                            activity.runOnUiThread {
+                                listener?.onAdShow()
+                            }
+                        }
+
+                    }
                 )
             }
         }

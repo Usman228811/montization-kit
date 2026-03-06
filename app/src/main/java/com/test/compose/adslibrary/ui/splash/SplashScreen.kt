@@ -1,6 +1,7 @@
 package com.test.compose.adslibrary.ui.splash
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

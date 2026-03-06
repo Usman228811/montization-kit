@@ -5,10 +5,14 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
@@ -41,7 +45,10 @@ class AdKitBannerController {
 
 
     fun setAdControllerListener(listener: AdControllerListener?, from: String) {
-        Log.d(TAG, "setAdControllerListener: ${if (listener== null) "null from $from" else "attached from $from" } ")
+        Log.d(
+            TAG,
+            "setAdControllerListener: ${if (listener == null) "null from $from" else "attached from $from"} "
+        )
         adControllerListener?.resetRequesting()
         adControllerListener = listener
     }
@@ -73,45 +80,113 @@ class AdKitBannerController {
                         return
                     }
                     canRequestBannerAd = false
-                    val id =AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
-                    val bannerAd = AdView(context).apply {
-                        this.adUnitId = id
-                        this.setAdSize(
-                            getAdSize(
-                                context,
-                                bannerType
-                            )
-                        )
-                        this.loadAd(AdRequest.Builder().build())
-                    }
-                    bannerAd.adListener = object : AdListener() {
-                        override fun onAdLoaded() {
-                            super.onAdLoaded()
-                            canRequestBannerAd = true
-                            adView = bannerAd
-                            adView?.revenueListener(id)
+                    val id = AdKit.bannerIdManager.getNextBannerId(adIdKey) ?: ""
+                    val adSize = getAdSize(context, bannerType)
+                    val adRequest = BannerAdRequest.Builder(id, adSize).build()
 
-                            adControllerListener?.onAdLoaded()
-                        }
+                    val bannerAd = AdView(context)
+                    bannerAd.loadAd(
+                        adRequest,
+                        object : AdLoadCallback<BannerAd> {
 
-                        override fun onAdClicked() {
-                            super.onAdClicked()
-                            onAdClick?.invoke()
-                        }
+                            override fun onAdLoaded(ad: BannerAd) {
 
-                        override fun onAdImpression() {
-                            super.onAdImpression()
-                           postAdImpression("Banner")
-                        }
+                                context.runOnUiThread {
 
-                        override fun onAdFailedToLoad(p0: LoadAdError) {
-                            super.onAdFailedToLoad(p0)
-                            canRequestBannerAd = true
-                            adView = null
-                            adControllerListener?.onAdFailed("$placementKey is failed with code: ${p0.code}, message: ${p0.message}")
+                                    canRequestBannerAd = true
+                                    adView = bannerAd
 
-                        }
-                    }
+                                    adControllerListener?.onAdLoaded()
+                                    ad.adEventCallback =
+                                        object : BannerAdEventCallback {
+
+                                            override fun onAdPaid(value: AdValue) {
+                                                super.onAdPaid(value)
+                                                revenueListener(id, value, "Banner")
+                                            }
+
+                                            override fun onAdImpression() {
+
+                                                context.runOnUiThread {
+                                                    postAdImpression("Banner")
+                                                }
+                                            }
+
+                                            override fun onAdClicked() {
+
+                                                context.runOnUiThread {
+                                                    onAdClick?.invoke()
+                                                }
+                                            }
+
+                                            override fun onAdShowedFullScreenContent() {
+
+                                            }
+
+                                            override fun onAdDismissedFullScreenContent() {
+
+                                            }
+
+                                            override fun onAdFailedToShowFullScreenContent(
+                                                fullScreenContentError: FullScreenContentError
+                                            ) {
+
+                                            }
+                                        }
+                                }
+
+                            }
+
+
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
+
+                                context.runOnUiThread {
+                                    canRequestBannerAd = true
+                                    adView = null
+                                    adControllerListener?.onAdFailed("$placementKey is failed with code: ${adError.code}, message: ${adError.message}")
+                                }
+                            }
+                        },
+                    )
+
+//                        .apply {
+//                        this.adUnitId = id
+//                        this.setAdSize(
+//                            getAdSize(
+//                                context,
+//                                bannerType
+//                            )
+//                        )
+//                        this.loadAd(AdRequest.Builder().build())
+//                    }
+//                    bannerAd.adListener = object : AdListener() {
+//                        override fun onAdLoaded() {
+//                            super.onAdLoaded()
+//                            canRequestBannerAd = true
+//                            adView = bannerAd
+//                            adView?.revenueListener(id)
+//
+//                            adControllerListener?.onAdLoaded()
+//                        }
+//
+//                        override fun onAdClicked() {
+//                            super.onAdClicked()
+//                            onAdClick?.invoke()
+//                        }
+//
+//                        override fun onAdImpression() {
+//                            super.onAdImpression()
+//                           postAdImpression("Banner")
+//                        }
+//
+//                        override fun onAdFailedToLoad(p0: LoadAdError) {
+//                            super.onAdFailedToLoad(p0)
+//                            canRequestBannerAd = true
+//                            adView = null
+//                            adControllerListener?.onAdFailed("$placementKey is failed with code: ${p0.code}, message: ${p0.message}")
+//
+//                        }
+//                    }
                 }
             } else {
                 adControllerListener?.onAdFailed("$placementKey can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")

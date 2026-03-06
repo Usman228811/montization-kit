@@ -3,12 +3,13 @@ package io.monetize.kit.sdk.ads.interstitial.splash
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
@@ -32,6 +33,7 @@ internal class SplashInterstitialManager private constructor(
     private var splashTime: Long = 16L
 
     private var adIdKey: String = ""
+    private var adId: String = ""
     private var placementKey: String = ""
     private var loadAndShow: Boolean = true
 
@@ -87,40 +89,74 @@ internal class SplashInterstitialManager private constructor(
                     return
                 }
                 canRequestAd = false
-                val adId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
+                adId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
 //                if (adId.isNullOrEmpty()) throw IllegalStateException("Splash Ad IDs not set. Call setSplashId() first.")
 
                 InterstitialAd.load(
-                    context, adId,
-                    AdRequest.Builder().build(),
-                    object : InterstitialAdLoadCallback() {
-                        override fun onAdLoaded(splashAd: InterstitialAd) {
-                            super.onAdLoaded(splashAd)
-                            interstitialAd = splashAd
-                            interstitialAd?.revenueListener(adId)
+                    AdRequest.Builder(adId).build(),
+                    object : AdLoadCallback<InterstitialAd> {
+                        override fun onAdLoaded(ad: InterstitialAd) {
+                            interstitialAd = ad
+//                            interstitialAd?.revenueListener(adId)
 
                             canRequestAd = true
+                            context.runOnUiThread {
 
-                            if (isHandlerRunning) {
-                                removeCallBacks()
-                                mInterstitialControllerListener?.onAdLoaded(
-                                    reason = "$placementKey called onAdLoaded because: ad loaded successfully"
-                                )
-                                if (loadAndShow) {
-                                    showSplashAd(context)
+                                if (isHandlerRunning) {
+                                    removeCallBacks()
+                                    mInterstitialControllerListener?.onAdLoaded(
+                                        reason = "$placementKey called onAdLoaded because: ad loaded successfully"
+                                    )
+                                    if (loadAndShow) {
+                                        showSplashAd(context)
+                                    }
                                 }
                             }
+
                         }
 
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            super.onAdFailedToLoad(loadAdError)
-                            interstitialAd = null
-                            canRequestAd = true
-                            handleException(
-                                reason = "ad is failed to load code: ${loadAdError.code}, message:  ${loadAdError.message}"
-                            )
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+
+                            context.runOnUiThread {
+                                interstitialAd = null
+                                canRequestAd = true
+                                handleException(
+                                    reason = "ad is failed to load code: ${adError.code}, message:  ${adError.message}"
+                                )
+                            }
                         }
-                    })
+                    },
+                )
+
+
+//                    object : InterstitialAdLoadCallback() {
+//                        override fun onAdLoaded(splashAd: InterstitialAd) {
+//                            super.onAdLoaded(splashAd)
+//                            interstitialAd = splashAd
+//                            interstitialAd?.revenueListener(adId)
+//
+//                            canRequestAd = true
+//
+//                            if (isHandlerRunning) {
+//                                removeCallBacks()
+//                                mInterstitialControllerListener?.onAdLoaded(
+//                                    reason = "$placementKey called onAdLoaded because: ad loaded successfully"
+//                                )
+//                                if (loadAndShow) {
+//                                    showSplashAd(context)
+//                                }
+//                            }
+//                        }
+//
+//                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+//                            super.onAdFailedToLoad(loadAdError)
+//                            interstitialAd = null
+//                            canRequestAd = true
+//                            handleException(
+//                                reason = "ad is failed to load code: ${loadAdError.code}, message:  ${loadAdError.message}"
+//                            )
+//                        }
+//                    })
             } else {
                 handleException("")
             }
@@ -184,7 +220,8 @@ internal class SplashInterstitialManager private constructor(
                     showInterAd(activity)
                     hideProgress()
                 }, 1000)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
                 hideProgress()
                 showInterAd(activity)
             }
@@ -215,10 +252,10 @@ internal class SplashInterstitialManager private constructor(
                     mInterstitialControllerListener?.onAdClosed(reason = "")
                 }
             }
-        } catch (_: Exception) {
-            hideProgressAndNullAd(reason = "Inter Exception")
-        } catch (_: OutOfMemoryError) {
-            hideProgressAndNullAd(reason = "Inter Exception")
+        } catch (e: Exception) {
+            hideProgressAndNullAd(reason = "Inter Exception ${e.message}")
+        } catch (e: OutOfMemoryError) {
+            hideProgressAndNullAd(reason = "Inter Exception ${e.message}")
         }
     }
 
@@ -292,13 +329,17 @@ internal class SplashInterstitialManager private constructor(
     private fun setFullScreenContentCallback(
         activity: Activity,
     ) {
-        interstitialAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
+        interstitialAd?.adEventCallback =
+            object : InterstitialAdEventCallback {
+
+                override fun onAdPaid(value: AdValue) {
+                    super.onAdPaid(value)
+                    revenueListener(adId, value, "INTERSTITIAL")
+                }
 
                 override fun onAdClicked() {
                     super.onAdClicked()
                     AdKit.analytics.postAnalytics("Splash_inter_click")
-
                 }
 
                 override fun onAdImpression() {
@@ -319,13 +360,12 @@ internal class SplashInterstitialManager private constructor(
                     AdKit.analytics.postAnalytics("Splash_inter_show")
                 }
 
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    super.onAdFailedToShowFullScreenContent(adError)
+                override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
+                    super.onAdFailedToShowFullScreenContent(fullScreenContentError)
                     hideProgressAndNullAd(
-                        reason = "onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
+                        reason = "onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
                     )
                 }
-
             }
     }
 

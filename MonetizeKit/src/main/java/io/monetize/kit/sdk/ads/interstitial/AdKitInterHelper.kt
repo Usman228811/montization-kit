@@ -73,8 +73,7 @@ class AdKitInterHelper private constructor(
                 singleInterList.apply {
                     add(
                         InterAdSingleModel(
-                            adIdKey,
-                            InterstitialController.getInstance()
+                            adIdKey, InterstitialController.getInstance()
                         )
                     )
                 }
@@ -85,12 +84,7 @@ class AdKitInterHelper private constructor(
             }
             if (isInterInstant.not()) {
                 interstitialController?.preLoadInter(
-                    activity,
-                    placementKey,
-                    adIdKey,
-                    isAdEnable,
-                    prefKey,
-                    counter
+                    activity, placementKey, adIdKey, isAdEnable, prefKey, counter
                 )
             }
         }
@@ -106,21 +100,34 @@ class AdKitInterHelper private constructor(
             listener.onAdClosed(reason = "$placementKey called onAdClosed because: ads are disabled in app class")
             return
         }
-        this.isInterInstant =
-            firebaseBoolean("${placementKey}_isInterInstant", false)
+        this.isInterInstant = firebaseBoolean("${placementKey}_isInterInstant", false)
         this.isAdEnable = firebaseBoolean("${placementKey}_isAdEnable", false)
         if (!isAdEnable) {
             listener.onAdClosed(reason = "$placementKey called onAdClosed because: ad is disable or not added in remote config")
             return
         }
 
+        val adListener = object : InterstitialControllerListener {
+
+            override fun onAdClosed(isInterShowed: Boolean, reason: String) {
+                activity.runOnUiThread { listener.onAdClosed(isInterShowed, reason) }
+            }
+
+            override fun onAdLoaded(reason: String) {
+                super.onAdLoaded(reason)
+                activity.runOnUiThread { listener.onAdLoaded(reason) }
+            }
+
+            override fun onAdShow() {
+                super.onAdShow()
+                activity.runOnUiThread { listener.onAdShow() }
+            }
+        }
+
+
         if (AdKit.splashAdController.hasAd()) {
             AdKit.splashAdController.showInterstitial(
-                activity, object : InterstitialControllerListener {
-                    override fun onAdClosed(isInterShowed: Boolean, reason: String) {
-                        listener.onAdClosed(isInterShowed, reason)
-                    }
-                })
+                activity, adListener)
         } else {
             var interstitialController: InterstitialController? = null
             var index = singleInterList.indexOfFirst { it.key == adIdKey }
@@ -128,8 +135,7 @@ class AdKitInterHelper private constructor(
                 singleInterList.apply {
                     add(
                         InterAdSingleModel(
-                            adIdKey,
-                            InterstitialController.getInstance()
+                            adIdKey, InterstitialController.getInstance()
                         )
                     )
                 }
@@ -148,7 +154,7 @@ class AdKitInterHelper private constructor(
                         placementKey = placementKey,
                         adIdKey = adIdKey,
                         enable = isAdEnable,
-                        listener = listener,
+                        listener = adListener,
                         key = prefKey,
                         counter = counter
                     )
@@ -159,7 +165,7 @@ class AdKitInterHelper private constructor(
                         placementKey = placementKey,
                         adIdKey = adIdKey,
                         enable = isAdEnable,
-                        listener = listener,
+                        listener = adListener,
                     )
                 }
             } else {
@@ -169,7 +175,7 @@ class AdKitInterHelper private constructor(
                         placementKey = placementKey,
                         adIdKey = adIdKey,
                         enable = isAdEnable,
-                        listener = listener,
+                        listener = adListener,
                         key = prefKey,
                         counter = counter
                     )
@@ -179,7 +185,7 @@ class AdKitInterHelper private constructor(
                         placementKey = placementKey,
                         adIdKey = adIdKey,
                         enable = true,
-                        listener = listener,
+                        listener = adListener,
                     )
                 }
             }

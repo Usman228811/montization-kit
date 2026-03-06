@@ -142,7 +142,7 @@ fun MainScreen(
                         Log.d("dddddd", reason)
                         gotoSubscription()
                     }
-                }, "testt", 1
+                }, /*"testt", 1*/
             )
 
         }) {
@@ -175,7 +175,7 @@ fun MainScreen(
                     }
 
                 },
-                prefKey = "dddd", counter = 1,
+               // prefKey = "dddd", counter = 1,
             )
         }) {
             Text("show reward and goto subscription screen")
@@ -238,6 +238,7 @@ fun MainScreen(
                     override fun onAdClick() {
                         Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
                             .show()
+
                     }
 
                 }

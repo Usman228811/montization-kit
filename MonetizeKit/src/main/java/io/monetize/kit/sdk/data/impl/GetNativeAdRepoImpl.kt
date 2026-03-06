@@ -4,7 +4,8 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdEventCallback
 import io.monetize.kit.sdk.ads.native_ad.AdControllerListener
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleController
 import io.monetize.kit.sdk.ads.native_ad.NativeAdSingleModel
@@ -14,6 +15,7 @@ import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
+import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseString
@@ -26,7 +28,7 @@ import io.monetize.kit.sdk.domain.repo.GetNativeAdRepo
 class GetNativeAdRepoImpl private constructor(
 ) : GetNativeAdRepo {
 
-    private var largeNativeAd: Any? = null
+    private var largeNativeAd: NativeAd? = null
     private var loadNewAd: Boolean = false
     private var isAdLoadCalled: Boolean = false
     private var isRequesting: Boolean = false
@@ -250,6 +252,8 @@ class GetNativeAdRepoImpl private constructor(
                                     }
                                     if (largeNativeAd == null || forRefresh) {
 
+
+
                                         nativeAdController.populateNativeAd(
                                             context = mContext,
                                             adFrame = adFrame,
@@ -263,11 +267,32 @@ class GetNativeAdRepoImpl private constructor(
                                                     )
                                                     adCallBack?.onAdShow()
                                                     largeNativeAd = ad
+                                                    largeNativeAd?.adEventCallback =
+                                                        object : NativeAdEventCallback {
+                                                            override fun onAdImpression() {
+                                                                super.onAdImpression()
+
+                                                                mContext.runOnUiThread {
+                                                                    postAdImpression("NativeAd")
+                                                                }
+                                                            }
+
+                                                            override fun onAdClicked() {
+
+                                                                mContext.runOnUiThread {
+                                                                    adCallBack?.onAdClick()
+
+                                                                }
+
+                                                            }
+                                                        }
                                                     nativeAdController.startRefreshTime()
                                                 }
                                             }, onAdClick = {
                                                 adCallBack?.onAdClick()
                                             })
+
+
                                     }
                                 }
 

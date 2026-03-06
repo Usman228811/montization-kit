@@ -27,6 +27,7 @@ class AdKitConsentManager private constructor(
     private val _googleConsent: Channel<Boolean> = Channel()
     val googleConsent = _googleConsent.receiveAsFlow()
     val canRequestAds: Boolean
+//        get() = true
         get() = consentInformation.canRequestAds()
     private var isRequestingConsent = false
 

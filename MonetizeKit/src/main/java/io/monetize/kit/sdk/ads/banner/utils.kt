@@ -2,7 +2,7 @@ package io.monetize.kit.sdk.ads.banner
 
 import android.app.Activity
 import android.os.Build
-import com.google.android.gms.ads.AdSize
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 
 
@@ -12,8 +12,9 @@ fun getAdSize(activity: Activity, bannerType: String): AdSize {
         BannerAdType.ADAPTIVE_BANNER.name,
         BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name,
         BannerAdType.TOP_COLLAPSIBLE_BANNER.name -> getAdaptiveSize(activity)
-        BannerAdType.LARGE_BANNER.name  -> AdSize.LARGE_BANNER
-        BannerAdType.MEDIUM_RECTANGLE_BANNER.name  -> AdSize.MEDIUM_RECTANGLE
+
+        BannerAdType.LARGE_BANNER.name -> AdSize.LARGE_BANNER
+        BannerAdType.MEDIUM_RECTANGLE_BANNER.name -> AdSize.MEDIUM_RECTANGLE
         else -> getAdaptiveSize(activity)
     }
 }

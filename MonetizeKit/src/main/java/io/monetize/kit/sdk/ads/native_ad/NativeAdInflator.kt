@@ -11,9 +11,9 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
-import com.google.android.gms.ads.nativead.MediaView
-import com.google.android.gms.ads.nativead.NativeAd
-import com.google.android.gms.ads.nativead.NativeAdView
+import com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
@@ -181,17 +181,18 @@ fun populateNativeAd(
     } catch (_: Exception) {
 
     }
+    var mediaView : MediaView?= null
 
     when (nativeAdType) {
         NativeAdType.LARGE_NATIVE, NativeAdType.SMALL_NATIVE_MEDIA_VIEW, NativeAdType.FULL_NATIVE -> {
-            val mediaView: MediaView? = if (isCustom) {
+            mediaView = if (isCustom) {
                 customLayout?.mediaView?.setupMediaView() as? MediaView
             } else {
                 adView.findViewById(R.id.ad_media)
             }
 
             mediaView?.let {
-                adView.mediaView = it
+//                adView.mediaView = it
                 it.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
                     override fun onChildViewAdded(parent: View?, child: View?) {
                         if (child is ImageView) {
@@ -269,5 +270,6 @@ fun populateNativeAd(
     }
 
     // 🔹 Bind native ad
-    adView.setNativeAd(nativeAd)
+    adView.registerNativeAd(nativeAd, mediaView)
+//    adView.setNativeAd(nativeAd)
 }

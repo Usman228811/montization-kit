@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import com.google.android.gms.ads.nativead.NativeAdView
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
 import io.monetize.kit.sdk.R
 
 
@@ -54,7 +54,7 @@ class SdkNativeAdView @JvmOverloads constructor(
         callToActionView = nativeAdView.findViewById(R.id.ad_call_to_action)
 
         // Step 4: Attach to NativeAdView
-        nativeAdView.mediaView = mediaView?.getAdMobMediaView()
+//        nativeAdView.mediaView = mediaView?.getAdMobMediaView()
         nativeAdView.headlineView = headlineView
         nativeAdView.bodyView = bodyView
         nativeAdView.iconView = iconView

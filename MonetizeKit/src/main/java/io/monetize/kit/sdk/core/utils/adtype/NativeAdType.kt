@@ -18,9 +18,8 @@ enum class BannerAdType {
 
 data class BannerControllerConfig(
     val placementKey: String,
-    val adIdKey: String,
-
-    )
+    val adIdKey: String
+)
 
 data class CollapsableConfig(
     val isBottom: Boolean = true

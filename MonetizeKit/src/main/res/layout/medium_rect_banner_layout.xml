@@ -14,7 +14,7 @@
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.gms.ads.nativead.NativeAdView
+        <RelativeLayout
             android:id="@+id/ad_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -100,6 +100,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </com.google.android.gms.ads.nativead.NativeAdView>
+        </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

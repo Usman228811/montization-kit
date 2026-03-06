@@ -6,7 +6,7 @@
     android:background="@drawable/native_bg"
     android:orientation="vertical">
 
-    <com.google.android.gms.ads.nativead.NativeAdView
+    <com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
         android:id="@+id/ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -53,9 +53,9 @@
                                 android:id="@+id/cvAdAttribution"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/border_ad"
                                 android:layout_marginStart="@dimen/_5sdp"
-                                android:layout_marginTop="@dimen/_1sdp">
+                                android:layout_marginTop="@dimen/_1sdp"
+                                android:background="@drawable/border_ad">
 
                                 <com.google.android.material.textview.MaterialTextView
                                     android:id="@+id/tv_ad"
@@ -69,7 +69,6 @@
                                     android:textSize="@dimen/_8ssp"
                                     android:textStyle="bold" />
                             </LinearLayout>
-
 
 
                             <com.google.android.material.textview.MaterialTextView
@@ -114,5 +113,5 @@
             </RelativeLayout>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </com.google.android.gms.ads.nativead.NativeAdView>
+    </com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView>
 </FrameLayout>

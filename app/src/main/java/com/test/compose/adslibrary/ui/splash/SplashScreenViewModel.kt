@@ -15,7 +15,6 @@ import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
@@ -40,8 +39,7 @@ class SplashScreenViewModelFactory : ViewModelProvider.Factory {
     }
 }
 
-class SplashScreenViewModel(
-) : ViewModel() {
+class SplashScreenViewModel : ViewModel() {
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
     private var isInterAdShowed = false
@@ -113,7 +111,9 @@ class SplashScreenViewModel(
     private fun collections() {
         viewModelScope.apply {
             launch {
-                consentManager.googleConsent.collectLatest { initializeSplash() }
+                consentManager.googleConsent.collectLatest {
+                    initializeSplash()
+                }
             }
             launch {
                 firebaseHelper.apply {
@@ -206,12 +206,26 @@ class SplashScreenViewModel(
                     adIdKey = "native_common"
                 )
             )
-            AdKit.preloadBanner.preLoadBanner(
-                mContext, BannerControllerConfig(
-                    "home_banner",
-                    "banner_common",
-                )
+
+
+//            AdKit.preloadBanner.preLoadBanner(
+//                mContext, BannerControllerConfig(
+//                    "home_banner",
+//                    "banner_common",
+//                )
+//            )
+
+            AdKit.interHelper.preLoadInter(
+                mContext,
+                placementKey = "home_inter",
+                adIdKey = "home_inter",
             )
+            AdKit.rewardHelper.preLoadRewardAd(
+                mContext,
+                adIdKey = "reward_main",
+                placementKey = "inter_btn_plant",
+            )
+
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

@@ -8,8 +8,7 @@ import com.appsflyer.AdRevenueScheme
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.MediationNetwork
 import com.appsflyer.attribution.AppsFlyerRequestListener
-import com.google.android.gms.ads.AdValue
-import com.google.android.gms.ads.AdapterResponseInfo
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,12 +67,12 @@ class AppsFlyer {
 
     fun logAdmobRevenue(
         adValue: AdValue,
-        extras: Map<String, Any> = emptyMap(),
+//        extras: Map<String, Any> = emptyMap(),
         country: String? = null,
         adUnitId: String? = null,
         adType: String? = null,
         placement: String? = null,
-        adapterResponseInfo: AdapterResponseInfo? = null
+//        adapterResponseInfo: AdSourceResponseInfo? = null
     ) {
 
         logFirebaseAdRevenue(
@@ -99,21 +98,21 @@ class AppsFlyer {
             adType?.let { additionalParameters[AdRevenueScheme.AD_TYPE] = it }
             placement?.let { additionalParameters[AdRevenueScheme.PLACEMENT] = it }
 
-            adapterResponseInfo?.let {
-                val adSourceName = it.adSourceName
-                val adSourceId = it.adSourceId
-                val adSourceInstanceName = it.adSourceInstanceName
-                val adSourceInstanceId = it.adSourceInstanceId
-                additionalParameters["adSourceName"] = adSourceName
-                additionalParameters["adSourceId"] = adSourceId
-                additionalParameters["adSourceInstanceName"] = adSourceInstanceName
-                additionalParameters["adSourceInstanceId"] = adSourceInstanceId
+//            adapterResponseInfo?.let {
+//                val adSourceName = it.name
+//                val adSourceId = it.id
+//                val adSourceInstanceName = it.instanceName
+//                val adSourceInstanceId = it.instanceId
+//                additionalParameters["adSourceName"] = adSourceName
+//                additionalParameters["adSourceId"] = adSourceId
+//                additionalParameters["adSourceInstanceName"] = adSourceInstanceName
+//                additionalParameters["adSourceInstanceId"] = adSourceInstanceId
+//
+//            }
 
-            }
-
-            extras.forEach {
-                additionalParameters[it.key] = it.value
-            }
+//            extras.forEach {
+//                additionalParameters[it.key] = it.value
+//            }
             logAdRevenue(adRevenueData, additionalParameters)
         }
     }

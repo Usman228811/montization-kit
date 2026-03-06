@@ -6,7 +6,7 @@
     android:background="@drawable/native_bg"
     android:orientation="vertical">
 
-    <com.google.android.gms.ads.nativead.NativeAdView
+    <com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
         android:id="@+id/ad_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             android:padding="@dimen/_2sdp">
 
 
-            <com.google.android.gms.ads.nativead.MediaView
+            <com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
                 android:id="@+id/ad_media"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_100sdp"
@@ -124,5 +124,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.google.android.gms.ads.nativead.NativeAdView>
+    </com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView>
 </androidx.constraintlayout.widget.ConstraintLayout>

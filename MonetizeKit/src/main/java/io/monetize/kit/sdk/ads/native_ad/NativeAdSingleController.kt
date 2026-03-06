@@ -1,14 +1,14 @@
 package io.monetize.kit.sdk.ads.native_ad
 
-import android.content.Context
+import android.app.Activity
 import android.widget.LinearLayout
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.VideoOptions
-import com.google.android.gms.ads.admanager.AdManagerAdRequest
-import com.google.android.gms.ads.nativead.NativeAd
-import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdEventCallback
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdLoader
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdLoaderCallback
+import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdRequest
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
@@ -63,7 +63,7 @@ class NativeAdSingleController {
 
 
     fun loadNativeAd(
-        context: Context, enable: Boolean
+        context: Activity, enable: Boolean
     ) {
 
         try {
@@ -78,51 +78,113 @@ class NativeAdSingleController {
                         AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
                             ?: ""
 
-                    val builder = AdLoader.Builder(
-                        context, id
+                    val adRequest = NativeAdRequest.Builder(
+                        id, listOf(NativeAd.NativeAdType.NATIVE)
+                    ).build()
 
-                    )
-                    builder.forNativeAd { newNativeAd: NativeAd ->
-                        canRequestLargeAd = true
-                        largeAndSmallNativeAd = newNativeAd
+                    val adCallback =
+                        object : NativeAdLoaderCallback {
+
+
+                            override fun onNativeAdLoaded(nativeAd: NativeAd) {
+                                super.onNativeAdLoaded(nativeAd)
+                                context.runOnUiThread {
+                                    canRequestLargeAd = true
+                                    largeAndSmallNativeAd = nativeAd
+
 //                        CoroutineScope(Dispatchers.Main).launch {
-                        largeAndSmallNativeAd?.revenueListener(
-                            id
-                        )
+//                                largeAndSmallNativeAd?.revenueListener(
+//                                    id
+//                                )
 //                        }
 
-                        adControllerListener?.onAdLoaded()
-                    }
-                    builder.withNativeAdOptions(
-                        NativeAdOptions.Builder().setVideoOptions(
-                            VideoOptions.Builder().setStartMuted(true).build()
-                        ).build()
-                    )
+                                    adControllerListener?.onAdLoaded()
+
+                                    largeAndSmallNativeAd?.adEventCallback =
+                                        object : NativeAdEventCallback {
+
+                                            override fun onAdPaid(value: AdValue) {
+                                                super.onAdPaid(value)
+                                                revenueListener(id, value, "NATIVE")
+                                            }
+
+                                            override fun onAdImpression() {
+                                                super.onAdImpression()
+
+                                                context.runOnUiThread {
+                                                    postAdImpression("NativeAd")
+                                                }
+                                            }
+
+                                            override fun onAdClicked() {
+
+                                                context.runOnUiThread {
+                                                    onAdClick?.invoke()
+                                                }
+
+                                            }
+                                        }
+                                }
+                            }
 
 
-                    val adLoader = builder.withAdListener(object : AdListener() {
+                            override fun onAdFailedToLoad(adError: LoadAdError) {
 
-                        override fun onAdClicked() {
-                            super.onAdClicked()
-                            onAdClick?.invoke()
+                                context.runOnUiThread {
+                                    canRequestLargeAd = true
+                                    largeAndSmallNativeAd = null
+                                    adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} is failed with code: ${adError.code}, message: ${adError.message}")
+                                }
+                            }
                         }
 
-                        override fun onAdImpression() {
-                            super.onAdImpression()
-                            postAdImpression("NativeAd")
-                        }
+                    NativeAdLoader.load(adRequest, adCallback)
 
-                        override fun onAdFailedToLoad(p0: LoadAdError) {
-                            super.onAdFailedToLoad(p0)
-                            canRequestLargeAd = true
-                            largeAndSmallNativeAd = null
-                            adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
-                        }
-                    }).build()
-                    adLoader.loadAd(AdManagerAdRequest.Builder().build())
+
+//                    builder.forNativeAd { newNativeAd: NativeAd ->
+//                        canRequestLargeAd = true
+//                        largeAndSmallNativeAd = newNativeAd
+////                        CoroutineScope(Dispatchers.Main).launch {
+//                        largeAndSmallNativeAd?.revenueListener(
+//                            id
+//                        )
+////                        }
+//
+//                        adControllerListener?.onAdLoaded()
+//                    }
+//                    builder.withNativeAdOptions(
+//                        NativeAdOptions.Builder().setVideoOptions(
+//                            VideoOptions.Builder().setStartMuted(true).build()
+//                        ).build()
+//                    )
+//
+//
+//                    val adLoader = builder.withAdListener(object : AdListener() {
+//
+//                        override fun onAdClicked() {
+//                            super.onAdClicked()
+//                            onAdClick?.invoke()
+//                        }
+//
+//                        override fun onAdImpression() {
+//                            super.onAdImpression()
+//                            postAdImpression("NativeAd")
+//                        }
+//
+//                        override fun onAdFailedToLoad(p0: LoadAdError) {
+//                            super.onAdFailedToLoad(p0)
+//                            canRequestLargeAd = true
+//                            largeAndSmallNativeAd = null
+//                            adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} is failed with code: ${p0.code}, message: ${p0.message}")
+//                        }
+//                    }).build()
+//                    adLoader.loadAd(AdManagerAdRequest.Builder().build())
                 }
             } else {
-                adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
+
+                context.runOnUiThread {
+                    adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
+                }
             }
         } catch (_: Exception) {
         }
@@ -130,7 +192,7 @@ class NativeAdSingleController {
 
 
     fun requestNativeAd(
-        context: Context,
+        context: Activity,
         nativeControllerConfig: NativeControllerConfig,
     ) {
         this.isAdEnable =
@@ -146,7 +208,7 @@ class NativeAdSingleController {
     }
 
     fun populateNativeAd(
-        context: Context,
+        context: Activity,
         adFrame: LinearLayout,
         loadNewAd: Boolean = true,
         nativeAdType: NativeAdType,
@@ -183,7 +245,7 @@ class NativeAdSingleController {
 
 
     fun preloadNativeAd(
-        nativeControllerConfig: NativeControllerConfig, context: Context
+        nativeControllerConfig: NativeControllerConfig, context: Activity
     ) {
         this.isAdEnable =
             firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
