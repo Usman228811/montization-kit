@@ -42,7 +42,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             ),
             mapOfRewardIds = mapOf(
                 "reward_main" to "ca-app-pub-3940256099942544/5224354917"
-//                "reward_main" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
                 "exit_native" to "/21775744923/example/native-video",
