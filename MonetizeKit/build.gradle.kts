@@ -40,7 +40,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "0.0.1-next-gen"
+version = "0.0.1-ng-adapter"
 
 
 afterEvaluate {
@@ -50,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "0.0.1-next-gen"
+                version = "0.0.1-ng-adapter"
             }
         }
     }
@@ -96,6 +96,21 @@ dependencies {
 
     implementation("com.appsflyer:af-android-sdk:6.17.5")
     implementation("com.android.installreferrer:installreferrer:2.2")
+
+
+    // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
+    implementation("com.google.ads.mediation:inmobi:10.8.8.1")
+    implementation("com.google.ads.mediation:vungle:7.4.2.0")
+    implementation("com.google.ads.mediation:facebook:6.20.0.2")
+    implementation("com.google.ads.mediation:mintegral:16.10.11.0")
+    implementation("com.google.ads.mediation:pangle:7.7.0.2.0")
+//    implementation("net.premiumads.sdk:admob-adapter:2.2.6")
+
+
+    configurations.all {
+        exclude(group = "com.google.android.gms", module = "play-services-ads-api")
+    }
+
 
 
 }
