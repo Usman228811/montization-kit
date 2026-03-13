@@ -263,9 +263,21 @@ internal class OpenAdInterstitialManager private constructor(
                     super.onAdPaid(value)
                     revenueListener(adId, adValue = value, "APP_OPEN")
                 }
+
+                override fun onAdClicked() {
+                    super.onAdClicked()
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_open_ad_click")
+                    }
+                }
+
+
                 override fun onAdDismissedFullScreenContent() {
                     mAppOpenAd = null
                     IS_INTERSTITIAL_Ad_SHOWING = false
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_open_ad_cross")
+                    }
                     listener?.onAdClosed(
                         true,
                         reason = "$placementKey called onAdClosed because: ad is showed successfully"
@@ -289,6 +301,9 @@ internal class OpenAdInterstitialManager private constructor(
 
                 override fun onAdShowedFullScreenContent() {
                     IS_INTERSTITIAL_Ad_SHOWING = true
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_open_ad_show")
+                    }
                 }
             }
     }
