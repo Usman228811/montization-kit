@@ -31,8 +31,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = "ca-app-pub-3940256099942544~3347511713",
             openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
-                "splash_inter" to "/21775744923/example/interstitial",
-                "splash_open_ad" to "/21775744923/example/app-open",
+//                "splash_inter" to "/21775744923/example/interstitial",
+                "splash_inter" to "/21775744923/example/app-open",
                 "home_inter" to "/21775744923/example/interstitial",
                 "inter_common" to listOf(
                     "/21775744923/example/interstitial",
@@ -66,7 +66,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             defaultRemoteConfigBuilder = {
 
                 bool("OPEN_AD_ENABLE", true)
-                bool("splash_inter_isAdOpenAd", false)
+                bool("splash_inter_isAdOpenAd", true)
                 bool("IS_OPEN_AD_INSTANT", false)
                 bool("INTER_LOADING_ENABLE", true)
                 bool("SPLASH_INTER_LOADING_ENABLE", true)

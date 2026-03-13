@@ -339,7 +339,9 @@ internal class SplashInterstitialManager private constructor(
 
                 override fun onAdClicked() {
                     super.onAdClicked()
-                    AdKit.analytics.postAnalytics("Splash_inter_click")
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_inter_click")
+                    }
                 }
 
                 override fun onAdImpression() {
@@ -348,7 +350,9 @@ internal class SplashInterstitialManager private constructor(
                 }
 
                 override fun onAdDismissedFullScreenContent() {
-                    AdKit.analytics.postAnalytics("Splash_inter_cross")
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_inter_cross")
+                    }
                     hideProgressAndNullAd(true, reason = "ad is showed successfully")
                     super.onAdDismissedFullScreenContent()
                 }
@@ -357,7 +361,9 @@ internal class SplashInterstitialManager private constructor(
                     super.onAdShowedFullScreenContent()
                     IS_INTERSTITIAL_Ad_SHOWING = true
                     interstitialAd = null
-                    AdKit.analytics.postAnalytics("Splash_inter_show")
+                    activity.runOnUiThread {
+                        AdKit.analytics.postAnalytics("Splash_inter_show")
+                    }
                 }
 
                 override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
