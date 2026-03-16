@@ -65,12 +65,20 @@ class GetNativeAdRepoImpl private constructor(
             return
         }
 
-        nativeAdType = NativeAdType.entries.filter {
+        NativeAdType.entries.filter {
             it.name == firebaseString(
                 "${nativeControllerConfig.placementKey}_nativeAdType",
                 NativeAdType.LARGE_NATIVE.name
             )
-        }[0]
+        }.apply {
+            nativeAdType = if (this.isNotEmpty()) {
+                this[0]
+            } else {
+                NativeAdType.SMALL_NATIVE
+            }
+        }
+
+
         loadNewAd = firebaseBoolean("${nativeControllerConfig.adIdKey}_loadNewAd", false)
         isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         isAdLoadCalled = true

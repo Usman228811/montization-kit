@@ -82,7 +82,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     adType(NativeAdType.SMALL_NATIVE_MINI)
                 }
                 native("home_native") {
-                    enable(true)
+//                    enable(true)
                     ctaColor("#000000")
                     adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
                     refreshTime(0)
