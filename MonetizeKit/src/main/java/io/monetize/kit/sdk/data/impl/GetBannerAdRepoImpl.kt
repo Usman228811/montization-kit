@@ -37,10 +37,13 @@ class GetBannerAdRepoImpl private constructor(
         adCallBack: AdCallBack?
 
     ) {
-        val bannerType = firebaseString(
+        var bannerType = firebaseString(
             "${bannerControllerConfig.placementKey}_bannerAdType",
             BannerAdType.ADAPTIVE_BANNER.name
         )
+        if (bannerType.isEmpty()) {
+            bannerType = BannerAdType.ADAPTIVE_BANNER.name
+        }
         isForCollapse = bannerType == BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name || bannerType == BannerAdType.TOP_COLLAPSIBLE_BANNER.name
         if (isForCollapse) {
             collapsableBannerAdController.initCollapsableBannerAd(
