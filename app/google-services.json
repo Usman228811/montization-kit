@@ -1,22 +1,31 @@
 {
   "project_info": {
-    "project_number": "348561956593",
-    "firebase_url": "https://my-app-c7548.firebaseio.com",
-    "project_id": "my-app-c7548",
-    "storage_bucket": "my-app-c7548.firebasestorage.app"
+    "project_number": "608228744936",
+    "firebase_url": "https://test-app-6f44c.firebaseio.com",
+    "project_id": "test-app-6f44c",
+    "storage_bucket": "test-app-6f44c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:348561956593:android:c423769c739b6358",
+        "mobilesdk_app_id": "1:608228744936:android:dd0f0eb40cc0047e",
         "android_client_info": {
-          "package_name": "com.example.exampletest"
+          "package_name": "com.example.gpsapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "608228744936-kf2go5h8gm58f6ji6em3k9s7hg71qtaj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gpsapp",
+            "certificate_hash": "f84ea87a1343a3b40e5a3cddaf28f564841549f9"
+          }
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDxrvS2uJ8gu_dEJx-ai0Deez_fqozVVl8"
+          "current_key": "AIzaSyAVgwBjnKwzq-0HXdd-jvH0N6yobykiaPE"
         }
       ],
       "services": {
