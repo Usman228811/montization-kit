@@ -168,7 +168,6 @@ object AdKit {
     fun init(
         isDebug: Boolean,
         context: Application,
-        admobId: String,
         openAdId: String,
         mapOfInterIds: Map<String, Any>,
         mapOfRewardIds: Map<String, Any>,
@@ -212,7 +211,6 @@ object AdKit {
 
         initializer.initMobileAds(
             context = context,
-            adMobAppId = admobId,
             onInit = {
 
             }
