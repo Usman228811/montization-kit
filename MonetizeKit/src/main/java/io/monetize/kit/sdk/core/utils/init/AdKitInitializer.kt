@@ -29,26 +29,26 @@ class AdKitInitializer private constructor(
         }
     }
 
-    fun initMobileAds(context: Context, adMobAppId: String, onInit: () -> Unit) {
+    fun initMobileAds(context: Context, onInit: () -> Unit) {
 
-        try {
-            val applicationInfo = context.packageManager.getApplicationInfo(
-                context.packageName,
-                PackageManager.GET_META_DATA
-            )
-            applicationInfo.metaData?.putString(
-                "com.google.android.gms.ads.APPLICATION_ID",
-                adMobAppId
-            )
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.i("APPLICATION_ID", "ApplicationID not found")
-            e.printStackTrace()
-        }
+//        try {
+//            val applicationInfo = context.packageManager.getApplicationInfo(
+//                context.packageName,
+//                PackageManager.GET_META_DATA
+//            )
+//            applicationInfo.metaData?.putString(
+//                "com.google.android.gms.ads.APPLICATION_ID",
+//                adMobAppId
+//            )
+//        } catch (e: PackageManager.NameNotFoundException) {
+//            Log.i("APPLICATION_ID", "ApplicationID not found")
+//            e.printStackTrace()
+//        }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 MobileAds.initialize(context) {
-                    Log.d("AdKit_Logs", "initMobileAds: app-id =: $adMobAppId")
+                    Log.d("AdKit_Logs", "initMobileAds Successfully")
                 }
             } catch (_: Exception) {
             } catch (_: NoClassDefFoundError) {
