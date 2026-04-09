@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.0")
+    implementation("com.github.Usman228811:montization-kit:3.3.1")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.0-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.3.1-adapter")
 }
 ```
 
@@ -105,6 +105,14 @@ dependencyResolutionManagement {
 
 # SDK Initialization
 
+### Update your Manifest file, add this in your application tag
+
+```kotlin
+<meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/your_app_id" />
+```
+
 Initialize the SDK in your `Application` class's `onCreate` method:
 
 ### Important Default Configs
@@ -122,7 +130,6 @@ AdKit.init(
     isDebug = BuildConfig.DEBUG,  
     context = this,
 	appFlyerSdkKey = "", // If App-Flyer-Dev-key is provided, AppFlyer will post the events; otherwise, it won’t.
-    admobId = "ca-app-pub-3940256099942544~3347511713",
     openAdId = "ca-app-pub-3940256099942544/9257395921",
     mapOfInterIds = mapOf(
         "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
