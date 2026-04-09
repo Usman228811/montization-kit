@@ -62,9 +62,18 @@ class BillingRepositoryImpl private constructor(
     private lateinit var billingClient: BillingClient
     private var productId = ""
 
+    private var isBillingReady: Boolean = false
+
+
     override fun initBilling(productId: String) {
         this.productId = productId
-        coroutineScope.launch { setupBillingClient() }
+        coroutineScope.launch {
+            if (isBillingReady) {
+                queryProductSkuForPurchase()
+            } else {
+                setupBillingClient()
+            }
+        }
     }
 
     override fun productPriceFlow(): StateFlow<PurchasePriceModel> {
@@ -92,15 +101,20 @@ class BillingRepositoryImpl private constructor(
                 }
                 .build()
         }
+        if (isBillingReady) {
+            return
+        }
 
         if (!billingClient.isReady) {
             billingClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
+                    isBillingReady = false
 //                    "Service Disconnected".logIt(BILLING_TAG)
                 }
 
                 override fun onBillingSetupFinished(result: BillingResult) {
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                        isBillingReady = true
                         checkProductPurchaseHistory()
                     } else {
 //                        "Setup Failed: ${result.responseCode}".logIt(BILLING_TAG)
@@ -112,7 +126,7 @@ class BillingRepositoryImpl private constructor(
 
     private fun queryProductSkuForPurchase() {
 
-        if (!internetController.isConnected || !isBillingClientReady()) return
+        if ( !isBillingClientReady()) return
 
         val queryParams = QueryProductDetailsParams.newBuilder()
             .setProductList(
@@ -188,7 +202,7 @@ class BillingRepositoryImpl private constructor(
     }
 
     private fun checkProductPurchaseHistory() {
-        if (!internetController.isConnected || !isBillingClientReady()) return
+        if (!isBillingClientReady()) return
 
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP)
