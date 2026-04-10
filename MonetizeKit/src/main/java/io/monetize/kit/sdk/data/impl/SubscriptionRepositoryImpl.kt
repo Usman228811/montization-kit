@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.text.TextUtils
+import android.widget.Toast
 import androidx.core.net.toUri
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -19,6 +20,7 @@ import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
@@ -64,7 +66,12 @@ class SubscriptionRepositoryImpl private constructor(
 
     override fun purchaseProduct(activity: Activity, skuDetails: ProductDetails) {
         try {
+            if (AdKit.internetController.isConnected.not()) {
+                context.showToast(activity.getString(R.string.no_internet))
+                return
+            }
             if (isBillingClientDead) {
+                context.showToast(activity.getString(R.string.no_internet))
                 return
             }
             val billingResult = skuDetails.subscriptionOfferDetails?.get(0)?.let {

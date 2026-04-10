@@ -51,7 +51,7 @@ class AdKitInitializer private constructor(
                     context,
                     InitializationConfig.Builder(adMobAppId).build()
                 ) {
-                    Log.d("AdKit_Logs", "initMobileAds: app-id =: $adMobAppId")
+                    Log.d("AdKit_Logs", "initMobileAds: successfully")
                 }
             } catch (_: Exception) {
             } catch (_: NoClassDefFoundError) {

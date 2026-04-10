@@ -67,7 +67,7 @@ class AdKitConsentManager private constructor(
             val params: ConsentRequestParameters = if (isDebug) {
                 val debugSettings = ConsentDebugSettings.Builder(activity)
                     .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                    .addTestDeviceHashedId("F6A02AFF47CB6BB7BF2AF64A8CC1D411").build()
+                    .addTestDeviceHashedId("C7DD713BD10EB37668096CBD516B5521").build()
                 ConsentRequestParameters.Builder().setConsentDebugSettings(debugSettings).build()
             } else {
                 ConsentRequestParameters.Builder().build()
