@@ -28,7 +28,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             appFlyerSdkKey = "",
             postRevenueOnFireBase = true,
             context = this,
-            admobId = "ca-app-pub-3940256099942544~3347511713",
+            admobId = getString(R.string.app_id),
             openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
 //                "splash_inter" to "/21775744923/example/interstitial",
