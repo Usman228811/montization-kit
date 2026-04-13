@@ -29,10 +29,14 @@ class PurchaseSubscriptionUseCase private constructor(
     }
 
 
-    operator fun invoke(activity: Activity,product: ProductDetails) = repository.purchaseProduct(activity, product)
+    operator fun invoke(
+        activity: Activity,
+        product: ProductDetails,
+        onUserDismissedPaywall: (() -> Unit)?
+    ) = repository.purchaseProduct(activity, product, onUserDismissedPaywall)
 
-    fun changeSubscriptionPlan(activity: Activity,product: ProductDetails) {
-        repository.changeSubscriptionPlan(activity,product)
+    fun changeSubscriptionPlan(activity: Activity, product: ProductDetails) {
+        repository.changeSubscriptionPlan(activity, product)
     }
 
     fun viewUrl(activity: Activity, url: String) {
