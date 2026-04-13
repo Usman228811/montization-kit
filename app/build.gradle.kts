@@ -14,8 +14,8 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.plant.identifier.scanplant"
-//        applicationId = "com.example.gpsapp"
+        applicationId = "com.fart.funny.pranks.sounds"
+//        applicationId = "com.example.gpsapp.testss"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
