@@ -10,7 +10,7 @@ import io.monetize.kit.sdk.domain.repo.BillingRepository
 class PurchaseProductUseCase private constructor(
     private val billingRepository: BillingRepository
 ) {
-    operator fun invoke(activity: Activity?) = billingRepository.purchaseProduct(activity)
+    operator fun invoke(activity: Activity?,onUserDismissedPaywall :(()->Unit) ?= null) = billingRepository.purchaseProduct(activity, onUserDismissedPaywall)
 
     companion object {
         @Volatile
