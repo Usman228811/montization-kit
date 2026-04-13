@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.1")
+    implementation("com.github.Usman228811:montization-kit:3.3.2")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.1-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.3.2-adapter")
 }
 ```
 
@@ -1141,7 +1141,9 @@ viewModelScope.apply {
 }
 
 // Trigger purchase
-AdKit.purchaseHelper.purchaseProduct(activity)
+AdKit.purchaseHelper.purchaseProduct(activity, onUserDismissedPaywall = {
+		Log.d("ioiioo", "one time purchase: user dismissed the paywall")
+})
 
 // You can check if the app is Life-time purchased using AdKit.
 val isPurchased = AdKit.adKitPref.isLifeTimePurchased
@@ -1249,7 +1251,9 @@ class SubscriptionViewModel : ViewModel() {
     }
 
     fun purchase(activity: Activity) {
-        AdKit.subscriptionHelper.purchase(activity, selectedId())
+        AdKit.subscriptionHelper.purchase(activity, selectedId(), onUserDismissedPaywall = {
+		Log.d("ioiioo", "subscription: user dismissed the paywall")
+		})
     }
 }
 ```
