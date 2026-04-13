@@ -2,6 +2,7 @@ package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -139,10 +140,15 @@ class SubscriptionViewModel(
     }
 
     fun purchase(activity: Activity) {
-        AdKit.subscriptionHelper.purchase(activity, selectedId())
+        AdKit.subscriptionHelper.purchase(activity, selectedId(), onUserDismissedPaywall = {
+            Log.d("usman", "subscription purchase: user dismissed the paywall")
+        })
     }
 
     fun purchaseProduct(activity: Activity) {
-        AdKit.purchaseHelper.purchaseProduct(activity)
+        AdKit.purchaseHelper.purchaseProduct(activity, onUserDismissedPaywall = {
+            Log.d("usman", "one time purchase: user dismissed the paywall")
+
+        })
     }
 }

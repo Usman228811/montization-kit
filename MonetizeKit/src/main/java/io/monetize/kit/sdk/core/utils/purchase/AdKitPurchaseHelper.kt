@@ -18,7 +18,7 @@ class AdKitPurchaseHelper private constructor(
 
     fun initBilling(productId: String) = init(productId)
 
-    fun purchaseProduct(activity: Activity?) = purchase(activity)
+    fun purchaseProduct(activity: Activity?,onUserDismissedPaywall: (() -> Unit)?) = purchase(activity, onUserDismissedPaywall)
 
     companion object {
         @Volatile

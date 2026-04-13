@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
+import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -35,7 +36,12 @@ class BillingRepositoryImpl private constructor(
 
     private val context = mContext
 
+    private var onUserDismissedPaywall: (() -> Unit)? = null
+
     companion object {
+
+        const val TAG = "BillingRepositoryImpl"
+
         @Volatile
         private var instance: BillingRepositoryImpl? = null
 
@@ -95,8 +101,15 @@ class BillingRepositoryImpl private constructor(
                     PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
                 )
                 .setListener { result, purchases ->
-                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                        isProductPurchased(purchases)
+                    when (result.responseCode) {
+                        BillingClient.BillingResponseCode.OK ->{
+                            isProductPurchased(purchases)
+                        }
+                        BillingClient.BillingResponseCode.USER_CANCELED -> {
+                            onUserDismissedPaywall?.invoke()
+                            Log.d(TAG, "One-Time-Purchase: User dismissed the paywall")
+                        }
+
                     }
                 }
                 .build()
@@ -126,7 +139,7 @@ class BillingRepositoryImpl private constructor(
 
     private fun queryProductSkuForPurchase() {
 
-        if ( !isBillingClientReady()) return
+        if (!isBillingClientReady()) return
 
         val queryParams = QueryProductDetailsParams.newBuilder()
             .setProductList(
@@ -156,8 +169,9 @@ class BillingRepositoryImpl private constructor(
         }
     }
 
-    override fun purchaseProduct(activity: Activity?) {
+    override fun purchaseProduct(activity: Activity?, onUserDismissedPaywall: (() -> Unit)?) {
         try {
+            this.onUserDismissedPaywall = onUserDismissedPaywall
             if (activity == null) return
             if (!internetController.isConnected) {
                 context.showToast(activity.getString(R.string.no_internet))
