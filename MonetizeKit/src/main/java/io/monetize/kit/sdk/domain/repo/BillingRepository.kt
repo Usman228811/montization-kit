@@ -9,7 +9,8 @@ data class PurchasePriceModel(val price: String = "")
 // domain/repository/BillingRepository.kt
 interface BillingRepository {
     fun productPriceFlow(): StateFlow<PurchasePriceModel>
-    fun appPurchased(): Flow<Boolean>
-    fun initBilling(productId: String)
+
+    fun initBilling(productId: String, subscriptionListener: SubscriptionListener)
+    fun checkProductPurchaseHistory()
     fun purchaseProduct(activity: Activity?,onUserDismissedPaywall :(()->Unit) ?= null)
 }

@@ -3,6 +3,7 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
+import android.text.TextUtils
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -20,6 +21,7 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
+import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +29,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BillingRepositoryImpl private constructor(
@@ -37,6 +38,8 @@ class BillingRepositoryImpl private constructor(
     private val context = mContext
 
     private var onUserDismissedPaywall: (() -> Unit)? = null
+
+    private val purchasesList = mutableListOf<String>()
 
     companion object {
 
@@ -62,16 +65,19 @@ class BillingRepositoryImpl private constructor(
     private val _productPriceFlow = MutableStateFlow(PurchasePriceModel())
 
 
-    private val _appPurchased = MutableStateFlow(false)
-
-    private var purchaseSku: ProductDetails? = null
+    private var skuMap: Map<String, ProductDetails> = emptyMap()
     private lateinit var billingClient: BillingClient
     private var productId = ""
 
     private var isBillingReady: Boolean = false
+    private var subscriptionListener: SubscriptionListener? = null
+
+    private val purchaseSku: ProductDetails?
+        get() = skuMap[productId]
 
 
-    override fun initBilling(productId: String) {
+    override fun initBilling(productId: String, subscriptionListener: SubscriptionListener) {
+        this.subscriptionListener = subscriptionListener
         this.productId = productId
         coroutineScope.launch {
             if (isBillingReady) {
@@ -86,9 +92,6 @@ class BillingRepositoryImpl private constructor(
         return _productPriceFlow.asStateFlow()
     }
 
-    override fun appPurchased(): Flow<Boolean> {
-        return _appPurchased.asStateFlow()
-    }
 
     private val isBillingClientInitialized: Boolean
         get() = ::billingClient.isInitialized
@@ -102,9 +105,10 @@ class BillingRepositoryImpl private constructor(
                 )
                 .setListener { result, purchases ->
                     when (result.responseCode) {
-                        BillingClient.BillingResponseCode.OK ->{
+                        BillingClient.BillingResponseCode.OK -> {
                             isProductPurchased(purchases)
                         }
+
                         BillingClient.BillingResponseCode.USER_CANCELED -> {
                             onUserDismissedPaywall?.invoke()
                             Log.d(TAG, "One-Time-Purchase: User dismissed the paywall")
@@ -128,7 +132,7 @@ class BillingRepositoryImpl private constructor(
                 override fun onBillingSetupFinished(result: BillingResult) {
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         isBillingReady = true
-                        checkProductPurchaseHistory()
+                        queryProductSkuForPurchase()
                     } else {
 //                        "Setup Failed: ${result.responseCode}".logIt(BILLING_TAG)
                     }
@@ -156,17 +160,32 @@ class BillingRepositoryImpl private constructor(
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                 val productList = queryProductDetailsResult.productDetailsList
                 if (productList.isNotEmpty()) {
-                    purchaseSku = productList.find { it.productId == productId }
-                    _productPriceFlow.update {
-                        it.copy(
-                            price = purchaseSku?.oneTimePurchaseOfferDetails?.formattedPrice ?: ""
+                    skuMap = getSkuFromList(productList)
+                    if (productList.isNotEmpty()) {
+                        subscriptionListener?.onQueryProductSuccess(
+                            skuMap,
+                            productList
                         )
+                    } else {
+                        subscriptionListener?.subscriptionItemNotFound()
                     }
                 }
             } else {
 //                "Product Query Failed: ${result.responseCode}".logIt(BILLING_TAG)
             }
         }
+    }
+
+    private fun getSkuFromList(list: MutableList<ProductDetails>): Map<String, ProductDetails> {
+        val skuDetailList: MutableMap<String, ProductDetails> = HashMap()
+        list.forEach {
+            it.productId.let { sku ->
+                if (!TextUtils.isEmpty(sku)) {
+                    skuDetailList[sku] = it
+                }
+            }
+        }
+        return skuDetailList
     }
 
     override fun purchaseProduct(activity: Activity?, onUserDismissedPaywall: (() -> Unit)?) {
@@ -215,45 +234,77 @@ class BillingRepositoryImpl private constructor(
 
     }
 
-    private fun checkProductPurchaseHistory() {
+    override fun checkProductPurchaseHistory() {
         if (!isBillingClientReady()) return
 
+        purchasesList.clear()
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP)
                 .build()
-        ) { result, purchases ->
-            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                if (!isProductPurchased(purchases)) {
-                    updatePurchaseStatus(false)
-                    queryProductSkuForPurchase()
+        ) { p0, p1 ->
+            if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
+                if (p1.isNotEmpty()) {
+                    for (purchase in p1) {
+                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            if (purchase.isAcknowledged) {
+                                purchasesList.add(
+                                    purchase.products.firstOrNull().orEmpty()
+                                )
+                                updatePurchaseStatus(true)
+                                subscriptionListener?.onSubscriptionPurchasedFetched(
+                                    purchasesList
+                                )
+                            } else {
+                                acknowledgePurchase(purchase)
+                            }
+                            return@queryPurchasesAsync
+                        }
+                    }
                 }
-            } else {
-//                "Query Purchases Failed: ${result.responseCode}".logIt(BILLING_TAG)
             }
+
+            updatePurchaseStatus(false)
+            subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
         }
     }
 
     private fun updatePurchaseStatus(isPurchased: Boolean) {
         adKitPref.isLifeTimePurchased = isPurchased
-        if (isPurchased) {
-//            context.userAnalytics("Premium_buy_successful")
-            coroutineScope.launch { _appPurchased.value = true }
+    }
+
+
+    private fun isProductPurchased(list: List<Purchase>?) {
+
+
+        if (!list.isNullOrEmpty()) {
+
+            for (purchase in list) {
+
+                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                    if (purchase.isAcknowledged) {
+                        purchasesList.add(purchase.products.firstOrNull().orEmpty())
+                        updatePurchaseStatus(true)
+                    } else {
+                        acknowledgePurchase(
+                            purchase
+                        )
+                    }
+                }
+            }
         }
+
+
+//        val purchase = list?.toList()?.find { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+//            ?: return false
+//        return if (purchase.products.contains(productId)) {
+//            if (purchase.isAcknowledged) updatePurchaseStatus(true) else acknowledgePurchase(
+//                purchase
+//            )
+//            true
+//        } else false
     }
 
-
-    private fun isProductPurchased(list: List<Purchase>?): Boolean {
-        val purchase = list?.toList()?.find { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-            ?: return false
-        return if (purchase.products.contains(productId)) {
-            if (purchase.isAcknowledged) updatePurchaseStatus(true) else acknowledgePurchase(
-                purchase
-            )
-            true
-        } else false
-    }
-
-    private fun acknowledgePurchase(purchase: Purchase) {
+    private fun acknowledgePurchase( purchase: Purchase) {
         if (!isBillingClientReady()) return
 
         val acknowledgeParams = AcknowledgePurchaseParams.newBuilder()
@@ -263,7 +314,11 @@ class BillingRepositoryImpl private constructor(
         coroutineScope.launch {
             billingClient.acknowledgePurchase(acknowledgeParams) { result ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                    purchasesList.add(purchase.products.firstOrNull().orEmpty())
                     updatePurchaseStatus(true)
+                    subscriptionListener?.onSubscriptionPurchasedFetched(
+                        purchasesList
+                    )
 //                    "Acknowledgment Successful".logIt(BILLING_TAG)
                 } else {
 //                    "Acknowledgment Failed: ${result.responseCode}".logIt(BILLING_TAG)

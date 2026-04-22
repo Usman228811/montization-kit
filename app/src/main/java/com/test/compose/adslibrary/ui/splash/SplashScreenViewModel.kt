@@ -128,15 +128,15 @@ class SplashScreenViewModel(
                 }
             }
             launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    Log.d("purchase_status", "oneTimePurchased: $result")
-                    _state.update { it.copy(isPurchased = result) }
+                purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
+                    Log.d("purchase_status", "oneTimePurchased: ${oneTimePurchaseState.purchasesList.isNotEmpty()}")
+                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.isNotEmpty()) }
                 }
             }
+
             launch {
-                AdKit.subscriptionHelper.isAppSubscribed.collectLatest { isAppSubscribed ->
-                    Log.d("purchase_status", "isAppSubscribed: $isAppSubscribed")
-//                    _state.update { it.copy(isPurchased = result) }
+                AdKit.subscriptionHelper.subscriptionState.collectLatest {
+                    Log.d("splash_view_model", "collections: ${it.purchasesList}")
                 }
             }
         }

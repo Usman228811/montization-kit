@@ -42,6 +42,13 @@ import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
 import network.chaintech.sdpcomposemultiplatform.sdp
 
+
+
+
+var WEEKLY_SUB = "remove_ads"
+var MONTHLY_SUB = "unlockphotos"
+var YEARLY_SUB = "duplicate_scan"
+
 @Composable
 fun MainScreen(
     gotoSubscription: () -> Unit
