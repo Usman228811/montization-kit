@@ -32,6 +32,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.test.compose.adslibrary.ui.main.MONTHLY_SUB
+import com.test.compose.adslibrary.ui.main.WEEKLY_SUB
+import com.test.compose.adslibrary.ui.main.YEARLY_SUB
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
@@ -58,15 +61,17 @@ fun SubscriptionScreen(
             subscriptionViewModel.loadProducts(
                 activity,
                 listOf(
-                    "weekly_without_free_trail",
-                    "monthly",
-                    "yearly"
+                    WEEKLY_SUB,
+                    MONTHLY_SUB,
+                    YEARLY_SUB,
                 )
             )
         }
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 5.sdp),
             text = "Subscription Plans",
             fontSize = 12.ssp,
             textDecoration = TextDecoration.Underline,
@@ -78,7 +83,7 @@ fun SubscriptionScreen(
             price = state.weeklyPrice,
             isSelected = state.selectedButtonPos == 0,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 0)
+                subscriptionViewModel.updateSelectedButtonPos(0)
 
             }
         )
@@ -88,7 +93,7 @@ fun SubscriptionScreen(
             price = state.monthlyPrice,
             isSelected = state.selectedButtonPos == 1,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 1)
+                subscriptionViewModel.updateSelectedButtonPos(1)
 
             }
         )
@@ -98,7 +103,7 @@ fun SubscriptionScreen(
             price = state.yearlyPrice,
             isSelected = state.selectedButtonPos == 2,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 2)
+                subscriptionViewModel.updateSelectedButtonPos(2)
 
             }
         )
@@ -123,7 +128,9 @@ fun SubscriptionScreen(
         )
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(all = 5.sdp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 5.sdp),
             text = "Life Time Plan",
             fontSize = 12.ssp,
             textDecoration = TextDecoration.Underline,
@@ -147,7 +154,7 @@ fun SubscriptionScreen(
             }
         ) {
             Text(
-                text = "Purchase One Time"
+                text = state.buttonTextLifeTime
             )
         }
 

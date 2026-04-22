@@ -112,8 +112,9 @@ class SplashXmlViewModel : ViewModel() {
                 }
             }
             launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    _state.update { it.copy(isPurchased = result) }
+                purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
+                    Log.d("purchase_status", "oneTimePurchased: ${oneTimePurchaseState.purchasesList.isNotEmpty()}")
+                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.isNotEmpty()) }
                 }
             }
         }

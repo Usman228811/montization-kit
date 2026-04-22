@@ -6,8 +6,11 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.test.compose.adslibrary.ui.main.MONTHLY_SUB
+import com.test.compose.adslibrary.ui.main.WEEKLY_SUB
+import com.test.compose.adslibrary.ui.main.YEARLY_SUB
 import io.monetize.kit.sdk.core.utils.init.AdKit
-import io.monetize.kit.sdk.domain.usecase.PriceModel
+import io.monetize.kit.sdk.domain.model.OfferType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,30 +22,33 @@ data class SettingScreenState(
     val weeklyPrice: String = "",
     val monthlyPrice: String = "",
     val yearlyPrice: String = "",
-    val subscribedId: String = "",
     val selectedButtonPos: Int = 0,
     val buttonText: String = "subscribe",
+    val buttonTextLifeTime: String = "purchase one time",
     val oneTimePrice: String = "",
+    val purchasesList: List<String> = emptyList()
 )
 
-class SubscriptionViewModelFactory(
-) : ViewModelProvider.Factory {
+class SubscriptionViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return SubscriptionViewModel() as T
     }
 }
 
-class SubscriptionViewModel(
-) : ViewModel() {
+class SubscriptionViewModel : ViewModel() {
 
     private var _state = MutableStateFlow(SettingScreenState())
     val state = _state.asStateFlow()
 
+    companion object {
+        const val TAG = "SubscriptionViewModelTAG"
+    }
+
     private val subscriptionMap = mapOf(
-        0 to "weekly_without_free_trail",
-        1 to "monthly",
-        2 to "yearly"
+        0 to WEEKLY_SUB,
+        1 to MONTHLY_SUB,
+        2 to YEARLY_SUB
     )
 
     private fun selectedId() = subscriptionMap[state.value.selectedButtonPos]
@@ -51,67 +57,94 @@ class SubscriptionViewModel(
         AdKit.purchaseHelper.initBilling("android.test.purchased")
         viewModelScope.apply {
             launch {
-                AdKit.purchaseHelper.productPriceFlow.collectLatest { model ->
+                AdKit.purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
+                    Log.d(
+                        TAG,
+                        "oneTimePurchase: ${oneTimePurchaseState.purchasesList.isNotEmpty()}"
+                    )
                     _state.update {
                         it.copy(
-                            oneTimePrice = model.price
+                            oneTimePrice = AdKit.purchaseHelper.getBillingPrice("android.test.purchased"),
+                            buttonTextLifeTime = if (oneTimePurchaseState.purchasesList.isNotEmpty()) "purchased" else "purchase one time"
                         )
                     }
                 }
             }
             launch {
-                AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
+
+
+                AdKit.subscriptionHelper.subscriptionState.collectLatest { subscriptionState ->
+                    Log.d(TAG, "purchasesList: ${subscriptionState.purchasesList} ")
+
+
+                    val weeklyOffer = AdKit.subscriptionHelper.getBillingPrice(WEEKLY_SUB)
+                    val monthlyOffer = AdKit.subscriptionHelper.getBillingPrice(MONTHLY_SUB)
+                    val yearlyOffer = AdKit.subscriptionHelper.getBillingPrice(YEARLY_SUB)
+
+                    changeButtonText()
+
+                    when (weeklyOffer.type) {
+                        OfferType.FREE_TRIAL -> {
+                            Log.d(TAG, ": FREE_TRIAL")
+                        }
+
+                        OfferType.PAID_TRIAL -> {
+                            Log.d(TAG, ": PAID_TRIAL")
+                        }
+
+                        OfferType.STRAIGHT -> {
+                            Log.d(TAG, ": STRAIGHT")
+                        }
+                    }
+
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${weeklyOffer.mainOfferText} - period=${weeklyOffer.period} - freeTrialText=${weeklyOffer.freeTrialText} - paidTrialText=${weeklyOffer.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${monthlyOffer.mainOfferText} - period=${monthlyOffer.period}- freeTrialText=${monthlyOffer.freeTrialText} - paidTrialText=${monthlyOffer.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${yearlyOffer.mainOfferText} - period=${yearlyOffer.period}- freeTrialText=${yearlyOffer.freeTrialText} - paidTrialText=${weeklyOffer.paidTrialText}"
+                    )
                     _state.update {
-                        val price = getBillingPrice(
-                            "weekly_without_free_trail",
-                            "paid-trail",
-                            "P1W"
-                        )
 
                         it.copy(
-                            weeklyPrice = "${price.price} ${price.offerPrice}",
-                            monthlyPrice = getBillingPrice("monthly", "", "P1M").price,
-                            yearlyPrice = getBillingPrice("yearly", "", "P1Y").price,
+                            purchasesList = subscriptionState.purchasesList,
+                            weeklyPrice = "${weeklyOffer.mainOfferText}",
+                            monthlyPrice = "${monthlyOffer.mainOfferText}",
+                            yearlyPrice = "${yearlyOffer.mainOfferText}",
                         )
                     }
-                }
-            }
 
-            launch {
-                AdKit.subscriptionHelper.isAppSubscribed.collectLatest { isSubscribed ->
-                    Log.d("purchase_status", "isAppSubscribed: $isSubscribed")
-                }
-            }
-            launch {
-                AdKit.purchaseHelper.appPurchased.collectLatest { oneTimePurchased ->
-                    Log.d("purchase_status", "oneTimePurchased: $oneTimePurchased")
-                }
-            }
-            launch {
-                AdKit.subscriptionHelper.subscribedId.collectLatest { subscribedId ->
-                    _state.update {
-                        it.copy(
-                            subscribedId = subscribedId
-                        )
-                    }
-                }
-            }
 
-            launch {
-                AdKit.subscriptionHelper.historyFetched.collectLatest {
-
-                    val buttonText = when {
-                        state.value.subscribedId.isEmpty() -> "subscribe"
-                        state.value.subscribedId == selectedId() -> "cancel subscription"
-                        AdKit.subscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
-                        else -> state.value.buttonText // fallback to existing text
-                    }
-
-                    _state.update {
-                        it.copy(buttonText = buttonText)
-                    }
                 }
             }
+        }
+    }
+
+    fun changeButtonText() {
+
+        val selectedId = subscriptionMap[state.value.selectedButtonPos]
+        val purchases = state.value.purchasesList
+
+        val buttonText = when {
+            purchases.isEmpty() -> "Subscribe"
+
+            selectedId != null && purchases.contains(selectedId) ->
+                "Cancel Subscription"
+
+            purchases.isNotEmpty() &&
+                    AdKit.subscriptionHelper.isSubscriptionUpdateSupported() ->
+                "Update Subscription"
+
+            else -> state.value.buttonText
+        }
+
+        _state.update {
+            it.copy(buttonText = buttonText)
         }
     }
 
@@ -120,34 +153,28 @@ class SubscriptionViewModel(
     }
 
 
-    private fun getBillingPrice(
-        productId: String,
-        offerId: String,
-        billingPeriod: String
-    ): PriceModel {
-        return AdKit.subscriptionHelper.getBillingPrice(productId, offerId, billingPeriod)
-
-
-    }
-
-    fun updateSelectedButtonPos(activity: Activity, selectedButtonPos: Int) {
+    fun updateSelectedButtonPos(selectedButtonPos: Int) {
         _state.update {
             it.copy(
                 selectedButtonPos = selectedButtonPos
             )
         }
-        AdKit.subscriptionHelper.querySubscriptionProducts(activity)
+        changeButtonText()
     }
 
     fun purchase(activity: Activity) {
-        AdKit.subscriptionHelper.purchase(activity, selectedId(), onUserDismissedPaywall = {
+        AdKit.subscriptionHelper.purchase(activity, selectedId(), false, onUserDismissedPaywall = {
             Log.d("usman", "subscription purchase: user dismissed the paywall")
         })
     }
 
     fun purchaseProduct(activity: Activity) {
         AdKit.purchaseHelper.purchaseProduct(activity, onUserDismissedPaywall = {
-            Toast.makeText(activity, "one time purchase: user dismissed the paywall", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                activity,
+                "one time purchase: user dismissed the paywall",
+                Toast.LENGTH_SHORT
+            ).show()
             Log.d("usman", "one time purchase: user dismissed the paywall")
 
         })

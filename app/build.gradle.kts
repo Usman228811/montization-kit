@@ -14,7 +14,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.fart.funny.pranks.sounds"
+        applicationId = "com.photocleaner.test.tetssss"
 //        applicationId = "com.example.gpsapp.testss"
         minSdk = 24
         targetSdk = 35
