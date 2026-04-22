@@ -31,8 +31,8 @@ class SubscriptionRepositoryImpl private constructor(
 ) : SubscriptionRepository, PurchasesUpdatedListener {
 
 
-
-    private var onUserDismissedPaywall :(()->Unit) ?= null
+    private val purchasesList = mutableListOf<String>()
+    private var onUserDismissedPaywall: (() -> Unit)? = null
 
 
     private var mActivity: Activity? = null
@@ -167,34 +167,37 @@ class SubscriptionRepositoryImpl private constructor(
         }
     }
 
-    override fun querySubscriptionProducts(activity: Activity, productIds: List<String>) {
-        this.productIds = productIds
+    fun querySubscriptionProducts(activity: Activity) {
+
         if (isBillingClientDead) {
             return
         }
-        if (isSubscriptionSupported()) {
+        productIds?.let { productIds->
 
-            val list = buildSubscriptionProductList(productIds)
+            if (isSubscriptionSupported()) {
 
-            val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
-                .setProductList(list)
-                .build()
-            if (isBillingClientDead) {
-                return
-            }
-            subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
-                if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val p1 = details.productDetailsList
-                    activity.runOnUiThread {
-                        if (p1.isNotEmpty()) {
-                            subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1))
-                        } else {
+                val list = buildSubscriptionProductList(productIds)
+
+                val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
+                    .setProductList(list)
+                    .build()
+                if (isBillingClientDead) {
+                    return
+                }
+                subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
+                    if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
+                        val p1 = details.productDetailsList
+                        activity.runOnUiThread {
+                            if (p1.isNotEmpty()) {
+                                subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1), p1)
+                            } else {
+                                subscriptionListener?.subscriptionItemNotFound()
+                            }
+                        }
+                    } else {
+                        activity.runOnUiThread {
                             subscriptionListener?.subscriptionItemNotFound()
                         }
-                    }
-                } else {
-                    activity.runOnUiThread {
-                        subscriptionListener?.subscriptionItemNotFound()
                     }
                 }
             }
@@ -216,9 +219,6 @@ class SubscriptionRepositoryImpl private constructor(
 
     private fun resetAllPurchases(activity: Activity) {
         subscribeProductToken = ""
-        activity.runOnUiThread {
-            subscriptionListener?.updatePref("")
-        }
     }
 
     private fun getSku(skuList: MutableList<String>): String {
@@ -228,6 +228,8 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun querySubscriptionHistory(activity: Activity) {
+
+        purchasesList.clear()
         if (isBillingClientDead) {
             return
         }
@@ -242,15 +244,22 @@ class SubscriptionRepositoryImpl private constructor(
                         ) {
                             if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
                                 if (p1.isNotEmpty()) {
+
+
                                     for (purchase in p1) {
                                         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && checkSubscriptionsId(
                                                 getSku(purchase.products)
                                             )
                                         ) {
                                             if (purchase.isAcknowledged) {
+                                                purchasesList.add(
+                                                    purchase.products.firstOrNull().orEmpty()
+                                                )
                                                 setSubscribed(activity, purchase)
                                                 activity.runOnUiThread {
-                                                    subscriptionListener?.onSubscriptionPurchasedFetched()
+                                                    subscriptionListener?.onSubscriptionPurchasedFetched(
+                                                        purchasesList
+                                                    )
                                                 }
                                             } else {
                                                 acknowledgedPurchase(activity, purchase)
@@ -260,9 +269,10 @@ class SubscriptionRepositoryImpl private constructor(
                                     }
                                 }
                             }
+
                             resetAllPurchases(activity)
                             activity.runOnUiThread {
-                                subscriptionListener?.onSubscriptionPurchasedFetched()
+                                subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
                             }
                         }
 
@@ -275,23 +285,34 @@ class SubscriptionRepositoryImpl private constructor(
 
     override fun setSubscribed(activity: Activity, purchase: Purchase) {
         subscribeProductToken = purchase.purchaseToken
-        activity.runOnUiThread {
-            subscriptionListener?.updatePref(getSku(purchase.products))
-        }
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, list: List<Purchase>?) {
         when (billingResult.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
-                if (!list.isNullOrEmpty()) {
-                    for (purchase in list) {
-                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                            checkSubscriptionsId(getSku(purchase.products))
-                        ) {
-                            mActivity?.runOnUiThread {
-                                subscriptionListener?.checkPurchaseStatus(purchase)
+
+                mActivity?.let { activity ->
+
+                    if (!list.isNullOrEmpty()) {
+
+                        for (purchase in list) {
+
+                            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && checkSubscriptionsId(
+                                    getSku(purchase.products)
+                                )
+                            ) {
+                                if (purchase.isAcknowledged) {
+                                    purchasesList.add(purchase.products.firstOrNull().orEmpty())
+                                    setSubscribed(activity, purchase)
+                                    activity.runOnUiThread {
+                                        subscriptionListener?.onSubscriptionPurchasedFetched(
+                                            purchasesList
+                                        )
+                                    }
+                                } else {
+                                    acknowledgedPurchase(activity, purchase)
+                                }
                             }
-                            break
                         }
                     }
                 }
@@ -360,8 +381,11 @@ class SubscriptionRepositoryImpl private constructor(
         subscriptionClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult: BillingResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 setSubscribed(activity, purchase)
+                purchasesList.add(purchase.products.firstOrNull().orEmpty())
                 activity.runOnUiThread {
-                    subscriptionListener?.onSubscriptionPurchasedFetched()
+                    subscriptionListener?.onSubscriptionPurchasedFetched(
+                        purchasesList
+                    )
                 }
             }
         }
@@ -369,12 +393,14 @@ class SubscriptionRepositoryImpl private constructor(
 
     override fun setBillingListener(
         activity: Activity,
+        productIds: List<String>,
         listener: SubscriptionListener?
     ) {
         mActivity = activity
         this.subscriptionListener = listener
+        this.productIds = productIds
         if (isBillingReady) {
-            subscriptionListener?.onBillingInitialized()
+            querySubscriptionProducts(activity)
         } else {
             setupConnection(activity)
         }
@@ -405,9 +431,7 @@ class SubscriptionRepositoryImpl private constructor(
                         override fun onBillingSetupFinished(billingResult: BillingResult) {
                             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                                 isBillingReady = true
-                                activity.runOnUiThread {
-                                    subscriptionListener?.onBillingInitialized()
-                                }
+                                querySubscriptionProducts(activity)
                             }
                         }
 

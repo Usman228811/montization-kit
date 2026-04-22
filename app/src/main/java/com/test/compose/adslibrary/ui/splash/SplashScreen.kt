@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.test.compose.adslibrary.ui.main.MONTHLY_SUB
+import com.test.compose.adslibrary.ui.main.WEEKLY_SUB
+import com.test.compose.adslibrary.ui.main.YEARLY_SUB
 import com.test.compose.adslibrary.ui.splash.content.SplashScreenContent
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateFlowResultLauncher
 
@@ -30,9 +33,9 @@ fun SplashScreen(
         splashViewModel.loadProducts(
             activity,
             listOf(
-                "weekly_subscription2",
-                "monthly1_subscription",
-                "yearly_subscription"
+                WEEKLY_SUB,
+                MONTHLY_SUB,
+                YEARLY_SUB,
             )
         )
     }
