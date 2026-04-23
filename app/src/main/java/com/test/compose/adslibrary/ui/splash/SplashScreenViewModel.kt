@@ -29,7 +29,6 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKit.purchaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,8 +52,6 @@ class SplashScreenViewModel(
     private var animator: ValueAnimator? = null
 
     init {
-        AdKit.purchaseHelper.initBilling(removeAdsIds = listOf("android.test.purchased"), listOf())
-
         AdKit.analytics.postAnalytics("Splash_launch")
         splashAdController.resetSplash()
         collections()
@@ -63,15 +60,16 @@ class SplashScreenViewModel(
     }
 
     fun loadProducts(activity: Activity) {
-        AdKit.subscriptionHelper.initBilling(activity,
-            removeAdsIds = listOf(
-                REMOVE_ADS_ID
-            ),
-            featureIds = listOf(
+        AdKit.premiumHelper.initBilling(
+            activity = activity,
+            lifetimeProductIds = listOf("android.test.purchased"),
+            subscriptionProductIds = listOf(REMOVE_ADS_ID),
+            subscriptionFeatureIds = listOf(
                 FEATURE_1,
                 FEATURE_2,
                 FEATURE_3,
-            ))
+            )
+        )
     }
 
     private fun onResume() {
@@ -141,15 +139,9 @@ class SplashScreenViewModel(
                 }
             }
             launch {
-                purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
-                    Log.d("purchase_status", "oneTimePurchased: ${oneTimePurchaseState.purchasesList.isNotEmpty()}")
-                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.isNotEmpty()) }
-                }
-            }
-
-            launch {
-                AdKit.subscriptionHelper.subscriptionState.collectLatest {
-                    Log.d("splash_view_model", "collections: ${it.purchasesList}")
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d("purchase_status", "premiumPurchases: ${premiumState.allPurchases}")
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }

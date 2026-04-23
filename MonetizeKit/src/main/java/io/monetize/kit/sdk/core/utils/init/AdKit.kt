@@ -24,6 +24,7 @@ import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_review.AdKitInAppReviewManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.locale.LocaleHelper
+import io.monetize.kit.sdk.core.utils.purchase.AdKitPremiumHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
@@ -121,15 +122,9 @@ object AdKit {
             }
 
 
-    val purchaseHelper: AdKitPurchaseHelper
+    val premiumHelper: AdKitPremiumHelper
             by lazy {
-                AdKitPurchaseHelper.getInstance(mContext)
-            }
-
-
-    val subscriptionHelper: AdKitSubscriptionHelper
-            by lazy {
-                AdKitSubscriptionHelper.getInstance(mContext)
+                AdKitPremiumHelper.getInstance(mContext)
             }
 
 
