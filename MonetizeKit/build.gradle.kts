@@ -63,14 +63,14 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.activity:activity-compose:1.10.1")
-    implementation(platform("androidx.compose:compose-bom:2026.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.03.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
 
-    implementation("com.google.android.gms:play-services-ads:25.0.0")
+    implementation("com.google.android.gms:play-services-ads:25.2.0")
     implementation("com.intuit.sdp:sdp-android:1.1.1")
     implementation("com.intuit.ssp:ssp-android:1.1.1")
 
@@ -78,12 +78,13 @@ dependencies {
     implementation("network.chaintech:sdp-ssp-compose-multiplatform:1.0.7")
 
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-process:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    val lifecycle = "2.10.0"
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle")
+    implementation("androidx.lifecycle:lifecycle-process:$lifecycle")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
@@ -93,7 +94,7 @@ dependencies {
     implementation("com.android.billingclient:billing-ktx:8.0.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
-    implementation("com.appsflyer:af-android-sdk:6.17.6")
+    implementation("com.appsflyer:af-android-sdk:6.18.0")
     implementation("com.android.installreferrer:installreferrer:2.2")
 
 
