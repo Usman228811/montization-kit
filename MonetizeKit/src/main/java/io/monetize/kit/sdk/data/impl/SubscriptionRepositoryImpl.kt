@@ -61,6 +61,8 @@ class SubscriptionRepositoryImpl private constructor(
 
     //    private var mActivity: Activity? = null
     private var productIds: List<String>? = null
+    private var removeAdsIds: List<String>? = null
+    private var featureIds: List<String>? = null
     private var subscribeProductToken = ""
 
     private val isBillingClientDead: Boolean
@@ -242,6 +244,7 @@ class SubscriptionRepositoryImpl private constructor(
                         override fun onQueryPurchasesResponse(
                             p0: BillingResult, p1: MutableList<Purchase>
                         ) {
+                            var purchasesFound = false
                             if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
                                 if (p1.isNotEmpty()) {
 
@@ -251,6 +254,7 @@ class SubscriptionRepositoryImpl private constructor(
                                                 getSku(purchase.products)
                                             )
                                         ) {
+                                            purchasesFound = true
                                             if (purchase.isAcknowledged) {
                                                 purchasesList.add(
                                                     purchase.products.firstOrNull().orEmpty()
@@ -264,21 +268,26 @@ class SubscriptionRepositoryImpl private constructor(
                                             } else {
                                                 acknowledgedPurchase(activity, purchase)
                                             }
-                                            return
                                         }
                                     }
                                 }
                             }
 
-                            resetAllPurchases(activity)
-                            activity.runOnUiThread {
-                                subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
+                            if (!purchasesFound) {
+                                resetAllPurchases(activity)
+                                activity.runOnUiThread {
+                                    subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
+                                }
                             }
+
                         }
 
                     })
             } else {
                 resetAllPurchases(activity)
+                activity.runOnUiThread {
+                    subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
+                }
             }
         }
     }
@@ -393,12 +402,15 @@ class SubscriptionRepositoryImpl private constructor(
 
     override fun setBillingListener(
         activity: Activity,
-        productIds: List<String>,
+        removeAdsIds: List<String>,
+        featureIds: List<String>,
         listener: SubscriptionListener?
     ) {
         mActivity = activity
         this.subscriptionListener = listener
-        this.productIds = productIds
+        this.removeAdsIds = removeAdsIds
+        this.featureIds = featureIds
+        this.productIds = (removeAdsIds + featureIds).distinct()
         if (isBillingReady) {
             querySubscriptionProducts(activity)
         } else {

@@ -45,9 +45,10 @@ import network.chaintech.sdpcomposemultiplatform.sdp
 
 
 
-var WEEKLY_SUB = "remove_ads"
-var MONTHLY_SUB = "unlockphotos"
-var YEARLY_SUB = "duplicate_scan"
+var REMOVE_ADS_ID = "remove_ads"
+var FEATURE_1 = "unlockphotos"
+var FEATURE_2 = "duplicate_scan"
+var FEATURE_3= "unlockall"
 
 @Composable
 fun MainScreen(
