@@ -13,6 +13,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
+import com.test.compose.adslibrary.ui.main.FEATURE_1
+import com.test.compose.adslibrary.ui.main.FEATURE_2
+import com.test.compose.adslibrary.ui.main.FEATURE_3
+import com.test.compose.adslibrary.ui.main.REMOVE_ADS_ID
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
@@ -49,7 +53,8 @@ class SplashScreenViewModel(
     private var animator: ValueAnimator? = null
 
     init {
-        purchaseHelper.initBilling("android.test.purchased")
+        AdKit.purchaseHelper.initBilling(removeAdsIds = listOf("android.test.purchased"), listOf())
+
         AdKit.analytics.postAnalytics("Splash_launch")
         splashAdController.resetSplash()
         collections()
@@ -57,8 +62,16 @@ class SplashScreenViewModel(
 //        purchaseHelper.initBilling("one_time_purchase_id")
     }
 
-    fun loadProducts(activity: Activity, list: List<String>) {
-        AdKit.subscriptionHelper.initBilling(activity, list)
+    fun loadProducts(activity: Activity) {
+        AdKit.subscriptionHelper.initBilling(activity,
+            removeAdsIds = listOf(
+                REMOVE_ADS_ID
+            ),
+            featureIds = listOf(
+                FEATURE_1,
+                FEATURE_2,
+                FEATURE_3,
+            ))
     }
 
     private fun onResume() {

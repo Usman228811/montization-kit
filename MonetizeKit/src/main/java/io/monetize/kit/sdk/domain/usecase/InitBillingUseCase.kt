@@ -2,10 +2,8 @@ package io.monetize.kit.sdk.domain.usecase
 
 import com.android.billingclient.api.ProductDetails
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.toInApp
-import io.monetize.kit.sdk.core.utils.toSubscription
-import io.monetize.kit.sdk.domain.model.OfferTexts
-import io.monetize.kit.sdk.domain.model.OfferType
 import io.monetize.kit.sdk.domain.model.PremiumOffer
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
@@ -17,6 +15,7 @@ data class OneTimePurchaseState(
     val purchasesList: List<String> = emptyList(),
     val offers: List<PremiumOffer> = emptyList(),
 )
+
 class InitBillingUseCase private constructor(
     private val billingRepository: BillingRepository
 ) {
@@ -25,8 +24,14 @@ class InitBillingUseCase private constructor(
     private val _ucState = MutableStateFlow(OneTimePurchaseState())
     val ucState = _ucState.asStateFlow()
 
-    operator fun invoke(productId: String,) {
-        billingRepository.initBilling(productId, object : SubscriptionListener{
+    private var removeAdsIds = listOf<String>()
+
+    operator fun invoke(
+        removeAdsIds: List<String>,
+        featureIds: List<String>
+    ) {
+        this.removeAdsIds = removeAdsIds
+        billingRepository.initBilling(removeAdsIds, featureIds, object : SubscriptionListener {
             override fun onQueryProductSuccess(
                 skuList: Map<String, ProductDetails>,
                 productList: List<ProductDetails>
@@ -46,7 +51,9 @@ class InitBillingUseCase private constructor(
 
             override fun onSubscriptionPurchasedFetched(purchasesList: List<String>) {
                 val uniquePurchases = purchasesList.distinct()
-                AdKit.adKitPref.isLifeTimePurchased = uniquePurchases.isNotEmpty()
+                val hasRemoveAds = uniquePurchases.any { it in this@InitBillingUseCase.removeAdsIds }
+
+                adKitPref.isLifeTimePurchased = hasRemoveAds
                 _ucState.update {
                     it.copy(purchasesList = uniquePurchases)
                 }

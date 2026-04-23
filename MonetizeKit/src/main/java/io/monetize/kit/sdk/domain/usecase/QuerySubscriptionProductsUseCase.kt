@@ -1,8 +1,8 @@
 package io.monetize.kit.sdk.domain.usecase
 
-import android.R.attr.type
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.toSubscription
@@ -55,11 +55,19 @@ class QuerySubscriptionProductsUseCase private constructor(
         return productsMap
     }
 
-    operator fun invoke(activity: Activity, productIds: List<String>) {
+    private var removeAdsIds = listOf<String>()
+    private var featureIds = listOf<String>()
 
+    operator fun invoke(
+        activity: Activity,
+        removeAdsIds: List<String>,
+        featureIds: List<String>
+    ) {
+        this.removeAdsIds = removeAdsIds
         repository.setBillingListener(
             activity = activity,
-            productIds = productIds,
+            removeAdsIds = removeAdsIds,
+            featureIds = featureIds,
             object : SubscriptionListener {
 
 
@@ -84,7 +92,9 @@ class QuerySubscriptionProductsUseCase private constructor(
 
                     val uniquePurchases = purchasesList.distinct()
 
-                    adKitPref.isAppSubscribed = uniquePurchases.isNotEmpty()
+                    val hasRemoveAds = uniquePurchases.any { it in this@QuerySubscriptionProductsUseCase.removeAdsIds }
+
+                    adKitPref.isAppSubscribed = hasRemoveAds
 
                     _ucState.update {
                         it.copy(purchasesList = uniquePurchases)
@@ -98,7 +108,6 @@ class QuerySubscriptionProductsUseCase private constructor(
 
 
     fun isSubscriptionUpdateSupported() = repository.isSubscriptionUpdateSupported()
-
 
 
     fun buildOfferTexts(

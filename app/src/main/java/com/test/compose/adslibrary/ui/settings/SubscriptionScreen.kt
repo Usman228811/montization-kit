@@ -32,9 +32,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.test.compose.adslibrary.ui.main.MONTHLY_SUB
-import com.test.compose.adslibrary.ui.main.WEEKLY_SUB
-import com.test.compose.adslibrary.ui.main.YEARLY_SUB
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
@@ -60,11 +57,6 @@ fun SubscriptionScreen(
         LaunchedEffect(Unit) {
             subscriptionViewModel.loadProducts(
                 activity,
-                listOf(
-                    WEEKLY_SUB,
-                    MONTHLY_SUB,
-                    YEARLY_SUB,
-                )
             )
         }
 
@@ -79,8 +71,8 @@ fun SubscriptionScreen(
         )
 
         SubscriptionOption(
-            title = "weekly",
-            price = state.weeklyPrice,
+            title = "remove ads subscription",
+            price = state.removeAdsPrice,
             isSelected = state.selectedButtonPos == 0,
             onClick = {
                 subscriptionViewModel.updateSelectedButtonPos(0)
@@ -89,8 +81,8 @@ fun SubscriptionScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         SubscriptionOption(
-            title = "Monthly",
-            price = state.monthlyPrice,
+            title = "feature 1",
+            price = state.feature1Price,
             isSelected = state.selectedButtonPos == 1,
             onClick = {
                 subscriptionViewModel.updateSelectedButtonPos(1)
@@ -99,11 +91,21 @@ fun SubscriptionScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         SubscriptionOption(
-            title = "Yearly",
-            price = state.yearlyPrice,
+            title = "feature 2",
+            price = state.feature2Price,
             isSelected = state.selectedButtonPos == 2,
             onClick = {
                 subscriptionViewModel.updateSelectedButtonPos(2)
+
+            }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        SubscriptionOption(
+            title = "feature 3",
+            price = state.feature3Price,
+            isSelected = state.selectedButtonPos == 3,
+            onClick = {
+                subscriptionViewModel.updateSelectedButtonPos(3)
 
             }
         )

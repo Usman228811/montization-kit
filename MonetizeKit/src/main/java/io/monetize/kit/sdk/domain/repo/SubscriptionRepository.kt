@@ -5,7 +5,8 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 
 interface SubscriptionRepository {
-    fun setBillingListener(activity: Activity,productIds: List<String>, listener: SubscriptionListener?)
+    fun setBillingListener(activity: Activity,removeAdsIds: List<String>,
+                           featureIds: List<String>, listener: SubscriptionListener?)
     fun querySubscriptionHistory(activity: Activity)
     fun purchaseProduct(activity: Activity,skuDetails: ProductDetails,onUserDismissedPaywall :(()->Unit) ?= null)
     fun changeSubscriptionPlan(activity: Activity,skuDetails: ProductDetails)
