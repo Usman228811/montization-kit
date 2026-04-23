@@ -33,8 +33,12 @@ class AdKitSubscriptionHelper private constructor(
 
     val subscriptionState = queryProducts.ucState
 
-    fun initBilling(activity: Activity, productIds: List<String>) {
-        queryProducts(activity, productIds)
+    fun initBilling(
+        activity: Activity,
+        removeAdsIds: List<String>,
+        featureIds: List<String>
+    ) {
+        queryProducts(activity = activity, removeAdsIds = removeAdsIds, featureIds = featureIds)
     }
 
     fun isSubscriptionUpdateSupported() = queryProducts.isSubscriptionUpdateSupported()
@@ -45,7 +49,7 @@ class AdKitSubscriptionHelper private constructor(
         return queryProducts.buildOfferTexts(productId)
     }
 
-    private fun isAlreadySubscribed(productId:String): Boolean{
+    private fun isAlreadySubscribed(productId: String): Boolean {
         return subscriptionState.value.purchasesList.contains(productId)
     }
 
@@ -53,9 +57,9 @@ class AdKitSubscriptionHelper private constructor(
     fun purchase(
         activity: Activity,
         productId: String?,
-        isForUpdatePlan:Boolean, onUserDismissedPaywall: (() -> Unit)? = null,
+        isForUpdatePlan: Boolean, onUserDismissedPaywall: (() -> Unit)? = null,
 
-    ) {
+        ) {
 
         when {
             internetController.isConnected.not() || productId == null -> {
@@ -79,13 +83,14 @@ class AdKitSubscriptionHelper private constructor(
 
             }
 
-            !isForUpdatePlan->{
+            !isForUpdatePlan -> {
                 queryProducts.getProducts()?.let { products ->
                     products[productId]?.let {
                         purchaseProduct(activity, it, onUserDismissedPaywall)
                     }
                 }
             }
+
             isSubscriptionUpdateSupported() -> {
 
                 queryProducts.getProducts()?.let { products ->
