@@ -1141,7 +1141,7 @@ viewModelScope.apply {
                     _state.update {
                         it.copy(
                             oneTimePrice = AdKit.purchaseHelper.getBillingPrice("android.test.purchased"),
-                            buttonTextLifeTime = if (oneTimePurchaseState.purchasesList.isNotEmpty()) "purchased" else "purchase one time"
+                            buttonTextLifeTime = if (oneTimePurchaseState.purchasesList.contains("android.test.purchased")) "purchased" else "purchase one time"
                         )
                     }
                 }
