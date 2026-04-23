@@ -1116,66 +1116,40 @@ AdKit.firebaseHelper.apply {
 
 ---
 
-# One-Time Purchase
+# Premium Billing
 
-Initialize billing in your splash screen:
-
-```kotlin
-AdKit.purchaseHelper.initBilling(removeAdsIds = listOf("android.test.purchased"), listOf())
-```
-
-Handle purchase state in your ViewModel:
+Use `AdKit.premiumHelper` as the single public billing entry point for lifetime purchases and subscriptions.
 
 ```kotlin
-viewModelScope.apply {
-    launch {
-                AdKit.purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
-                    Log.d(
-                        TAG,
-                        "oneTimePurchase: ${oneTimePurchaseState.purchasesList.contains("android.test.purchased")}"
-                    )
-                    Log.d(
-                        TAG,
-                        "oneTimePurchaseList: ${oneTimePurchaseState.purchasesList}"
-                    )
-                    _state.update {
-                        it.copy(
-                            oneTimePrice = AdKit.purchaseHelper.getBillingPrice("android.test.purchased"),
-                            buttonTextLifeTime = if (oneTimePurchaseState.purchasesList.contains("android.test.purchased")) "purchased" else "purchase one time"
-                        )
-                    }
-                }
-            }
+AdKit.premiumHelper.initBilling(
+    activity = activity,
+    lifetimeProductIds = listOf("android.test.purchased"),
+    subscriptionProductIds = listOf(REMOVE_ADS_ID),
+    subscriptionFeatureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
+)
+
+AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+    val isPremium = premiumState.isPremium
+    val allPurchases = premiumState.allPurchases
 }
 
-// Trigger purchase
-AdKit.purchaseHelper.purchaseProduct(activity, productId = "android.test.purchased" onUserDismissedPaywall = {
-		Log.d("ioiioo", "one time purchase: user dismissed the paywall")
-})
+val lifetimeOffer = AdKit.premiumHelper.getBillingPrice("android.test.purchased")
+val subscriptionOffer = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
 
-// You can check if the app is Life-time purchased using AdKit.
-val isPurchased = AdKit.adKitPref.isLifeTimePurchased
+AdKit.premiumHelper.purchase(activity, "android.test.purchased")
+AdKit.premiumHelper.purchase(activity, REMOVE_ADS_ID)
+AdKit.premiumHelper.purchase(
+    activity = activity,
+    productId = REMOVE_ADS_ID,
+    isForUpdatePlan = true
+)
 
-
-// You can check if any purchases has been done using AdKit.
-val isPurchased = AdKit.adKitPref.isAppPurchased
-```
-
----
-
-# Subscriptions
-
-```kotlin
-// You can check if the app is subscribed using AdKit.
+val isLifetimePurchased = AdKit.adKitPref.isLifeTimePurchased
 val isSubscribed = AdKit.adKitPref.isAppSubscribed
-
-
-// You can check if any purchases has been done using AdKit.
-val isPurchased = AdKit.adKitPref.isAppPurchased
-
+val isPremium = AdKit.adKitPref.isAppPurchased
 ```
 
-### ViewModel for Subscriptions
+### ViewModel for Premium Billing
 
 ```kotlin
 data class SettingScreenState(
@@ -1206,14 +1180,13 @@ class SubscriptionViewModel : ViewModel() {
             launch {
 
 
-                AdKit.subscriptionHelper.subscriptionState.collectLatest { subscriptionState ->
-                    Log.d(TAG, "purchasesList: ${subscriptionState.purchasesList} ")
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d(TAG, "purchasesList: ${premiumState.allPurchases}")
 
-
-                    val removeAdsPrice = AdKit.subscriptionHelper.getBillingPrice(REMOVE_ADS_ID)
-                    val feature1Price = AdKit.subscriptionHelper.getBillingPrice(FEATURE_1)
-                    val feature2Price = AdKit.subscriptionHelper.getBillingPrice(FEATURE_2)
-                    val feature3Price = AdKit.subscriptionHelper.getBillingPrice(FEATURE_3)
+                    val removeAdsPrice = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
+                    val feature1Price = AdKit.premiumHelper.getBillingPrice(FEATURE_1)
+                    val feature2Price = AdKit.premiumHelper.getBillingPrice(FEATURE_2)
+                    val feature3Price = AdKit.premiumHelper.getBillingPrice(FEATURE_3)
 
 
                     when (removeAdsPrice.type) {
@@ -1249,7 +1222,7 @@ class SubscriptionViewModel : ViewModel() {
                     _state.update {
 
                         it.copy(
-                            purchasesList = subscriptionState.purchasesList,
+                            purchasesList = premiumState.allPurchases,
                             removeAdsPrice = "${removeAdsPrice.mainOfferText}",
                             feature1Price = "${feature1Price.mainOfferText}",
                             feature2Price = "${feature2Price.mainOfferText}",
@@ -1278,7 +1251,7 @@ class SubscriptionViewModel : ViewModel() {
                 "Cancel Subscription"
 
             purchases.isNotEmpty() &&
-                    AdKit.subscriptionHelper.isSubscriptionUpdateSupported() ->
+                    AdKit.premiumHelper.isSubscriptionUpdateSupported() ->
                 "Update Subscription"
 
             else -> state.value.buttonText
@@ -1292,10 +1265,11 @@ class SubscriptionViewModel : ViewModel() {
    fun loadProducts(
         activity: Activity,
     ) {
-        AdKit.subscriptionHelper.initBilling(
+        AdKit.premiumHelper.initBilling(
             activity = activity,
-            removeAdsIds = listOf(REMOVE_ADS_ID),
-            featureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
+            lifetimeProductIds = listOf("android.test.purchased"),
+            subscriptionProductIds = listOf(REMOVE_ADS_ID),
+            subscriptionFeatureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
         )
     }
 
@@ -1315,14 +1289,14 @@ class SubscriptionViewModel : ViewModel() {
 		// Pass true → update existing subscription
 		// Pass false → start a new subscription
 
-        AdKit.subscriptionHelper.purchase(activity, selectedId(), isForUpdatePlan =  false, onUserDismissedPaywall = {
+        AdKit.premiumHelper.purchase(activity, selectedId(), isForUpdatePlan = false, onUserDismissedPaywall = {
             Log.d(TAG, "subscription purchase: user dismissed the paywall")
         })
     }
 }
 ```
 
-### Implementing Subscriptions
+### Implementing Premium Plans
 
 ```kotlin
 LaunchedEffect(Unit) {
@@ -1392,7 +1366,10 @@ class SplashScreenViewModel(
         AdKit.splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        AdKit.purchaseHelper.initBilling(removeAdsIds = listOf("android.test.purchased"), listOf())
+        AdKit.premiumHelper.initBilling(
+            activity = activity,
+            lifetimeProductIds = listOf("android.test.purchased")
+        )
     }
 
     private fun onResume() {
@@ -1462,8 +1439,8 @@ class SplashScreenViewModel(
                 }
             }
             launch {
-                  purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
-                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.contains("android.test.purchased")) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }
@@ -1657,7 +1634,10 @@ class SplashViewModel(
         splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        AdKit.purchaseHelper.initBilling(removeAdsIds = listOf("android.test.purchased"), listOf())
+        AdKit.premiumHelper.initBilling(
+            activity = activity,
+            lifetimeProductIds = listOf("android.test.purchased")
+        )
 
     }
 
@@ -1709,8 +1689,8 @@ class SplashViewModel(
                 }
             }
            launch {
-                  purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
-                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.contains("android.test.purchased")) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }

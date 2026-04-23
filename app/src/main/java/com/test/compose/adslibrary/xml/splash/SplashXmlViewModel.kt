@@ -18,7 +18,6 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKit.purchaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -112,9 +111,9 @@ class SplashXmlViewModel : ViewModel() {
                 }
             }
             launch {
-                purchaseHelper.oneTimePurchaseState.collectLatest { oneTimePurchaseState ->
-                    Log.d("purchase_status", "oneTimePurchased: ${oneTimePurchaseState.purchasesList.isNotEmpty()}")
-                    _state.update { it.copy(isPurchased = oneTimePurchaseState.purchasesList.isNotEmpty()) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d("purchase_status", "premiumPurchases: ${premiumState.allPurchases}")
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }
