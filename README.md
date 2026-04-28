@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.7")
+    implementation("com.github.Usman228811:montization-kit:3.3.8")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.7-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.3.8-adapter")
 }
 ```
 
@@ -196,8 +196,8 @@ AdKit.init(
                     instantReward(true)
                 }
                 banner("home_banner"){
-//                    enable(true)
-					  bannerType(BannerAdType.ADAPTIVE_BANNER)
+                      enable(true)
+					  bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
                 }
                 banner("premium_banner"){
                     enable(true)
@@ -801,7 +801,8 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 - `BannerAdType.LARGE_BANNER`: Large Banner
 - `BannerAdType.MEDIUM_RECTANGLE_BANNER`: Medium Rectangle Banner
 - `BannerAdType.BOTTOM_COLLAPSIBLE_BANNER`: Bottom Collapsible Banner
-- `BannerAdTypeTOP_COLLAPSIBLE_BANNER`: Top Collapsible Banner
+- `BannerAdType.TOP_COLLAPSIBLE_BANNER`: Top Collapsible Banner
+- `BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER`: Large Anchored Adaptive Banner
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`

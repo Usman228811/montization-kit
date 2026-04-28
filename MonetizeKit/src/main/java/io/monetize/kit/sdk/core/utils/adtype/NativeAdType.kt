@@ -14,6 +14,7 @@ enum class BannerAdType {
     MEDIUM_RECTANGLE_BANNER,
     BOTTOM_COLLAPSIBLE_BANNER,
     TOP_COLLAPSIBLE_BANNER,
+    LARGE_ANCHORED_ADAPTIVE_BANNER,
 }
 
 data class BannerControllerConfig(
