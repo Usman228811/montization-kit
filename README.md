@@ -467,52 +467,12 @@ AdKitNativeAdView(
 
 // destroy?.invoke()
 
-// For dialogs on the same screen
-AdKitNativeAdViewDialog(
-    nativeControllerConfig = NativeControllerConfig(
-        placementKey = "home_native", // Unique placement key
-        adIdKey = "home_native", // Can be common across placements,
-		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
-		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
-    ),
-   	//optional
-    adCallBack =object: AdCallBack{
-                override fun onAdFailed(reason: String) {
-                    Log.d("dddddd", reason)
-                }
-
-                override fun onAdShow() {
-                    
-                }
-
-                override fun onAdClick() {
-                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
-                }
-            },
-    callCustomDestroy = { callCustomDestroy ->
-				//handle Custom Destroy
-                destroy = callCustomDestroy
-    
-	)
-)
-
-// destroy?.invoke()
-
-
 ```
 
 ### XML Support
 
 ```xml
 <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
-    android:id="@+id/adFrameNative"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/_50sdp"
-    app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
-
-<!-- For dialogs on the same screen -->
-<io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
     android:id="@+id/adFrameNative"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
