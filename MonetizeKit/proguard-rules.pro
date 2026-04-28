@@ -56,3 +56,7 @@
 -keep public class net.premiumads.**
 -keep class net.premiumads.sdk.** { *;}
 -keep class net.premiumads.sdk.admob.** { *;}
+
+
+# WorkManager
+-keep class androidx.work.** { *; }

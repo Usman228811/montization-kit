@@ -112,7 +112,9 @@ class GetNativeAdRepoImpl private constructor(
 
     override fun onResume() {
         if (largeNativeAd == null) {
-            loadSingleNativeAd()
+            adFrame?.let {
+                loadSingleNativeAd()
+            }
         } else {
             if (adKitPref.isAppPurchased.not()) {
                 attachRefreshListener(true)
@@ -163,8 +165,15 @@ class GetNativeAdRepoImpl private constructor(
 
     override fun onDestroy() {
         try {
+            model?.controller?.setNativeControllerListener(null)
+            isRequesting = false
+            canLoadAdAgain = true
             destroyNativeAd()
             nullRefreshListener()
+//            hideAdFrame()
+            adFrame = null
+            adCallBack = null
+            isAdLoadCalled = false
         } catch (_: Exception) {
         }
     }

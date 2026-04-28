@@ -30,6 +30,7 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
+import io.monetize.kit.sdk.core.utils.purchase.BillingItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -59,15 +60,17 @@ class SplashScreenViewModel(
 //        purchaseHelper.initBilling("one_time_purchase_id")
     }
 
-    fun loadProducts(activity: Activity) {
-        AdKit.premiumHelper.initBilling(
-            activity = activity,
-            lifetimeProductIds = listOf("android.test.purchased"),
-            subscriptionProductIds = listOf(REMOVE_ADS_ID),
-            subscriptionFeatureIds = listOf(
-                FEATURE_1,
-                FEATURE_2,
-                FEATURE_3,
+    fun loadProducts(
+        activity: Activity,
+    ) {
+
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
             )
         )
     }
@@ -204,19 +207,19 @@ class SplashScreenViewModel(
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-            AdKit.preLoadNative.preLoadNativeAd(
-                mContext,
-                nativeControllerConfig = NativeControllerConfig(
-                    placementKey = "home_native",
-                    adIdKey = "native_common"
-                )
-            )
-            AdKit.preloadBanner.preLoadBanner(
-                mContext, BannerControllerConfig(
-                    "home_banner",
-                    "banner_common",
-                )
-            )
+//            AdKit.preLoadNative.preLoadNativeAd(
+//                mContext,
+//                nativeControllerConfig = NativeControllerConfig(
+//                    placementKey = "home_native",
+//                    adIdKey = "native_common"
+//                )
+//            )
+//            AdKit.preloadBanner.preLoadBanner(
+//                mContext, BannerControllerConfig(
+//                    "home_banner",
+//                    "banner_common",
+//                )
+//            )
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

@@ -20,9 +20,26 @@ data class PremiumAccessState(
     val oneTimePurchases: List<String> = emptyList(),
     val subscriptionPurchases: List<String> = emptyList(),
     val allPurchases: List<String> = emptyList(),
-    val oneTimeOffers: List<io.monetize.kit.sdk.domain.model.PremiumOffer> = emptyList(),
-    val subscriptionOffers: List<io.monetize.kit.sdk.domain.model.PremiumOffer> = emptyList(),
+    val oneTimeOffers: List<PremiumOffer> = emptyList(),
+    val subscriptionOffers: List<PremiumOffer> = emptyList(),
 )
+
+sealed class BillingItem {
+    data class Lifetime(
+        val productId: String,
+        val type: Type
+    ) : BillingItem()
+
+    data class Subscription(
+        val productId: String,
+        val type: Type
+    ) : BillingItem()
+
+    enum class Type {
+        REMOVE_ADS,
+        FEATURE
+    }
+}
 
 enum class PremiumProductType {
     ONE_TIME,
@@ -58,32 +75,49 @@ class AdKitPremiumHelper private constructor(
         started = SharingStarted.Eagerly,
         initialValue = PremiumAccessState()
     )
+
     fun initBilling(
         activity: Activity,
-        lifetimeProductIds: List<String> = emptyList(),
-        lifetimeFeatureIds: List<String> = emptyList(),
-        subscriptionProductIds: List<String> = emptyList(),
-        subscriptionFeatureIds: List<String> = emptyList()
+        items: List<BillingItem>
     ) {
-        if (lifetimeProductIds.isNotEmpty() || lifetimeFeatureIds.isNotEmpty()) {
+
+        val lifetimeRemoveAds = mutableListOf<String>()
+        val lifetimeFeatures = mutableListOf<String>()
+        val subRemoveAds = mutableListOf<String>()
+        val subFeatures = mutableListOf<String>()
+
+        items.forEach { item ->
+            when (item) {
+                is BillingItem.Lifetime -> {
+                    when (item.type) {
+                        BillingItem.Type.REMOVE_ADS -> lifetimeRemoveAds.add(item.productId)
+                        BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
+                    }
+                }
+                is BillingItem.Subscription -> {
+                    when (item.type) {
+                        BillingItem.Type.REMOVE_ADS -> subRemoveAds.add(item.productId)
+                        BillingItem.Type.FEATURE -> subFeatures.add(item.productId)
+                    }
+                }
+            }
+        }
+
+        if (lifetimeRemoveAds.isNotEmpty() || lifetimeFeatures.isNotEmpty()) {
             purchaseHelper.initBilling(
-                removeAdsIds = lifetimeProductIds,
-                featureIds = lifetimeFeatureIds
+                removeAdsIds = lifetimeRemoveAds,
+                featureIds = lifetimeFeatures
             )
         }
 
-        if (subscriptionProductIds.isNotEmpty() || subscriptionFeatureIds.isNotEmpty()) {
+        if (subRemoveAds.isNotEmpty() || subFeatures.isNotEmpty()) {
             subscriptionHelper.initBilling(
                 activity = activity,
-                removeAdsIds = subscriptionProductIds,
-                featureIds = subscriptionFeatureIds
+                removeAdsIds = subRemoveAds,
+                featureIds = subFeatures
             )
         }
     }
-
-    fun hasPremiumAccess(): Boolean = premiumState.value.isPremium
-
-    fun hasProduct(productId: String): Boolean = premiumState.value.allPurchases.contains(productId)
 
     fun getProductType(productId: String): PremiumProductType {
         return when {
@@ -147,7 +181,8 @@ class AdKitPremiumHelper private constructor(
         }
     }
 
-    fun isSubscriptionUpdateSupported(): Boolean = subscriptionHelper.isSubscriptionUpdateSupported()
+    fun isSubscriptionUpdateSupported(): Boolean =
+        subscriptionHelper.isSubscriptionUpdateSupported()
 
     fun getOfferType(productId: String): OfferType = getBillingPrice(productId).type
 
