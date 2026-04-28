@@ -125,7 +125,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 }
                 banner("home_banner_top") {
                     enable(true)
-                    bannerType(BannerAdType.ADAPTIVE_BANNER)
+                    bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
                 }
                 banner("exit_banner") {
                     enable(true)
