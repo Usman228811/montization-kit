@@ -5,19 +5,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.test.compose.adslibrary.ui.main.MainScreen
+import com.test.compose.adslibrary.ui.main2.MainScreen2
 import com.test.compose.adslibrary.ui.settings.SubscriptionScreen
 import com.test.compose.adslibrary.ui.splash.SplashScreen
 
 @Composable
 fun AppNavHost(
     navHostController: NavHostController,
-    languageChange : Boolean
+    languageChange: Boolean
 ) {
 
     val navigationActions = NavigationActions(navHostController)
     val startDestination = if (languageChange) {
         AppRoute.MainRoute.route
-    }else{
+    } else {
         AppRoute.SplashRoute.route
     }
 
@@ -32,14 +33,22 @@ fun AppNavHost(
         }
 
         composable(AppRoute.MainRoute.route) {
-            MainScreen(gotoSubscription = {
-                gotoNext(AppRoute.SubscriptionRoute, navigationActions)
+            MainScreen(
+                gotoSubscription = {
+                    gotoNext(AppRoute.SubscriptionRoute, navigationActions)
 
-            })
+                },
+                gotoMainScreen2 = {
+                    navigationActions.goToMainScreen2()
+                })
         }
 
         composable(AppRoute.SubscriptionRoute.route) {
             SubscriptionScreen()
+        }
+
+        composable(AppRoute.MainRoute2.route) {
+            MainScreen2()
         }
 
 
@@ -58,6 +67,10 @@ fun gotoNext(appRoute: AppRoute, navigationActions: NavigationActions) {
 
         AppRoute.SubscriptionRoute -> {
             navigationActions.goToSettingScreen()
+        }
+
+        else -> {
+
         }
     }
 }

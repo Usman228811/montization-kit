@@ -13,6 +13,9 @@ class NavigationActions(private val navHostController: NavHostController) {
         }
     }
 
+    val goToMainScreen2: () -> Unit = {
+        navHostController.navigate(AppRoute.MainRoute2.route)
+    }
     val goToSettingScreen: () -> Unit = {
         navHostController.navigate(AppRoute.SubscriptionRoute.route)
     }

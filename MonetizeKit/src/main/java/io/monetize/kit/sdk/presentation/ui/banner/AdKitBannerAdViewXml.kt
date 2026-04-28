@@ -3,7 +3,6 @@ package io.monetize.kit.sdk.presentation.ui.banner
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -22,8 +21,14 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
     private var bannerControllerConfig: BannerControllerConfig? = null
 
+    private var viewModel: BannerAdViewModel? = null
+
     init {
         inflate(context, R.layout.ad_inflator, this)
+    }
+
+    fun destroyBannerAd() {
+        viewModel?.onDestroy()
     }
 
     fun loadBanner(
@@ -35,13 +40,17 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
     ) {
         this.bannerControllerConfig = bannerControllerConfig
 
-        val viewModel = ViewModelProvider(owner, BannerAdViewModelFactory())[BannerAdViewModel::class.java]
+        viewModel = ViewModelProvider(
+            owner,
+            BannerAdViewModelFactory()
+        )[bannerControllerConfig.placementKey,
+            BannerAdViewModel::class.java]
 
 
 
         if (context is Activity) {
-            visibility = View.VISIBLE
-            viewModel.initSingleBannerData(
+            visibility = VISIBLE
+            viewModel?.initSingleBannerData(
                 mContext = context,
                 bannerControllerConfig = bannerControllerConfig,
                 adFrame = this,
@@ -50,7 +59,7 @@ class AdKitBannerAdViewXml @JvmOverloads constructor(
 
             // Optional lifecycle observe
             if (context is LifecycleOwner) {
-                viewModel.observeLifecycle(context)
+                viewModel?.observeLifecycle(context)
             }
         }
     }

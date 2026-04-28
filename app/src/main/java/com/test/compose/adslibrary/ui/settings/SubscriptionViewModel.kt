@@ -11,6 +11,7 @@ import com.test.compose.adslibrary.ui.main.FEATURE_2
 import com.test.compose.adslibrary.ui.main.FEATURE_3
 import com.test.compose.adslibrary.ui.main.REMOVE_ADS_ID
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.purchase.BillingItem
 import io.monetize.kit.sdk.domain.model.OfferType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -147,11 +148,15 @@ class SubscriptionViewModel : ViewModel() {
     fun loadProducts(
         activity: Activity,
     ) {
-        AdKit.premiumHelper.initBilling(
-            activity = activity,
-            lifetimeProductIds = listOf("android.test.purchased"),
-            subscriptionProductIds = listOf(REMOVE_ADS_ID),
-            subscriptionFeatureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
+
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
         )
     }
 

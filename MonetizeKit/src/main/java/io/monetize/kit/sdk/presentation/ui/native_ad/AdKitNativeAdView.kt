@@ -18,6 +18,7 @@ import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModel
 import io.monetize.kit.sdk.presentation.viewmodels.NativeAdViewModelFactory
+import kotlin.random.Random
 
 
 @Composable
@@ -29,15 +30,17 @@ fun AdKitNativeAdView(
 ) {
 
     val nativeAdViewModel: NativeAdViewModel = viewModel(
+        key = "${nativeControllerConfig.placementKey}}",
         factory = NativeAdViewModelFactory()
     )
 
     val tet = LocalActivity.current as Activity
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect( nativeAdViewModel, lifecycleOwner) {
         nativeAdViewModel.observeLifecycle(lifecycleOwner)
         onDispose {
+//            nativeAdViewModel.onDestroy()
         }
     }
 
@@ -66,10 +69,6 @@ fun AdKitNativeAdView(
                     )
             }
         )
-    }
-
-    fun destroyNativeAd() {
-        nativeAdViewModel.onDestroy()
     }
 
 }

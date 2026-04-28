@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.6")
+    implementation("com.github.Usman228811:montization-kit:3.3.7")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.6-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.3.7-adapter")
 }
 ```
 
@@ -467,52 +467,12 @@ AdKitNativeAdView(
 
 // destroy?.invoke()
 
-// For dialogs on the same screen
-AdKitNativeAdViewDialog(
-    nativeControllerConfig = NativeControllerConfig(
-        placementKey = "home_native", // Unique placement key
-        adIdKey = "home_native", // Can be common across placements,
-		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
-		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
-    ),
-   	//optional
-    adCallBack =object: AdCallBack{
-                override fun onAdFailed(reason: String) {
-                    Log.d("dddddd", reason)
-                }
-
-                override fun onAdShow() {
-                    
-                }
-
-                override fun onAdClick() {
-                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
-                }
-            },
-    callCustomDestroy = { callCustomDestroy ->
-				//handle Custom Destroy
-                destroy = callCustomDestroy
-    
-	)
-)
-
-// destroy?.invoke()
-
-
 ```
 
 ### XML Support
 
 ```xml
 <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
-    android:id="@+id/adFrameNative"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/_50sdp"
-    app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
-
-<!-- For dialogs on the same screen -->
-<io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
     android:id="@+id/adFrameNative"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -1121,12 +1081,15 @@ AdKit.firebaseHelper.apply {
 Use `AdKit.premiumHelper` as the single public billing entry point for lifetime purchases and subscriptions.
 
 ```kotlin
-AdKit.premiumHelper.initBilling(
-    activity = activity,
-    lifetimeProductIds = listOf("android.test.purchased"),
-    subscriptionProductIds = listOf(REMOVE_ADS_ID),
-    subscriptionFeatureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
-)
+AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
 
 AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
     val isPremium = premiumState.isPremium
@@ -1265,11 +1228,14 @@ class SubscriptionViewModel : ViewModel() {
    fun loadProducts(
         activity: Activity,
     ) {
-        AdKit.premiumHelper.initBilling(
-            activity = activity,
-            lifetimeProductIds = listOf("android.test.purchased"),
-            subscriptionProductIds = listOf(REMOVE_ADS_ID),
-            subscriptionFeatureIds = listOf(FEATURE_1, FEATURE_2, FEATURE_3)
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
         )
     }
 
@@ -1366,11 +1332,21 @@ class SplashScreenViewModel(
         AdKit.splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        AdKit.premiumHelper.initBilling(
-            activity = activity,
-            lifetimeProductIds = listOf("android.test.purchased")
-        )
+        
     }
+
+	fun loadProducts(activity:Activity){
+
+		AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
+	}
 
     private fun onResume() {
         if (state.value.runSplash) {
@@ -1579,6 +1555,7 @@ val factory = remember { SplashScreenViewModelFactory() }
     })
 
     LaunchedEffect(Unit) {
+		splashViewModel.loadProducts(activity)
         splashViewModel.checkForUpdate(activity, launcher)
         splashViewModel.observeLifecycle(lifecycleOwner)
     }
@@ -1634,11 +1611,22 @@ class SplashViewModel(
         splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        AdKit.premiumHelper.initBilling(
-            activity = activity,
-            lifetimeProductIds = listOf("android.test.purchased")
-        )
 
+    }
+
+	fun loadProducts(
+        activity: Activity,
+    ) {
+
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
     }
 
     fun onResume(activity: Activity) {
@@ -1815,6 +1803,7 @@ class SplashAppActivity : BaseActivity() {
         setContentView(binding.root)
         viewModel.checkForUpdate(mContext, updateLauncher)
 
+		viewModel.loadProducts(mContext)
 
         lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
