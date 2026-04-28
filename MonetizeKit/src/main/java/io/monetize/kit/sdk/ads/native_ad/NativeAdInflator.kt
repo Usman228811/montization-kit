@@ -143,8 +143,8 @@ fun addNativeAdView(
             }
 
             adFrame.apply {
-                visibility = View.VISIBLE
                 removeAllViews()
+                visibility = View.VISIBLE
                 addView(adView)
             }
         }

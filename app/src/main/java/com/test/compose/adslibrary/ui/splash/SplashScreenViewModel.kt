@@ -204,19 +204,19 @@ class SplashScreenViewModel(
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-            AdKit.preLoadNative.preLoadNativeAd(
-                mContext,
-                nativeControllerConfig = NativeControllerConfig(
-                    placementKey = "home_native",
-                    adIdKey = "native_common"
-                )
-            )
-            AdKit.preloadBanner.preLoadBanner(
-                mContext, BannerControllerConfig(
-                    "home_banner",
-                    "banner_common",
-                )
-            )
+//            AdKit.preLoadNative.preLoadNativeAd(
+//                mContext,
+//                nativeControllerConfig = NativeControllerConfig(
+//                    placementKey = "home_native",
+//                    adIdKey = "native_common"
+//                )
+//            )
+//            AdKit.preloadBanner.preLoadBanner(
+//                mContext, BannerControllerConfig(
+//                    "home_banner",
+//                    "banner_common",
+//                )
+//            )
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

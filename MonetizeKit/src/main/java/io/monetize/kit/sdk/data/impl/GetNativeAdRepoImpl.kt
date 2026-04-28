@@ -55,6 +55,9 @@ class GetNativeAdRepoImpl private constructor(
         nativeControllerConfig: NativeControllerConfig,
         adCallBack: AdCallBack?,
     ) {
+        if (isRequesting) {
+            return
+        }
         this.adCallBack = adCallBack
         this.nativeControllerConfig = nativeControllerConfig
         this.mContext = mContext

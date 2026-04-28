@@ -3,6 +3,7 @@ package com.test.compose.adslibrary.ui.main
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -52,7 +53,8 @@ var FEATURE_3= "unlockall"
 
 @Composable
 fun MainScreen(
-    gotoSubscription: () -> Unit
+    gotoSubscription: () -> Unit,
+    gotoMainScreen2: () -> Unit,
 ) {
     val activity = LocalActivity.current as Activity
     var destroy: (() -> Unit)? = null
@@ -189,33 +191,40 @@ fun MainScreen(
             Text("show reward and goto subscription screen")
         }
 
+        Button(onClick = {
+            gotoMainScreen2()
+        }) {
+            Text(
+                text = "goto main screen 2"
+            )
+        }
+
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(top = 20.sdp)) {
 
-            AdKitNativeAdView(
-                nativeControllerConfig = NativeControllerConfig(
-                    placementKey = "home_native",
-                    adIdKey = "native_common",
-                    consumeAnyAd = false
-                ),
-                adCallBack = object : AdCallBack {
-                    override fun onAdFailed(reason: String) {
-                        Log.d("dddddd", reason)
-                    }
-
-                    override fun onAdShow() {
-
-                    }
-
-                    override fun onAdClick() {
-                        Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }, callCustomDestroy = { callCustomDestroy ->
-                    destroy = callCustomDestroy
-                }
-            )
+//            AdKitNativeAdView(
+//                nativeControllerConfig = NativeControllerConfig(
+//                    "screen_1",
+//                    "screen_1",
+//                ),
+//                adCallBack = object : AdCallBack {
+//                    override fun onAdFailed(reason: String) {
+//                        Log.d("dddddd", reason)
+//                    }
+//
+//                    override fun onAdShow() {
+//
+//                    }
+//
+//                    override fun onAdClick() {
+//                        Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT)
+//                            .show()
+//                    }
+//                }, callCustomDestroy = { callCustomDestroy ->
+//                    destroy = callCustomDestroy
+//                }
+//            )
         }
 
         Button(onClick = {
@@ -274,10 +283,10 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 .background(Color.White)
         ) {
 
-            AdKitNativeAdViewDialog(
+            AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
-                    "native_common",
+                    "exit_native",
                     loadNextAd = false
                 ),
                 adCallBack = object : AdCallBack {
@@ -293,7 +302,7 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                     }
 
                 }, callCustomDestroy = {
-                    destroy = it
+//                    destroy = it
                 }
             )
 

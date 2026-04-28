@@ -43,9 +43,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "reward_main" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
-                "exit_native" to "/21775744923/example/native-video",
-                "lang_native_ad" to "/21775744923/example/native-video",
-                "home_native" to "/21775744923/example/native-video",
+                "exit_native" to "/21775744923/example/native",
+                "lang_native_ad" to "/21775744923/example/native",
+                "home_native" to "/21775744923/example/native",
+                "screen_2" to "/21775744923/example/native",
+                "screen_1" to "/21775744923/example/native",
                 "native_common" to listOf(
                     "ca-app-pub-3940256099942544/2247696110",
                 ),
@@ -74,13 +76,20 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 long("INTER_INSTANT_TIME", 8)
                 long("splash_time", 16)
 
+                native("screen_1") {
+                    enable(true)
+                    adType(NativeAdType.LARGE_NATIVE)
+                }
+                native("screen_2") {
+                    enable(true)
+                    adType(NativeAdType.SMALL_NATIVE)
+                }
                 native("exit_native") {
                     enable(true)
-                    ctaColor("")
-                    bgColor("")
                     adType(NativeAdType.SMALL_NATIVE_MINI)
                 }
                 native("home_native") {
+                    enable(true)
 //                    enable(true)
                     ctaColor("#000000")
                     adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
@@ -126,7 +135,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             },
             onInitSdk = {
 
-                AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener{
+                AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener {
                     override fun onAdShow() {
                         Log.d("opoppp", "onAdShow: ")
                     }
