@@ -45,3 +45,7 @@
 
 -keep class com.appsflyer.** { *; }
 -keep class kotlin.jvm.internal.** { *; }
+
+
+# WorkManager
+-keep class androidx.work.** { *; }

@@ -6,6 +6,11 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/banner_ad"/>
+
     <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

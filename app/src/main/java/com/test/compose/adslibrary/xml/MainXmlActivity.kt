@@ -17,7 +17,7 @@ import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import androidx.core.graphics.drawable.toDrawable
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
+import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
 
 class MainXmlActivity : AppCompatActivity() {
@@ -112,9 +112,20 @@ class MainXmlActivity : AppCompatActivity() {
             ),
 
         )
+        val banner_ad = dialogView.findViewById<AdKitBannerAdViewXml>(R.id.banner_ad)
+        banner_ad.loadBanner(
+            this@MainXmlActivity,
+            this,
+            bannerControllerConfig = BannerControllerConfig(
+                placementKey = "exit_banner",
+                adIdKey = "banner_common"
+            ),
+
+        )
 
         dialog.setOnDismissListener {
             native_ad.destroyNativeAd()
+            banner_ad.destroyBannerAd()
         }
 
 

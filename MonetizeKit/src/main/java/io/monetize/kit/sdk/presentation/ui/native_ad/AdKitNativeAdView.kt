@@ -37,9 +37,10 @@ fun AdKitNativeAdView(
     val tet = LocalActivity.current as Activity
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect( nativeAdViewModel, lifecycleOwner) {
         nativeAdViewModel.observeLifecycle(lifecycleOwner)
         onDispose {
+//            nativeAdViewModel.onDestroy()
         }
     }
 

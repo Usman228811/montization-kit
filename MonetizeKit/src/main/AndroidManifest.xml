@@ -10,15 +10,6 @@
     <application>
 
 
-<!--        <meta-data-->
-<!--            android:name="com.google.android.gms.ads.APPLICATION_ID"-->
-<!--            android:value="ca-app-pub-3940256099942544~3347511713" />-->
-
-<!--        <activity-->
-<!--            android:name="com.google.android.gms.ads.AdActivity"-->
-<!--            android:theme="@style/AdActivityTheme1"-->
-<!--            tools:replace="android:theme" />-->
-
         <service
             android:name="com.google.firebase.components.ComponentDiscoveryService"
             android:exported="false"
@@ -49,6 +40,11 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider"
+            tools:node="remove" />
 
         <meta-data
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"

@@ -17,9 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
-import io.monetize.kit.sdk.core.utils.purchase.AdKitPremiumHelper
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
 
 @Composable
 fun MainScreen2() {

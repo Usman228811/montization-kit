@@ -46,11 +46,14 @@ class CollapsableBannerAdController private constructor(
 
     private fun destroyCollapsableBannerAd() {
         canLoadAdAgain = true
+        isRequesting = false
+        isAdLoadCalled = false
         bannerAd?.destroy()
         try {
             adFrame?.removeAllViews()
         } catch (_: Exception) {
         }
+        adFrame = null
         bannerAd = null
     }
 
@@ -202,8 +205,12 @@ class CollapsableBannerAdController private constructor(
     }
 
     fun onResume() {
-        loadCollapsableBannerAd()
-        bannerAd?.resume()
+        adFrame?.let {
+            loadCollapsableBannerAd()
+        }
+        if (AdKit.adKitPref.isAppPurchased.not()) {
+            bannerAd?.resume()
+        }
     }
 
     fun onPause() {

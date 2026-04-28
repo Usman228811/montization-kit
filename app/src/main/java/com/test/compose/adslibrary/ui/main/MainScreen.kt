@@ -3,7 +3,6 @@ package com.test.compose.adslibrary.ui.main
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -40,7 +39,6 @@ import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
 import network.chaintech.sdpcomposemultiplatform.sdp
 
 
@@ -266,14 +264,16 @@ fun MainScreen(
 @Composable
 fun ExitDialog(onDismissRequest: () -> Unit) {
 
-    var destroy: (() -> Unit)? = null
+    var destroyNative: (() -> Unit)? = null
+    var destroyBanner: (() -> Unit)? = null
     val activity = LocalActivity.current as Activity
 
     Dialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false // Needed for full width
         ), onDismissRequest = {
-            destroy?.invoke()
+            destroyNative?.invoke()
+            destroyBanner?.invoke()
             onDismissRequest()
         }) {
 
@@ -282,6 +282,30 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
+
+            AdKitBannerAdView(
+                bannerControllerConfig = BannerControllerConfig(
+                    placementKey = "exit_banner",
+                    adIdKey = "banner_common"
+                ),
+                adCallBack = object : AdCallBack {
+                    override fun onAdFailed(reason: String) {
+                        Log.d("dddddd", reason)
+                    }
+
+                    override fun onAdShow() {
+
+                    }
+
+                    override fun onAdClick() {
+                        Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+
+                }, callCustomDestroy = {
+                    destroyBanner = it
+                }
+            )
 
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
@@ -302,7 +326,7 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                     }
 
                 }, callCustomDestroy = {
-//                    destroy = it
+                    destroyNative = it
                 }
             )
 

@@ -124,7 +124,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 banner("home_banner_top") {
-                    enable(false)
+                    enable(true)
+                    bannerType(BannerAdType.ADAPTIVE_BANNER)
+                }
+                banner("exit_banner") {
+                    enable(true)
                     bannerType(BannerAdType.ADAPTIVE_BANNER)
                 }
                 banner("premium_banner") {
