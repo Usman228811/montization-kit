@@ -12,7 +12,7 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.8")
+    implementation("com.github.Usman228811:montization-kit:3.3.9")
 }
 ```
 
@@ -77,7 +77,7 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.3.8-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.3.9-adapter")
 }
 ```
 
@@ -204,6 +204,9 @@ AdKit.init(
                    bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
+            },
+    onDefaultConfigGenerated = {  defaultConfigs ->
+                Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
     onInitSdk = {
         // Optional: Disable toast notifications for analytics

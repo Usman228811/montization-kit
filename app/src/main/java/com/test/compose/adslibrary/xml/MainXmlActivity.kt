@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.test.compose.adslibrary.AppClass
@@ -17,10 +18,12 @@ import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import androidx.core.graphics.drawable.toDrawable
+import com.test.compose.adslibrary.ui.base.BaseXmlActivity
+import com.test.compose.adslibrary.ui.base.setupEdgeToEdge
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdViewXml
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
 
-class MainXmlActivity : AppCompatActivity() {
+class MainXmlActivity : BaseXmlActivity() {
 
     private lateinit var binding: ActivityMainXmlBinding
 
@@ -29,6 +32,7 @@ class MainXmlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainXmlBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.setupEdgeToEdge()
 
         (appContext as AppClass).initializeAppClass()
 
