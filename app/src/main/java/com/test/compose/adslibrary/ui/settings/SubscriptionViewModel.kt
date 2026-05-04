@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.ui.main.FEATURE_1
 import com.test.compose.adslibrary.ui.main.FEATURE_2
 import com.test.compose.adslibrary.ui.main.FEATURE_3
+import com.test.compose.adslibrary.ui.main.LIFE_TIME_ID
 import com.test.compose.adslibrary.ui.main.REMOVE_ADS_ID
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.purchase.BillingItem
@@ -106,8 +107,8 @@ class SubscriptionViewModel : ViewModel() {
                             feature1Price = "${feature1Price.mainOfferText}",
                             feature2Price = "${feature2Price.mainOfferText}",
                             feature3Price = "${feature3Price.mainOfferText}",
-                            oneTimePrice = AdKit.premiumHelper.getBillingPrice("android.test.purchased").mainOfferText?: "",
-                            buttonTextLifeTime = if (premiumState.allPurchases.contains("android.test.purchased")) "purchased" else "purchase one time",
+                            oneTimePrice = AdKit.premiumHelper.getBillingPrice(LIFE_TIME_ID).mainOfferText?: "",
+                            buttonTextLifeTime = if (premiumState.allPurchases.contains(LIFE_TIME_ID)) "purchased" else "purchase one time",
                             purchasesList = premiumState.allPurchases
                         )
                     }
@@ -151,7 +152,7 @@ class SubscriptionViewModel : ViewModel() {
 
         AdKit.premiumHelper.initBilling(activity,
             items = listOf(
-                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Lifetime(LIFE_TIME_ID, BillingItem.Type.REMOVE_ADS),
                 BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
                 BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
                 BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),

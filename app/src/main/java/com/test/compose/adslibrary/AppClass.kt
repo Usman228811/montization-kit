@@ -46,8 +46,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 "exit_native" to "/21775744923/example/native",
                 "lang_native_ad" to "/21775744923/example/native",
                 "home_native" to "/21775744923/example/native",
-                "screen_2" to "/21775744923/example/native",
-                "screen_1" to "/21775744923/example/native",
+                "native_screen_2" to "/21775744923/example/native",
+                "native_screen_1" to "/21775744923/example/native",
                 "native_common" to listOf(
                     "ca-app-pub-3940256099942544/2247696110",
                 ),
@@ -76,11 +76,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 long("INTER_INSTANT_TIME", 8)
                 long("splash_time", 16)
 
-                native("screen_1") {
+                native("native_screen_1") {
                     enable(true)
                     adType(NativeAdType.LARGE_NATIVE)
                 }
-                native("screen_2") {
+                native("native_screen_2") {
                     enable(true)
                     adType(NativeAdType.SMALL_NATIVE)
                 }
@@ -112,9 +112,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 fullScreen("home_inter") {
                     enable(true)
                 }
-                fullScreen("inter_btn_plant") {
-                    enable(true)
-                }
+
                 fullScreen("inter_btn_plant") {
                     enable(true)
                     instantReward(true)
@@ -136,6 +134,9 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
 //                overAllNativeColor("#964B00", "#FF03DAC5")
+            },
+            onDefaultConfigGenerated = {defaultConfigs ->
+                Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
             onInitSdk = {
 

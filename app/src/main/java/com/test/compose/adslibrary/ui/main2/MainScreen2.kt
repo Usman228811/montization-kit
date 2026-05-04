@@ -72,8 +72,8 @@ fun Screen1(
         if (screenType == 1) {
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
-                    "screen_1",
-                    "screen_1",
+                    "native_screen_1",
+                    "native_screen_1",
                 ), adCallBack = object : AdCallBack{
                     override fun onAdFailed(reason: String) {
                         Log.d("ioioio", "onAdFailed: $reason")
@@ -90,8 +90,8 @@ fun Screen1(
         }else{
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
-                    "screen_2",
-                    "screen_2",
+                    "native_screen_2",
+                    "native_screen_2",
                 ), adCallBack = object : AdCallBack{
                     override fun onAdFailed(reason: String) {
                         Log.d("ioioio", "onAdFailed: $reason")
