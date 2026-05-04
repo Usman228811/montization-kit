@@ -34,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.test.compose.adslibrary.MainActivity
 import com.test.compose.adslibrary.utils.Color579B68
+import com.test.compose.adslibrary.xml.MainXmlActivity
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
@@ -47,6 +48,7 @@ import network.chaintech.sdpcomposemultiplatform.sdp
 
 
 
+var LIFE_TIME_ID = "remove_ads"
 var REMOVE_ADS_ID = "remove_ads"
 var FEATURE_1 = "unlockphotos"
 var FEATURE_2 = "duplicate_scan"
@@ -197,6 +199,13 @@ fun MainScreen(
         }) {
             Text(
                 text = "goto main screen 2"
+            )
+        }
+        Button(onClick = {
+            activity.startActivity(Intent(activity, MainXmlActivity::class.java))
+        }) {
+            Text(
+                text = "goto main xml activity"
             )
         }
 

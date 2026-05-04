@@ -16,6 +16,7 @@ import com.test.compose.adslibrary.BuildConfig
 import com.test.compose.adslibrary.ui.main.FEATURE_1
 import com.test.compose.adslibrary.ui.main.FEATURE_2
 import com.test.compose.adslibrary.ui.main.FEATURE_3
+import com.test.compose.adslibrary.ui.main.LIFE_TIME_ID
 import com.test.compose.adslibrary.ui.main.REMOVE_ADS_ID
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
@@ -66,7 +67,7 @@ class SplashScreenViewModel(
 
         AdKit.premiumHelper.initBilling(activity,
             items = listOf(
-                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Lifetime(LIFE_TIME_ID, BillingItem.Type.REMOVE_ADS),
                 BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
                 BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
                 BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
