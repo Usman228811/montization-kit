@@ -44,7 +44,7 @@ class AdKitInitializer private constructor(
 //            Log.i("APPLICATION_ID", "ApplicationID not found")
 //            e.printStackTrace()
 //        }
-
+        Log.d("AdKit_Logs", "initMobileAds start")
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 MobileAds.initialize(context) {
