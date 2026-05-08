@@ -40,7 +40,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.3.9-meta"
+version = "3.4.0-meta"
 
 
 afterEvaluate {
@@ -50,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.3.9-meta"
+                version = "3.4.0-meta"
             }
         }
     }
@@ -98,6 +98,6 @@ dependencies {
     implementation("com.android.installreferrer:installreferrer:2.2")
 
 
-    implementation("com.google.ads.mediation:facebook:6.20.0.2")
+    implementation("com.google.ads.mediation:facebook:6.21.0.2")
 
 }
