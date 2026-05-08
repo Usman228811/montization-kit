@@ -192,13 +192,13 @@ object AdKit {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 FirebaseApp.initializeApp(context)
+                firebaseHelper.setDefaultRemoteConfigs(configDefaults)
                 FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
                 Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
             } catch (_: Exception) {
             }
         }
 
-        firebaseHelper.setDefaultRemoteConfigs(configDefaults)
 
         openAdManager.setOpenAdId(
             adId = openAdId
