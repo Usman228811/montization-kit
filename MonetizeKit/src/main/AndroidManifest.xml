@@ -9,28 +9,6 @@
 
     <application>
 
-
-        <service
-            android:name="com.google.firebase.components.ComponentDiscoveryService"
-            android:exported="false"
-            tools:node="merge">
-            <meta-data
-                android:name="com.google.firebase.components:com.google.firebase.crashlytics.FirebaseCrashlyticsKtxRegistrar"
-                tools:node="remove" />
-            <meta-data
-                android:name="com.google.firebase.components:com.google.firebase.crashlytics.CrashlyticsRegistrar"
-                tools:node="remove" />
-            <meta-data
-                android:name="com.google.firebase.components:com.google.firebase.perf.FirebasePerfKtxRegistrar"
-                tools:node="remove" />
-            <meta-data
-                android:name="com.google.firebase.components:com.google.firebase.perf.FirebasePerfRegistrar"
-                tools:node="remove" />
-            <meta-data
-                android:name="com.google.firebase.components:com.google.firebase.sessions.FirebaseSessionsRegistrar"
-                tools:node="remove" />
-        </service>
-
         <receiver
             android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
             android:exported="true"
@@ -41,10 +19,6 @@
             </intent-filter>
         </receiver>
 
-        <provider
-            android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="${applicationId}.firebaseinitprovider"
-            tools:node="remove" />
 
         <meta-data
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
