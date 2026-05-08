@@ -18,7 +18,7 @@ class RemoteConfigBuilder private constructor() {
     fun mapToKeyValue(): String {
         val grouped = configMap.entries.groupBy { entry ->
             when {
-                entry.key.contains("native") -> "NATIVE ADS"
+                entry.key.lowercase().contains("native") -> "NATIVE ADS"
 
                 entry.key.lowercase().contains("banner") -> "BANNER ADS"
                 entry.key.lowercase().contains("open_ad") ||
