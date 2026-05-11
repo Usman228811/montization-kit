@@ -11,11 +11,11 @@ plugins {
 
 android {
     namespace = "com.test.compose.adslibrary"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.gpsapp"
-//        applicationId = "com.photocleaner.swipetodelete.psma"
+//        applicationId = "com.example.gpsapp"
+        applicationId = "com.photocleaner.swipetodelete.psma"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
