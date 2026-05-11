@@ -18,6 +18,10 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    publishing {
+        singleVariant("release") {}
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -40,7 +44,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.4.2"
+version = "3.4.3"
 
 
 afterEvaluate {
@@ -50,7 +54,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.4.2"
+                version = "3.4.3"
             }
         }
     }
