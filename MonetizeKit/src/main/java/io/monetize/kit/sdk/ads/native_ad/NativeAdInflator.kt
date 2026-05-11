@@ -40,6 +40,7 @@ private val defaultBannerShimmer = mapOf(
     BannerAdType.MEDIUM_RECTANGLE_BANNER.name to R.layout.medium_rect_banner_layout,
     BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name to R.layout.adaptive_banner_layout,
     BannerAdType.TOP_COLLAPSIBLE_BANNER.name to R.layout.adaptive_banner_layout,
+    BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER.name to R.layout.large_anchored_banner_layout,
 )
 
 

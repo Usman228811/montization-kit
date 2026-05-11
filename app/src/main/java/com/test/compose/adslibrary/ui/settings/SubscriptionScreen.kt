@@ -2,7 +2,6 @@ package com.test.compose.adslibrary.ui.settings
 
 import android.app.Activity
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,11 +57,6 @@ fun SubscriptionScreen(
         LaunchedEffect(Unit) {
             subscriptionViewModel.loadProducts(
                 activity,
-                listOf(
-                    "weekly_without_free_trail",
-                    "monthly",
-                    "yearly"
-                )
             )
         }
 
@@ -77,31 +71,41 @@ fun SubscriptionScreen(
         )
 
         SubscriptionOption(
-            title = "weekly",
-            price = state.weeklyPrice,
+            title = "remove ads subscription",
+            price = state.removeAdsPrice,
             isSelected = state.selectedButtonPos == 0,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 0)
+                subscriptionViewModel.updateSelectedButtonPos(0)
 
             }
         )
         Spacer(modifier = Modifier.height(12.dp))
         SubscriptionOption(
-            title = "Monthly",
-            price = state.monthlyPrice,
+            title = "feature 1",
+            price = state.feature1Price,
             isSelected = state.selectedButtonPos == 1,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 1)
+                subscriptionViewModel.updateSelectedButtonPos(1)
 
             }
         )
         Spacer(modifier = Modifier.height(12.dp))
         SubscriptionOption(
-            title = "Yearly",
-            price = state.yearlyPrice,
+            title = "feature 2",
+            price = state.feature2Price,
             isSelected = state.selectedButtonPos == 2,
             onClick = {
-                subscriptionViewModel.updateSelectedButtonPos(activity, 2)
+                subscriptionViewModel.updateSelectedButtonPos(2)
+
+            }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        SubscriptionOption(
+            title = "feature 3",
+            price = state.feature3Price,
+            isSelected = state.selectedButtonPos == 3,
+            onClick = {
+                subscriptionViewModel.updateSelectedButtonPos(3)
 
             }
         )
@@ -152,7 +156,7 @@ fun SubscriptionScreen(
             }
         ) {
             Text(
-                text = "Purchase One Time"
+                text = state.buttonTextLifeTime
             )
         }
 
@@ -173,7 +177,6 @@ fun SubscriptionScreen(
                 }
 
                 override fun onAdClick() {
-                    Toast.makeText(activity, "subscription_native ad clicked", Toast.LENGTH_SHORT).show()
 
                 }
 
@@ -203,9 +206,6 @@ fun SubscriptionScreen(
                     }
 
                     override fun onAdClick() {
-                        Toast.makeText(activity, "subscription screen banner ad click", Toast.LENGTH_SHORT)
-                            .show()
-
                     }
 
                 }

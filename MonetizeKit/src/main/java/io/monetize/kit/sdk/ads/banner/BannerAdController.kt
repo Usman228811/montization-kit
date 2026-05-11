@@ -102,7 +102,11 @@ class BannerAdController private constructor(
 
     private fun destroyBannerAd() {
         try {
+            model?.controller?.setAdControllerListener(null)
+            adFrame = null
             canLoadAdAgain = true
+            isRequesting = false
+            isAdLoadCalled = false
             bannerAd?.destroy()
             bannerAd = null
         } catch (_: Exception) {
@@ -159,7 +163,7 @@ class BannerAdController private constructor(
                                         override fun resetRequesting() {
                                             isRequesting = false
                                         }
-                                    }, "when request")
+                                    })
                                     controller.populateBannerAd(
                                         context = mContext,
                                         placementKey = bannerControllerConfig.placementKey,
@@ -175,8 +179,7 @@ class BannerAdController private constructor(
                                             isRequesting = false
                                             if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
                                                 controller.setAdControllerListener(
-                                                    null,
-                                                    "after populated"
+                                                    null
                                                 )
                                                 bannerAd = ad as AdView
                                                 adCallBack?.onAdShow()
@@ -233,7 +236,7 @@ class BannerAdController private constructor(
 
     fun onPause() {
         canLoadAdAgain = true
-        model?.controller?.setAdControllerListener(null, "ondestroy")
+        model?.controller?.setAdControllerListener(null)
 //        bannerAd?.pause()
     }
 

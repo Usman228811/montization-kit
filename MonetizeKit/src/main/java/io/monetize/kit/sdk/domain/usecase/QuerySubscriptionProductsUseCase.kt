@@ -2,23 +2,25 @@ package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
+import io.monetize.kit.sdk.core.utils.toSubscription
 import io.monetize.kit.sdk.data.impl.SubscriptionRepositoryImpl
+import io.monetize.kit.sdk.domain.model.OfferTexts
+import io.monetize.kit.sdk.domain.model.OfferType
+import io.monetize.kit.sdk.domain.model.PremiumOffer
+import io.monetize.kit.sdk.domain.model.offer.period.Period
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class Products(
-    val products: Map<String, ProductDetails>? = null
-)
 
-data class PriceModel(
-    val price: String,
-    val offerPrice: String,
+data class SubscriptionState(
+    val purchasesList: List<String> = emptyList(),
+    val offers: List<PremiumOffer> = emptyList()
 )
 
 
@@ -44,108 +46,123 @@ class QuerySubscriptionProductsUseCase private constructor(
         }
     }
 
-    private val _products = MutableStateFlow(Products())
-    val products = _products.asStateFlow()
+    var productsMap: Map<String, ProductDetails>? = null
 
-    private val _subscribedId = MutableStateFlow("")
-    val subscribedId = _subscribedId.asStateFlow()
+    private val _ucState = MutableStateFlow(SubscriptionState())
+    val ucState = _ucState.asStateFlow()
 
-    private val _historyFetched = MutableStateFlow(false)
-    val historyFetched = _historyFetched.asStateFlow()
-    private val _isAppSubscribed = MutableStateFlow(false)
-    val isAppSubscribed = _isAppSubscribed.asStateFlow()
+    fun getProducts(): Map<String, ProductDetails>? {
+        return productsMap
+    }
 
+    private var removeAdsIds = listOf<String>()
+    private var featureIds = listOf<String>()
 
-    operator fun invoke(activity: Activity, productIds: List<String>) {
+    operator fun invoke(
+        activity: Activity,
+        removeAdsIds: List<String>,
+        featureIds: List<String>
+    ) {
+        this.removeAdsIds = removeAdsIds
         repository.setBillingListener(
             activity = activity,
+            removeAdsIds = removeAdsIds,
+            featureIds = featureIds,
             object : SubscriptionListener {
-                override fun onBillingInitialized() {
-                    repository.querySubscriptionProducts(activity, productIds)
-                }
 
-                override fun onQueryProductSuccess(skuList: Map<String, ProductDetails>) {
-                    _products.update {
-                        it.copy(
-                            products = skuList
-                        )
+
+                override fun onQueryProductSuccess(
+                    skuList: Map<String, ProductDetails>,
+                    productList: List<ProductDetails>
+                ) {
+
+                    productsMap = skuList
+
+                    val offers = productList
+                        .mapNotNull { it.toSubscription() }
+
+                    _ucState.update {
+                        it.copy(offers = offers)
                     }
+
                     repository.querySubscriptionHistory(activity)
-
                 }
 
-                override fun subscriptionItemNotFound() {
+                override fun onSubscriptionPurchasedFetched(purchasesList: List<String>) {
 
-                }
+                    val uniquePurchases = purchasesList.distinct()
 
-                override fun checkPurchaseStatus(purchase: Purchase) {
-                    try {
-                        if (purchase.isAcknowledged) {
-                            repository.setSubscribed(activity, purchase)
-                            onSubscriptionPurchasedFetched()
-                        } else {
-                            repository.acknowledgedPurchase(activity, purchase)
-                        }
-                    } catch (_: Exception) {
+                    val hasRemoveAds = uniquePurchases.any { it in this@QuerySubscriptionProductsUseCase.removeAdsIds }
+
+                    adKitPref.isAppSubscribed = hasRemoveAds
+
+                    _ucState.update {
+                        it.copy(purchasesList = uniquePurchases)
                     }
                 }
 
-                override fun updatePref(subscribedId: String) {
-                    try {
-                        _subscribedId.value = subscribedId
-                        adKitPref.isAppSubscribed = subscribedId.isNotEmpty()
-                        _isAppSubscribed.value = subscribedId.isNotEmpty()
-                    } catch (_: Exception) {
-                    }
-                }
-
-                override fun onSubscriptionPurchasedFetched() {
-                    _historyFetched.value = historyFetched.value.not()
-                }
-
+                override fun subscriptionItemNotFound() {}
             }
         )
     }
 
 
     fun isSubscriptionUpdateSupported() = repository.isSubscriptionUpdateSupported()
-    fun querySubscriptionProducts(activity: Activity) {
-        repository.querySubscriptionHistory(activity)
-    }
 
-    fun getBillingPrice(
-        productId: String,
-        offerId: String,
-        billingPeriod: String
-    ): PriceModel {
 
-        val product = products.value.products?.get(productId)
-            ?: return PriceModel("Empty", "Empty")
+    fun buildOfferTexts(
+        offerId: String
+    ): OfferTexts {
 
-        val offers = product.subscriptionOfferDetails
-            ?: return PriceModel("Empty", "Empty")
+        val offers = ucState.value.offers
 
-        // 🔹 Offer price (intro / discounted)
-        val offerPrice = offers
-            .firstOrNull { it.offerId == offerId }
-            ?.pricingPhases
-            ?.pricingPhaseList
-            ?.firstOrNull()
-            ?.formattedPrice
-            .orEmpty()
+        if (offers.isEmpty()) {
+            return OfferTexts(OfferType.STRAIGHT, null, null, null, null)
+        }
 
-        // 🔹 Billing (recurring) price
-        val billingPrice = offers
-            .firstOrNull() // base plan
-            ?.pricingPhases
-            ?.pricingPhaseList
-            ?.firstOrNull { it.billingPeriod == billingPeriod }
-            ?.formattedPrice
-            ?: "Error fetching Price"
+        val myOffer = offers.firstOrNull { it.id == offerId }
+        val offer = myOffer as? PremiumOffer.Subscription
+            ?: return OfferTexts(OfferType.STRAIGHT, null, null, null, null)
 
-        return PriceModel(
-            price = billingPrice,
-            offerPrice = offerPrice
+        val periodMap = mapOf(
+            Period.DAY to "day",
+            Period.WEEK to "week",
+            Period.MONTH to "month",
+            Period.YEAR to "year",
+        )
+
+        // 🔹 Detect Type
+        val type = when {
+            offer.trialPhase != null -> OfferType.FREE_TRIAL
+            offer.paidPhases.size > 1 -> OfferType.PAID_TRIAL
+            else -> OfferType.STRAIGHT
+        }
+
+        // 🔹 Free Trial
+        val freeTrialText = offer.trialPhase?.let { trial ->
+            "${trial.period.count}-${periodMap[trial.period.period]} FREE Trial"
+        }
+
+        // 🔹 Paid Trial
+        val paidTrialText =
+            if (type == OfferType.PAID_TRIAL) {
+                val firstPhase = offer.paidPhases.first()
+                "${firstPhase.price.formattedPrice} for ${firstPhase.period.count}-${periodMap[firstPhase.period.period]}"
+            } else null
+
+        // 🔹 Main Offer
+        val mainOfferText = offer.paidPhases.lastOrNull()?.price?.formattedPrice
+        // 🔹 Main Offer
+        val mPeriod = offer.paidPhases.lastOrNull()?.let { last ->
+            "${periodMap[last.period.period]}"
+        }
+
+        return OfferTexts(
+            type = type,
+            period = mPeriod,
+            freeTrialText = freeTrialText,
+            paidTrialText = paidTrialText,
+            mainOfferText = mainOfferText
         )
     }
 

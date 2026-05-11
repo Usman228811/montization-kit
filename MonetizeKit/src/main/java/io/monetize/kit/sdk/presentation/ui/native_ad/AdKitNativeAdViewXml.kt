@@ -41,7 +41,7 @@ class AdKitNativeAdViewXml @JvmOverloads constructor(
             mViewModel =  ViewModelProvider(
                 owner,
                 NativeAdViewModelFactory()
-            )[NativeAdViewModel::class.java]
+            )[nativeControllerConfig.placementKey,  NativeAdViewModel::class.java]
 
             mViewModel?.initNativeSingleAdData(
                 mContext = context,

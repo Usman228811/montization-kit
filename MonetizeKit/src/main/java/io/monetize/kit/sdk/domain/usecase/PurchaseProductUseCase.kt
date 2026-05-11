@@ -1,16 +1,15 @@
 package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
-import android.content.Context
-import io.monetize.kit.sdk.core.utils.AdKitInternetController
-import io.monetize.kit.sdk.core.utils.AdKitPref
-import io.monetize.kit.sdk.data.impl.BillingRepositoryImpl
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 
 class PurchaseProductUseCase private constructor(
     private val billingRepository: BillingRepository
 ) {
-    operator fun invoke(activity: Activity?,onUserDismissedPaywall: (() -> Unit)?) = billingRepository.purchaseProduct(activity, onUserDismissedPaywall)
+    operator fun invoke(
+        activity: Activity?,
+        productId: String, onUserDismissedPaywall: (() -> Unit)? = null
+    ) = billingRepository.purchaseProduct(activity, productId, onUserDismissedPaywall)
 
     companion object {
         @Volatile

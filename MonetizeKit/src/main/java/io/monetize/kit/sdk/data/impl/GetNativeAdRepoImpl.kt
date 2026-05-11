@@ -165,12 +165,18 @@ class GetNativeAdRepoImpl private constructor(
 
     override fun onDestroy() {
         try {
+            model?.controller?.setNativeControllerListener(null)
+            isRequesting = false
+            canLoadAdAgain = true
             destroyNativeAd()
             nullRefreshListener()
+//            hideAdFrame()
+            adFrame = null
+            adCallBack = null
+            isAdLoadCalled = false
         } catch (_: Exception) {
         }
     }
-
     private fun nullRefreshListener() {
         model?.controller?.setNativeRefreshListener(null)
     }
