@@ -118,7 +118,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     instantReward(true)
                 }
                 banner("home_banner") {
-                    enable(true)
+                    enable(false)
                     bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 banner("home_banner_top") {

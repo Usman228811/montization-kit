@@ -1,20 +1,20 @@
 [versions]
-agp = "8.13.0"
-kotlin = "2.3.0"
-coreKtx = "1.16.0"
+agp = "9.2.1"
+kotlin = "2.3.21"
+coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.10.1"
-composeBom = "2026.01.01"
+activityCompose = "1.13.0"
+composeBom = "2026.05.00"
 appcompat = "1.7.1"
 material = "1.13.0"
-activity = "1.10.1"
+activity = "1.13.0"
 constraintlayout = "2.2.1"
-navigationCompose = "2.9.7"
+navigationCompose = "2.9.8"
 sdpCompose = "1.0.7"
 
 
 gmsServiceVersion = "4.4.4"
-firebaseCrashlyticsVersion = "3.0.6"
+firebaseCrashlyticsVersion = "3.0.7"
 firebasePerfVersion = "2.0.2"
 
 
