@@ -103,7 +103,7 @@ class AdKitConsentManager private constructor(
                     }
                 )
             }
-            PangleMediationAdapter.setGDPRConsent(if (canRequestAds) 1 else 0)
+//            PangleMediationAdapter.setGDPRConsent(if (canRequestAds) 1 else 0)
             PangleMediationAdapter.setPAConsent(if (canRequestAds) 1 else 0)
             VunglePrivacySettings.setGDPRStatus(canRequestAds, "v1.0.0")
             VunglePrivacySettings.setCCPAStatus(canRequestAds)
