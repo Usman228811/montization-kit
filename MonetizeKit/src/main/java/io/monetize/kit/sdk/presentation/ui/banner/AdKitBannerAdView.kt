@@ -4,6 +4,7 @@ import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -23,21 +24,30 @@ import io.monetize.kit.sdk.presentation.viewmodels.BannerAdViewModelFactory
 @Composable
 fun AdKitBannerAdView(
     bannerControllerConfig: BannerControllerConfig,
-    adCallBack: AdCallBack ?= null
+    adCallBack: AdCallBack ?= null,
+    callCustomDestroy: ((() -> Unit) -> Unit)? = null
+
 
 ) {
 
-    val context = LocalContext.current
+    val activity = LocalActivity.current as Activity
     val bannerAdViewModel: BannerAdViewModel = viewModel(
+        key = bannerControllerConfig.placementKey,
         factory = BannerAdViewModelFactory()
     )
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(bannerAdViewModel, lifecycleOwner) {
         bannerAdViewModel.observeLifecycle(lifecycleOwner)
         onDispose {
+//            bannerAdViewModel.onDestroy()
         }
+    }
+
+
+    callCustomDestroy?.invoke {
+        bannerAdViewModel.onDestroy()
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -52,7 +62,7 @@ fun AdKitBannerAdView(
                 adFrame.visibility = View.VISIBLE
 
                 bannerAdViewModel.initSingleBannerData(
-                    mContext = context as Activity,
+                    mContext = activity,
                     bannerControllerConfig = bannerControllerConfig,
                     adFrame = adFrame,
                     adCallBack = adCallBack

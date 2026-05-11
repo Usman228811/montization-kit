@@ -1,6 +1,10 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.app.Application
+import android.content.Context
+import android.os.Environment
+import android.util.Log
+import com.google.common.io.Files.map
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
@@ -24,13 +28,14 @@ import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_review.AdKitInAppReviewManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import io.monetize.kit.sdk.core.utils.locale.LocaleHelper
-import io.monetize.kit.sdk.core.utils.purchase.AdKitPurchaseHelper
-import io.monetize.kit.sdk.core.utils.purchase.AdKitSubscriptionHelper
+import io.monetize.kit.sdk.core.utils.purchase.AdKitPremiumHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.io.File
 
 object AdKit {
 
@@ -121,15 +126,9 @@ object AdKit {
             }
 
 
-    val purchaseHelper: AdKitPurchaseHelper
+    val premiumHelper: AdKitPremiumHelper
             by lazy {
-                AdKitPurchaseHelper.getInstance(mContext)
-            }
-
-
-    val subscriptionHelper: AdKitSubscriptionHelper
-            by lazy {
-                AdKitSubscriptionHelper.getInstance(mContext)
+                AdKitPremiumHelper.getInstance(mContext)
             }
 
 
@@ -178,6 +177,7 @@ object AdKit {
         resetInterKeyForCommonAds: String? = null,
         postRevenueOnFireBase: Boolean = false,
         appFlyerSdkKey: String,
+        onDefaultConfigGenerated: (String) -> Unit,
         onInitSdk: () -> Unit
     ) {
         mContext = context
@@ -186,16 +186,20 @@ object AdKit {
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
 
+        val content = configBuilder.mapToKeyValue()
+        onDefaultConfigGenerated(content)
+
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 FirebaseApp.initializeApp(context)
+                firebaseHelper.setDefaultRemoteConfigs(configDefaults)
                 FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !isDebug
                 Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
             } catch (_: Exception) {
             }
         }
 
-        firebaseHelper.setDefaultRemoteConfigs(configDefaults)
 
         openAdManager.setOpenAdId(
             adId = openAdId
@@ -223,5 +227,16 @@ object AdKit {
             isDebug
         )
         onInitSdk()
+    }
+}
+
+private fun getAppName(context: Context): String {
+    val appInfo = context.applicationInfo
+    val resId = appInfo.labelRes
+
+    return if (resId != 0) {
+        context.getString(resId)
+    } else {
+        appInfo.nonLocalizedLabel?.toString() ?: "Unknown"
     }
 }

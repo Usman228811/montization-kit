@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.core.utils.init
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
@@ -44,7 +45,7 @@ class AdKitInitializer private constructor(
 //            Log.i("APPLICATION_ID", "ApplicationID not found")
 //            e.printStackTrace()
 //        }
-
+        Log.d("AdKit_Logs", "initMobileAds start")
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 MobileAds.initialize(

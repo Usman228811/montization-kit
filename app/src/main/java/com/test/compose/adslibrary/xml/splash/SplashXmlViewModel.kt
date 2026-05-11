@@ -9,6 +9,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
+import com.test.compose.adslibrary.ui.settings.FEATURE_1
+import com.test.compose.adslibrary.ui.settings.FEATURE_2
+import com.test.compose.adslibrary.ui.settings.FEATURE_3
+import com.test.compose.adslibrary.ui.settings.LIFE_TIME_ID
+import com.test.compose.adslibrary.ui.settings.REMOVE_ADS_ID
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
@@ -18,8 +23,8 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKit.purchaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
+import io.monetize.kit.sdk.core.utils.purchase.BillingItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -64,6 +69,17 @@ class SplashXmlViewModel : ViewModel() {
 //        purchaseHelper.initBilling(productId)
     }
 
+    fun loadProducts(activity: Activity){
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime(LIFE_TIME_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
+    }
     fun onResume(activity: Activity) {
         if (state.value.runSplash) {
             animator?.resume()
@@ -112,8 +128,9 @@ class SplashXmlViewModel : ViewModel() {
                 }
             }
             launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    _state.update { it.copy(isPurchased = result) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d("purchase_status", "premiumPurchases: ${premiumState.allPurchases}")
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }

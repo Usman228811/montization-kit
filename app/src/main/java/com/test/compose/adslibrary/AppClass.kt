@@ -110,8 +110,12 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     instantReward(false)
                 }
                 banner("home_banner") {
-                    enable(true)
+                    enable(false)
                     bannerType(BannerAdType.ADAPTIVE_BANNER)
+                }
+                banner("home_banner_exit") {
+                    enable(true)
+                    bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
                 }
                 banner("home_banner_top") {
                     enable(false)
@@ -122,6 +126,9 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
 //                overAllNativeColor("#964B00", "#FF03DAC5")
+            },
+            onDefaultConfigGenerated = {
+                Log.d("opoppp", "onCreate: $it")
             },
             onInitSdk = {
 

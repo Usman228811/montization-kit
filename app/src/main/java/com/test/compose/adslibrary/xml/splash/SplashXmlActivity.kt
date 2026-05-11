@@ -29,6 +29,8 @@ class SplashXmlActivity : AppCompatActivity() {
         splashXmlViewModel =
             ViewModelProvider(this, SplashXmlViewModelFactory())[SplashXmlViewModel::class]
 
+        splashXmlViewModel?.loadProducts(this)
+
 
         splashXmlViewModel?.let { viewModel ->
 

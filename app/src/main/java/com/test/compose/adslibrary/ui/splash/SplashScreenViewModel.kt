@@ -13,9 +13,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
+import com.test.compose.adslibrary.ui.settings.FEATURE_1
+import com.test.compose.adslibrary.ui.settings.FEATURE_2
+import com.test.compose.adslibrary.ui.settings.FEATURE_3
+import com.test.compose.adslibrary.ui.settings.LIFE_TIME_ID
+import com.test.compose.adslibrary.ui.settings.REMOVE_ADS_ID
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import io.monetize.kit.sdk.core.utils.in_app_update.UpdateState
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -24,8 +28,8 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.consentManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.firebaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.inAppUpdateManager
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
-import io.monetize.kit.sdk.core.utils.init.AdKit.purchaseHelper
 import io.monetize.kit.sdk.core.utils.init.AdKit.splashAdController
+import io.monetize.kit.sdk.core.utils.purchase.BillingItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -39,7 +43,8 @@ class SplashScreenViewModelFactory : ViewModelProvider.Factory {
     }
 }
 
-class SplashScreenViewModel : ViewModel() {
+class SplashScreenViewModel(
+) : ViewModel() {
     private var _state = MutableStateFlow(SplashScreenState())
     val state = _state.asStateFlow()
     private var isInterAdShowed = false
@@ -47,7 +52,6 @@ class SplashScreenViewModel : ViewModel() {
     private var animator: ValueAnimator? = null
 
     init {
-        purchaseHelper.initBilling("android.test.purchased")
         AdKit.analytics.postAnalytics("Splash_launch")
         splashAdController.resetSplash()
         collections()
@@ -55,8 +59,19 @@ class SplashScreenViewModel : ViewModel() {
 //        purchaseHelper.initBilling("one_time_purchase_id")
     }
 
-    fun loadProducts(activity: Activity, list: List<String>) {
-        AdKit.subscriptionHelper.initBilling(activity, list)
+    fun loadProducts(
+        activity: Activity,
+    ) {
+
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime(LIFE_TIME_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
     }
 
     private fun onResume() {
@@ -111,9 +126,7 @@ class SplashScreenViewModel : ViewModel() {
     private fun collections() {
         viewModelScope.apply {
             launch {
-                consentManager.googleConsent.collectLatest {
-                    initializeSplash()
-                }
+                consentManager.googleConsent.collectLatest { initializeSplash() }
             }
             launch {
                 firebaseHelper.apply {
@@ -128,15 +141,9 @@ class SplashScreenViewModel : ViewModel() {
                 }
             }
             launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    Log.d("purchase_status", "oneTimePurchased: $result")
-                    _state.update { it.copy(isPurchased = result) }
-                }
-            }
-            launch {
-                AdKit.subscriptionHelper.isAppSubscribed.collectLatest { isAppSubscribed ->
-                    Log.d("purchase_status", "isAppSubscribed: $isAppSubscribed")
-//                    _state.update { it.copy(isPurchased = result) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d("purchase_status", "premiumPurchases: ${premiumState.allPurchases}")
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }
@@ -199,33 +206,19 @@ class SplashScreenViewModel : ViewModel() {
     fun initSplashAd(mContext: Activity) {
         if (!isInterAdCalled) {
             isInterAdCalled = true
-            AdKit.preLoadNative.preLoadNativeAd(
-                mContext,
-                nativeControllerConfig = NativeControllerConfig(
-                    placementKey = "home_native",
-                    adIdKey = "native_common"
-                )
-            )
-
-
+//            AdKit.preLoadNative.preLoadNativeAd(
+//                mContext,
+//                nativeControllerConfig = NativeControllerConfig(
+//                    placementKey = "home_native",
+//                    adIdKey = "native_common"
+//                )
+//            )
 //            AdKit.preloadBanner.preLoadBanner(
 //                mContext, BannerControllerConfig(
 //                    "home_banner",
 //                    "banner_common",
 //                )
 //            )
-
-            AdKit.interHelper.preLoadInter(
-                mContext,
-                placementKey = "home_inter",
-                adIdKey = "home_inter",
-            )
-            AdKit.rewardHelper.preLoadRewardAd(
-                mContext,
-                adIdKey = "reward_main",
-                placementKey = "inter_btn_plant",
-            )
-
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

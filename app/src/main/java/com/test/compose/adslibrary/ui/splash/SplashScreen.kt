@@ -30,11 +30,6 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         splashViewModel.loadProducts(
             activity,
-            listOf(
-                "weekly_subscription2",
-                "monthly1_subscription",
-                "yearly_subscription"
-            )
         )
     }
     LaunchedEffect(Unit) {

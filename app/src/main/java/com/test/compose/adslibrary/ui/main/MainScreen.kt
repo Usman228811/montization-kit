@@ -39,7 +39,6 @@ import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
-import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialog
 import network.chaintech.sdpcomposemultiplatform.sdp
 
 @Composable
@@ -251,6 +250,7 @@ fun MainScreen(
 fun ExitDialog(onDismissRequest: () -> Unit) {
 
     var destroy: (() -> Unit)? = null
+    var destroyBanner: (() -> Unit)? = null
     val activity = LocalActivity.current as Activity
 
     Dialog(
@@ -258,6 +258,7 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
             usePlatformDefaultWidth = false // Needed for full width
         ), onDismissRequest = {
             destroy?.invoke()
+            destroyBanner?.invoke()
             onDismissRequest()
         }) {
 
@@ -267,7 +268,35 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 .background(Color.White)
         ) {
 
-            AdKitNativeAdViewDialog(
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+
+                AdKitBannerAdView(
+                    bannerControllerConfig = BannerControllerConfig(
+                        placementKey = "home_banner_exit",
+                        adIdKey = "banner_common"
+                    ),
+                    adCallBack = object : AdCallBack {
+                        override fun onAdFailed(reason: String) {
+                            Log.d("dddddd", reason)
+                        }
+
+                        override fun onAdShow() {
+
+                        }
+
+                        override fun onAdClick() {
+                            Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
+                                .show()
+
+                        }
+
+                    }, callCustomDestroy = {
+                        destroyBanner = it
+                    }
+                )
+            }
+
+            AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
                     "native_common",

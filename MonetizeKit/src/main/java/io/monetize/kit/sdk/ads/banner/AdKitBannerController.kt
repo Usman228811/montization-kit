@@ -1,7 +1,6 @@
 package io.monetize.kit.sdk.ads.banner
 
 import android.app.Activity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -44,11 +43,7 @@ class AdKitBannerController {
     }
 
 
-    fun setAdControllerListener(listener: AdControllerListener?, from: String) {
-        Log.d(
-            TAG,
-            "setAdControllerListener: ${if (listener == null) "null from $from" else "attached from $from"} "
-        )
+    fun setAdControllerListener(listener: AdControllerListener?) {
         adControllerListener?.resetRequesting()
         adControllerListener = listener
     }
@@ -64,7 +59,7 @@ class AdKitBannerController {
         )
         this.bannerType = bannerType
         this.placementKey = bannerControllerConfig.placementKey
-        setAdControllerListener(null, "preload")
+        setAdControllerListener(null)
         this.adIdKey = bannerControllerConfig.adIdKey
         loadBannerAd(context, isAdEnable)
     }
