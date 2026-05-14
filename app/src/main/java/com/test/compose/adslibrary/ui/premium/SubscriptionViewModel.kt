@@ -1,4 +1,4 @@
-package com.test.compose.adslibrary.ui.settings
+package com.test.compose.adslibrary.ui.premium
 
 import android.app.Activity
 import android.util.Log

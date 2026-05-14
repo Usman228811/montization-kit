@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
+import android.util.Log
 import android.widget.LinearLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -74,6 +75,7 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         // Ensure observer is removed when lifecycle is destroyed
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
+                Log.d("usman", "Native onDestroy: ")
                 onDestroy()
                 lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
             }

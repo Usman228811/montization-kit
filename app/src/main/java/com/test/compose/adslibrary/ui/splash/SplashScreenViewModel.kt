@@ -221,11 +221,16 @@ class SplashScreenViewModel(
 //                    "banner_common",
 //                )
 //            )
+            _state.update {
+                it.copy(
+                    loadAndShow = false
+                )
+            }
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
-                loadAndShow = true,
+                loadAndShow = state.value.loadAndShow,
                 splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {

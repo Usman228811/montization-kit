@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.content.Context
+import android.util.Log
 import android.widget.LinearLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -91,6 +92,7 @@ class NativeAdSingleController {
                         )
 //                        }
 
+                        Log.d("usman", "loadNativeAd: loaded")
                         adControllerListener?.onAdLoaded()
                     }
                     builder.withNativeAdOptions(

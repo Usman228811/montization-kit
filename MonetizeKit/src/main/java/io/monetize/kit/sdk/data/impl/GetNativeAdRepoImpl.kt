@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.data.impl
 
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -247,6 +248,7 @@ class GetNativeAdRepoImpl private constructor(
 
                         if (!isRequesting) {
                             isRequesting = true
+                            Log.d("usman", "requestNative: called")
                             adFrame.descendantFocusability =
                                 ViewGroup.FOCUS_BLOCK_DESCENDANTS
                             if (largeNativeAd == null) {
