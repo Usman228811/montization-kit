@@ -14,11 +14,12 @@ android {
 
     defaultConfig {
 //        applicationId = "com.example.gpsapp"
+//        applicationId = "com.plant.identifier.scanplant"
         applicationId = "com.photocleaner.swipetodelete.psma"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 15
+        versionName = "1.0.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

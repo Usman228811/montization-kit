@@ -51,6 +51,13 @@ enum class PremiumProductType {
     UNKNOWN
 }
 
+private data class BillingItemsByType(
+    val lifetimeRemoveAds: List<String>,
+    val lifetimeFeatures: List<String>,
+    val subscriptionRemoveAds: List<String>,
+    val subscriptionFeatures: List<String>
+)
+
 class AdKitPremiumHelper private constructor(
     private val purchaseHelper: AdKitPurchaseHelper,
     private val subscriptionHelper: AdKitSubscriptionHelper
@@ -58,6 +65,12 @@ class AdKitPremiumHelper private constructor(
 
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val billingProvider: PremiumBillingProvider
+        get() = if (AdKit.getRevenueCatKey().isNotEmpty()) {
+            PremiumBillingProvider.REVENUE_CAT
+        } else {
+            PremiumBillingProvider.PLAY
+        }
 
     val premiumState: StateFlow<PremiumAccessState> = combine(
         purchaseHelper.oneTimePurchaseState,
@@ -87,57 +100,65 @@ class AdKitPremiumHelper private constructor(
         activity: Activity,
         items: List<BillingItem>
     ) {
+        val provider = billingProvider
+        if (provider == PremiumBillingProvider.REVENUE_CAT) {
+            configureRevenueCat(activity)
+        }
+        val groupedItems = groupBillingItems(items)
 
-        if (AdKit.getRevenueCatKey().isNotEmpty()) {
-            Purchases.logLevel = logLevel
-
-            val configuration = PurchasesConfiguration.Builder(
-                activity, AdKit.getRevenueCatKey()
-            ).build()
-
-            Purchases.configure(configuration)
+        if (groupedItems.lifetimeRemoveAds.isNotEmpty() || groupedItems.lifetimeFeatures.isNotEmpty()) {
+            purchaseHelper.initBilling(
+                provider = provider,
+                removeAdsIds = groupedItems.lifetimeRemoveAds,
+                featureIds = groupedItems.lifetimeFeatures
+            )
         }
 
+        if (groupedItems.subscriptionRemoveAds.isNotEmpty() || groupedItems.subscriptionFeatures.isNotEmpty()) {
+            subscriptionHelper.initBilling(
+                activity = activity,
+                provider = provider,
+                removeAdsIds = groupedItems.subscriptionRemoveAds,
+                featureIds = groupedItems.subscriptionFeatures
+            )
+        }
+    }
 
+    private fun configureRevenueCat(activity: Activity) {
+        Purchases.logLevel = logLevel
+        val configuration = PurchasesConfiguration.Builder(
+            activity,
+            AdKit.getRevenueCatKey()
+        ).build()
+        Purchases.configure(configuration)
+    }
+
+    private fun groupBillingItems(items: List<BillingItem>): BillingItemsByType {
         val lifetimeRemoveAds = mutableListOf<String>()
         val lifetimeFeatures = mutableListOf<String>()
-        val subRemoveAds = mutableListOf<String>()
-        val subFeatures = mutableListOf<String>()
+        val subscriptionRemoveAds = mutableListOf<String>()
+        val subscriptionFeatures = mutableListOf<String>()
 
         items.forEach { item ->
             when (item) {
-                is BillingItem.Lifetime -> {
-                    when (item.type) {
-                        BillingItem.Type.REMOVE_ADS -> lifetimeRemoveAds.add(item.productId)
-                        BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
-                    }
+                is BillingItem.Lifetime -> when (item.type) {
+                    BillingItem.Type.REMOVE_ADS -> lifetimeRemoveAds.add(item.productId)
+                    BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
                 }
 
-                is BillingItem.Subscription -> {
-                    when (item.type) {
-                        BillingItem.Type.REMOVE_ADS -> subRemoveAds.add(item.productId)
-                        BillingItem.Type.FEATURE -> subFeatures.add(item.productId)
-                    }
+                is BillingItem.Subscription -> when (item.type) {
+                    BillingItem.Type.REMOVE_ADS -> subscriptionRemoveAds.add(item.productId)
+                    BillingItem.Type.FEATURE -> subscriptionFeatures.add(item.productId)
                 }
             }
         }
 
-        if (lifetimeRemoveAds.isNotEmpty() || lifetimeFeatures.isNotEmpty()) {
-            purchaseHelper.initBilling(
-                isForRevenueCat = AdKit.getRevenueCatKey().isNotEmpty(),
-                removeAdsIds = lifetimeRemoveAds,
-                featureIds = lifetimeFeatures
-            )
-        }
-
-        if (subRemoveAds.isNotEmpty() || subFeatures.isNotEmpty()) {
-            subscriptionHelper.initBilling(
-                activity = activity,
-                isForRevenueCat = AdKit.getRevenueCatKey().isNotEmpty(),
-                removeAdsIds = subRemoveAds,
-                featureIds = subFeatures
-            )
-        }
+        return BillingItemsByType(
+            lifetimeRemoveAds = lifetimeRemoveAds,
+            lifetimeFeatures = lifetimeFeatures,
+            subscriptionRemoveAds = subscriptionRemoveAds,
+            subscriptionFeatures = subscriptionFeatures
+        )
     }
 
     fun getProductType(productId: String): PremiumProductType {

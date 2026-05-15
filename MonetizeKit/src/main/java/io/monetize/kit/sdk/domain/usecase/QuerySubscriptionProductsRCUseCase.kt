@@ -2,56 +2,42 @@ package io.monetize.kit.sdk.domain.usecase
 
 import android.app.Activity
 import android.content.Context
-import com.android.billingclient.api.ProductDetails
 import com.revenuecat.purchases.Package
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.toSubscription
-import io.monetize.kit.sdk.data.impl.PlaySubscriptionRepositoryImpl
 import io.monetize.kit.sdk.data.impl.RCSubscriptionRepositoryImpl
 import io.monetize.kit.sdk.domain.model.OfferTexts
-import io.monetize.kit.sdk.domain.model.OfferType
-import io.monetize.kit.sdk.domain.model.PremiumOffer
-import io.monetize.kit.sdk.domain.model.offer.period.Period
+import io.monetize.kit.sdk.domain.repo.BillingQueryResult
+import io.monetize.kit.sdk.domain.repo.RevenueCatBillingQueryResult
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-
 
 class QuerySubscriptionProductsRCUseCase private constructor(
     private val repository: SubscriptionRepository
 ) {
 
     companion object {
-
         @Volatile
         private var instance: QuerySubscriptionProductsRCUseCase? = null
 
-
-        fun getInstance(
-            context: Context
-        ): QuerySubscriptionProductsRCUseCase {
+        fun getInstance(context: Context): QuerySubscriptionProductsRCUseCase {
             val repo = RCSubscriptionRepositoryImpl.getInstance(context)
             return instance ?: synchronized(this) {
-                instance ?: QuerySubscriptionProductsRCUseCase(
-                    repo
-                ).also { instance = it }
+                instance ?: QuerySubscriptionProductsRCUseCase(repo).also { instance = it }
             }
         }
     }
 
-    var productsMap: Map<String, Package>? = null
+    private var productsMap: Map<String, Package>? = null
 
     private val _ucState = MutableStateFlow(SubscriptionState())
     val ucState = _ucState.asStateFlow()
 
-    fun getProducts(): Map<String, Package>? {
-        return productsMap
-    }
+    fun getProducts(): Map<String, Package>? = productsMap
 
-    private var removeAdsIds = listOf<String>()
-    private var featureIds = listOf<String>()
+    private var removeAdsIds = emptyList<String>()
 
     operator fun invoke(
         activity: Activity,
@@ -63,103 +49,29 @@ class QuerySubscriptionProductsRCUseCase private constructor(
             activity = activity,
             removeAdsIds = removeAdsIds,
             featureIds = featureIds,
-            object : SubscriptionListener {
-
-
-                override fun onQueryProductSuccess(
-                    skuList: Map<String, Any>,
-                    productList: List<Any>
-                ) {
-                   skuList as Map<String, Package>
-                    productsMap = skuList
-
-                    productList as List<Package>
-                    val offers = productList
-                        .mapNotNull { it.toSubscription() }
-
-                    _ucState.update {
-                        it.copy(offers = offers)
-                    }
-
+            listener = object : SubscriptionListener {
+                override fun onQueryProductSuccess(result: BillingQueryResult) {
+                    val revenueCatResult = result as? RevenueCatBillingQueryResult ?: return
+                    productsMap = revenueCatResult.skuList
+                    val offers = revenueCatResult.productList.mapNotNull { it.toSubscription() }
+                    _ucState.updateSubscriptionOffers(offers)
                     repository.querySubscriptionHistory(activity)
                 }
 
                 override fun onSubscriptionPurchasedFetched(purchasesList: List<String>) {
-
-                    val uniquePurchases = purchasesList.distinct()
-
-                    val hasRemoveAds = uniquePurchases.any { it in this@QuerySubscriptionProductsRCUseCase.removeAdsIds }
-
-                    adKitPref.isAppSubscribed = hasRemoveAds
-
-                    _ucState.update {
-                        it.copy(purchasesList = uniquePurchases)
-                    }
+                    val uniquePurchases = purchasesList.distinctPurchases()
+                    adKitPref.isAppSubscribed = uniquePurchases.any { it in this@QuerySubscriptionProductsRCUseCase.removeAdsIds }
+                    _ucState.updateSubscriptionPurchases(uniquePurchases)
                 }
 
-                override fun subscriptionItemNotFound() {}
+                override fun subscriptionItemNotFound() = Unit
             }
         )
     }
 
-
     fun isSubscriptionUpdateSupported() = repository.isSubscriptionUpdateSupported()
 
-
-    fun buildOfferTexts(
-        offerId: String
-    ): OfferTexts {
-
-        val offers = ucState.value.offers
-
-        if (offers.isEmpty()) {
-            return OfferTexts(OfferType.STRAIGHT, null, null, null, null)
-        }
-
-        val myOffer = offers.firstOrNull { it.id == offerId }
-        val offer = myOffer as? PremiumOffer.Subscription
-            ?: return OfferTexts(OfferType.STRAIGHT, null, null, null, null)
-
-        val periodMap = mapOf(
-            Period.DAY to "day",
-            Period.WEEK to "week",
-            Period.MONTH to "month",
-            Period.YEAR to "year",
-        )
-
-        // 🔹 Detect Type
-        val type = when {
-            offer.trialPhase != null -> OfferType.FREE_TRIAL
-            offer.paidPhases.size > 1 -> OfferType.PAID_TRIAL
-            else -> OfferType.STRAIGHT
-        }
-
-        // 🔹 Free Trial
-        val freeTrialText = offer.trialPhase?.let { trial ->
-            "${trial.period.count}-${periodMap[trial.period.period]} FREE Trial"
-        }
-
-        // 🔹 Paid Trial
-        val paidTrialText =
-            if (type == OfferType.PAID_TRIAL) {
-                val firstPhase = offer.paidPhases.first()
-                "${firstPhase.price.formattedPrice} for ${firstPhase.period.count}-${periodMap[firstPhase.period.period]}"
-            } else null
-
-        // 🔹 Main Offer
-        val mainOfferText = offer.paidPhases.lastOrNull()?.price?.formattedPrice
-        // 🔹 Main Offer
-        val mPeriod = offer.paidPhases.lastOrNull()?.let { last ->
-            "${periodMap[last.period.period]}"
-        }
-
-        return OfferTexts(
-            type = type,
-            period = mPeriod,
-            freeTrialText = freeTrialText,
-            paidTrialText = paidTrialText,
-            mainOfferText = mainOfferText
-        )
+    fun buildOfferTexts(offerId: String): OfferTexts {
+        return buildSubscriptionOfferTexts(ucState.value.offers, offerId)
     }
-
 }

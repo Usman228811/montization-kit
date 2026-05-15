@@ -2,10 +2,8 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.app.Application
-import io.monetize.kit.sdk.core.utils.init.AdKit.init
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.domain.model.OfferTexts
-import io.monetize.kit.sdk.domain.usecase.OneTimePurchaseState
 import io.monetize.kit.sdk.domain.usecase.PurchaseSubscriptionUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsRCUseCase
 import io.monetize.kit.sdk.domain.usecase.QuerySubscriptionProductsUseCase
@@ -39,45 +37,48 @@ class AdKitSubscriptionHelper private constructor(
                     QuerySubscriptionProductsUseCase.getInstance(context.applicationContext),
                     QuerySubscriptionProductsRCUseCase.getInstance(context.applicationContext),
                     PurchaseSubscriptionUseCase.getInstance(context.applicationContext),
-
-                    ).also { instance = it }
+                ).also { instance = it }
             }
         }
     }
 
 
-    private val _isRevenueCat = MutableStateFlow(false)
+    private val billingProvider = MutableStateFlow(PremiumBillingProvider.PLAY)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 
-    fun initBilling(
+    internal fun initBilling(
         activity: Activity,
         removeAdsIds: List<String>,
         featureIds: List<String>,
-        isForRevenueCat: Boolean
+        provider: PremiumBillingProvider
     ) {
-        _isRevenueCat.value = isForRevenueCat
-        if (isForRevenueCat) {
-            queryProductsRc(
-                activity = activity,
-                removeAdsIds = removeAdsIds,
-                featureIds = featureIds
-            )
+        billingProvider.value = provider
+        when (provider) {
+            PremiumBillingProvider.REVENUE_CAT -> {
+                queryProductsRc(
+                    activity = activity,
+                    removeAdsIds = removeAdsIds,
+                    featureIds = featureIds
+                )
+            }
 
-        } else {
-            queryProducts(activity = activity, removeAdsIds = removeAdsIds, featureIds = featureIds)
-
+            PremiumBillingProvider.PLAY -> {
+                queryProducts(
+                    activity = activity,
+                    removeAdsIds = removeAdsIds,
+                    featureIds = featureIds
+                )
+            }
         }
     }
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val subscriptionState: StateFlow<SubscriptionState> = _isRevenueCat.flatMapLatest { isRc ->
-        if (isRc) {
-            queryProductsRc.ucState
-        } else {
-            queryProducts.ucState
-
+    val subscriptionState: StateFlow<SubscriptionState> = billingProvider.flatMapLatest { provider ->
+        when (provider) {
+            PremiumBillingProvider.REVENUE_CAT -> queryProductsRc.ucState
+            PremiumBillingProvider.PLAY -> queryProducts.ucState
         }
     }
         .stateIn(
@@ -87,19 +88,17 @@ class AdKitSubscriptionHelper private constructor(
         )
 
 
-    fun isSubscriptionUpdateSupported() = if (_isRevenueCat.value) {
-        queryProductsRc.isSubscriptionUpdateSupported()
-    } else {
-        queryProducts.isSubscriptionUpdateSupported()
+    fun isSubscriptionUpdateSupported() = when (billingProvider.value) {
+        PremiumBillingProvider.REVENUE_CAT -> queryProductsRc.isSubscriptionUpdateSupported()
+        PremiumBillingProvider.PLAY -> queryProducts.isSubscriptionUpdateSupported()
     }
 
     fun getBillingPrice(
         productId: String,
     ): OfferTexts {
-        return if (_isRevenueCat.value) {
-            queryProductsRc.buildOfferTexts(productId)
-        }else{
-            queryProducts.buildOfferTexts(productId)
+        return when (billingProvider.value) {
+            PremiumBillingProvider.REVENUE_CAT -> queryProductsRc.buildOfferTexts(productId)
+            PremiumBillingProvider.PLAY -> queryProducts.buildOfferTexts(productId)
         }
     }
 
@@ -111,14 +110,12 @@ class AdKitSubscriptionHelper private constructor(
     fun purchase(
         activity: Activity,
         productId: String?,
-        isForUpdatePlan: Boolean, onUserDismissedPaywall: (() -> Unit)? = null,
-
-        ) {
+        isForUpdatePlan: Boolean,
+        onUserDismissedPaywall: (() -> Unit)? = null,
+    ) {
 
         when {
-            internetController.isConnected.not() || productId == null -> {
-
-            }
+            internetController.isConnected.not() || productId == null -> Unit
 
             isAlreadySubscribed(productId) -> {
                 purchaseProduct.viewUrl(
@@ -128,38 +125,11 @@ class AdKitSubscriptionHelper private constructor(
             }
 
             subscriptionState.value.purchasesList.isEmpty() -> {
-
-                if (_isRevenueCat.value) {
-                    queryProductsRc.getProducts()?.let { products ->
-                        products[productId]?.let {
-                            purchaseProduct.purchaseRcProduct(activity, it, onUserDismissedPaywall)
-                        }
-                    }
-                }else{
-                    queryProducts.getProducts()?.let { products ->
-                        products[productId]?.let {
-                            purchaseProduct.purchasePlayProduct(activity, it, onUserDismissedPaywall)
-                        }
-                    }
-                }
-
-
+                launchPurchase(activity, productId, onUserDismissedPaywall)
             }
 
             !isForUpdatePlan -> {
-                if (_isRevenueCat.value) {
-                    queryProductsRc.getProducts()?.let { products ->
-                        products[productId]?.let {
-                            purchaseProduct.purchaseRcProduct(activity, it, onUserDismissedPaywall)
-                        }
-                    }
-                }else{
-                    queryProducts.getProducts()?.let { products ->
-                        products[productId]?.let {
-                            purchaseProduct.purchasePlayProduct(activity, it, onUserDismissedPaywall)
-                        }
-                    }
-                }
+                launchPurchase(activity, productId, onUserDismissedPaywall)
             }
 
             isSubscriptionUpdateSupported() -> {
@@ -172,5 +142,25 @@ class AdKitSubscriptionHelper private constructor(
             }
         }
 
+    }
+
+    private fun launchPurchase(
+        activity: Activity,
+        productId: String,
+        onUserDismissedPaywall: (() -> Unit)?,
+    ) {
+        when (billingProvider.value) {
+            PremiumBillingProvider.REVENUE_CAT -> {
+                queryProductsRc.getProducts()?.get(productId)?.let { productPackage ->
+                    purchaseProduct.purchaseRcProduct(activity, productPackage, onUserDismissedPaywall)
+                }
+            }
+
+            PremiumBillingProvider.PLAY -> {
+                queryProducts.getProducts()?.get(productId)?.let { productDetails ->
+                    purchaseProduct.purchasePlayProduct(activity, productDetails, onUserDismissedPaywall)
+                }
+            }
+        }
     }
 }

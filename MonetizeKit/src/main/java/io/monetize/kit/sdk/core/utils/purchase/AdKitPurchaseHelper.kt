@@ -24,30 +24,33 @@ class AdKitPurchaseHelper private constructor(
     private val purchase: PurchaseProductUseCase,
 ) {
 
-    private val _isRevenueCat = MutableStateFlow(false)
+    private val billingProvider = MutableStateFlow(PremiumBillingProvider.PLAY)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 
-    fun initBilling(
+    internal fun initBilling(
         removeAdsIds: List<String>,
         featureIds: List<String>,
-        isForRevenueCat: Boolean
+        provider: PremiumBillingProvider
     ) {
-        _isRevenueCat.value = isForRevenueCat
-        if (isForRevenueCat) {
-            initRc(removeAdsIds = removeAdsIds, featureIds = featureIds)
-        } else {
-            init(removeAdsIds = removeAdsIds, featureIds = featureIds)
+        billingProvider.value = provider
+        when (provider) {
+            PremiumBillingProvider.REVENUE_CAT -> {
+                initRc(removeAdsIds = removeAdsIds, featureIds = featureIds)
+            }
+
+            PremiumBillingProvider.PLAY -> {
+                init(removeAdsIds = removeAdsIds, featureIds = featureIds)
+            }
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val oneTimePurchaseState: StateFlow<OneTimePurchaseState> =
-        _isRevenueCat.flatMapLatest { isRc ->
-            if (isRc) {
-                initRc.ucState
-            } else {
-                init.ucState
+        billingProvider.flatMapLatest { provider ->
+            when (provider) {
+                PremiumBillingProvider.REVENUE_CAT -> initRc.ucState
+                PremiumBillingProvider.PLAY -> init.ucState
             }
         }
             .stateIn(
@@ -62,10 +65,14 @@ class AdKitPurchaseHelper private constructor(
         productId: String,
         onUserDismissedPaywall: (() -> Unit)? = null
     ) {
-        if (_isRevenueCat.value) {
-            purchase.purchaseRcProduct(activity, productId, onUserDismissedPaywall)
-        } else {
-            purchase.purchasePlayProduct(activity, productId, onUserDismissedPaywall)
+        when (billingProvider.value) {
+            PremiumBillingProvider.REVENUE_CAT -> {
+                purchase.purchaseRcProduct(activity, productId, onUserDismissedPaywall)
+            }
+
+            PremiumBillingProvider.PLAY -> {
+                purchase.purchasePlayProduct(activity, productId, onUserDismissedPaywall)
+            }
         }
     }
 

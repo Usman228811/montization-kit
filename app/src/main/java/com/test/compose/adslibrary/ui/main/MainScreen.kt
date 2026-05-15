@@ -44,17 +44,6 @@ import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
 
 
-var LIFE_TIME_ID = "android.test.purchased"
-//var REMOVE_ADS_ID = "remove_ads"
-//var FEATURE_1 = "unlockphotos"
-//var FEATURE_2 = "duplicate_scan"
-//var FEATURE_3 = "unlockall"
-
-var REMOVE_ADS_ID = "remove_ads:remove-ads"
-var FEATURE_1 = "unlockphotos:unlockphotos"
-var FEATURE_2 = "duplicate_scan:duplicate-scan-unllock"
-var FEATURE_3 = "unlockall:unlock-all"
-
 @Composable
 fun MainScreen(
     gotoBannerScreen: () -> Unit,

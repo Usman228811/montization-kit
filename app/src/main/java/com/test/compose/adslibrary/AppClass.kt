@@ -12,6 +12,28 @@ import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
+
+var LIFE_TIME_ID = "one_time"
+//var REMOVE_ADS_ID = "remove_ads"
+//var FEATURE_1 = "unlockphotos"
+//var FEATURE_2 = "duplicate_scan"
+//var FEATURE_3 = "unlockall"
+
+
+//var FEATURE_1 = "weekly_with_free_trail"
+//var FEATURE_2 = "weekly_without_free_trail"
+//var FEATURE_3 = "weekly_with_paid_trail"
+
+var REMOVE_ADS_ID = "remove_ads:remove-ads"
+var FEATURE_1 = "unlockphotos:unlockphotos"
+var FEATURE_2 = "duplicate_scan:duplicate-scan-unllock"
+var FEATURE_3 = "unlockall:unlock-all"
+
+//var REMOVE_ADS_ID = "remove_ads:remove-ads"
+//var FEATURE_1 = "weekly_with_free_trail:weekly-with-free-trail"
+//var FEATURE_2 = "weekly_without_free_trail:weekly-without-free-trail"
+//var FEATURE_3 = "weekly_with_paid_trail:weekly-with-paid-trail"
+
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
 
@@ -179,6 +201,8 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
             revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+//            revenueCatKey = "goog_xsumKcnLzLWUCzkJuTQyZIfRPeJ",
+//            revenueCatKey = "",
             onInitSdk = {
 
                 AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener {
