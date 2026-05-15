@@ -19,6 +19,7 @@ import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.revenuecat.purchases.Package
 import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.showToast
@@ -26,7 +27,7 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
 
 
-class SubscriptionRepositoryImpl private constructor(
+class PlaySubscriptionRepositoryImpl private constructor(
     private val context: Context
 ) : SubscriptionRepository, PurchasesUpdatedListener {
 
@@ -41,14 +42,14 @@ class SubscriptionRepositoryImpl private constructor(
         const val TAG = "SubscriptionRepositoryImpl"
 
         @Volatile
-        private var instance: SubscriptionRepositoryImpl? = null
+        private var instance: PlaySubscriptionRepositoryImpl? = null
 
 
         fun getInstance(
             context: Context,
-        ): SubscriptionRepositoryImpl {
+        ): PlaySubscriptionRepositoryImpl {
             return instance ?: synchronized(this) {
-                instance ?: SubscriptionRepositoryImpl(
+                instance ?: PlaySubscriptionRepositoryImpl(
                     context
                 ).also { instance = it }
             }
@@ -71,6 +72,14 @@ class SubscriptionRepositoryImpl private constructor(
         get() = if (isBillingClientDead) {
             false
         } else subscriptionClient.isReady
+
+    override fun purchaseProduct(
+        activity: Activity,
+        skuDetails: Package,
+        onUserDismissedPaywall: (() -> Unit)?
+    ) {
+
+    }
 
     override fun purchaseProduct(
         activity: Activity,

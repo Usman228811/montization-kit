@@ -16,7 +16,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import io.monetize.kit.sdk.R
-import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.BillingRepository
@@ -30,7 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class BillingRepositoryImpl private constructor(
+class PlayLifeTimeRepositoryImpl private constructor(
     mContext: Context,
 ) : BillingRepository {
 
@@ -45,14 +44,14 @@ class BillingRepositoryImpl private constructor(
         const val TAG = "BillingRepositoryImpl"
 
         @Volatile
-        private var instance: BillingRepositoryImpl? = null
+        private var instance: PlayLifeTimeRepositoryImpl? = null
 
 
         fun getInstance(
             context: Context,
-        ): BillingRepositoryImpl {
+        ): PlayLifeTimeRepositoryImpl {
             return instance ?: synchronized(this) {
-                instance ?: BillingRepositoryImpl(
+                instance ?: PlayLifeTimeRepositoryImpl(
                     context,
                 ).also { instance = it }
             }
@@ -202,12 +201,11 @@ class BillingRepositoryImpl private constructor(
     }
 
     override fun purchaseProduct(
-        activity: Activity?,
+        activity: Activity,
         productId: String, onUserDismissedPaywall: (() -> Unit)?
     ) {
         try {
             this.onUserDismissedPaywall = onUserDismissedPaywall
-            if (activity == null) return
             if (!internetController.isConnected) {
                 context.showToast(activity.getString(R.string.no_internet))
                 return

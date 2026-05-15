@@ -178,6 +178,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             onDefaultConfigGenerated = { defaultConfigs ->
                 Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
+            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
             onInitSdk = {
 
                 AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener {
@@ -200,7 +201,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
 
                 })
 
-                AdKit.initializer.disableAds(false)
+                AdKit.initializer.disableAds(true)
                 AdKit.analytics.showToast(false)
                 AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     largeNativeLayout = R.layout.large_native_layout_custom,

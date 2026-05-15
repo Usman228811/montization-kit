@@ -41,7 +41,12 @@ object AdKit {
 
     private lateinit var mContext: Application
     private var isDebug: Boolean = true
+    private var revenueCatKey: String = ""
     private var postRevenueOnFireBase: Boolean = false
+
+    internal fun getRevenueCatKey(): String {
+        return revenueCatKey
+    }
 
 
     val initializer: AdKitInitializer
@@ -176,10 +181,12 @@ object AdKit {
         resetInterKeyForCommonAds: String? = null,
         postRevenueOnFireBase: Boolean = false,
         appFlyerSdkKey: String,
+        revenueCatKey: String,
         onDefaultConfigGenerated: (String) -> Unit,
         onInitSdk: () -> Unit
     ) {
         mContext = context
+        this.revenueCatKey = revenueCatKey
         this.isDebug = isDebug
         this.postRevenueOnFireBase = postRevenueOnFireBase
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)

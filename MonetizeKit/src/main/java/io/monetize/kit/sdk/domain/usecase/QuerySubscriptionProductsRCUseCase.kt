@@ -3,9 +3,11 @@ package io.monetize.kit.sdk.domain.usecase
 import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.ProductDetails
+import com.revenuecat.purchases.Package
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.toSubscription
 import io.monetize.kit.sdk.data.impl.PlaySubscriptionRepositoryImpl
+import io.monetize.kit.sdk.data.impl.RCSubscriptionRepositoryImpl
 import io.monetize.kit.sdk.domain.model.OfferTexts
 import io.monetize.kit.sdk.domain.model.OfferType
 import io.monetize.kit.sdk.domain.model.PremiumOffer
@@ -17,40 +19,34 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-data class SubscriptionState(
-    val purchasesList: List<String> = emptyList(),
-    val offers: List<PremiumOffer> = emptyList()
-)
-
-
-class QuerySubscriptionProductsUseCase private constructor(
+class QuerySubscriptionProductsRCUseCase private constructor(
     private val repository: SubscriptionRepository
 ) {
 
     companion object {
 
         @Volatile
-        private var instance: QuerySubscriptionProductsUseCase? = null
+        private var instance: QuerySubscriptionProductsRCUseCase? = null
 
 
         fun getInstance(
             context: Context
-        ): QuerySubscriptionProductsUseCase {
-            val repo = PlaySubscriptionRepositoryImpl.getInstance(context)
+        ): QuerySubscriptionProductsRCUseCase {
+            val repo = RCSubscriptionRepositoryImpl.getInstance(context)
             return instance ?: synchronized(this) {
-                instance ?: QuerySubscriptionProductsUseCase(
+                instance ?: QuerySubscriptionProductsRCUseCase(
                     repo
                 ).also { instance = it }
             }
         }
     }
 
-    var productsMap: Map<String, ProductDetails>? = null
+    var productsMap: Map<String, Package>? = null
 
     private val _ucState = MutableStateFlow(SubscriptionState())
     val ucState = _ucState.asStateFlow()
 
-    fun getProducts(): Map<String, ProductDetails>? {
+    fun getProducts(): Map<String, Package>? {
         return productsMap
     }
 
@@ -74,10 +70,10 @@ class QuerySubscriptionProductsUseCase private constructor(
                     skuList: Map<String, Any>,
                     productList: List<Any>
                 ) {
-                   skuList as Map<String, ProductDetails>
+                   skuList as Map<String, Package>
                     productsMap = skuList
 
-                    productList as List<ProductDetails>
+                    productList as List<Package>
                     val offers = productList
                         .mapNotNull { it.toSubscription() }
 
@@ -92,7 +88,7 @@ class QuerySubscriptionProductsUseCase private constructor(
 
                     val uniquePurchases = purchasesList.distinct()
 
-                    val hasRemoveAds = uniquePurchases.any { it in this@QuerySubscriptionProductsUseCase.removeAdsIds }
+                    val hasRemoveAds = uniquePurchases.any { it in this@QuerySubscriptionProductsRCUseCase.removeAdsIds }
 
                     adKitPref.isAppSubscribed = hasRemoveAds
 

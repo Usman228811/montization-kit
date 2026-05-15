@@ -95,6 +95,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.android.billingclient:billing-ktx:8.0.0")
+    implementation("com.revenuecat.purchases:purchases:9.26.1")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.appsflyer:af-android-sdk:6.18.0")

@@ -2,6 +2,10 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.app.Application
+import com.revenuecat.purchases.LogLevel
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.PurchasesConfiguration
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.domain.model.OfferTexts
 import io.monetize.kit.sdk.domain.model.OfferType
 import io.monetize.kit.sdk.domain.model.PremiumOffer
@@ -52,6 +56,7 @@ class AdKitPremiumHelper private constructor(
     private val subscriptionHelper: AdKitSubscriptionHelper
 ) {
 
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val premiumState: StateFlow<PremiumAccessState> = combine(
@@ -76,10 +81,23 @@ class AdKitPremiumHelper private constructor(
         initialValue = PremiumAccessState()
     )
 
+    private val logLevel: LogLevel = LogLevel.DEBUG
+
     fun initBilling(
         activity: Activity,
         items: List<BillingItem>
     ) {
+
+        if (AdKit.getRevenueCatKey().isNotEmpty()) {
+            Purchases.logLevel = logLevel
+
+            val configuration = PurchasesConfiguration.Builder(
+                activity, AdKit.getRevenueCatKey()
+            ).build()
+
+            Purchases.configure(configuration)
+        }
+
 
         val lifetimeRemoveAds = mutableListOf<String>()
         val lifetimeFeatures = mutableListOf<String>()
@@ -94,6 +112,7 @@ class AdKitPremiumHelper private constructor(
                         BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
                     }
                 }
+
                 is BillingItem.Subscription -> {
                     when (item.type) {
                         BillingItem.Type.REMOVE_ADS -> subRemoveAds.add(item.productId)
@@ -105,6 +124,7 @@ class AdKitPremiumHelper private constructor(
 
         if (lifetimeRemoveAds.isNotEmpty() || lifetimeFeatures.isNotEmpty()) {
             purchaseHelper.initBilling(
+                isForRevenueCat = AdKit.getRevenueCatKey().isNotEmpty(),
                 removeAdsIds = lifetimeRemoveAds,
                 featureIds = lifetimeFeatures
             )
@@ -113,6 +133,7 @@ class AdKitPremiumHelper private constructor(
         if (subRemoveAds.isNotEmpty() || subFeatures.isNotEmpty()) {
             subscriptionHelper.initBilling(
                 activity = activity,
+                isForRevenueCat = AdKit.getRevenueCatKey().isNotEmpty(),
                 removeAdsIds = subRemoveAds,
                 featureIds = subFeatures
             )
