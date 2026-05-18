@@ -2,24 +2,21 @@ package com.test.compose.adslibrary.ui.main
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,276 +25,196 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.test.compose.adslibrary.MainActivity
-import com.test.compose.adslibrary.utils.Color579B68
+import com.test.compose.adslibrary.ui.nativead.emptyAdCallback
 import com.test.compose.adslibrary.xml.MainXmlActivity
-import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
-import io.monetize.kit.sdk.ads.rewarded.RewardedControllerListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.presentation.ui.banner.AdKitBannerAdView
 import io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdView
-import network.chaintech.sdpcomposemultiplatform.sdp
 
-
-
-
-var LIFE_TIME_ID = "android.test.purchased"
-var REMOVE_ADS_ID = "remove_ads"
-var FEATURE_1 = "unlockphotos"
-var FEATURE_2 = "duplicate_scan"
-var FEATURE_3= "unlockall"
 
 @Composable
 fun MainScreen(
+    gotoBannerScreen: () -> Unit,
+    gotoNativeAdsScreen: () -> Unit,
     gotoSubscription: () -> Unit,
     gotoMainScreen2: () -> Unit,
+    gotoInterAds: () -> Unit,
 ) {
-    val activity = LocalActivity.current as Activity
-    var destroy: (() -> Unit)? = null
 
+    val activity = LocalActivity.current as Activity
     var showExit by remember { mutableStateOf(false) }
 
     BackHandler { showExit = true }
 
     if (showExit) {
-        ExitDialog(onDismissRequest = {
-            showExit = false
-        })
+        ExitDialog(
+            onDismissRequest = { showExit = false }
+        )
     }
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFF4F6FF),
+                        Color(0xFFE9ECFF)
+                    )
+                )
+            )
+    ) {
 
+        // HEADER CARD (Premium)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF5B5FEF),
+                            Color(0xFF2E2F6E)
+                        )
+                    )
+                )
+                .padding(vertical = 26.dp),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                Text(
+                    text = "🚀 AdKit Demo",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = stringResource(com.test.compose.adslibrary.R.string.hello),
+                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.85f),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Button(
+                    onClick = {
+                        AdKit.adKitPref.appLanguageCode =
+                            if (AdKit.adKitPref.appLanguageCode == "en") "ur" else "en"
+
+                        activity.startActivity(
+                            Intent(activity, MainActivity::class.java).putExtra(
+                                "languageChange",
+                                true
+                            ).apply {
+                                flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }.also {
+                                activity.startActivity(it)
+                            }
+                        )
+                        activity.finish()
+                    },
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Change Language",
+                        color = Color(0xFF2E2F6E),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f).verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
 
+            MenuButton("Banner Ads", gotoBannerScreen)
+            MenuButton("Native Ads", gotoNativeAdsScreen)
+            MenuButton("Interstitial Ads", gotoInterAds)
+            MenuButton("Subscription", gotoSubscription)
+            MenuButton("Main Screen 2", gotoMainScreen2)
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-                AdKitBannerAdView(
-                    bannerControllerConfig = BannerControllerConfig(
-                        placementKey = "home_banner_top",
-                        adIdKey = "home_banner_top"
-                    ),
-                    adCallBack = object : AdCallBack{
-                        override fun onAdFailed(reason: String) {
-                            Log.d("dddddd", reason)
-                        }
-
-                        override fun onAdShow() {
-
-                        }
-
-                        override fun onAdClick() {
-                            Toast.makeText(activity, "home screen banner top ad click", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
-                )
-            }
-
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color579B68
-                    )
-                    .padding(10.sdp), horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.sdp),
-                    textAlign = TextAlign.Center,
-                    text = stringResource(com.test.compose.adslibrary.R.string.hello)
-                )
-
-
-
-                Button(onClick = {
-                    AdKit.adKitPref.appLanguageCode =
-                        if (AdKit.adKitPref.appLanguageCode == "en") "ur" else "en"
-                    activity.startActivity(
-                        Intent(activity, MainActivity::class.java)
-                            .putExtra("languageChange", true)
-                    )
-                    activity.finish()
-                }) {
-                    Text("change language")
-                }
-            }
-
-
-            Button(onClick = {
-                gotoSubscription()
-            }) {
-                Text("goto subscription screen")
-            }
-            Button(onClick = {
-
-
-                AdKit.interHelper.showInterAd(
-                    activity = activity,
-                    placementKey = "home_inter",
-                    adIdKey = "home_inter",
-                    listener = object : InterstitialControllerListener {
-                        override fun onAdClosed(isInterShowed: Boolean, reason: String) {
-                            Log.d("dddddd", reason)
-                            gotoSubscription()
-                        }
-                    }, "testt", 1
-                )
-
-            }) {
-                Text("show inter and goto subscription screen")
-            }
-            Button(onClick = {
-
-                AdKit.rewardHelper.showRewardAd(
-                    adIdKey = "reward_main",
-                    placementKey = "inter_btn_plant",
-                    activity = activity,
-                    listener = object : RewardedControllerListener {
-                        override fun onRewardDismissed(isRewarded: Boolean, reason: String) {
-
-                            Log.d("dddddd", reason)
-
-                            gotoSubscription()
-
-//                        if (isRewarded.not()) {
-//                            if (AdKit.adKitPref.getInterInt("common_pref", 0) >= 2) {
-//                                Log.d("ioioioi", "onRewardDismissed: try again")
-//                            } else {
-//                                Log.d("ioioioi", "onRewardDismissed: continue")
-//                            }
-//                        } else {
-//
-//                            gotoSubscription()
-//                            Log.d("ioioioi", "onRewardDismissed: continue")
-//                        }
-                        }
-
-                    },
-                    prefKey = "dddd", counter = 1,
-                )
-            }) {
-                Text("show reward and goto subscription screen")
-            }
-
-            Button(onClick = {
-                gotoMainScreen2()
-            }) {
-                Text(
-                    text = "goto main screen 2"
-                )
-            }
-            Button(onClick = {
+            MenuButton("Main XML Activity") {
                 activity.startActivity(Intent(activity, MainXmlActivity::class.java))
-            }) {
-                Text(
-                    text = "goto main xml activity"
-                )
             }
 
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.sdp)) {
-
-                AdKitNativeAdView(
-                    nativeControllerConfig = NativeControllerConfig(
-                        "native_screen_1",
-                        "native_screen_1",
-                    ),
-                    adCallBack = object : AdCallBack {
-                        override fun onAdFailed(reason: String) {
-                            Log.d("dddddd", reason)
-                        }
-
-                        override fun onAdShow() {
-
-                        }
-
-                        override fun onAdClick() {
-                            Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }, callCustomDestroy = { callCustomDestroy ->
-                        destroy = callCustomDestroy
-                    }
-                )
-            }
-
-            Button(onClick = {
-                destroy?.invoke()
-            }) {
-                Text(text = "destroy native ad")
-            }
-
-
-
-        }
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-            AdKitBannerAdView(
-                bannerControllerConfig = BannerControllerConfig(
-                    placementKey = "home_banner",
-                    adIdKey = "banner_common"
+            Spacer(modifier = Modifier.height(20.dp))
+            AdKitNativeAdView(
+                nativeControllerConfig = NativeControllerConfig(
+                    placementKey = "large_native",
+                    adIdKey = "large_native"
                 ),
-                adCallBack = object : AdCallBack {
-                    override fun onAdFailed(reason: String) {
-                        Log.d("dddddd", reason)
-                    }
-
-                    override fun onAdShow() {
-
-                    }
-
-                    override fun onAdClick() {
-                        Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-
-                }
+                adCallBack = emptyAdCallback()
             )
         }
     }
+}
 
+@Composable
+fun MenuButton(
+    text: String,
+    onClick: () -> Unit
+) {
 
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF5B5FEF)
+        )
+    ) {
+
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+    }
 }
 
 @Composable
 fun ExitDialog(onDismissRequest: () -> Unit) {
 
-    var destroyNative: (() -> Unit)? = null
-    var destroyBanner: (() -> Unit)? = null
     val activity = LocalActivity.current as Activity
 
+    var destroyNative by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var destroyBanner by remember { mutableStateOf<(() -> Unit)?>(null) }
+
     Dialog(
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false // Needed for full width
-        ), onDismissRequest = {
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = {
             destroyNative?.invoke()
             destroyBanner?.invoke()
             onDismissRequest()
-        }) {
+        }
+    ) {
 
         Column(
             modifier = Modifier
@@ -305,60 +222,65 @@ fun ExitDialog(onDismissRequest: () -> Unit) {
                 .background(Color.White)
         ) {
 
+            // HEADER
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(0xFF5B5FEF),
+                                Color(0xFF2E2F6E)
+                            )
+                        )
+                    )
+                    .padding(14.dp),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Text(
+                    text = "Exit App?",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // ADS
             AdKitBannerAdView(
                 bannerControllerConfig = BannerControllerConfig(
                     placementKey = "exit_banner",
                     adIdKey = "banner_common"
                 ),
-                adCallBack = object : AdCallBack {
-                    override fun onAdFailed(reason: String) {
-                        Log.d("dddddd", reason)
-                    }
-
-                    override fun onAdShow() {
-
-                    }
-
-                    override fun onAdClick() {
-                        Toast.makeText(activity, "home screen banner ad click", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-
-                }, callCustomDestroy = {
-                    destroyBanner = it
-                }
+                adCallBack = emptyAdCallback(),
+                callCustomDestroy = { destroyBanner = it }
             )
 
             AdKitNativeAdView(
                 nativeControllerConfig = NativeControllerConfig(
                     "exit_native",
-                    "exit_native",
+                    "native_common",
                     loadNextAd = false
                 ),
-                adCallBack = object : AdCallBack {
-                    override fun onAdFailed(reason: String) {
-
-                    }
-
-                    override fun onAdShow() {
-
-                    }
-
-                    override fun onAdClick() {
-                    }
-
-                }, callCustomDestroy = {
-                    destroyNative = it
-                }
+                adCallBack = emptyAdCallback(),
+                callCustomDestroy = { destroyNative = it }
             )
 
-            Button(modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 15.sdp), onClick = {
-                activity.finish()
-            }) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF5B5FEF)
+                ),
+                onClick = { activity.finish() }
+            ) {
                 Text(
-                    text = "Exit"
+                    text = "Exit",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
             }
         }
