@@ -12,7 +12,11 @@ To integrate the Monetization Kit into your project, include the following in yo
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.4.1")
+    implementation("com.github.Usman228811:montization-kit:3.4.4")
+
+	OR
+
+	implementation("com.github.Usman228811:montization-kit:1.0.1-ng") //next gen sdk
 }
 ```
 
@@ -77,7 +81,11 @@ To integrate the Monetization Kit with mediation networks into your project, inc
 
 ```kotlin
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.4.1-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.4.4-adapter")
+
+	OR
+
+	implementation("com.github.Usman228811:montization-kit:1.0.1-ng-adapter") //next gen sdk
 }
 ```
 
@@ -566,13 +574,11 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_5sdp"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_2sdp">
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
                         android:orientation="horizontal">
 
                         <com.google.android.material.textview.MaterialTextView
@@ -580,22 +586,19 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                             android:layout_width="@dimen/_20sdp"
                             android:layout_height="@dimen/_15sdp"
                             android:background="@drawable/border_ad"
-                            android:layout_marginHorizontal="@dimen/_3sdp"
                             android:gravity="center"
-                            android:paddingBottom="0dp"
                             android:text="AD"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_8ssp"
                             android:textStyle="bold" />
-                        
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/ad_headline"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_3sdp"
+                            android:layout_marginEnd="@dimen/_5sdp"
                             android:maxLines="2"
-                            android:paddingStart="@dimen/_2sdp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_12ssp"
                             android:textStyle="bold" />
@@ -604,9 +607,9 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/ad_body"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
                         android:layout_marginEnd="@dimen/_5sdp"
                         android:maxLines="2"
                         android:textColor="@color/black_light"
@@ -643,6 +646,7 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
         </RelativeLayout>
     </io.monetize.kit.sdk.ads.native_ad.custom.SdkNativeAdView>
 </FrameLayout>
+
 
 
 ```

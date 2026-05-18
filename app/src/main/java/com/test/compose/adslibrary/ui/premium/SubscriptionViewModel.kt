@@ -1,4 +1,4 @@
-package com.test.compose.adslibrary.ui.settings
+package com.test.compose.adslibrary.ui.premium
 
 import android.app.Activity
 import android.util.Log
@@ -6,11 +6,11 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.test.compose.adslibrary.ui.main.FEATURE_1
-import com.test.compose.adslibrary.ui.main.FEATURE_2
-import com.test.compose.adslibrary.ui.main.FEATURE_3
-import com.test.compose.adslibrary.ui.main.LIFE_TIME_ID
-import com.test.compose.adslibrary.ui.main.REMOVE_ADS_ID
+import com.test.compose.adslibrary.FEATURE_1
+import com.test.compose.adslibrary.FEATURE_2
+import com.test.compose.adslibrary.FEATURE_3
+import com.test.compose.adslibrary.LIFE_TIME_ID
+import com.test.compose.adslibrary.REMOVE_ADS_ID
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.purchase.BillingItem
 import io.monetize.kit.sdk.domain.model.OfferType
@@ -63,6 +63,7 @@ class SubscriptionViewModel : ViewModel() {
             launch {
                 AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
                     Log.d(TAG, "purchasesList: ${premiumState.allPurchases} ")
+                    Log.d(TAG, "isPremium: ${premiumState.isPremium} ")
 
                     val removeAdsPrice = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
                     val feature1Price = AdKit.premiumHelper.getBillingPrice(FEATURE_1)
@@ -84,22 +85,22 @@ class SubscriptionViewModel : ViewModel() {
                         }
                     }
 
-//                    Log.d(
-//                        TAG,
-//                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period} - freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
-//                    )
-//                    Log.d(
-//                        TAG,
-//                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period}- freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
-//                    )
-//                    Log.d(
-//                        TAG,
-//                        "mainOfferText=${feature2Price.mainOfferText} - period=${feature2Price.period}- freeTrialText=${feature2Price.freeTrialText} - paidTrialText=${feature2Price.paidTrialText}"
-//                    )
-//                    Log.d(
-//                        TAG,
-//                        "mainOfferText=${feature3Price.mainOfferText} - period=${feature3Price.period}- freeTrialText=${feature3Price.freeTrialText} - paidTrialText=${feature3Price.paidTrialText}"
-//                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period} - freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period}- freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature2Price.mainOfferText} - period=${feature2Price.period}- freeTrialText=${feature2Price.freeTrialText} - paidTrialText=${feature2Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature3Price.mainOfferText} - period=${feature3Price.period}- freeTrialText=${feature3Price.freeTrialText} - paidTrialText=${feature3Price.paidTrialText}"
+                    )
                     _state.update {
 
                         it.copy(
@@ -180,7 +181,7 @@ class SubscriptionViewModel : ViewModel() {
     fun purchaseProduct(activity: Activity) {
         AdKit.premiumHelper.purchase(
             activity = activity,
-            productId = "android.test.purchased",
+            productId = LIFE_TIME_ID,
             onUserDismissedPaywall = {
                 Toast.makeText(
                     activity,

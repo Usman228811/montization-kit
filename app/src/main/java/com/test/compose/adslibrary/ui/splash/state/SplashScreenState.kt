@@ -11,5 +11,6 @@ data class SplashScreenState(
     val isPurchased: Boolean = false,
     val runSplash: Boolean = false,
     val onAdLoaded: Boolean = false,
-    val progress: Int = 0
+    val progress: Int = 0,
+    val loadAndShow : Boolean = true
 )
