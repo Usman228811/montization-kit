@@ -27,8 +27,8 @@ class SettingsXmlActivity : BaseXmlActivity() {
             this,
             this@SettingsXmlActivity,
             bannerControllerConfig = BannerControllerConfig(
-                placementKey = "home_banner_top",
-                adIdKey = "home_banner_top"
+                placementKey = "adaptive_banner",
+                adIdKey = "adaptive_banner"
             )
         )
     }

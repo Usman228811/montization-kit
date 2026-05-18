@@ -53,8 +53,8 @@ class MainXmlActivity : BaseXmlActivity() {
             this@MainXmlActivity,
             this,
             nativeControllerConfig = NativeControllerConfig(
-                placementKey = "home_native",
-                adIdKey = "home_native",
+                placementKey = "large_native",
+                adIdKey = "large_native",
             ),
             adCallBack = object : AdCallBack {
                 override fun onAdFailed(reason: String) {
@@ -75,8 +75,8 @@ class MainXmlActivity : BaseXmlActivity() {
             this@MainXmlActivity,
             owner = this,
             bannerControllerConfig = BannerControllerConfig(
-                placementKey = "home_banner",
-                adIdKey = "home_banner",
+                placementKey = "large_anchored_banner",
+                adIdKey = "large_anchored_banner",
             ), adCallBack = object : AdCallBack {
                 override fun onAdFailed(reason: String) {
 
