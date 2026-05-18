@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.4.4-rc"
+version = "3.4.4-rc-adapter"
 
 
 afterEvaluate {
@@ -53,7 +53,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.4.4-rc"
+                version = "3.4.4-rc-adapter"
             }
         }
     }
@@ -101,5 +101,13 @@ dependencies {
     implementation("com.appsflyer:af-android-sdk:6.18.0")
     implementation("com.android.installreferrer:installreferrer:2.2")
 
+
+    // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
+    implementation("com.google.ads.mediation:inmobi:11.2.0.0")
+    implementation("com.google.ads.mediation:vungle:7.7.2.0")
+    implementation("com.google.ads.mediation:facebook:6.21.0.2")
+    implementation("com.google.ads.mediation:mintegral:17.1.51.0")
+    implementation("com.google.ads.mediation:pangle:8.0.0.4.0")
+    implementation("net.premiumads.sdk:admob-adapter:2.2.6")
 
 }

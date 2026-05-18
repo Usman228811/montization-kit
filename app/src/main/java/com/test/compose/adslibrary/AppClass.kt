@@ -200,7 +200,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             onDefaultConfigGenerated = { defaultConfigs ->
                 Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
-//            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
 //            revenueCatKey = "goog_xsumKcnLzLWUCzkJuTQyZIfRPeJ",
 //            revenueCatKey = "",
             onInitSdk = {
