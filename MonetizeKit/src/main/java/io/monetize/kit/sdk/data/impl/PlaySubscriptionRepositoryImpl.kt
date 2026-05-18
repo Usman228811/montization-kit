@@ -93,6 +93,8 @@ class PlaySubscriptionRepositoryImpl private constructor(
         }
     }
 
+    override fun changeSubscriptionPlan(activity: Activity, skuDetails: Package) = Unit
+
     override fun changeSubscriptionPlan(activity: Activity, skuDetails: ProductDetails) {
         try {
             if (isBillingClientDead || subscribeProductToken.isEmpty()) {
@@ -255,7 +257,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
             return false
         }
         return subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS).responseCode ==
-            BillingClient.BillingResponseCode.OK
+                BillingClient.BillingResponseCode.OK
     }
 
     override fun isSubscriptionUpdateSupported(): Boolean {
@@ -263,7 +265,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
             return false
         }
         return subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS_UPDATE).responseCode ==
-            BillingClient.BillingResponseCode.OK
+                BillingClient.BillingResponseCode.OK
     }
 
     private fun checkSubscriptionsId(sku: String?): Boolean {

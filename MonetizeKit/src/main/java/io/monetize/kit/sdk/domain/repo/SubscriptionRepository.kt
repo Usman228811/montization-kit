@@ -40,6 +40,7 @@ interface SubscriptionRepository {
     )
 
     fun changeSubscriptionPlan(activity: Activity, skuDetails: ProductDetails)
+    fun changeSubscriptionPlan(activity: Activity, skuDetails: Package)
 
 
     fun isSubscriptionSupported(): Boolean

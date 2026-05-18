@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import io.monetize.kit.sdk.data.impl.PlayLifeTimeRepositoryImpl
 import io.monetize.kit.sdk.data.impl.RCLifeTimeRepositoryImpl
-import io.monetize.kit.sdk.domain.usecase.InitBillingUseCase
+import io.monetize.kit.sdk.domain.usecase.InitPlayBillingUseCase
 import io.monetize.kit.sdk.domain.usecase.InitRCBillingUseCase
 import io.monetize.kit.sdk.domain.usecase.OneTimePurchaseState
 import io.monetize.kit.sdk.domain.usecase.PurchaseProductUseCase
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
 class AdKitPurchaseHelper private constructor(
-    private val init: InitBillingUseCase,
+    private val init: InitPlayBillingUseCase,
     private val initRc: InitRCBillingUseCase,
     private val purchase: PurchaseProductUseCase,
 ) {
@@ -92,7 +92,7 @@ class AdKitPurchaseHelper private constructor(
 
             return instance ?: synchronized(this) {
                 instance ?: AdKitPurchaseHelper(
-                    init = InitBillingUseCase.getInstance(billingRepoLifeTime),
+                    init = InitPlayBillingUseCase.getInstance(billingRepoLifeTime),
                     initRc = InitRCBillingUseCase.getInstance(billingRepoRc),
                     purchase = PurchaseProductUseCase.getInstance(
                         billingRepoLifeTime,

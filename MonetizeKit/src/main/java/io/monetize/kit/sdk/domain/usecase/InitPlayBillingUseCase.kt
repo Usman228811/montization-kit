@@ -15,7 +15,7 @@ data class OneTimePurchaseState(
     val offers: List<PremiumOffer> = emptyList(),
 )
 
-class InitBillingUseCase private constructor(
+class InitPlayBillingUseCase private constructor(
     private val billingRepository: BillingRepository
 ) {
 
@@ -41,7 +41,7 @@ class InitBillingUseCase private constructor(
 
             override fun onSubscriptionPurchasedFetched(purchasesList: List<String>) {
                 val uniquePurchases = purchasesList.distinctPurchases()
-                adKitPref.isLifeTimePurchased = uniquePurchases.any { it in this@InitBillingUseCase.removeAdsIds }
+                adKitPref.isLifeTimePurchased = uniquePurchases.any { it in this@InitPlayBillingUseCase.removeAdsIds }
                 _ucState.updateOneTimePurchases(uniquePurchases)
             }
         })
@@ -49,11 +49,11 @@ class InitBillingUseCase private constructor(
 
     companion object {
         @Volatile
-        private var instance: InitBillingUseCase? = null
+        private var instance: InitPlayBillingUseCase? = null
 
-        fun getInstance(billingRepository: BillingRepository): InitBillingUseCase {
+        fun getInstance(billingRepository: BillingRepository): InitPlayBillingUseCase {
             return instance ?: synchronized(this) {
-                instance ?: InitBillingUseCase(billingRepository).also { instance = it }
+                instance ?: InitPlayBillingUseCase(billingRepository).also { instance = it }
             }
         }
     }

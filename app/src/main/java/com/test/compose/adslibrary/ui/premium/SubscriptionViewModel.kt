@@ -50,7 +50,7 @@ class SubscriptionViewModel : ViewModel() {
     }
 
     private val subscriptionMap = mapOf(
-//        0 to REMOVE_ADS_ID,
+        0 to REMOVE_ADS_ID,
         1 to FEATURE_1,
         2 to FEATURE_2,
         3 to FEATURE_3,
@@ -104,7 +104,7 @@ class SubscriptionViewModel : ViewModel() {
                     _state.update {
 
                         it.copy(
-//                            removeAdsPrice = "${removeAdsPrice.mainOfferText}",
+                            removeAdsPrice = "${removeAdsPrice.mainOfferText}",
                             feature1Price = "${feature1Price.mainOfferText}",
                             feature2Price = "${feature2Price.mainOfferText}",
                             feature3Price = "${feature3Price.mainOfferText}",

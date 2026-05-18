@@ -99,6 +99,7 @@ class RCSubscriptionRepositoryImpl private constructor(
     ) = Unit
 
     override fun changeSubscriptionPlan(activity: Activity, skuDetails: ProductDetails) = Unit
+    override fun changeSubscriptionPlan(activity: Activity, skuDetails: Package) = Unit
 
     override fun querySubscriptionHistory(activity: Activity) {
         Purchases.sharedInstance.getCustomerInfoWith(
