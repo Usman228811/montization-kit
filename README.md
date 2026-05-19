@@ -435,16 +435,19 @@ AdKit.interHelper.showInterAd(
     adIdKey = "inter_common",
     placementKey = "home_inter",
     activity = activity,
+
+    // Optional
+    prefKey = "inter_pref_key",
+    counter = 1,
+
     listener = object : InterstitialControllerListener {
+
         override fun onAdClosed(
             isInterShowed: Boolean,
             reason: String
         ) {
 
-        },
-		//OPTIONAL
-		prefKey = "inter_pref_key",
-                    counter = 1
+        }
     }
 )
 ```
@@ -714,7 +717,7 @@ AdKit.premiumHelper.initBilling(
 
 ---
 
-## PRICE 
+## Get Product Price 
 ```kotlin
 val feature1Price = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
 Log.d(
@@ -803,7 +806,7 @@ private val updateLauncher =
 ## Check Update
 
 ```kotlin
-Adkit.inAppUpdateManager.setUpdateStateCallback { updateState ->
+AdKit.inAppUpdateManager.setUpdateStateCallback { updateState ->
             when (updateState) {
                 UpdateState.Available -> inAppUpdateManager.startUpdateFlow(launcher)
                 UpdateState.Downloaded -> inAppUpdateManager.updateComplete()
@@ -811,7 +814,7 @@ Adkit.inAppUpdateManager.setUpdateStateCallback { updateState ->
                 UpdateState.Idle -> {}
             }
         }
-Adkit.inAppUpdateManager.checkUpdate(activity)
+AdKit.inAppUpdateManager.checkUpdate(activity)
 ```
 
 ---
