@@ -148,7 +148,7 @@ class RCSubscriptionRepositoryImpl private constructor(
         suspendCancellableCoroutine { continuation ->
             Purchases.sharedInstance.getOfferingsWith(
                 onSuccess = { offerings ->
-                    val packages = offerings[DEFAULT_REVENUECAT_OFFERINGS_ID]
+                    val packages = offerings[AdKit.getRevenueCatOfferingKey()]
                         ?.availablePackages
                         ?.filter { it.identifier in packageIds }
                         .orEmpty()

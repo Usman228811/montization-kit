@@ -94,16 +94,12 @@ class AdKitPremiumHelper private constructor(
         initialValue = PremiumAccessState()
     )
 
-    private val logLevel: LogLevel = LogLevel.DEBUG
 
     fun initBilling(
         activity: Activity,
         items: List<BillingItem>
     ) {
         val provider = billingProvider
-        if (provider == PremiumBillingProvider.REVENUE_CAT) {
-            configureRevenueCat(activity)
-        }
         val groupedItems = groupBillingItems(items)
 
         if (groupedItems.lifetimeRemoveAds.isNotEmpty() || groupedItems.lifetimeFeatures.isNotEmpty()) {
@@ -124,14 +120,7 @@ class AdKitPremiumHelper private constructor(
         }
     }
 
-    private fun configureRevenueCat(activity: Activity) {
-        Purchases.logLevel = logLevel
-        val configuration = PurchasesConfiguration.Builder(
-            activity,
-            AdKit.getRevenueCatKey()
-        ).build()
-        Purchases.configure(configuration)
-    }
+
 
     private fun groupBillingItems(items: List<BillingItem>): BillingItemsByType {
         val lifetimeRemoveAds = mutableListOf<String>()

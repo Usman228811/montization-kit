@@ -16,7 +16,6 @@ import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 
-internal const val DEFAULT_REVENUECAT_OFFERINGS_ID = "default_offerings"
 
 internal fun Context.showTryAgain(activity: Activity) {
     showToast(activity.getString(R.string.try_again))
@@ -25,6 +24,12 @@ internal fun Context.showTryAgain(activity: Activity) {
 internal fun Context.showNoInternet(activity: Activity) {
     showToast(activity.getString(R.string.no_internet))
 }
+
+
+data class RevenueCatBuilder(
+    val revenueCatKey: String,
+    val offeringKey: String,
+)
 
 internal fun Activity.canLaunchBillingFlow(): Boolean {
     return !isFinishing && !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed)
