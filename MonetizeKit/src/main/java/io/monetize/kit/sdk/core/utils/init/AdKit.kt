@@ -2,13 +2,13 @@ package io.monetize.kit.sdk.core.utils.init
 
 import android.app.Application
 import android.content.Context
-import android.os.Environment
-import android.util.Log
-import com.google.common.io.Files.map
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.revenuecat.purchases.LogLevel
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.PurchasesConfiguration
 import io.monetize.kit.sdk.ads.banner.AdKitBannerPreloadHelper
 import io.monetize.kit.sdk.ads.banner.BannerIdManager
 import io.monetize.kit.sdk.ads.interstitial.AdKitInterHelper
@@ -31,21 +31,27 @@ import io.monetize.kit.sdk.core.utils.locale.LocaleHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPremiumHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
+import io.monetize.kit.sdk.data.impl.RevenueCatBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import java.io.File
 
 object AdKit {
+    private val logLevel: LogLevel = LogLevel.DEBUG
+
 
     private lateinit var mContext: Application
     private var isDebug: Boolean = true
-    private var revenueCatKey: String = ""
+    private var revenueCatBuilder: RevenueCatBuilder? = null
     private var postRevenueOnFireBase: Boolean = false
 
     internal fun getRevenueCatKey(): String {
-        return revenueCatKey
+        return revenueCatBuilder?.revenueCatKey ?: ""
+
+    }
+    internal fun getRevenueCatOfferingKey(): String {
+        return revenueCatBuilder?.offeringKey ?: ""
+
     }
 
 
@@ -168,6 +174,15 @@ object AdKit {
                 RewardAdIdManager.getInstance()
             }
 
+    private fun configureRevenueCat(context: Context) {
+        Purchases.logLevel = logLevel
+        val configuration = PurchasesConfiguration.Builder(
+            context,
+            getRevenueCatKey()
+        ).build()
+        Purchases.configure(configuration)
+    }
+
 
     fun init(
         isDebug: Boolean,
@@ -181,12 +196,12 @@ object AdKit {
         resetInterKeyForCommonAds: String? = null,
         postRevenueOnFireBase: Boolean = false,
         appFlyerSdkKey: String,
-        revenueCatKey: String,
+        revenueCatBuilder: RevenueCatBuilder? = null,
         onDefaultConfigGenerated: (String) -> Unit,
         onInitSdk: () -> Unit
     ) {
         mContext = context
-        this.revenueCatKey = revenueCatKey
+        this.revenueCatBuilder = revenueCatBuilder
         this.isDebug = isDebug
         this.postRevenueOnFireBase = postRevenueOnFireBase
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
@@ -204,6 +219,10 @@ object AdKit {
                 Firebase.analytics.setAnalyticsCollectionEnabled(!isDebug)
             } catch (_: Exception) {
             }
+        }
+
+        if (AdKit.revenueCatBuilder?.revenueCatKey?.isNotEmpty() == true) {
+            configureRevenueCat(context.applicationContext)
         }
 
 

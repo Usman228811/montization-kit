@@ -9,6 +9,7 @@ import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.getOfferingsWith
 import com.revenuecat.purchases.purchaseWith
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import io.monetize.kit.sdk.domain.repo.BillingRepository
 import io.monetize.kit.sdk.domain.repo.PurchasePriceModel
@@ -71,7 +72,7 @@ class RCLifeTimeRepositoryImpl private constructor(
         suspendCancellableCoroutine { continuation ->
             Purchases.sharedInstance.getOfferingsWith(
                 onSuccess = { offerings ->
-                    val packages = offerings[DEFAULT_REVENUECAT_OFFERINGS_ID]
+                    val packages = offerings[AdKit.getRevenueCatOfferingKey()]
                         ?.availablePackages
                         ?.filter { it.identifier in packageIds }
                         .orEmpty()

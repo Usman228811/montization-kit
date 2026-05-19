@@ -11,6 +11,7 @@ import io.monetize.kit.sdk.ads.open.OpenAdListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.data.impl.RevenueCatBuilder
 
 
 var LIFE_TIME_ID = "one_time"
@@ -200,7 +201,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             onDefaultConfigGenerated = { defaultConfigs ->
                 Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
-            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+            revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+                offeringKey = "default_offerings"
+            ),
+//            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
 //            revenueCatKey = "goog_xsumKcnLzLWUCzkJuTQyZIfRPeJ",
 //            revenueCatKey = "",
             onInitSdk = {
