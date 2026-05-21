@@ -121,7 +121,7 @@ class BannerAdController private constructor(
                 hideFrame()
             } else if (adFrame == null
                 || AdKit.adKitPref.isAppPurchased
-                || consentManager.canRequestAds.not()
+                /*|| consentManager.canRequestAds.not()*/
                 || internetController.isConnected.not()
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")

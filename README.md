@@ -6,25 +6,43 @@ A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to 
 
 # Installation
 
-### Add Dependency
+## Add Dependency
 
 To integrate the Monetization Kit into your project, include the following in your app's `build.gradle`:
 
-```kotlin
+```kotlin id="o5d2bl"
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.4.4")
 
-	OR
+    // Standard SDK 
+    implementation("com.github.Usman228811:montization-kit:3.4.5")
 
-	implementation("com.github.Usman228811:montization-kit:1.0.1-ng") //next gen sdk
+    // Standard SDK + Mediation Adapters
+    implementation("com.github.Usman228811:montization-kit:3.4.5-adapter")
+
+    // RevenueCat Support
+    implementation("com.github.Usman228811:montization-kit:3.4.5-rc")
+
+    // RevenueCat + Mediation Adapters
+    implementation("com.github.Usman228811:montization-kit:3.4.5-rc-adapter")
+
+
+    // Next Gen SDK
+    implementation("com.github.Usman228811:montization-kit:1.0.1-ng")
+
+    // Next Gen SDK + Mediation
+    implementation("com.github.Usman228811:montization-kit:1.0.1-ng-adapter")
+
 }
 ```
 
-### Configure JitPack Repository
 
-In your `settings.gradle`, add the JitPack repository:
+# Configure Repositories
 
-```kotlin
+## Standard SDK
+
+If you are using the standard Monetization Kit SDK (without mediation), add only the JitPack repository in your `settings.gradle`:
+
+```kotlin id="c5gbuw"
 dependencyResolutionManagement {
     repositories {
         maven { url = uri("https://www.jitpack.io") }
@@ -32,11 +50,47 @@ dependencyResolutionManagement {
 }
 ```
 
-### Gradle Plugins
+---
+
+## Mediation SDK
+
+If you are using any mediation version:
+
+* `-adapter`
+* `-rc-adapter`
+
+then add the following repositories in your `settings.gradle`:
+
+```kotlin id="g2f1y2"
+dependencyResolutionManagement {
+    repositories {
+
+        maven { url = uri("https://www.jitpack.io") }
+
+        maven {
+            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
+        }
+
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+    }
+}
+```
+
+> These additional repositories are required only for mediation network adapters.
+
+---
+
+# Gradle Plugins
 
 Define the required plugins in your `.toml` file:
 
-```toml
+```toml id="k1brlw"
 [plugins]
 gmsServiceVersion = "4.4.4"
 firebaseCrashlyticsVersion = "3.0.6"
@@ -49,7 +103,7 @@ firebasePerfPlugin = { id = "com.google.firebase.firebase-perf", version.ref = "
 
 Apply plugins in your project-level `build.gradle`:
 
-```kotlin
+```kotlin id="4u7h0q"
 plugins {
     alias(libs.plugins.gmsServicePlugin) apply false
     alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
@@ -59,57 +113,26 @@ plugins {
 
 And in your app-level `build.gradle`:
 
-```kotlin
+```kotlin id="q3i0ha"
 plugins {
-    alias(libs.plugins.gmsServicePlugin) 
+    alias(libs.plugins.gmsServicePlugin)
     alias(libs.plugins.firebaseCrashlyticsPlugin)
     alias(libs.plugins.firebasePerfPlugin)
 }
 ```
+
 ---
 
-## Mediation
+# Mediation
 
-### Mediation Networks
--  Pangle
--  Liftoff/Vungle
--  Meta
--  Mintegral
--  Inmobi
+## Supported Mediation Networks
 
-To integrate the Monetization Kit with mediation networks into your project, include the following in your app's `build.gradle`:
+* Pangle
+* Liftoff/Vungle
+* Meta
+* Mintegral
+* Inmobi
 
-```kotlin
-dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.4.4-adapter")
-
-	OR
-
-	implementation("com.github.Usman228811:montization-kit:1.0.1-ng-adapter") //next gen sdk
-}
-```
-
-### Configure JitPack Repository
-
-In your `settings.gradle`, add the JitPack repository:
-
-```kotlin
-dependencyResolutionManagement {
-    repositories {
-        maven { url = uri("https://www.jitpack.io") }
-		maven {
-            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
-        }
-        maven {
-            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
-        }
-        maven {
-            url = uri("https://artifact.bytedance.com/repository/pangle/")
-        }
-    }
-}
-```
----
 
 # SDK Initialization
 
@@ -680,6 +703,18 @@ onInitSdk = {
 ### Setup in Application Class
 
 ```kotlin
+
+class AppClass : Application(), ActivityLifecycleCallbacks {
+
+	companion object {
+        var appContext: Context? = null
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        appContext = this
+	}
+}
 fun initializeAppClass() {
     try {
         registerActivityLifecycleCallbacks(this)
@@ -1476,9 +1511,7 @@ class SplashScreenViewModel(
             duration = 25_000L
             addUpdateListener { animation ->
                 val value = animation.animatedValue as? Int
-                viewModelScope.launch {
-                    _state.update { it.copy(progress = value ?: 50) }
-                }
+                 _state.update { it.copy(progress = value ?: 50) }
             }
             start()
         }
@@ -1738,9 +1771,7 @@ class SplashViewModel(
             duration = 25_000L
             addUpdateListener { animation ->
                 val value = animation.animatedValue as? Int
-                viewModelScope.launch {
-                    _state.update { it.copy(progress = value ?: 50) }
-                }
+                 _state.update { it.copy(progress = value ?: 50) }
             }
             start()
         }
