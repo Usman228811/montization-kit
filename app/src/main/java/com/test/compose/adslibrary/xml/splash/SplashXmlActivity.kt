@@ -24,8 +24,8 @@ class SplashXmlActivity : BaseXmlActivity() {
     })
 
 
-    override fun shouldCheckConsent(): Boolean  = false
     override fun onCreate(savedInstanceState: Bundle?) {
+        setScreenName("main")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_xml)
 

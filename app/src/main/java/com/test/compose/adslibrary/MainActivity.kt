@@ -2,6 +2,7 @@ package com.test.compose.adslibrary
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,14 @@ class MainActivity : ComponentActivity() {
                 navHostController.currentBackStackEntryFlow.collect { backStackEntry ->
                     val route = backStackEntry.destination.route
                     AdKit.openAdManager.setCurrentNavigationRoute(route)
+                    Log.d("currentRoute", "onCreate: $route")
+//                    if (route != AppRoute.SplashRoute.route) {
+//                        if (AdKit.consentManager.canRequestAds.not() && AdKit.internetController.isConnected) {
+//                            AdKit.consentManager.gatherConsent(this@MainActivity)
+//                        }
+//                    }
+
+
                 }
             }
 
