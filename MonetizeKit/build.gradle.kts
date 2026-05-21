@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.4.6-rc"
+version = "3.4.7-rc"
 
 
 afterEvaluate {
@@ -53,7 +53,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.4.6-rc"
+                version = "3.4.7-rc"
             }
         }
     }
