@@ -34,7 +34,7 @@ class AdKitBannerPreloadHelper private constructor(
             )
             && bannerType != BannerAdType.BOTTOM_COLLAPSIBLE_BANNER.name
             && bannerType != BannerAdType.TOP_COLLAPSIBLE_BANNER.name
-            && AdKit.consentManager.canRequestAds
+            /*&& AdKit.consentManager.canRequestAds*/
         ) {
             var index = singleBannerList.indexOfFirst { it.key == bannerControllerConfig.adIdKey }
             if (index == -1) {
