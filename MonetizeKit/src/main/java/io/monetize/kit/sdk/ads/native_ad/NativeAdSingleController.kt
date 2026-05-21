@@ -67,7 +67,7 @@ class NativeAdSingleController {
     ) {
 
         try {
-            if (enable && !adKitPref.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
+            if (enable && !adKitPref.isAppPurchased && internetController.isConnected /*&& consentManager.canRequestAds*/) {
                 if (largeAndSmallNativeAd == null) {
                     if (!canRequestLargeAd) {
                         return
@@ -199,7 +199,7 @@ class NativeAdSingleController {
         ) * 1000
         if (refreshTime > 0 &&
             isAdEnable && !adKitPref.isAppPurchased &&
-            consentManager.canRequestAds &&
+            /*consentManager.canRequestAds &&*/
             internetController.isConnected &&
             canRefreshAd
         ) {

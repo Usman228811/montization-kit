@@ -233,7 +233,7 @@ class InterstitialController private constructor(
 
     private fun initAdMobCounter(context: Context, key: String, counter: Long) {
         val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
-        if (AdKit.consentManager.canRequestAds && canLoad) {
+        if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
                 loadInter(context)
@@ -260,7 +260,7 @@ class InterstitialController private constructor(
             initAdMobCounter(context, counterKey, counter)
         } else {
             val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
-            if (AdKit.consentManager.canRequestAds && canLoad) {
+            if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
                 loadInter(context)
             }
         }
@@ -268,7 +268,7 @@ class InterstitialController private constructor(
 
     private fun loadInter(context: Context) {
         try {
-            val canGo = AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds
+            val canGo = AdKit.internetController.isConnected /*&& AdKit.consentManager.canRequestAds*/
             if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
                 if (!canRequestAd) {
                     return
@@ -314,7 +314,7 @@ class InterstitialController private constructor(
         this.adIdKey = adIdKey
         mInterstitialControllerListener = listener
         try {
-            if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable && AdKit.consentManager.canRequestAds) {
+            if (!AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && enable /*&& AdKit.consentManager.canRequestAds*/) {
                 if (!canRequestAd) {
                     mInterstitialControllerListener?.onAdClosed(
                         reason = "$placementKey called onAdClosed because: Other ad is being request"
