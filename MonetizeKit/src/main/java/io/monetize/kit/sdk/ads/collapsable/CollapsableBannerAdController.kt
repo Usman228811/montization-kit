@@ -101,7 +101,6 @@ class CollapsableBannerAdController private constructor(
             } else if (/*AdKit.consentManager.canRequestAds.not() ||*/ AdKit.adKitPref.isAppPurchased || (!AdKit.internetController.isConnected && bannerAd == null)
             ) {
                 adCallBack?.onAdFailed("${bannerControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
-                destroyCollapsableBannerAd()
                 hideFrame()
             } else {
                 adFrame?.let { adFrame ->
