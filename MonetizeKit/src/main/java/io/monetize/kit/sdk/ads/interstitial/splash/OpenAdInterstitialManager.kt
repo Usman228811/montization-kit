@@ -149,7 +149,7 @@ internal class OpenAdInterstitialManager private constructor(
                 if (!canRequestAd) {
                     return
                 }
-                if (adId.isNotEmpty() && isAdEnable && AdKit.consentManager.canRequestAds) {
+                if (adId.isNotEmpty() && isAdEnable /*&& AdKit.consentManager.canRequestAds*/) {
                     canRequestAd = false
                     startDelayHandler()
 

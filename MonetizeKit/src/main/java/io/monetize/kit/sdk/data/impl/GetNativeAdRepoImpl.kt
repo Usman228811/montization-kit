@@ -225,7 +225,7 @@ class GetNativeAdRepoImpl private constructor(
                     adFrame == null
                     || adKitPref.isAppPurchased
                     || !AdKit.internetController.isConnected
-                    || !AdKit.consentManager.canRequestAds
+                    /*|| !AdKit.consentManager.canRequestAds*/
                 ) {
                     adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()

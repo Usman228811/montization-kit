@@ -65,7 +65,7 @@ class AdKitBannerController {
         context: Activity, enable: Boolean
     ) {
         try {
-            if (enable && !AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected && AdKit.consentManager.canRequestAds) {
+            if (enable && !AdKit.adKitPref.isAppPurchased && AdKit.internetController.isConnected /*&& AdKit.consentManager.canRequestAds*/) {
                 if (adView == null) {
                     if (!canRequestBannerAd) {
                         return
