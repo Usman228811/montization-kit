@@ -116,7 +116,7 @@ class SplashScreenViewModel(
             when (updateState) {
                 UpdateState.Available -> inAppUpdateManager.startUpdateFlow(launcher)
                 UpdateState.Downloaded -> inAppUpdateManager.updateComplete()
-                UpdateState.Failed -> initializeSplash()
+                UpdateState.Failed -> initConsent(activity)
                 UpdateState.Idle -> {}
             }
         }

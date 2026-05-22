@@ -125,33 +125,39 @@ class PlayLifeTimeRepositoryImpl private constructor(
     }
 
     private fun queryProductSkuForPurchase() {
-        if (!isBillingClientReady()) return
-        if (productIds.isEmpty()) {
-            subscriptionListener?.subscriptionItemNotFound()
-            return
-        }
-
-        val queryParams = QueryProductDetailsParams.newBuilder()
-            .setProductList(buildProductList(productIds))
-            .build()
-
-        billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
-            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+        try {
+            if (!isBillingClientReady()) return
+            if (productIds.isEmpty()) {
                 subscriptionListener?.subscriptionItemNotFound()
-                return@queryProductDetailsAsync
+                return
             }
-            val productList = queryProductDetailsResult.productDetailsList
-            if (productList.isEmpty()) {
-                subscriptionListener?.subscriptionItemNotFound()
-                return@queryProductDetailsAsync
-            }
-            skuMap = productList.toProductDetailsMap()
-            subscriptionListener?.onQueryProductSuccess(
-                PlayBillingQueryResult(
-                    skuList = skuMap,
-                    productList = productList
+
+            val queryParams = QueryProductDetailsParams.newBuilder()
+                .setProductList(buildProductList(productIds))
+                .build()
+
+            billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
+                if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                    subscriptionListener?.subscriptionItemNotFound()
+                    return@queryProductDetailsAsync
+                }
+                val productList = queryProductDetailsResult.productDetailsList
+                if (productList.isEmpty()) {
+                    subscriptionListener?.subscriptionItemNotFound()
+                    return@queryProductDetailsAsync
+                }
+                skuMap = productList.toProductDetailsMap()
+                subscriptionListener?.onQueryProductSuccess(
+                    PlayBillingQueryResult(
+                        skuList = skuMap,
+                        productList = productList
+                    )
                 )
-            )
+            }
+        } catch (error: LinkageError) {
+            subscriptionListener?.subscriptionItemNotFound()
+        } catch (e: Exception) {
+            subscriptionListener?.subscriptionItemNotFound()
         }
     }
 

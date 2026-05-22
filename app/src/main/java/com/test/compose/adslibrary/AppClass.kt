@@ -100,6 +100,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 //native ads
                 native("large_native") {
                     enable(true)
+                    ctaColor("#FF0000")
                     adType(NativeAdType.LARGE_NATIVE)
                 }
                 native("small_native_media_view") {
