@@ -174,32 +174,44 @@ class SubscriptionRepositoryImpl private constructor(
         if (isBillingClientDead) {
             return
         }
-        productIds?.let { productIds->
+        productIds?.let { productIds ->
 
             if (isSubscriptionSupported()) {
 
-                val list = buildSubscriptionProductList(productIds)
+                try {
+                    val list = buildSubscriptionProductList(productIds)
 
-                val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
-                    .setProductList(list)
-                    .build()
-                if (isBillingClientDead) {
-                    return
-                }
-                subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
-                    if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
-                        val p1 = details.productDetailsList
-                        activity.runOnUiThread {
-                            if (p1.isNotEmpty()) {
-                                subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1), p1)
-                            } else {
+                    val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
+                        .setProductList(list)
+                        .build()
+                    if (isBillingClientDead) {
+                        return
+                    }
+                    subscriptionClient.queryProductDetailsAsync(queryProductDetailsParams) { p0, details ->
+                        if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
+                            val p1 = details.productDetailsList
+                            activity.runOnUiThread {
+                                if (p1.isNotEmpty()) {
+                                    subscriptionListener?.onQueryProductSuccess(getSkuFromList(p1), p1)
+                                } else {
+                                    subscriptionListener?.subscriptionItemNotFound()
+                                }
+                            }
+                        } else {
+                            activity.runOnUiThread {
                                 subscriptionListener?.subscriptionItemNotFound()
                             }
                         }
-                    } else {
-                        activity.runOnUiThread {
-                            subscriptionListener?.subscriptionItemNotFound()
-                        }
+                    }
+                } catch (error: LinkageError) {
+                    Log.e(TAG, "Subscription: Billing classes unavailable", error)
+                    activity.runOnUiThread {
+                        subscriptionListener?.subscriptionItemNotFound()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Subscription: Product query failed", e)
+                    activity.runOnUiThread {
+                        subscriptionListener?.subscriptionItemNotFound()
                     }
                 }
             }
