@@ -165,44 +165,51 @@ class PlaySubscriptionRepositoryImpl private constructor(
     private fun getSku(skuList: MutableList<String>): String = skuList.firstOrNull().orEmpty()
 
     override fun querySubscriptionHistory(activity: Activity) {
-        purchasesList.clear()
-        if (isBillingClientDead) {
-            return
-        }
+        try {
+            purchasesList.clear()
+            if (isBillingClientDead) {
+                return
+            }
 
-        if (subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS).responseCode !=
-            BillingClient.BillingResponseCode.OK
-        ) {
-            resetAllPurchases()
-            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
-            return
-        }
+            if (subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS).responseCode !=
+                BillingClient.BillingResponseCode.OK
+            ) {
+                resetAllPurchases()
+                activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+                return
+            }
 
-        subscriptionClient.queryPurchasesAsync(
-            QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS)
-                .build(),
-            object : PurchasesResponseListener {
-                override fun onQueryPurchasesResponse(
-                    billingResult: BillingResult,
-                    purchases: MutableList<Purchase>
-                ) {
-                    var purchasesFound = false
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases.isNotEmpty()) {
-                        for (purchase in purchases) {
-                            if (processSubscriptionPurchase(activity, purchase)) {
-                                purchasesFound = true
+            subscriptionClient.queryPurchasesAsync(
+                QueryPurchasesParams.newBuilder()
+                    .setProductType(BillingClient.ProductType.SUBS)
+                    .build(),
+                object : PurchasesResponseListener {
+                    override fun onQueryPurchasesResponse(
+                        billingResult: BillingResult,
+                        purchases: MutableList<Purchase>
+                    ) {
+                        var purchasesFound = false
+                        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases.isNotEmpty()) {
+                            for (purchase in purchases) {
+                                if (processSubscriptionPurchase(activity, purchase)) {
+                                    purchasesFound = true
+                                }
                             }
                         }
-                    }
 
-                    if (!purchasesFound) {
-                        resetAllPurchases()
-                        activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+                        if (!purchasesFound) {
+                            resetAllPurchases()
+                            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+                        }
                     }
                 }
-            }
-        )
+            )
+        } catch (error: LinkageError) {
+            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+        } catch (e: Exception) {
+            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+
+        }
     }
 
     private fun processSubscriptionPurchase(activity: Activity, purchase: Purchase): Boolean {
