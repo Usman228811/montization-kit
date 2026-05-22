@@ -14,6 +14,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import io.monetize.kit.sdk.core.utils.firebaseLong
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import java.util.concurrent.ConcurrentHashMap
 
 class AdKitFirebaseRemoteConfigHelper private constructor() {
 
@@ -22,6 +23,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     private val handlerAd = Handler(Looper.getMainLooper())
 
     private val defaultRemoteConfig = RemoteConfigBuilder.getInstance()
+    private val cachedConfig = ConcurrentHashMap<String, Any>()
 
 
     private fun startHandler() {
@@ -118,6 +120,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     fun setDefaultRemoteConfigs(
         configDefaults: Map<String, Any>
     ) {
+        cachedConfig.putAll(configDefaults)
         try {
             Firebase.remoteConfig.apply {
                 setDefaultsAsync(configDefaults)
@@ -134,6 +137,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Log.d("AdKit_Logs", "Firebase Fetch successful")
+                            cacheActivatedValues(this)
                         } else {
                             Log.e("AdKit_Logs", "Firebase Fetch failed", task.exception)
                         }
@@ -159,6 +163,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
                 firebaseRemoteConfig.activate()
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
+                            cacheActivatedValues(firebaseRemoteConfig)
                             Log.d("AdKit_Logs", "Config updated & activated.")
                         }
                     }
@@ -170,33 +175,40 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         })
     }
 
+    private fun cacheActivatedValues(firebaseRemoteConfig: FirebaseRemoteConfig) {
+        try {
+            firebaseRemoteConfig.all.forEach { (key, value) ->
+                cachedConfig[key] = value.asString()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     internal fun getBoolean(key: String, def: Boolean): Boolean {
-        return try {
-            Firebase.remoteConfig.getBoolean(key)
-        } catch (e: Exception) {
-            defaultRemoteConfig.getDefaultBoolean(key, def)
+        return when (val value = cachedConfig[key]) {
+            is Boolean -> value
+            else -> defaultRemoteConfig.getDefaultBoolean(key, def)
         }
     }
 
     internal fun getLong(key: String, def: Long): Long {
-        return try {
-            Firebase.remoteConfig.getLong(key)
-        } catch (e: Exception) {
-            defaultRemoteConfig.getDefaultLong(key, def)
+        return when (val value = cachedConfig[key]) {
+            is Number -> value.toLong()
+            else -> defaultRemoteConfig.getDefaultLong(key, def)
         }
     }
 
     internal fun getString(key: String, def: String): String {
-        return try {
-            Firebase.remoteConfig.getString(key)
-        } catch (e: Exception) {
-            defaultRemoteConfig.getDefaultString(key, def)
-
+        return when (val value = cachedConfig[key]) {
+            is String -> value
+            null -> defaultRemoteConfig.getDefaultString(key, def)
+            else -> value.toString()
         }
     }
 
     fun setDefaultBool(key: String, value: Boolean) {
         defaultRemoteConfig.bool(key, value)
+        cachedConfig[key] = value
         try {
             Firebase.remoteConfig.apply {
                 setDefaultsAsync(defaultRemoteConfig.configMap)
@@ -208,6 +220,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
     fun setDefaultString(key: String, value: String) {
         defaultRemoteConfig.string(key, value)
+        cachedConfig[key] = value
         try {
             Firebase.remoteConfig.apply {
                 setDefaultsAsync(defaultRemoteConfig.configMap)
@@ -219,6 +232,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
 
     fun setDefaultLong(key: String, value: Long) {
         defaultRemoteConfig.long(key, value)
+        cachedConfig[key] = value
         try {
             Firebase.remoteConfig.apply {
                 setDefaultsAsync(defaultRemoteConfig.configMap)
