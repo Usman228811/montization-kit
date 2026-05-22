@@ -158,20 +158,20 @@ class BillingRepositoryImpl private constructor(
 
         if (!isBillingClientReady()) return
 
-        productIds?.let { productIds->
-            val list = buildProductList(productIds)
-            val queryParams = QueryProductDetailsParams.newBuilder()
-                .setProductList(
-                    list
-                )
-                .build()
+        productIds?.let { productIds ->
+            try {
+                val list = buildProductList(productIds)
+                val queryParams = QueryProductDetailsParams.newBuilder()
+                    .setProductList(
+                        list
+                    )
+                    .build()
 
-            billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
-                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val productList = queryProductDetailsResult.productDetailsList
-                    if (productList.isNotEmpty()) {
-                        skuMap = getSkuFromList(productList)
+                billingClient.queryProductDetailsAsync(queryParams) { result, queryProductDetailsResult ->
+                    if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                        val productList = queryProductDetailsResult.productDetailsList
                         if (productList.isNotEmpty()) {
+                            skuMap = getSkuFromList(productList)
                             subscriptionListener?.onQueryProductSuccess(
                                 skuMap,
                                 productList
@@ -179,10 +179,16 @@ class BillingRepositoryImpl private constructor(
                         } else {
                             subscriptionListener?.subscriptionItemNotFound()
                         }
+                    } else {
+                        subscriptionListener?.subscriptionItemNotFound()
                     }
-                } else {
-//                "Product Query Failed: ${result.responseCode}".logIt(BILLING_TAG)
                 }
+            } catch (error: LinkageError) {
+                Log.e(TAG, "One-Time-Purchase: Billing classes unavailable", error)
+                subscriptionListener?.subscriptionItemNotFound()
+            } catch (e: Exception) {
+                Log.e(TAG, "One-Time-Purchase: Product query failed", e)
+                subscriptionListener?.subscriptionItemNotFound()
             }
         }
 
@@ -243,6 +249,10 @@ class BillingRepositoryImpl private constructor(
             }
 
         } catch (e: Exception) {
+            activity?.let {
+                context.showToast(activity.getString(R.string.try_again))
+            }
+        } catch (_: LinkageError) {
             activity?.let {
                 context.showToast(activity.getString(R.string.try_again))
             }
