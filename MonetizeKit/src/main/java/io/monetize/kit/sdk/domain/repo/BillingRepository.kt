@@ -16,7 +16,7 @@ interface BillingRepository {
 
     fun checkProductPurchaseHistory()
     fun purchaseProduct(
-        activity: Activity?,
+        activity: Activity,
         productId: String,
         onUserDismissedPaywall: (() -> Unit)? = null
     )

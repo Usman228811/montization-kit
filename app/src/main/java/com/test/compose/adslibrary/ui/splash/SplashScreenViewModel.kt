@@ -13,11 +13,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.test.compose.adslibrary.BuildConfig
-import com.test.compose.adslibrary.ui.settings.FEATURE_1
-import com.test.compose.adslibrary.ui.settings.FEATURE_2
-import com.test.compose.adslibrary.ui.settings.FEATURE_3
-import com.test.compose.adslibrary.ui.settings.LIFE_TIME_ID
-import com.test.compose.adslibrary.ui.settings.REMOVE_ADS_ID
+import com.test.compose.adslibrary.FEATURE_1
+import com.test.compose.adslibrary.FEATURE_2
+import com.test.compose.adslibrary.FEATURE_3
+import com.test.compose.adslibrary.LIFE_TIME_ID
+import com.test.compose.adslibrary.REMOVE_ADS_ID
 import com.test.compose.adslibrary.ui.splash.state.SplashScreenState
 import io.monetize.kit.sdk.ads.interstitial.InterstitialControllerListener
 import io.monetize.kit.sdk.core.utils.firebaseLong
@@ -219,11 +219,16 @@ class SplashScreenViewModel(
 //                    "banner_common",
 //                )
 //            )
+            _state.update {
+                it.copy(
+                    loadAndShow = false
+                )
+            }
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",
                 adIdKey = "splash_inter",
-                loadAndShow = true,
+                loadAndShow = state.value.loadAndShow,
                 splashTime = firebaseLong("splash_time", 16),
                 listener = object : InterstitialControllerListener {
                     override fun onAdShow() {

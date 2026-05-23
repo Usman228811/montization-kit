@@ -11,6 +11,29 @@ import io.monetize.kit.sdk.ads.open.OpenAdListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.data.impl.RevenueCatBuilder
+
+
+var LIFE_TIME_ID = "one_time"
+//var REMOVE_ADS_ID = "remove_ads"
+//var FEATURE_1 = "unlockphotos"
+//var FEATURE_2 = "duplicate_scan"
+//var FEATURE_3 = "unlockall"
+
+
+//var FEATURE_1 = "weekly_with_free_trail"
+//var FEATURE_2 = "weekly_without_free_trail"
+//var FEATURE_3 = "weekly_with_paid_trail"
+
+var REMOVE_ADS_ID = "remove_ads:remove-ads"
+var FEATURE_1 = "unlockphotos:unlockphotos"
+var FEATURE_2 = "duplicate_scan:duplicate-scan-unllock"
+var FEATURE_3 = "unlockall:unlock-all"
+
+//var REMOVE_ADS_ID = "remove_ads:remove-ads"
+//var FEATURE_1 = "weekly_with_free_trail:weekly-with-free-trail"
+//var FEATURE_2 = "weekly_without_free_trail:weekly-without-free-trail"
+//var FEATURE_3 = "weekly_with_paid_trail:weekly-with-paid-trail"
 
 class AppClass : Application(), ActivityLifecycleCallbacks {
 
@@ -22,7 +45,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
     override fun onCreate() {
         super.onCreate()
         appContext = this
-        val start = System.currentTimeMillis()
         AdKit.init(
             isDebug = true,
             appFlyerSdkKey = "",
@@ -31,9 +53,9 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             admobId = getString(R.string.app_id),
             openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
-//                "splash_inter" to "/21775744923/example/interstitial",
-                "splash_inter" to "/21775744923/example/app-open",
-                "home_inter" to "/21775744923/example/interstitial",
+                "splash_inter" to "/21775744923/example/interstitial",
+                "splash_open_ad" to "/21775744923/example/app-open",
+
                 "inter_common" to listOf(
                     "/21775744923/example/interstitial",
                     "/21775744923/example/interstitial",
@@ -41,98 +63,156 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "ca-app-pub-3940256099942544/5224354917"
+                "reward_main" to "/21775744923/example/rewarded",
+                "reward_common" to "/21775744923/example/rewarded"
             ),
             mapOfNativeIds = mapOf(
-                "exit_native" to "/21775744923/example/native-video",
-                "lang_native_ad" to "/21775744923/example/native-video",
-                "home_native" to "/21775744923/example/native-video",
+                "large_native" to "/21775744923/example/native",
+                "small_native_media_view" to "/21775744923/example/native",
+                "small_native" to "/21775744923/example/native",
+                "small_native_mini" to "/21775744923/example/native",
+                "full_native" to "/21775744923/example/native",
+
                 "native_common" to listOf(
-                    "ca-app-pub-3940256099942544/2247696110",
+                    "/21775744923/example/native",
                 ),
-                "subscription_native" to "/21775744923/example/native-video",
             ),
             mapOfBannerIds = mapOf(
-                //   ca-app-pub-3940256099942544/9214589741  banner
-                //   ca-app-pub-3940256099942544/2014213617  collapsible
-
-
-                "premium_banner" to "ca-app-pub-3940256099942544/9214589741",
-//                "home_banner" to "ca-app-pub-3940256099942544/9214589741",
-//                "home_banner" to "ca-app-pub-3940256099942544/2014213617",
+                "bottom_banner_collapsable" to "ca-app-pub-3940256099942544/9214589741",
+                "top_banner_collapsable" to "ca-app-pub-3940256099942544/9214589741",
+                "adaptive_banner" to "ca-app-pub-3940256099942544/9214589741",
+                "large_banner" to "ca-app-pub-3940256099942544/9214589741",
+                "med_rec_banner" to "ca-app-pub-3940256099942544/9214589741",
+                "large_anchored_banner" to "ca-app-pub-3940256099942544/9214589741",
                 "banner_common" to "ca-app-pub-3940256099942544/9214589741",
-                "home_banner_top" to "ca-app-pub-3940256099942544/9214589741",
             ),
             defaultRemoteConfigBuilder = {
 
                 bool("OPEN_AD_ENABLE", true)
-                bool("splash_inter_isAdOpenAd", true)
+                bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
-                bool("INTER_LOADING_ENABLE", true)
+                bool("INTER_LOADING_ENABLE", false)
                 bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)
                 long("INTER_INSTANT_TIME", 8)
                 long("splash_time", 16)
 
-                native("exit_native") {
+                //native ads
+                native("large_native") {
                     enable(true)
-                    ctaColor("")
-                    bgColor("")
+                    ctaColor("#FF0000")
+                    adType(NativeAdType.LARGE_NATIVE)
+                }
+                native("small_native_media_view") {
+                    enable(true)
+                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
+                }
+                native("small_native") {
+                    enable(true)
+                    adType(NativeAdType.SMALL_NATIVE)
+                }
+                native("small_native_mini") {
+                    enable(true)
                     adType(NativeAdType.SMALL_NATIVE_MINI)
                 }
-                native("home_native") {
+                native("full_native") {
                     enable(true)
-//                    ctaColor("#000000")
-                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
-                    refreshTime(0)
+                    adType(NativeAdType.FULL_NATIVE)
+                }
+
+
+
+                native("exit_native") {
+                    enable(true)
+                    adType(NativeAdType.SMALL_NATIVE_MINI)
                 }
                 native("subscription_native") {
                     enable(true)
                     ctaColor("")
                     bgColor("")
-                    adType(NativeAdType.SMALL_NATIVE_MEDIA_VIEW)
-                }
-                native("lang_native_ad") {
-                    enable(true)
                     adType(NativeAdType.SMALL_NATIVE)
                 }
 
+
+                //inter or reward ads
                 fullScreen("splash_inter") {
                     enable(true)
                 }
-                fullScreen("home_inter") {
+
+                fullScreen("inter_instant_with_counter") {
                     enable(true)
-//                    instantInter(true)
+                    instantInter(true)
                 }
-                fullScreen("inter_btn_plant") {
+
+                fullScreen("inter_preload_with_counter") {
                     enable(true)
-                    instantReward(false)
                 }
-                banner("home_banner") {
-                    enable(false)
+                fullScreen("inter_instant") {
+                    enable(true)
+                    instantInter(true)
+                }
+                fullScreen("inter_preload") {
+                    enable(true)
+                }
+                fullScreen("reward_ad") {
+                    enable(true)
+                    instantReward(true)
+                }
+
+                //Banner Ads
+
+                banner(placementKey = "exit_banner") {
+                    enable(true)
                     bannerType(BannerAdType.ADAPTIVE_BANNER)
                 }
-                banner("home_banner_exit") {
-                    enable(true)
-                    bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
-                }
-                banner("home_banner_top") {
-                    enable(false)
-                    bannerType(BannerAdType.ADAPTIVE_BANNER)
-                }
-                banner("premium_banner") {
+
+                banner(placementKey = "bottom_banner_collapsable") {
                     enable(true)
                     bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
+
+                banner(placementKey = "top_banner_collapsable") {
+                    enable(true)
+                    bannerType(BannerAdType.TOP_COLLAPSIBLE_BANNER)
+                }
+                banner(placementKey = "adaptive_banner") {
+                    enable(true)
+                    bannerType(BannerAdType.ADAPTIVE_BANNER)
+                }
+                banner(placementKey = "large_banner") {
+                    enable(true)
+                    bannerType(BannerAdType.LARGE_BANNER)
+                }
+                banner(placementKey = "med_rec_banner") {
+                    enable(true)
+                    bannerType(BannerAdType.MEDIUM_RECTANGLE_BANNER)
+                }
+                banner(placementKey = "large_anchored_banner") {
+                    enable(true)
+                    bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
+                }
+                banner(placementKey = "premium_banner") {
+                    enable(true)
+                    bannerType(BannerAdType.ADAPTIVE_BANNER)
+                }
+
+
 //                overAllNativeColor("#964B00", "#FF03DAC5")
             },
-            onDefaultConfigGenerated = {
-                Log.d("opoppp", "onCreate: $it")
+            onDefaultConfigGenerated = { defaultConfigs ->
+                Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
+            revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+                offeringKey = "default_offerings"
+            ),
+//            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+//            revenueCatKey = "goog_xsumKcnLzLWUCzkJuTQyZIfRPeJ",
+//            revenueCatKey = "",
             onInitSdk = {
 
-                AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener{
+                AdKit.openAdManager.setOpenAdListeners(object : OpenAdListener {
                     override fun onAdShow() {
                         Log.d("opoppp", "onAdShow: ")
                     }
@@ -157,7 +237,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     largeNativeLayout = R.layout.large_native_layout_custom,
                     smallNativeLayout = R.layout.small_native_layout_custom,
-//                    smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
+                    smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
                 )
 
                 AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(
@@ -165,9 +245,6 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     AppRoute.SubscriptionRoute.route
                 )
             })
-
-        val end = System.currentTimeMillis()
-        Log.d("AdKitInit_sdk", "SDK init time = ${end - start} ms")
     }
 
     fun initializeAppClass() {

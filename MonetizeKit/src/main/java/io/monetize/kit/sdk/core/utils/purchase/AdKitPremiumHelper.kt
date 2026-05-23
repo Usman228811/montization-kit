@@ -2,6 +2,10 @@ package io.monetize.kit.sdk.core.utils.purchase
 
 import android.app.Activity
 import android.app.Application
+import com.revenuecat.purchases.LogLevel
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.PurchasesConfiguration
+import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.domain.model.OfferTexts
 import io.monetize.kit.sdk.domain.model.OfferType
 import io.monetize.kit.sdk.domain.model.PremiumOffer
@@ -47,12 +51,26 @@ enum class PremiumProductType {
     UNKNOWN
 }
 
+private data class BillingItemsByType(
+    val lifetimeRemoveAds: List<String>,
+    val lifetimeFeatures: List<String>,
+    val subscriptionRemoveAds: List<String>,
+    val subscriptionFeatures: List<String>
+)
+
 class AdKitPremiumHelper private constructor(
     private val purchaseHelper: AdKitPurchaseHelper,
     private val subscriptionHelper: AdKitSubscriptionHelper
 ) {
 
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val billingProvider: PremiumBillingProvider
+        get() = if (AdKit.getRevenueCatKey().isNotEmpty()) {
+            PremiumBillingProvider.REVENUE_CAT
+        } else {
+            PremiumBillingProvider.PLAY
+        }
 
     val premiumState: StateFlow<PremiumAccessState> = combine(
         purchaseHelper.oneTimePurchaseState,
@@ -76,47 +94,60 @@ class AdKitPremiumHelper private constructor(
         initialValue = PremiumAccessState()
     )
 
+
     fun initBilling(
         activity: Activity,
         items: List<BillingItem>
     ) {
+        val provider = billingProvider
+        val groupedItems = groupBillingItems(items)
 
+        if (groupedItems.lifetimeRemoveAds.isNotEmpty() || groupedItems.lifetimeFeatures.isNotEmpty()) {
+            purchaseHelper.initBilling(
+                provider = provider,
+                removeAdsIds = groupedItems.lifetimeRemoveAds,
+                featureIds = groupedItems.lifetimeFeatures
+            )
+        }
+
+        if (groupedItems.subscriptionRemoveAds.isNotEmpty() || groupedItems.subscriptionFeatures.isNotEmpty()) {
+            subscriptionHelper.initBilling(
+                activity = activity,
+                provider = provider,
+                removeAdsIds = groupedItems.subscriptionRemoveAds,
+                featureIds = groupedItems.subscriptionFeatures
+            )
+        }
+    }
+
+
+
+    private fun groupBillingItems(items: List<BillingItem>): BillingItemsByType {
         val lifetimeRemoveAds = mutableListOf<String>()
         val lifetimeFeatures = mutableListOf<String>()
-        val subRemoveAds = mutableListOf<String>()
-        val subFeatures = mutableListOf<String>()
+        val subscriptionRemoveAds = mutableListOf<String>()
+        val subscriptionFeatures = mutableListOf<String>()
 
         items.forEach { item ->
             when (item) {
-                is BillingItem.Lifetime -> {
-                    when (item.type) {
-                        BillingItem.Type.REMOVE_ADS -> lifetimeRemoveAds.add(item.productId)
-                        BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
-                    }
+                is BillingItem.Lifetime -> when (item.type) {
+                    BillingItem.Type.REMOVE_ADS -> lifetimeRemoveAds.add(item.productId)
+                    BillingItem.Type.FEATURE -> lifetimeFeatures.add(item.productId)
                 }
-                is BillingItem.Subscription -> {
-                    when (item.type) {
-                        BillingItem.Type.REMOVE_ADS -> subRemoveAds.add(item.productId)
-                        BillingItem.Type.FEATURE -> subFeatures.add(item.productId)
-                    }
+
+                is BillingItem.Subscription -> when (item.type) {
+                    BillingItem.Type.REMOVE_ADS -> subscriptionRemoveAds.add(item.productId)
+                    BillingItem.Type.FEATURE -> subscriptionFeatures.add(item.productId)
                 }
             }
         }
 
-        if (lifetimeRemoveAds.isNotEmpty() || lifetimeFeatures.isNotEmpty()) {
-            purchaseHelper.initBilling(
-                removeAdsIds = lifetimeRemoveAds,
-                featureIds = lifetimeFeatures
-            )
-        }
-
-        if (subRemoveAds.isNotEmpty() || subFeatures.isNotEmpty()) {
-            subscriptionHelper.initBilling(
-                activity = activity,
-                removeAdsIds = subRemoveAds,
-                featureIds = subFeatures
-            )
-        }
+        return BillingItemsByType(
+            lifetimeRemoveAds = lifetimeRemoveAds,
+            lifetimeFeatures = lifetimeFeatures,
+            subscriptionRemoveAds = subscriptionRemoveAds,
+            subscriptionFeatures = subscriptionFeatures
+        )
     }
 
     fun getProductType(productId: String): PremiumProductType {

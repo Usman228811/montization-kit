@@ -1,7 +1,6 @@
 package com.test.compose.adslibrary.ui.splash
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +28,7 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         splashViewModel.loadProducts(
-            activity,
+            activity
         )
     }
     LaunchedEffect(Unit) {
