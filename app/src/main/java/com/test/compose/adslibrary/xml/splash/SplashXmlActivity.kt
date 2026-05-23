@@ -7,13 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.test.compose.adslibrary.R
+import com.test.compose.adslibrary.ui.base.BaseXmlActivity
 import com.test.compose.adslibrary.xml.MainXmlActivity
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
-class SplashXmlActivity : AppCompatActivity() {
+class SplashXmlActivity : BaseXmlActivity() {
 
     private var splashXmlViewModel: SplashXmlViewModel? = null
     private var isLaunched = false
@@ -22,14 +23,14 @@ class SplashXmlActivity : AppCompatActivity() {
         splashXmlViewModel?.initConsent(this@SplashXmlActivity)
     })
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setScreenName("main")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_xml)
 
         splashXmlViewModel =
             ViewModelProvider(this, SplashXmlViewModelFactory())[SplashXmlViewModel::class]
-
-        splashXmlViewModel?.loadProducts(this)
 
 
         splashXmlViewModel?.let { viewModel ->
