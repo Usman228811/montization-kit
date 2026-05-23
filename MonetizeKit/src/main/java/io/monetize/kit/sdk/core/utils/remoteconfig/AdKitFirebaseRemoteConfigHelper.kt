@@ -187,6 +187,8 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     internal fun getBoolean(key: String, def: Boolean): Boolean {
         return when (val value = cachedConfig[key]) {
             is Boolean -> value
+            is String -> value.toBooleanStrictOrNull() ?: defaultRemoteConfig.getDefaultBoolean(key, def)
+            is Number -> value.toInt() != 0
             else -> defaultRemoteConfig.getDefaultBoolean(key, def)
         }
     }
@@ -194,6 +196,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     internal fun getLong(key: String, def: Long): Long {
         return when (val value = cachedConfig[key]) {
             is Number -> value.toLong()
+            is String -> value.toLongOrNull() ?: defaultRemoteConfig.getDefaultLong(key, def)
             else -> defaultRemoteConfig.getDefaultLong(key, def)
         }
     }
