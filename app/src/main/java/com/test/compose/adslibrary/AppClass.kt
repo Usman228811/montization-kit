@@ -11,23 +11,24 @@ import io.monetize.kit.sdk.ads.open.OpenAdListener
 import io.monetize.kit.sdk.core.utils.adtype.BannerAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.data.impl.RevenueCatBuilder
 
 
 var LIFE_TIME_ID = "one_time"
-var REMOVE_ADS_ID = "remove_ads"
-var FEATURE_1 = "unlockphotos"
-var FEATURE_2 = "duplicate_scan"
-var FEATURE_3 = "unlockall"
+//var REMOVE_ADS_ID = "remove_ads"
+//var FEATURE_1 = "unlockphotos"
+//var FEATURE_2 = "duplicate_scan"
+//var FEATURE_3 = "unlockall"
 
 
 //var FEATURE_1 = "weekly_with_free_trail"
 //var FEATURE_2 = "weekly_without_free_trail"
 //var FEATURE_3 = "weekly_with_paid_trail"
 
-//var REMOVE_ADS_ID = "remove_ads:remove-ads"
-//var FEATURE_1 = "unlockphotos:unlockphotos"
-//var FEATURE_2 = "duplicate_scan:duplicate-scan-unllock"
-//var FEATURE_3 = "unlockall:unlock-all"
+var REMOVE_ADS_ID = "remove_ads:remove-ads"
+var FEATURE_1 = "unlockphotos:unlockphotos"
+var FEATURE_2 = "duplicate_scan:duplicate-scan-unllock"
+var FEATURE_3 = "unlockall:unlock-all"
 
 //var REMOVE_ADS_ID = "remove_ads:remove-ads"
 //var FEATURE_1 = "weekly_with_free_trail:weekly-with-free-trail"
@@ -45,11 +46,11 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
         super.onCreate()
         appContext = this
         AdKit.init(
-            admobId = getString(R.string.app_id),
             isDebug = true,
             appFlyerSdkKey = "",
             postRevenueOnFireBase = true,
             context = this,
+            admobId = getString(R.string.app_id),
             openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
                 "splash_inter" to "/21775744923/example/interstitial",
@@ -202,6 +203,10 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             onDefaultConfigGenerated = { defaultConfigs ->
                 Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
+            revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+                offeringKey = "default_offerings"
+            ),
 //            revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
 //            revenueCatKey = "goog_xsumKcnLzLWUCzkJuTQyZIfRPeJ",
 //            revenueCatKey = "",
