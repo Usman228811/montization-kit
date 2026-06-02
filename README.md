@@ -306,8 +306,7 @@ viewModelScope.apply {
 }
 
 fun initConsent(activity: Activity) {
-    viewModelScope.launch {
-        if (state.value.isConsentManager.not()) {
+    if (state.value.isConsentManager.not()) {
             _state.update {
                 it.copy(isConsentManager = true)
             }
@@ -320,7 +319,6 @@ fun initConsent(activity: Activity) {
                 runSplash()
             }
         }
-    }
 }
 ```
 
@@ -388,9 +386,7 @@ private fun showSplashAd(mContext: Activity) {
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                         _state.update { it.copy(progress = 100) }
                     }
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
 
@@ -1402,9 +1398,7 @@ class SplashScreenViewModel(
         if (state.value.runSplash) {
             animator?.resume()
         }
-        viewModelScope.launch {
-            _state.update { it.copy(isAppResumed = true) }
-        }
+         _state.update { it.copy(isAppResumed = true) }
     }
 
     private fun onPause() {
@@ -1414,9 +1408,7 @@ class SplashScreenViewModel(
         if (!isInterAdShowed && isInterAdCalled) {
             AdKit.splashAdController.pauseAd()
         }
-        viewModelScope.launch {
-            _state.update { it.copy(isAppResumed = false) }
-        }
+         _state.update { it.copy(isAppResumed = false) }
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {
@@ -1473,8 +1465,7 @@ class SplashScreenViewModel(
     }
 
     fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
+        if (state.value.isConsentManager.not()) {
                 _state.update { it.copy(isConsentManager = true) }
                 if (!adKitPref.isAppPurchased && internetController.isConnected) {
                     consentManager.gatherConsent(activity)
@@ -1485,16 +1476,13 @@ class SplashScreenViewModel(
                     initializeSplash()
                 }
             }
-        }
     }
 
     private fun initializeSplash() {
-        viewModelScope.launch {
-            if (state.value.initializeSplash.not()) {
+       if (state.value.initializeSplash.not()) {
                 _state.update { it.copy(initializeSplash = true) }
                 fetchFirebase()
             }
-        }
     }
 
     private fun fetchFirebase() {
@@ -1505,11 +1493,9 @@ class SplashScreenViewModel(
     }
 
     private fun runSplash() {
-        viewModelScope.launch {
-            if (state.value.runSplash.not()) {
+         if (state.value.runSplash.not()) {
                 _state.update { it.copy(runSplash = true) }
             }
-        }
     }
 
     private fun startProgressAnimation() {
@@ -1538,9 +1524,7 @@ class SplashScreenViewModel(
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                        _state.update { it.copy(progress = 100) }
                     }
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                         animator?.cancel()
@@ -1733,8 +1717,7 @@ class SplashViewModel(
     }
 
     fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
+        if (state.value.isConsentManager.not()) {
                 _state.update { it.copy(isConsentManager = true) }
                 if (!adKitPref.isAppPurchased && internetController.isConnected) {
                     consentManager.gatherConsent(activity)
@@ -1745,16 +1728,13 @@ class SplashViewModel(
                     initializeSplash()
                 }
             }
-        }
     }
 
     private fun initializeSplash() {
-        viewModelScope.launch {
-            if (state.value.initializeSplash.not()) {
+        if (state.value.initializeSplash.not()) {
                 _state.update { it.copy(initializeSplash = true) }
                 fetchFirebase()
             }
-        }
     }
 
     private fun fetchFirebase() {
@@ -1765,11 +1745,9 @@ class SplashViewModel(
     }
 
     private fun runSplash() {
-        viewModelScope.launch {
-            if (state.value.runSplash.not()) {
+         if (state.value.runSplash.not()) {
                 _state.update { it.copy(runSplash = true) }
             }
-        }
     }
 
     private fun startProgressAnimation() {
@@ -1798,9 +1776,7 @@ class SplashViewModel(
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                       _state.update { it.copy(progress = 100) }
                     }
 
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
