@@ -134,11 +134,11 @@ class AdKitSubscriptionHelper private constructor(
 
             isSubscriptionUpdateSupported() -> {
 
-//                queryProducts.getProducts()?.let { products ->
-//                    products[productId]?.let {
-//                        purchaseProduct.changeSubscriptionPlan(activity, it)
-//                    }
-//                }
+                queryProducts.getProducts()?.let { products ->
+                    products[productId]?.let {
+                        purchaseProduct.changeSubscriptionPlan(activity, it)
+                    }
+                }
             }
         }
 

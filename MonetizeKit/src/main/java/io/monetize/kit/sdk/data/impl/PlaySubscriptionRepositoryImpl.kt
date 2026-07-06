@@ -17,7 +17,9 @@ import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.revenuecat.purchases.Package
+import io.monetize.kit.sdk.R
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.showToast
 import io.monetize.kit.sdk.domain.repo.PlayBillingQueryResult
 import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import io.monetize.kit.sdk.domain.repo.SubscriptionRepository
@@ -53,6 +55,10 @@ class PlaySubscriptionRepositoryImpl private constructor(
 
     private val isBillingClientDead: Boolean
         get() = !::subscriptionClient.isInitialized
+
+
+    val isBillingClientReady: Boolean
+        get() = !isBillingClientDead && subscriptionClient.isReady
 
     override fun purchaseProduct(
         activity: Activity,
@@ -95,30 +101,92 @@ class PlaySubscriptionRepositoryImpl private constructor(
 
     override fun changeSubscriptionPlan(activity: Activity, skuDetails: Package) = Unit
 
-    override fun changeSubscriptionPlan(activity: Activity, skuDetails: ProductDetails) {
+    override fun changeSubscriptionPlan(
+        activity: Activity,
+        skuDetails: ProductDetails
+    ) {
         try {
-            if (isBillingClientDead || subscribeProductToken.isEmpty()) {
+            if (AdKit.internetController.isConnected.not()) {
+                context.showToast(activity.getString(R.string.no_internet))
                 return
             }
-            val offerToken = skuDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken ?: return
-            val productDetailsParams = BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(skuDetails)
-                .setOfferToken(offerToken)
-                .build()
-            val flowParams = BillingFlowParams.newBuilder()
-                .setSubscriptionUpdateParams(
-                    BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                        .setOldPurchaseToken(subscribeProductToken)
-                        .setSubscriptionReplacementMode(BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WITH_TIME_PRORATION)
+
+            if (!isBillingClientReady) {
+                context.showToast(activity.getString(R.string.try_again))
+                return
+            }
+
+            val newOfferToken = skuDetails.firstOfferToken()
+            if (newOfferToken.isNullOrBlank()) {
+                context.showToast(activity.getString(R.string.try_again))
+                return
+            }
+
+            queryActiveSubscriptionPurchase(activity) { activePurchase ->
+                try {
+                    if (activePurchase == null) {
+                        context.showToast(activity.getString(R.string.try_again))
+                        return@queryActiveSubscriptionPurchase
+                    }
+
+                    val oldPurchaseToken = activePurchase.purchaseToken
+                    val oldProductId = activePurchase.products.firstOrNull().orEmpty()
+
+                    if (oldPurchaseToken.isBlank() || oldProductId.isBlank()) {
+                        context.showToast(activity.getString(R.string.try_again))
+                        return@queryActiveSubscriptionPurchase
+                    }
+
+                    if (oldProductId == skuDetails.productId) {
+                        context.showToast(activity.getString(R.string.try_again))
+                        return@queryActiveSubscriptionPurchase
+                    }
+
+                    val replacementParams =
+                        BillingFlowParams.ProductDetailsParams.SubscriptionProductReplacementParams
+                            .newBuilder()
+                            .setOldProductId(oldProductId)
+                            .setReplacementMode(
+                                BillingFlowParams.ProductDetailsParams
+                                    .SubscriptionProductReplacementParams
+                                    .ReplacementMode
+                                    .WITH_TIME_PRORATION
+                            )
+                            .build()
+
+                    val productDetailsParams =
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(skuDetails)
+                            .setOfferToken(newOfferToken)
+                            .setSubscriptionProductReplacementParams(replacementParams)
+                            .build()
+
+                    val flowParams = BillingFlowParams.newBuilder()
+                        .setSubscriptionUpdateParams(
+                            BillingFlowParams.SubscriptionUpdateParams.newBuilder()
+                                .setOldPurchaseToken(oldPurchaseToken)
+                                .build()
+                        )
+                        .setProductDetailsParamsList(listOf(productDetailsParams))
                         .build()
-                )
-                .setProductDetailsParamsList(listOf(productDetailsParams))
-                .build()
-            subscriptionClient.launchBillingFlow(activity, flowParams)
-        } catch (_: IntentSender.SendIntentException) {
-            context.showTryAgain(activity)
-        } catch (_: Exception) {
-            context.showTryAgain(activity)
+
+                    val billingResult = subscriptionClient.launchBillingFlow(activity, flowParams)
+
+                    if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                        context.showToast(activity.getString(R.string.try_again))
+                    }
+
+                } catch (e: LinkageError) {
+                    context.showToast(activity.getString(R.string.try_again))
+                } catch (e: Exception) {
+                    context.showToast(activity.getString(R.string.try_again))
+                }
+            }
+
+        } catch (e: LinkageError) {
+            context.showToast(activity.getString(R.string.try_again))
+        } catch (e: Exception) {
+            context.showToast(activity.getString(R.string.try_again))
         }
     }
 
@@ -342,4 +410,40 @@ class PlaySubscriptionRepositoryImpl private constructor(
     override fun viewUrl(activity: Activity, url: String) {
         activity.openBrowsableUrl(url)
     }
+
+    private fun ProductDetails.firstOfferToken(): String? {
+        return subscriptionOfferDetails
+            ?.firstOrNull()
+            ?.offerToken
+    }
+
+    private fun queryActiveSubscriptionPurchase(
+        activity: Activity,
+        onResult: (Purchase?) -> Unit
+    ) {
+        if (!isBillingClientReady) {
+            activity.runOnUiThread { onResult(null) }
+            return
+        }
+
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+
+        subscriptionClient.queryPurchasesAsync(params) { billingResult, purchases ->
+            val activePurchase =
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    purchases.firstOrNull { purchase ->
+                        purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.products.any { productId -> checkSubscriptionsId(productId) }
+                    }
+                } else {
+                    null
+                }
+
+            activity.runOnUiThread {
+                onResult(activePurchase)
+            }
+        }
+    }
+
 }

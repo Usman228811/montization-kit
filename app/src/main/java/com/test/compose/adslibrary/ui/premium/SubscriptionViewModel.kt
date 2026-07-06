@@ -173,7 +173,7 @@ class SubscriptionViewModel : ViewModel() {
     }
 
     fun purchase(activity: Activity) {
-        AdKit.premiumHelper.purchase(activity, selectedId(), false, onUserDismissedPaywall = {
+        AdKit.premiumHelper.purchase(activity, selectedId(), true, onUserDismissedPaywall = {
             Log.d("usman", "subscription purchase: user dismissed the paywall")
         })
     }
