@@ -43,7 +43,6 @@ class AppsFlyer {
         if (sdkKey.isNotEmpty()) {
             if (!isInitialized) {
                 CoroutineScope(Dispatchers.IO).launch {
-
                     val listener = object : AppsFlyerRequestListener {
                         override fun onSuccess() {
                             Log.d(TAG, "onSuccess: ")
