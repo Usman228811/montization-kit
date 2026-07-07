@@ -1,8 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    kotlin("plugin.serialization") version "2.0.21"
-
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.gmsServicePlugin)
     alias(libs.plugins.firebaseCrashlyticsPlugin)
     alias(libs.plugins.firebasePerfPlugin)
@@ -10,13 +9,13 @@ plugins {
 
 android {
     namespace = "com.test.compose.adslibrary"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
 //        applicationId = "com.example.gpsapp"
         applicationId = "com.photocleaner.swipetodelete.psma"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -54,7 +53,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-//    implementation(libs.koin)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
