@@ -3,11 +3,11 @@ package io.monetize.kit.sdk.core.utils.appflyer
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import com.appsflyer.AFAdRevenueData
-import com.appsflyer.AdRevenueScheme
 import com.appsflyer.AppsFlyerLib
-import com.appsflyer.MediationNetwork
-import com.appsflyer.attribution.AppsFlyerRequestListener
+import com.appsflyer.share.AFAdRevenueData
+import com.appsflyer.share.AdRevenueScheme
+import com.appsflyer.share.MediationNetwork
+import com.appsflyer.share.attribution.AppsFlyerRequestListener
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdapterResponseInfo
 import io.monetize.kit.sdk.core.utils.init.AdKit
@@ -44,19 +44,19 @@ class AppsFlyer {
             if (!isInitialized) {
                 CoroutineScope(Dispatchers.IO).launch {
 
-                    AppsFlyerLib.getInstance().init(sdkKey, null, context)
-                    AppsFlyerLib.getInstance()
-                        .start(context, "", object : AppsFlyerRequestListener {
-                            override fun onSuccess() {
-                                Log.d(TAG, "onSuccess: ")
-                                isInitialized = true
-                            }
+                    val listener = object : AppsFlyerRequestListener {
+                        override fun onSuccess() {
+                            Log.d(TAG, "onSuccess: ")
+                            isInitialized = true
+                        }
 
-                            override fun onError(p0: Int, p1: String) {
-                                Log.e(TAG, "onError: $p0 $p1")
-                                isInitialized = false
-                            }
-                        })
+                        override fun onError(p0: Int, p1: String) {
+                            Log.e(TAG, "onError: $p0 $p1")
+                            isInitialized = false
+                        }
+                    }
+                    AppsFlyerLib.getInstance().init(sdkKey, null, context)
+                    AppsFlyerLib.getInstance().start(listener)
                     if (isDebug) {
                         AppsFlyerLib.getInstance().setDebugLog(true)
                     }

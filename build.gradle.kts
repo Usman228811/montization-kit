@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.android.library) apply false
 
-
+    alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.gmsServicePlugin) apply false
     alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
     alias(libs.plugins.firebasePerfPlugin) apply false
