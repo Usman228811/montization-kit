@@ -176,16 +176,16 @@ class PlaySubscriptionRepositoryImpl private constructor(
                         context.showToast(activity.getString(R.string.try_again))
                     }
 
-                } catch (e: LinkageError) {
+                } catch (_: LinkageError) {
                     context.showToast(activity.getString(R.string.try_again))
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     context.showToast(activity.getString(R.string.try_again))
                 }
             }
 
-        } catch (e: LinkageError) {
+        } catch (_: LinkageError) {
             context.showToast(activity.getString(R.string.try_again))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             context.showToast(activity.getString(R.string.try_again))
         }
     }
@@ -272,9 +272,9 @@ class PlaySubscriptionRepositoryImpl private constructor(
                     }
                 }
             )
-        } catch (error: LinkageError) {
+        } catch (_: LinkageError) {
             activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
 
         }

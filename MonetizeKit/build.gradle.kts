@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.0-rc"
+version = "3.5.1-rc"
 
 
 afterEvaluate {
@@ -53,7 +53,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.0-rc"
+                version = "3.5.1-rc"
             }
         }
     }
@@ -94,7 +94,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.android.billingclient:billing-ktx:9.1.0")
-    implementation("com.revenuecat.purchases:purchases:10.5.0")
+    implementation("com.revenuecat.purchases:purchases:10.12.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.appsflyer:af-android-sdk:7.0.0")
