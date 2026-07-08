@@ -93,7 +93,7 @@ dependencies {
     implementation("com.google.firebase:firebase-config")
     implementation("com.google.firebase:firebase-perf")
 
-    implementation("com.revenuecat.purchases:purchases:10.5.0")
+    implementation("com.revenuecat.purchases:purchases:10.12.0")
     implementation("com.android.billingclient:billing-ktx:9.1.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
@@ -102,11 +102,11 @@ dependencies {
 
 
     // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
-    implementation("com.google.ads.mediation:inmobi:11.2.0.0")
-    implementation("com.google.ads.mediation:vungle:7.7.2.0")
-    implementation("com.google.ads.mediation:facebook:6.21.0.2")
-    implementation("com.google.ads.mediation:mintegral:17.1.51.0")
-    implementation("com.google.ads.mediation:pangle:8.0.0.4.0")
+    implementation("com.google.ads.mediation:inmobi:11.3.0.1")
+    implementation("com.google.ads.mediation:vungle:7.7.4.2")
+    implementation("com.google.ads.mediation:facebook:6.21.0.3")
+    implementation("com.google.ads.mediation:mintegral:17.1.61.1")
+    implementation("com.google.ads.mediation:pangle:8.1.0.4.0")
     implementation("net.premiumads.sdk:admob-adapter:2.2.6")
 
 }
