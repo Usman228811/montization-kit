@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "io.monetize.kit.sdk"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.0-rc-adapter"
+version = "3.5.1-rc-adapter"
 
 
 afterEvaluate {
@@ -53,20 +53,19 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.0-rc-adapter"
+                version = "3.5.1-rc-adapter"
             }
         }
     }
 }
 
 dependencies {
-
-
-    implementation("androidx.core:core-ktx:1.18.0")
+    //noinspection UseTomlInstead
+    implementation("androidx.core:core-ktx:1.19.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("com.google.android.material:material:1.13.0")
+    implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.activity:activity-compose:1.13.0")
-    implementation(platform("androidx.compose:compose-bom:2026.05.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.06.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -81,7 +80,7 @@ dependencies {
     implementation("network.chaintech:sdp-ssp-compose-multiplatform:1.0.7")
 
 
-    val lifecycle = "2.10.0"
+    val lifecycle = "2.11.0"
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle")
     implementation("androidx.lifecycle:lifecycle-process:$lifecycle")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
@@ -94,11 +93,11 @@ dependencies {
     implementation("com.google.firebase:firebase-config")
     implementation("com.google.firebase:firebase-perf")
 
-    implementation("com.android.billingclient:billing-ktx:9.0.0")
     implementation("com.revenuecat.purchases:purchases:10.5.0")
+    implementation("com.android.billingclient:billing-ktx:9.1.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
-    implementation("com.appsflyer:af-android-sdk:6.18.0")
+    implementation("com.appsflyer:af-android-sdk:7.0.0")
     implementation("com.android.installreferrer:installreferrer:2.2")
 
 
