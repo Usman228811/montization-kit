@@ -2,8 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.plugin.compose")
     id("maven-publish")
-
-
 }
 
 android {
@@ -18,7 +16,9 @@ android {
     }
 
     publishing {
-        singleVariant("release") {}
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.1-rc"
+version = "3.5.2-rc"
 
 
 afterEvaluate {
@@ -53,7 +53,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.1-rc"
+                version = "3.5.2-rc"
             }
         }
     }
@@ -86,7 +86,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
@@ -94,7 +94,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.android.billingclient:billing-ktx:9.1.0")
-    implementation("com.revenuecat.purchases:purchases:10.12.0")
+    implementation("com.revenuecat.purchases:purchases:10.13.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.appsflyer:af-android-sdk:7.0.0")

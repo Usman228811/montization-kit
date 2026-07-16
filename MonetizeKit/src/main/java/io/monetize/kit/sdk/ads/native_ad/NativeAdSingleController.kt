@@ -57,8 +57,23 @@ class NativeAdSingleController {
         adControllerListener = listener
     }
 
+    // A shared controller can be rebound to a new screen while the old screen is
+    // being destroyed. Clear only the listener owned by the requesting repository.
+    fun clearNativeControllerListener(listener: AdControllerListener?) {
+        if (listener != null && adControllerListener === listener) {
+            adControllerListener = null
+        }
+    }
+
     fun setNativeRefreshListener(listener: NativeRefreshListener?) {
         nativeRefreshListener = listener
+    }
+
+    // Prevent an old repository from cancelling the refresh listener of a newer screen.
+    fun clearNativeRefreshListener(listener: NativeRefreshListener?) {
+        if (listener != null && nativeRefreshListener === listener) {
+            nativeRefreshListener = null
+        }
     }
 
 
