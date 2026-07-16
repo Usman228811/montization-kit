@@ -1,5 +1,6 @@
 package com.test.compose.adslibrary.ui.nativead
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -179,7 +180,9 @@ fun NativeSection(
 }
 
 fun emptyAdCallback() = object : AdCallBack {
-    override fun onAdFailed(reason: String) {}
+    override fun onAdFailed(reason: String) {
+        Log.d("AdFailed", "onAdFailed: $reason")
+    }
     override fun onAdShow() {}
     override fun onAdClick() {}
 }

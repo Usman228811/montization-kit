@@ -21,7 +21,7 @@ fun getAdSize(activity: Activity, bannerType: String): AdSize {
     }
 }
 
-private fun adWidth(activity: Activity): Int {
+/*private fun adWidth(activity: Activity): Int {
     val displayMetrics = activity.resources.displayMetrics
     val adWidthPixels =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -32,8 +32,10 @@ private fun adWidth(activity: Activity): Int {
         }
     val density = displayMetrics.density
     return (adWidthPixels / density).toInt()
+}*/
+private fun adWidth(activity: Activity): Int {//previous adWidth was also calculating system bar size, it will calculate only screen
+    return activity.resources.configuration.screenWidthDp
 }
-
 fun getAdaptiveSize(activity: Activity): AdSize {
     return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth(activity))
 }

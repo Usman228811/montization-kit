@@ -44,6 +44,14 @@ class AdKitBannerController {
         adControllerListener = listener
     }
 
+    // Banner controllers are cached globally. An old screen must not clear a
+    // listener that has already been registered by its replacement screen.
+    fun clearAdControllerListener(listener: AdControllerListener?) {
+        if (listener != null && adControllerListener === listener) {
+            adControllerListener = null
+        }
+    }
+
 
     fun loadNewBannerAd(
         context: Activity, bannerControllerConfig: BannerControllerConfig,
