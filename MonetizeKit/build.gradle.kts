@@ -45,7 +45,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.1-rc-adapter"
+version = "3.5.2-rc-adapter"
 
 
 afterEvaluate {
@@ -55,7 +55,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.1-rc-adapter"
+                version = "3.5.2-rc-adapter"
             }
         }
     }
@@ -95,9 +95,8 @@ dependencies {
     implementation("com.google.firebase:firebase-config")
     implementation("com.google.firebase:firebase-perf")
 
-    implementation("com.revenuecat.purchases:purchases:10.12.0")
-    implementation("com.android.billingclient:billing-ktx:9.1.0")
     implementation("com.revenuecat.purchases:purchases:10.13.0")
+    implementation("com.android.billingclient:billing-ktx:9.1.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.appsflyer:af-android-sdk:7.0.0")
@@ -107,7 +106,7 @@ dependencies {
     // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
     implementation("com.google.ads.mediation:inmobi:11.3.0.1")
     implementation("com.google.ads.mediation:vungle:7.7.4.2")
-    implementation("com.google.ads.mediation:facebook:6.21.0.3")
+    implementation("com.google.ads.mediation:facebook:6.21.0.4")
     implementation("com.google.ads.mediation:mintegral:17.1.61.1")
     implementation("com.google.ads.mediation:pangle:8.1.0.4.0")
     implementation("net.premiumads.sdk:admob-adapter:2.2.6")
