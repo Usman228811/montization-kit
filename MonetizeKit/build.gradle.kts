@@ -18,7 +18,9 @@ android {
     }
 
     publishing {
-        singleVariant("release") {}
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -86,7 +88,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
@@ -95,6 +97,7 @@ dependencies {
 
     implementation("com.revenuecat.purchases:purchases:10.12.0")
     implementation("com.android.billingclient:billing-ktx:9.1.0")
+    implementation("com.revenuecat.purchases:purchases:10.13.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.appsflyer:af-android-sdk:7.0.0")
