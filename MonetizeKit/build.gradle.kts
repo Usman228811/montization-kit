@@ -45,7 +45,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.1-meta"
+version = "3.5.2-meta"
 
 
 afterEvaluate {
@@ -55,7 +55,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.1-meta"
+                version = "3.5.2-meta"
             }
         }
     }
@@ -100,6 +100,6 @@ dependencies {
 
     implementation("com.appsflyer:af-android-sdk:7.0.0")
     implementation("com.android.installreferrer:installreferrer:2.2")
-    implementation("com.google.ads.mediation:facebook:6.21.0.3")
+    implementation("com.google.ads.mediation:facebook:6.21.0.4")
 
 }
