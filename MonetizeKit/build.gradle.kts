@@ -18,7 +18,9 @@ android {
     }
 
     publishing {
-        singleVariant("release") {}
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -43,7 +45,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "3.5.1"
+version = "3.5.2"
 
 
 afterEvaluate {
@@ -53,7 +55,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "3.5.1"
+                version = "3.5.2"
             }
         }
     }
@@ -86,7 +88,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
 
 
-    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")

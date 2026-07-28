@@ -31,6 +31,9 @@ class BannerAdController private constructor(
     private lateinit var bannerControllerConfig: BannerControllerConfig
     private var adCallBack: AdCallBack? = null
 
+    // Track listener ownership because AdKitBannerController is shared through
+    // singleBannerList across Activity and navigation recreation.
+    private var controllerListener: AdControllerListener? = null
 
     private var isAdEnable = false
 
@@ -102,15 +105,23 @@ class BannerAdController private constructor(
 
     private fun destroyBannerAd() {
         try {
-            model?.controller?.setAdControllerListener(null)
+            // Do not remove a listener already owned by a replacement screen.
+            clearControllerListener()
             adFrame = null
             canLoadAdAgain = true
             isRequesting = false
             isAdLoadCalled = false
             bannerAd?.destroy()
             bannerAd = null
+            adCallBack = null
+            model = null
         } catch (_: Exception) {
         }
+    }
+
+    private fun clearControllerListener() {
+        model?.controller?.clearAdControllerListener(controllerListener)
+        controllerListener = null
     }
 
     private fun loadSingleBannerAd() {
@@ -138,8 +149,7 @@ class BannerAdController private constructor(
                                         mContext, adFrame,
                                         bannerType
                                     )
-                                    controller.setAdControllerListener(object :
-                                        AdControllerListener {
+                                    val listener = object : AdControllerListener {
                                         override fun onAdLoaded() {
                                             isRequesting = false
                                             if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
@@ -154,6 +164,7 @@ class BannerAdController private constructor(
                                             adCallBack?.onAdFailed(reason)
                                             isRequesting = false
                                             canLoadAdAgain = false
+                                            clearControllerListener()
                                             if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                                 return
                                             }
@@ -163,7 +174,12 @@ class BannerAdController private constructor(
                                         override fun resetRequesting() {
                                             isRequesting = false
                                         }
-                                    })
+                                    }
+
+                                    // Retain the exact listener identity so lifecycle cleanup
+                                    // cannot detach a newer screen's callback.
+                                    controllerListener = listener
+                                    controller.setAdControllerListener(listener)
                                     controller.populateBannerAd(
                                         context = mContext,
                                         placementKey = bannerControllerConfig.placementKey,
@@ -178,7 +194,7 @@ class BannerAdController private constructor(
                                         populateCallback = { ad ->
                                             isRequesting = false
                                             if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                controller.setAdControllerListener(null)
+                                                clearControllerListener()
                                                 bannerAd = ad as AdView
                                                 adCallBack?.onAdShow()
 
@@ -236,7 +252,9 @@ class BannerAdController private constructor(
 
     fun onPause() {
         canLoadAdAgain = true
-        model?.controller?.setAdControllerListener(null)
+        // The shared request may continue; detach only this screen's listener.
+        clearControllerListener()
+        isRequesting = false
         bannerAd?.pause()
     }
 
