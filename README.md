@@ -14,16 +14,16 @@ To integrate the Monetization Kit into your project, include the following in yo
 dependencies {
 
     // Standard SDK 
-    implementation("com.github.Usman228811:montization-kit:3.5.0")
+    implementation("com.github.Usman228811:montization-kit:3.5.2")
 
     // Standard SDK + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:3.5.0-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.5.2-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:3.5.0-rc")
+    implementation("com.github.Usman228811:montization-kit:3.5.2-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:3.5.0-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:3.5.2-rc-adapter")
 
 
     // Next Gen SDK
@@ -167,6 +167,10 @@ These configs should be added to your `defaultRemoteConfigBuilder` in your App C
 AdKit.init(
     isDebug = BuildConfig.DEBUG,  
     context = this,
+	revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "", //revenuecat key
+                offeringKey = "" // revenuecat offering id
+            ),
 	appFlyerSdkKey = "", // If App-Flyer-Dev-key is provided, AppFlyer will post the events; otherwise, it won’t.
     openAdId = "ca-app-pub-3940256099942544/9257395921",
     mapOfInterIds = mapOf(
