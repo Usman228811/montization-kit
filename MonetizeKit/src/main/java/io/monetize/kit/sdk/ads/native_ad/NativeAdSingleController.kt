@@ -1,6 +1,7 @@
 package io.monetize.kit.sdk.ads.native_ad
 
 import android.app.Activity
+import android.content.Context
 import android.widget.LinearLayout
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
@@ -24,6 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.code
+import kotlin.time.Duration.Companion.milliseconds
 
 
 data class NativeAdSingleModel(
@@ -38,7 +41,7 @@ class NativeAdSingleController {
     private var largeAndSmallNativeAd: NativeAd? = null
     private var adControllerListener: AdControllerListener? = null
     private var nativeRefreshListener: NativeRefreshListener? = null
-    private lateinit var nativeControllerConfig: NativeControllerConfig
+    private var nativeControllerConfig: NativeControllerConfig ?= null
     private var isAdEnable = true
     private var onAdClick: (() -> Unit)? = null
     private var canRefreshAd = true
@@ -57,8 +60,22 @@ class NativeAdSingleController {
         adControllerListener = listener
     }
 
+    // A shared controller can be rebound to a new screen while the old screen is
+    // being destroyed. Clear only the listener owned by the requesting repository.
+    fun clearNativeControllerListener(listener: AdControllerListener?) {
+        if (listener != null && adControllerListener === listener) {
+            adControllerListener = null
+        }
+    }
+
     fun setNativeRefreshListener(listener: NativeRefreshListener?) {
         nativeRefreshListener = listener
+    }
+    // Prevent an old repository from cancelling the refresh listener of a newer screen.
+    fun clearNativeRefreshListener(listener: NativeRefreshListener?) {
+        if (listener != null && nativeRefreshListener === listener) {
+            nativeRefreshListener = null
+        }
     }
 
 
@@ -67,7 +84,7 @@ class NativeAdSingleController {
     ) {
 
         try {
-            if (enable && !adKitPref.isAppPurchased && internetController.isConnected && consentManager.canRequestAds) {
+            if (enable && !adKitPref.isAppPurchased && internetController.isConnected /*&& consentManager.canRequestAds*/) {
                 if (largeAndSmallNativeAd == null) {
                     if (!canRequestLargeAd) {
                         return
@@ -75,8 +92,9 @@ class NativeAdSingleController {
                     canRequestLargeAd = false
 
                     val id =
-                        AdKit.nativeIdManager.getNextNativeId(placement = nativeControllerConfig.adIdKey)
-                            ?: ""
+                        AdKit.nativeIdManager.getNextNativeId(
+                            placement = nativeControllerConfig?.adIdKey ?: ""
+                        ) ?: ""
 
                     val adRequest = NativeAdRequest.Builder(
                         id, listOf(NativeAd.NativeAdType.NATIVE)
@@ -129,12 +147,10 @@ class NativeAdSingleController {
 
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
-
-                                context.runOnUiThread {
-                                    canRequestLargeAd = true
-                                    largeAndSmallNativeAd = null
-                                    adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} is failed with code: ${adError.code}, message: ${adError.message}")
-                                }
+                                super.onAdFailedToLoad(adError)
+                                canRequestLargeAd = true
+                                largeAndSmallNativeAd = null
+                                adControllerListener?.onAdFailed("${nativeControllerConfig?.placementKey ?: ""} is failed with code: ${adError.code}, message: ${adError.message}")
                             }
                         }
 
@@ -183,7 +199,9 @@ class NativeAdSingleController {
             } else {
 
                 context.runOnUiThread {
-                    adControllerListener?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
+                    adControllerListener?.onAdFailed("${nativeControllerConfig?.placementKey ?: ""} can't request ad because of internet connection | consent manager | app purchased | ad is disable in remote config")
+
+
                 }
             }
         } catch (_: Exception) {
@@ -195,9 +213,8 @@ class NativeAdSingleController {
         context: Activity,
         nativeControllerConfig: NativeControllerConfig,
     ) {
-        this.isAdEnable =
-            firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         this.nativeControllerConfig = nativeControllerConfig
+        this.isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         if (isAdEnable && !adKitPref.isAppPurchased) {
             if (largeAndSmallNativeAd == null) {
                 loadNativeAd(context, isAdEnable)
@@ -219,18 +236,21 @@ class NativeAdSingleController {
         this.onAdClick = onAdClick
         largeAndSmallNativeAd?.let {
             try {
-                try {
-                    addNativeAdView(
-                        nativeControllerConfig = nativeControllerConfig,
-                        adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
-                        nativeAdType = nativeAdType,
-                        context = context,
-                        adFrame = adFrame,
-                        ad = it,
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                nativeControllerConfig?.let { config ->
+                    try {
+                        addNativeAdView(
+                            nativeControllerConfig = config,
+                            adsCustomLayoutHelper = AdKit.nativeCustomLayoutHelper,
+                            nativeAdType = nativeAdType,
+                            context = context,
+                            adFrame = adFrame,
+                            ad = it,
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
+
 
                 onPopulated.invoke(it)
                 largeAndSmallNativeAd = null
@@ -244,31 +264,31 @@ class NativeAdSingleController {
     }
 
 
+
     fun preloadNativeAd(
         nativeControllerConfig: NativeControllerConfig, context: Activity
     ) {
-        this.isAdEnable =
-            firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         this.nativeControllerConfig = nativeControllerConfig
+        this.isAdEnable = firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false)
         setNativeControllerListener(null)
         loadNativeAd(context, isAdEnable)
     }
 
     fun startRefreshTime() {
         val refreshTime = firebaseLong(
-            "${this@NativeAdSingleController.nativeControllerConfig.placementKey}_refreshTime",
+            "${this@NativeAdSingleController.nativeControllerConfig?.placementKey ?: ""}_refreshTime",
             0
         ) * 1000
         if (refreshTime > 0 &&
             isAdEnable && !adKitPref.isAppPurchased &&
-            consentManager.canRequestAds &&
+            /*consentManager.canRequestAds &&*/
             internetController.isConnected &&
             canRefreshAd
         ) {
             canRefreshAd = false
             CoroutineScope(Dispatchers.IO).launch {
                 delay(
-                    refreshTime
+                    refreshTime.milliseconds
                 )
                 largeAndSmallNativeAd?.destroy()
                 withContext(Dispatchers.Main) {

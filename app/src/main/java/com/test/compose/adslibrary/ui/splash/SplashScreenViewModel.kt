@@ -221,7 +221,7 @@ class SplashScreenViewModel(
 //            )
             _state.update {
                 it.copy(
-                    loadAndShow = false
+                    loadAndShow = true
                 )
             }
             splashAdController.initSplashInterstitial(

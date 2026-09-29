@@ -12,7 +12,7 @@ interface GetNativeAdRepo {
         adFrame: LinearLayout,
         nativeControllerConfig: NativeControllerConfig,
         adCallBack: AdCallBack?,
-        )
+    )
 
 
     fun onResume()

@@ -15,7 +15,6 @@ import io.monetize.kit.sdk.ads.native_ad.addNativeShimmerLayout
 import io.monetize.kit.sdk.ads.native_ad.singleNativeList
 import io.monetize.kit.sdk.core.utils.adtype.NativeAdType
 import io.monetize.kit.sdk.core.utils.adtype.NativeControllerConfig
-import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.callbacks.AdCallBack
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseString
@@ -40,6 +39,11 @@ class GetNativeAdRepoImpl private constructor(
     private var canLoadAdAgain = true
     private var isAdEnable: Boolean = true
     private var adCallBack: AdCallBack? = null
+
+    // Keep listener identities so this repository removes only its own callbacks
+    // from the globally shared native controller.
+    private var controllerListener: AdControllerListener? = null
+    private var refreshListener: NativeRefreshListener? = null
 
 
     companion object {
@@ -114,7 +118,9 @@ class GetNativeAdRepoImpl private constructor(
 
     override fun onResume() {
         if (largeNativeAd == null) {
-            loadSingleNativeAd()
+            adFrame?.let {
+                loadSingleNativeAd()
+            }
         } else {
             if (adKitPref.isAppPurchased.not()) {
                 attachRefreshListener(true)
@@ -138,16 +144,20 @@ class GetNativeAdRepoImpl private constructor(
 
     fun attachRefreshListener(fromResume: Boolean) {
         model?.controller?.let { nativeAdController ->
-            nativeAdController.setNativeRefreshListener(object :
-                NativeRefreshListener {
+            // Replace only this repository's previous refresh listener.
+            clearRefreshListener()
+
+            val listener = object : NativeRefreshListener {
                 override fun refreshNativeAd() {
                     isRequesting = false
                     if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
                         requestNative(true)
                     }
                 }
+            }
 
-            })
+            refreshListener = listener
+            nativeAdController.setNativeRefreshListener(listener)
             if (fromResume) {
                 nativeAdController.startRefreshTime()
             }
@@ -158,27 +168,40 @@ class GetNativeAdRepoImpl private constructor(
     override fun onPause() {
         canLoadAdAgain = true
         if (isRequesting) {
-            model?.controller?.setNativeControllerListener(null)
+            // The ad request may continue in the shared controller. Detach only this
+            // screen's callback so a newly created screen can safely take ownership.
+            clearControllerListener()
+            isRequesting = false
         }
-        nullRefreshListener()
+        clearRefreshListener()
     }
 
     override fun onDestroy() {
         try {
-            model?.controller?.setNativeControllerListener(null)
+            // Ownership-aware cleanup avoids clearing callbacks registered by a
+            // replacement Activity or navigation destination.
+            clearControllerListener()
+            clearRefreshListener()
             isRequesting = false
             canLoadAdAgain = true
             destroyNativeAd()
-            nullRefreshListener()
 //            hideAdFrame()
             adFrame = null
             adCallBack = null
             isAdLoadCalled = false
+            model = null
         } catch (_: Exception) {
         }
     }
-    private fun nullRefreshListener() {
-        model?.controller?.setNativeRefreshListener(null)
+
+    private fun clearControllerListener() {
+        model?.controller?.clearNativeControllerListener(controllerListener)
+        controllerListener = null
+    }
+
+    private fun clearRefreshListener() {
+        model?.controller?.clearNativeRefreshListener(refreshListener)
+        refreshListener = null
     }
 
 
@@ -224,7 +247,7 @@ class GetNativeAdRepoImpl private constructor(
                     adFrame == null
                     || adKitPref.isAppPurchased
                     || !AdKit.internetController.isConnected
-                    || !AdKit.consentManager.canRequestAds
+                /*|| !AdKit.consentManager.canRequestAds*/
                 ) {
                     adCallBack?.onAdFailed("${nativeControllerConfig.placementKey} can't request ad because of internet connection | consent manager | app purchased")
                     hideAdFrame()
@@ -256,8 +279,7 @@ class GetNativeAdRepoImpl private constructor(
                                     customLayoutHelper = nativeCustomLayoutHelper
                                 )
                             }
-                            nativeAdController.setNativeControllerListener(object :
-                                AdControllerListener {
+                            val listener = object : AdControllerListener {
 
                                 override fun onAdLoaded() {
                                     isRequesting = false
@@ -265,8 +287,6 @@ class GetNativeAdRepoImpl private constructor(
                                         return
                                     }
                                     if (largeNativeAd == null || forRefresh) {
-
-
 
                                         nativeAdController.populateNativeAd(
                                             context = mContext,
@@ -276,37 +296,14 @@ class GetNativeAdRepoImpl private constructor(
                                             onPopulated = { ad ->
                                                 isRequesting = false
                                                 if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
-                                                    nativeAdController.setNativeControllerListener(
-                                                        null
-                                                    )
+                                                    clearControllerListener()
                                                     adCallBack?.onAdShow()
                                                     largeNativeAd = ad
-                                                    largeNativeAd?.adEventCallback =
-                                                        object : NativeAdEventCallback {
-                                                            override fun onAdImpression() {
-                                                                super.onAdImpression()
-
-                                                                mContext.runOnUiThread {
-                                                                    postAdImpression("NativeAd")
-                                                                }
-                                                            }
-
-                                                            override fun onAdClicked() {
-
-                                                                mContext.runOnUiThread {
-                                                                    adCallBack?.onAdClick()
-
-                                                                }
-
-                                                            }
-                                                        }
                                                     nativeAdController.startRefreshTime()
                                                 }
                                             }, onAdClick = {
                                                 adCallBack?.onAdClick()
                                             })
-
-
                                     }
                                 }
 
@@ -315,6 +312,7 @@ class GetNativeAdRepoImpl private constructor(
 
                                     isRequesting = false
                                     canLoadAdAgain = false
+                                    clearControllerListener()
                                     if (mContext.isFinishing || mContext.isDestroyed || mContext.isChangingConfigurations) {
                                         return
                                     }
@@ -327,7 +325,12 @@ class GetNativeAdRepoImpl private constructor(
                                 override fun resetRequesting() {
                                     isRequesting = false
                                 }
-                            })
+                            }
+
+                            // Store the exact listener instance before registering it
+                            // because the controller is shared across screen instances.
+                            controllerListener = listener
+                            nativeAdController.setNativeControllerListener(listener)
 
                             attachRefreshListener(false)
 
