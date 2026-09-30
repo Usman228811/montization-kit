@@ -62,8 +62,7 @@ class RCLifeTimeRepositoryImpl private constructor(
         coroutineScope.launch {
             try {
                 queryPackageDetails(productIds)
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (_: Exception) {
                 subscriptionListener.subscriptionItemNotFound()
             }
         }

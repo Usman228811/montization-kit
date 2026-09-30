@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.test.compose.adslibrary"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.photocleaner.swipetodelete.psma"
