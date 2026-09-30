@@ -123,8 +123,8 @@ class AdKitSplashAdController private constructor(
             }, 2000)
         } else if (AdKit.adKitPref.isAppPurchased ||
             !AdKit.internetController.isConnected ||
-            AdKit.initializer.getDisableAds() ||
-            AdKit.consentManager.canRequestAds.not()
+            AdKit.initializer.getDisableAds()
+            /*|| AdKit.consentManager.canRequestAds.not()*/
         ) {
             handlerAd.postDelayed({
                 closeCallBack(

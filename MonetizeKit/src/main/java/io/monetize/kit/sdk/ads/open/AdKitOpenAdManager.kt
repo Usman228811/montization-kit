@@ -192,7 +192,7 @@ class AdKitOpenAdManager private constructor(
                 if (canShowOpenAd && !isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
                     currentActivity?.let { activity ->
 
-                        if (adId.isNotEmpty() && isAdEnable && isOpenAdInstant && AdKit.consentManager.canRequestAds) {
+                        if (adId.isNotEmpty() && isAdEnable && isOpenAdInstant /*&& AdKit.consentManager.canRequestAds*/) {
                             canRequestAd = false
                             adLoadingDialog = AdLoadingDialog(activity)
                             adLoadingDialog?.showAlertDialog()

@@ -2,7 +2,6 @@ package io.monetize.kit.sdk.presentation.viewmodels
 
 import android.app.Activity
 import android.widget.LinearLayout
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -71,13 +70,11 @@ class BannerAdViewModel(private val getBannerAdUseCase: GetBannerAdUseCase) : Vi
         }
 
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+    }
 
-        // Ensure observer is removed when lifecycle is destroyed
-        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                onDestroy()
-                lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-            }
-        })
+    override fun onCleared() {
+        // Language/configuration changes destroy the Activity but retain its
+        // ViewModel. Release banner resources only when the owner is truly removed.
+        onDestroy()
     }
 }
