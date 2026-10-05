@@ -5,4 +5,4 @@ before_install:
   - curl -sSL -o "$HOME/gradle-9.6.1-bin.zip" https://services.gradle.org/distributions/gradle-9.6.1-bin.zip
   - unzip -q -o "$HOME/gradle-9.6.1-bin.zip" -d "$HOME" || (cd "$HOME" && jar xf gradle-9.6.1-bin.zip)
 install:
-  - sh "$HOME/gradle-9.6.1/bin/gradle" :MonetizeKit:publishToMavenLocal --console=plain
+  - sh "$HOME/gradle-9.6.1/bin/gradle" :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
