@@ -2,9 +2,6 @@ package io.monetize.kit.sdk.core.utils.init
 
 import android.app.Application
 import android.content.Context
-import android.os.Environment
-import android.util.Log
-import com.google.common.io.Files.map
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
@@ -22,6 +19,7 @@ import io.monetize.kit.sdk.ads.rewarded.AdKitRewardHelper
 import io.monetize.kit.sdk.ads.rewarded.RewardAdIdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.TaichiEventPoster
 import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
 import io.monetize.kit.sdk.core.utils.appflyer.AppsFlyer
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
@@ -34,8 +32,6 @@ import io.monetize.kit.sdk.core.utils.remoteconfig.RemoteConfigBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import java.io.File
 
 object AdKit {
 
@@ -52,6 +48,11 @@ object AdKit {
     val adKitPref: AdKitPref
             by lazy {
                 AdKitPref.getInstance(mContext)
+            }
+
+    val adkitTaichiEventPoster: TaichiEventPoster
+            by lazy {
+                TaichiEventPoster.getInstance(adKitPref)
             }
 
     val inAppUpdateManager: AdKitInAppUpdateManager
