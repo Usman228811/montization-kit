@@ -1,0 +1,5 @@
+jdk:
+  - openjdk21
+install:
+  - chmod +x ./gradlew
+  - ./gradlew :MonetizeKit:publishToMavenLocal --console=plain
