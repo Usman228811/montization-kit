@@ -33,7 +33,11 @@ class AdKitAnalytics private constructor(
             postRevenueOnFireBase: Boolean,
         ): AdKitAnalytics {
             return instance ?: synchronized(this) {
-                instance ?: AdKitAnalytics(context.applicationContext, isDebug = isDebug, postRevenueOnFireBase = postRevenueOnFireBase).also { instance = it }
+                instance ?: AdKitAnalytics(
+                    context.applicationContext,
+                    isDebug = isDebug,
+                    postRevenueOnFireBase = postRevenueOnFireBase
+                ).also { instance = it }
             }
         }
     }
@@ -69,6 +73,16 @@ class AdKitAnalytics private constructor(
                 if (!isDebug) {
                     firebaseAnalytics.logEvent(name, bundle)
                 }
+            }
+        } catch (_: Exception) {
+        } catch (_: OutOfMemoryError) {
+        }
+    }
+
+    fun postTaichiRevenueCount() {
+        try {
+            if (!isDebug) {
+                firebaseAnalytics.logEvent("Ad_imp_Revenue", Bundle())
             }
         } catch (_: Exception) {
         } catch (_: OutOfMemoryError) {

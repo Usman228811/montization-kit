@@ -10,7 +10,9 @@ import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
 fun postAdImpression(type: String) {
-    //Log.d("usmaaaaaaaan", "ad_impression: $type")
+
+    Log.d("ad_impress_type", "ad_impression_type: $type")
+    AdKit.adkitTaichiEventPoster.saveAdsImpressionCount()
 }
 
 fun AdView.revenueListener(adId: String) {
