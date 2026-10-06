@@ -50,30 +50,30 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             appFlyerSdkKey = "",
             postRevenueOnFireBase = true,
             context = this,
-            openAdId = "/21775744923/example/app-open",
+            openAdId = "ca-app-pub-3940256099942544/9257395921",
             mapOfInterIds = mapOf(
-                "splash_inter" to "/21775744923/example/interstitial",
-                "splash_open_ad" to "/21775744923/example/app-open",
+                "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
+                "splash_open_ad" to "ca-app-pub-3940256099942544/9257395921",
 
                 "inter_common" to listOf(
-                    "/21775744923/example/interstitial",
-                    "/21775744923/example/interstitial",
-                    "/21775744923/example/interstitial"
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712",
+                    "ca-app-pub-3940256099942544/1033173712"
                 )
             ),
             mapOfRewardIds = mapOf(
-                "reward_main" to "/21775744923/example/rewarded",
-                "reward_common" to "/21775744923/example/rewarded"
+                "reward_main" to "ca-app-pub-3940256099942544/5224354917",
+                "reward_common" to "ca-app-pub-3940256099942544/5224354917"
             ),
             mapOfNativeIds = mapOf(
-                "large_native" to "/21775744923/example/native",
-                "small_native_media_view" to "/21775744923/example/native",
-                "small_native" to "/21775744923/example/native",
-                "small_native_mini" to "/21775744923/example/native",
-                "full_native" to "/21775744923/example/native",
+                "large_native" to "ca-app-pub-3940256099942544/2247696110",
+                "small_native_media_view" to "ca-app-pub-3940256099942544/2247696110",
+                "small_native" to "ca-app-pub-3940256099942544/2247696110",
+                "small_native_mini" to "ca-app-pub-3940256099942544/2247696110",
+                "full_native" to "ca-app-pub-3940256099942544/2247696110",
 
                 "native_common" to listOf(
-                    "/21775744923/example/native",
+                    "ca-app-pub-3940256099942544/2247696110",
                 ),
             ),
             mapOfBannerIds = mapOf(
@@ -90,7 +90,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("OPEN_AD_ENABLE", true)
                 bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
-                bool("INTER_LOADING_ENABLE", false)
+                bool("INTER_LOADING_ENABLE", true)
                 bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)

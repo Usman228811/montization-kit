@@ -3,6 +3,8 @@ package io.monetize.kit.sdk.ads.rewarded
 import android.app.Activity
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.runWhenActive
+import java.util.concurrent.atomic.AtomicBoolean
 
 class AdKitRewardHelper private constructor(
 ) {
@@ -92,8 +94,11 @@ class AdKitRewardHelper private constructor(
 
 
         val adListener = object : RewardedControllerListener {
+            private val isDismissed = AtomicBoolean(false)
+
             override fun onRewardDismissed(isRewarded: Boolean, reason: String) {
-                activity.runOnUiThread { listener.onRewardDismissed(isRewarded, reason) }
+                if (isDismissed.getAndSet(true)) return
+                activity.runWhenActive { listener.onRewardDismissed(isRewarded, reason) }
             }
 
             override fun onAdLoaded() {
