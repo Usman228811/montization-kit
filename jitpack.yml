@@ -1,0 +1,8 @@
+jdk:
+  - openjdk21
+before_install:
+  - ls -la gradle/wrapper
+  - mkdir -p .jitpack && curl -sSL -o .jitpack/gradle-9.6.1-bin.zip https://services.gradle.org/distributions/gradle-9.6.1-bin.zip
+  - unzip -q -o .jitpack/gradle-9.6.1-bin.zip -d .jitpack || (cd .jitpack && jar xf gradle-9.6.1-bin.zip)
+install:
+  - sh .jitpack/gradle-9.6.1/bin/gradle :MonetizeKit:publishToMavenLocal --no-daemon --console=plain || sh .jitpack/gradle-9.6.1/bin/gradle :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
