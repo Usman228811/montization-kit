@@ -106,42 +106,34 @@ class NativeAdSingleController {
 
                             override fun onNativeAdLoaded(nativeAd: NativeAd) {
                                 super.onNativeAdLoaded(nativeAd)
+                                // Attach the callback to this ad before anyone can populate it:
+                                // onAdLoaded() below may show the ad and null largeAndSmallNativeAd.
+                                nativeAd.adEventCallback =
+                                    object : NativeAdEventCallback {
+
+                                        override fun onAdPaid(value: AdValue) {
+                                            super.onAdPaid(value)
+                                            revenueListener(id, value, "NATIVE")
+                                        }
+
+                                        override fun onAdImpression() {
+                                            super.onAdImpression()
+                                            context.runOnUiThread {
+                                                postAdImpression("NativeAd")
+                                            }
+                                        }
+
+                                        override fun onAdClicked() {
+                                            context.runOnUiThread {
+                                                onAdClick?.invoke()
+                                            }
+                                        }
+                                    }
+
                                 context.runOnUiThread {
                                     canRequestLargeAd = true
                                     largeAndSmallNativeAd = nativeAd
-
-//                        CoroutineScope(Dispatchers.Main).launch {
-//                                largeAndSmallNativeAd?.revenueListener(
-//                                    id
-//                                )
-//                        }
-
                                     adControllerListener?.onAdLoaded()
-
-                                    largeAndSmallNativeAd?.adEventCallback =
-                                        object : NativeAdEventCallback {
-
-                                            override fun onAdPaid(value: AdValue) {
-                                                super.onAdPaid(value)
-                                                revenueListener(id, value, "NATIVE")
-                                            }
-
-                                            override fun onAdImpression() {
-                                                super.onAdImpression()
-
-                                                context.runOnUiThread {
-                                                    postAdImpression("NativeAd")
-                                                }
-                                            }
-
-                                            override fun onAdClicked() {
-
-                                                context.runOnUiThread {
-                                                    onAdClick?.invoke()
-                                                }
-
-                                            }
-                                        }
                                 }
                             }
 

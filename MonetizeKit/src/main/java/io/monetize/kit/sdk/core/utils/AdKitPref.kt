@@ -10,6 +10,13 @@ class AdKitPref private constructor(context: Context) {
         "MonetizeKitPref", Context.MODE_PRIVATE
     )
 
+    var adsRevenueCount: Float
+        get() = pref.getFloat("adsRevenueCount", 0.0f)
+        set(value) = pref.edit { putFloat("adsRevenueCount", value) }
+
+    var adsImpressionCount: Int
+        get() = pref.getInt("adsImpressionCount", 0)
+        set(value) = pref.edit { putInt("adsImpressionCount", value) }
     var isLifeTimePurchased: Boolean
         get() = pref.getBoolean("isLifeTimePurchased", false)
         set(value) = pref.edit { putBoolean("isLifeTimePurchased", value) }
