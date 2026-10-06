@@ -7,6 +7,8 @@ import io.monetize.kit.sdk.ads.interstitial.splash.OpenAdInterstitialManager
 import io.monetize.kit.sdk.ads.interstitial.splash.SplashInterstitialManager
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.init.AdKit
+import io.monetize.kit.sdk.core.utils.runWhenActive
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class AdKitSplashAdController private constructor(
@@ -52,9 +54,11 @@ class AdKitSplashAdController private constructor(
         this.mInterstitialControllerListener = listener
 
         val adListener = object : InterstitialControllerListener {
+            private val isClosed = AtomicBoolean(false)
 
             override fun onAdClosed(isInterShowed: Boolean, reason: String) {
-                activity.runOnUiThread { listener?.onAdClosed(isInterShowed, reason) }
+                if (isClosed.getAndSet(true)) return
+                activity.runWhenActive { listener?.onAdClosed(isInterShowed, reason) }
             }
 
             override fun onAdLoaded(reason: String) {

@@ -1,12 +1,16 @@
 package io.monetize.kit.sdk.core.utils.appflyer
 
+import android.util.Log
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
+import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
 import io.monetize.kit.sdk.core.utils.init.AdKit
 
 
 fun postAdImpression(type: String) {
-    //Log.d("usmaaaaaaaan", "ad_impression: $type")
+    Log.d("ad_impress_type", "ad_impression_type: $type")
+    AdKit.adkitTaichiEventPoster.saveAdsImpressionCount()
 }
+
 
 fun revenueListener(adId: String, adValue: AdValue, adType: String) {
 

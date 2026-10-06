@@ -25,6 +25,7 @@ import io.monetize.kit.sdk.ads.rewarded.AdKitRewardHelper
 import io.monetize.kit.sdk.ads.rewarded.RewardAdIdManager
 import io.monetize.kit.sdk.core.utils.AdKitInternetController
 import io.monetize.kit.sdk.core.utils.AdKitPref
+import io.monetize.kit.sdk.core.utils.TaichiEventPoster
 import io.monetize.kit.sdk.core.utils.analytics.AdKitAnalytics
 import io.monetize.kit.sdk.core.utils.appflyer.AppsFlyer
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
@@ -69,6 +70,11 @@ object AdKit {
     val adKitPref: AdKitPref
             by lazy {
                 AdKitPref.getInstance(mContext)
+            }
+
+    val adkitTaichiEventPoster: TaichiEventPoster
+            by lazy {
+                TaichiEventPoster.getInstance(adKitPref)
             }
 
     val inAppUpdateManager: AdKitInAppUpdateManager
