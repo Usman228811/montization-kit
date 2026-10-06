@@ -1,18 +1,6 @@
 jdk:
   - openjdk21
 
-before_install:
-  - echo "=== JAVA ==="
-  - java -version
-  - echo "=== CURRENT DIRECTORY ==="
-  - pwd
-  - echo "=== WRAPPER DIRECTORY ==="
-  - ls -lah gradle/wrapper/
-  - echo "=== WRAPPER JAR CONTENT ==="
-  - jar tf gradle/wrapper/gradle-wrapper.jar | grep GradleWrapperMain || true
-  - echo "=== GRADLEW ==="
-  - ls -lah gradlew
-  - chmod +x gradlew
-
 install:
+  - chmod +x gradlew
   - ./gradlew :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
