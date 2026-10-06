@@ -50,6 +50,10 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
             appFlyerSdkKey = "",
             postRevenueOnFireBase = true,
             context = this,
+            revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "goog_uGnCSFTTAMJNpLlYoGCCQMNsVNd",
+                offeringKey = "default_offerings"
+            ),
             openAdId = "/21775744923/example/app-open",
             mapOfInterIds = mapOf(
                 "splash_inter" to "/21775744923/example/interstitial",
