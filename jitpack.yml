@@ -1,8 +1,6 @@
 jdk:
   - openjdk21
+
 install:
-  - source "$HOME/.sdkman/bin/sdkman-init.sh" || true
-  - export sdkman_auto_answer=true PAGER=cat
-  - JV=$(sdk list java | grep -oE '21\.[0-9.]+-tem' | sort -V | tail -1); echo "Using JDK $JV"; sdk install java "$JV"; sdk use java "$JV"
-  - java -version; uname -a; df -T .; sha256sum gradle/wrapper/gradle-wrapper.jar; unzip -t gradle/wrapper/gradle-wrapper.jar | tail -1
-  - bash ./gradlew :MonetizeKit:publishToMavenLocal -Pgroup=com.github.Usman228811 --no-daemon --console=plain --stacktrace
+  - chmod +x gradlew
+  - ./gradlew :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
