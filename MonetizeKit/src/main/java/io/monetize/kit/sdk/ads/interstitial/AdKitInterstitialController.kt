@@ -10,12 +10,8 @@ import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
-import com.google.android.libraries.ads.mobile.sdk.common.PreloadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.PreloadConfiguration
-import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback
-import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdPreloader
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
@@ -59,6 +55,7 @@ class InterstitialController private constructor(
     private var adIdKey: String = ""
     private var adUnitId: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var canRequestAd = true
     private var admobInterAd: InterstitialAd? = null
     private var mInterstitialControllerListener: InterstitialControllerListener? = null
@@ -108,7 +105,10 @@ class InterstitialController private constructor(
                 mInterstitialControllerListener?.onAdShow()
                 if (admobInterAd != null) {
                     setAdmobFullScreen(activity, key)
-                    admobInterAd?.show(activity)
+                    // Consume the ad before showing so a second tap can't show it again
+                    val ad = admobInterAd
+                    admobInterAd = null
+                    ad?.show(activity)
                 }
                 if (key != "") {
                     setInterCount(key, 0)
@@ -292,39 +292,26 @@ class InterstitialController private constructor(
                 }
                 canRequestAd = false
 
-                adUnitId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
-
-                Log.d("usman", "loadInter on Id: $adUnitId")
-                val adRequest = AdRequest.Builder(adUnitId).build()
-                val preloadConfig = PreloadConfiguration(adRequest)
-                InterstitialAdPreloader.start(
-                    adUnitId,
-                    preloadConfig,
-                    preloadCallback = object :
-                        PreloadCallback {
-                        override fun onAdFailedToPreload(
-                            preloadId: String,
-                            adError: LoadAdError
-                        ) {
-                            Log.d("usman", "failed on id: $preloadId")
-                            admobInterAd = null
-                            canRequestAd = true
+                val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
+                InterstitialAd.load(
+                    AdRequest.Builder(id).build(),
+                    object : AdLoadCallback<InterstitialAd> {
+                        override fun onAdLoaded(ad: InterstitialAd) {
+                            Log.d("usman_k", "onAdPreloaded: $ad")
+                            // Next-gen SDK invokes callbacks on a background thread
+                            mainHandler.post {
+                                adUnitId = id
+                                admobInterAd = ad
+                                canRequestAd = true
+                            }
                         }
 
-                        override fun onAdPreloaded(
-                            preloadId: String,
-                            responseInfo: ResponseInfo
-                        ) {
-
-                            admobInterAd = InterstitialAdPreloader.pollAd(adUnitId)
-                            Log.d("usman", "onAdPreloaded: $preloadId")
-                            canRequestAd = true
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            mainHandler.post {
+                                admobInterAd = null
+                                canRequestAd = true
+                            }
                         }
-
-                        override fun onAdsExhausted(preloadId: String) {
-                            canRequestAd = true
-                        }
-
                     })
 
 
@@ -395,30 +382,30 @@ class InterstitialController private constructor(
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-                   adUnitId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
+                    val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
                     InterstitialAd.load(
-
-                        AdRequest.Builder(adUnitId).build(),
+                        AdRequest.Builder(id).build(),
                         object : AdLoadCallback<InterstitialAd> {
                             override fun onAdLoaded(ad: InterstitialAd) {
-                                admobInterAd = ad
-//                                admobInterAd?.revenueListener(
-//                                    id
-//                                )
-
-                                canRequestAd = true
-                                if (isHandlerAdDelayRunning) {
-                                    dismissLoadingDialog()
-                                    removeCallBacksDelay()
-                                    showAdmobAd(context, key)
+                                mainHandler.post {
+                                    adUnitId = id
+                                    admobInterAd = ad
+                                    canRequestAd = true
+                                    if (isHandlerAdDelayRunning) {
+                                        dismissLoadingDialog()
+                                        removeCallBacksDelay()
+                                        showAdmobAd(context, key)
+                                    }
                                 }
                             }
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
-                                canRequestAd = true
-                                handlerRemoveCallback(
-                                    reason = "$placementKey ad failed to load code: ${adError.code} message: ${adError.message}"
-                                )
+                                mainHandler.post {
+                                    canRequestAd = true
+                                    handlerRemoveCallback(
+                                        reason = "$placementKey ad failed to load code: ${adError.code} message: ${adError.message}"
+                                    )
+                                }
                             }
                         })
 
@@ -513,20 +500,22 @@ class InterstitialController private constructor(
                     revenueListener(adUnitId, value, "INTERSTITIAL")
                 }
                 override fun onAdDismissedFullScreenContent() {
-                    dismissLoadingDialog()
-                    mInterstitialControllerListener?.onAdClosed(
-                        isInterShowed = true,
-                        reason = "$placementKey called onAdClosed because: ad is showed successfully"
-                    )
                     super.onAdDismissedFullScreenContent()
-                    IS_INTERSTITIAL_Ad_SHOWING = false
-                    admobInterAd = null
-                    if (key.isEmpty() && !firebaseBoolean(
-                            "${placementKey}_isInterInstant",
-                            false
+                    mainHandler.post {
+                        dismissLoadingDialog()
+                        mInterstitialControllerListener?.onAdClosed(
+                            isInterShowed = true,
+                            reason = "$placementKey called onAdClosed because: ad is showed successfully"
                         )
-                    ) {
+                        IS_INTERSTITIAL_Ad_SHOWING = false
+                        admobInterAd = null
+                        if (key.isEmpty() && !firebaseBoolean(
+                                "${placementKey}_isInterInstant",
+                                false
+                            )
+                        ) {
                             loadInter(activity)
+                        }
                     }
                 }
 
@@ -542,13 +531,15 @@ class InterstitialController private constructor(
                 }
 
                 override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
-                    dismissLoadingDialog()
-                    mInterstitialControllerListener?.onAdClosed(
-                        reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
-                    )
                     super.onAdFailedToShowFullScreenContent(fullScreenContentError)
-                    admobInterAd = null
-                    IS_INTERSTITIAL_Ad_SHOWING = false
+                    mainHandler.post {
+                        dismissLoadingDialog()
+                        mInterstitialControllerListener?.onAdClosed(
+                            reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
+                        )
+                        admobInterAd = null
+                        IS_INTERSTITIAL_Ad_SHOWING = false
+                    }
                 }
 
             }

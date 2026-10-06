@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.test.compose.adslibrary.MainActivity
+import com.test.compose.adslibrary.ui.inter.emptyInterListener
 import com.test.compose.adslibrary.ui.nativead.emptyAdCallback
 import com.test.compose.adslibrary.xml.MainXmlActivity
 import io.monetize.kit.sdk.core.utils.adtype.BannerControllerConfig

@@ -374,6 +374,8 @@ internal class OpenAdInterstitialManager private constructor(
     }
 
     fun showAppOpenAd(activity: Activity) {
+        // Always bind callbacks right before show so no show path misses impression/revenue
+        setFullScreenCallBacks(activity)
         mAppOpenAd?.show(activity)
     }
 

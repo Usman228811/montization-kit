@@ -155,6 +155,41 @@ class CollapsableBannerAdController private constructor(
 
                                     override fun onAdLoaded(ad: BannerAd) {
                                         super.onAdLoaded(ad)
+                                        // Attach the callback before the banner is added to the frame
+                                        ad.adEventCallback =
+                                            object : BannerAdEventCallback {
+
+                                                override fun onAdPaid(value: AdValue) {
+                                                    super.onAdPaid(value)
+                                                    revenueListener(id, value, "Banner")
+                                                }
+
+                                                override fun onAdImpression() {
+                                                    mContext.runOnUiThread {
+                                                        postAdImpression("Banner")
+                                                    }
+                                                }
+
+                                                override fun onAdClicked() {
+                                                    mContext.runOnUiThread {
+                                                        adCallBack?.onAdClick()
+                                                    }
+                                                }
+
+                                                override fun onAdShowedFullScreenContent() {
+
+                                                }
+
+                                                override fun onAdDismissedFullScreenContent() {
+
+                                                }
+
+                                                override fun onAdFailedToShowFullScreenContent(
+                                                    fullScreenContentError: FullScreenContentError
+                                                ) {
+
+                                                }
+                                            }
 
                                         mContext.runOnUiThread {
 
@@ -170,43 +205,6 @@ class CollapsableBannerAdController private constructor(
                                                 adFrame.removeAllViews()
                                                 adFrame.addView(bannerAd)
                                                 adCallBack?.onAdShow()
-//                                        bannerAd?.revenueListener(
-//                                            id
-//                                        )
-                                                ad.adEventCallback =
-                                                    object : BannerAdEventCallback {
-
-                                                        override fun onAdPaid(value: AdValue) {
-                                                            super.onAdPaid(value)
-                                                            revenueListener(id, value, "Banner")
-                                                        }
-
-                                                        override fun onAdImpression() {
-                                                            mContext.runOnUiThread {
-                                                                postAdImpression("Banner")
-                                                            }
-                                                        }
-
-                                                        override fun onAdClicked() {
-                                                            mContext.runOnUiThread {
-                                                                adCallBack?.onAdClick()
-                                                            }
-                                                        }
-
-                                                        override fun onAdShowedFullScreenContent() {
-
-                                                        }
-
-                                                        override fun onAdDismissedFullScreenContent() {
-
-                                                        }
-
-                                                        override fun onAdFailedToShowFullScreenContent(
-                                                            fullScreenContentError: FullScreenContentError
-                                                        ) {
-
-                                                        }
-                                                    }
                                             }
                                         }
                                     }

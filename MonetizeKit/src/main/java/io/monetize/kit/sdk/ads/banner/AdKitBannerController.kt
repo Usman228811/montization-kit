@@ -85,51 +85,47 @@ class AdKitBannerController {
                         object : AdLoadCallback<BannerAd> {
 
                             override fun onAdLoaded(ad: BannerAd) {
+                                // Attach the callback before the banner can be shown by onAdLoaded()
+                                ad.adEventCallback =
+                                    object : BannerAdEventCallback {
 
-                                context.runOnUiThread {
+                                        override fun onAdPaid(value: AdValue) {
+                                            super.onAdPaid(value)
+                                            revenueListener(id, value, "Banner")
+                                        }
 
-                                    canRequestBannerAd = true
-                                    adView = bannerAd
-
-                                    adControllerListener?.onAdLoaded()
-                                    ad.adEventCallback =
-                                        object : BannerAdEventCallback {
-
-                                            override fun onAdPaid(value: AdValue) {
-                                                super.onAdPaid(value)
-                                                revenueListener(id, value, "Banner")
-                                            }
-
-                                            override fun onAdImpression() {
-
-                                                context.runOnUiThread {
-                                                    postAdImpression("Banner")
-                                                }
-                                            }
-
-                                            override fun onAdClicked() {
-
-                                                context.runOnUiThread {
-                                                    onAdClick?.invoke()
-                                                }
-                                            }
-
-                                            override fun onAdShowedFullScreenContent() {
-
-                                            }
-
-                                            override fun onAdDismissedFullScreenContent() {
-
-                                            }
-
-                                            override fun onAdFailedToShowFullScreenContent(
-                                                fullScreenContentError: FullScreenContentError
-                                            ) {
-
+                                        override fun onAdImpression() {
+                                            context.runOnUiThread {
+                                                postAdImpression("Banner")
                                             }
                                         }
-                                }
 
+                                        override fun onAdClicked() {
+                                            context.runOnUiThread {
+                                                onAdClick?.invoke()
+                                            }
+                                        }
+
+                                        override fun onAdShowedFullScreenContent() {
+
+                                        }
+
+                                        override fun onAdDismissedFullScreenContent() {
+
+                                        }
+
+                                        override fun onAdFailedToShowFullScreenContent(
+                                            fullScreenContentError: FullScreenContentError
+                                        ) {
+
+                                        }
+                                    }
+
+                                context.runOnUiThread {
+                                    canRequestBannerAd = true
+                                    adView = bannerAd
+                                    adControllerListener?.onAdLoaded()
+                                }
                             }
 
 
