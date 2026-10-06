@@ -43,7 +43,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "1.0.5-ng-rc-adapter"
+version = "1.0.6-ng-rc-adapter-test-2"
 
 
 afterEvaluate {
@@ -53,7 +53,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "1.0.5-ng-rc-adapter"
+                version = "1.0.6-ng-rc-adapter-test-2"
             }
         }
     }
