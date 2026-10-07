@@ -65,6 +65,7 @@ If you are using any mediation version:
 * `-adapter`
 * `-rc-adapter`
 * `-ng-adapter`
+* `-ng-rc-adapter`
 
 then add the following repositories in your `settings.gradle`:
 
