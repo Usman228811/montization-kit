@@ -2,8 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.plugin.compose")
     id("maven-publish")
-
-
 }
 
 android {
@@ -24,19 +22,20 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-
-    buildFeatures{
+    buildFeatures {
         compose = true
         buildConfig = true
     }
