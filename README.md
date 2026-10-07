@@ -164,6 +164,7 @@ AdKit.init(
                 offeringKey = "" // revenuecat offering id
             ),
 	appFlyerSdkKey = "", // If App-Flyer-Dev-key is provided, AppFlyer will post the events; otherwise, it won’t.
+	admobId = "ca-app-pub-3940256099942544~3347511713",
     openAdId = "ca-app-pub-3940256099942544/9257395921",
     mapOfInterIds = mapOf(
         "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
