@@ -6,21 +6,49 @@ A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to 
 
 # Installation
 
-### Add Dependency
+## Add Dependency
 
 To integrate the Monetization Kit into your project, include the following in your app's `build.gradle`:
 
-```kotlin
+```kotlin id="o5d2bl"
 dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.8")
+
+    // Standard SDK 
+    implementation("com.github.Usman228811:montization-kit:4.0.4")
+
+    // Standard SDK + Mediation Adapters
+    implementation("com.github.Usman228811:montization-kit:4.0.4-adapter")
+
+    // RevenueCat Support
+    implementation("com.github.Usman228811:montization-kit:4.0.4-rc")
+
+    // RevenueCat + Mediation Adapters
+    implementation("com.github.Usman228811:montization-kit:4.0.4-rc-adapter")
+
+
+    // Next Gen SDK
+    implementation("com.github.Usman228811:montization-kit:1.0.8-ng")
+
+    // Next Gen SDK + Mediation
+    implementation("com.github.Usman228811:montization-kit:1.0.8-ng-adapter")
+
+    // RevenueCat Support
+    implementation("com.github.Usman228811:montization-kit:1.0.8-ng-rc")
+
+    // RevenueCat + Mediation Adapters
+    implementation("com.github.Usman228811:montization-kit:1.0.8-ng-rc-adapter")
+
 }
 ```
 
-### Configure JitPack Repository
 
-In your `settings.gradle`, add the JitPack repository:
+# Configure Repositories
 
-```kotlin
+## Standard SDK
+
+If you are using the standard Monetization Kit SDK (without mediation), add only the JitPack repository in your `settings.gradle`:
+
+```kotlin id="c5gbuw"
 dependencyResolutionManagement {
     repositories {
         maven { url = uri("https://www.jitpack.io") }
@@ -28,11 +56,48 @@ dependencyResolutionManagement {
 }
 ```
 
-### Gradle Plugins
+---
+
+## Mediation SDK
+
+If you are using any mediation version:
+
+* `-adapter`
+* `-rc-adapter`
+* `-ng-adapter`
+
+then add the following repositories in your `settings.gradle`:
+
+```kotlin id="g2f1y2"
+dependencyResolutionManagement {
+    repositories {
+
+        maven { url = uri("https://www.jitpack.io") }
+
+        maven {
+            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
+        }
+
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+    }
+}
+```
+
+> These additional repositories are required only for mediation network adapters.
+
+---
+
+# Gradle Plugins
 
 Define the required plugins in your `.toml` file:
 
-```toml
+```toml id="k1brlw"
 [plugins]
 gmsServiceVersion = "4.4.4"
 firebaseCrashlyticsVersion = "3.0.6"
@@ -45,7 +110,7 @@ firebasePerfPlugin = { id = "com.google.firebase.firebase-perf", version.ref = "
 
 Apply plugins in your project-level `build.gradle`:
 
-```kotlin
+```kotlin id="4u7h0q"
 plugins {
     alias(libs.plugins.gmsServicePlugin) apply false
     alias(libs.plugins.firebaseCrashlyticsPlugin) apply false
@@ -55,53 +120,26 @@ plugins {
 
 And in your app-level `build.gradle`:
 
-```kotlin
+```kotlin id="q3i0ha"
 plugins {
-    alias(libs.plugins.gmsServicePlugin) 
+    alias(libs.plugins.gmsServicePlugin)
     alias(libs.plugins.firebaseCrashlyticsPlugin)
     alias(libs.plugins.firebasePerfPlugin)
 }
 ```
+
 ---
 
-## Mediation
+# Mediation
 
-### Mediation Networks
--  Pangle
--  Liftoff/Vungle
--  Meta
--  Mintegral
--  Inmobi
+## Supported Mediation Networks
 
-To integrate the Monetization Kit with mediation networks into your project, include the following in your app's `build.gradle`:
+* Pangle
+* Liftoff/Vungle
+* Meta
+* Mintegral
+* Inmobi
 
-```kotlin
-dependencies {
-    implementation("com.github.Usman228811:montization-kit:3.2.8-adapter")
-}
-```
-
-### Configure JitPack Repository
-
-In your `settings.gradle`, add the JitPack repository:
-
-```kotlin
-dependencyResolutionManagement {
-    repositories {
-        maven { url = uri("https://www.jitpack.io") }
-		maven {
-            url = uri("https://repo.premiumads.net/artifactory/mobile-ads-sdk/")
-        }
-        maven {
-            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
-        }
-        maven {
-            url = uri("https://artifact.bytedance.com/repository/pangle/")
-        }
-    }
-}
-```
----
 
 # SDK Initialization
 
@@ -121,8 +159,11 @@ These configs should be added to your `defaultRemoteConfigBuilder` in your App C
 AdKit.init(
     isDebug = BuildConfig.DEBUG,  
     context = this,
+	revenueCatBuilder = RevenueCatBuilder(
+                revenueCatKey = "", //revenuecat key
+                offeringKey = "" // revenuecat offering id
+            ),
 	appFlyerSdkKey = "", // If App-Flyer-Dev-key is provided, AppFlyer will post the events; otherwise, it won’t.
-    admobId = "ca-app-pub-3940256099942544~3347511713",
     openAdId = "ca-app-pub-3940256099942544/9257395921",
     mapOfInterIds = mapOf(
         "splash_inter" to "ca-app-pub-3940256099942544/1033173712",
@@ -189,14 +230,17 @@ AdKit.init(
                     instantReward(true)
                 }
                 banner("home_banner"){
-//                    enable(true)
-					  bannerType(BannerAdType.ADAPTIVE_BANNER)
+                      enable(true)
+					  bannerType(BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER)
                 }
                 banner("premium_banner"){
                     enable(true)
                    bannerType(BannerAdType.BOTTOM_COLLAPSIBLE_BANNER)
                 }
                 overAllNativeColor(ctaColor = "#964B00", bgColor = "#FF03DAC5")
+            },
+    onDefaultConfigGenerated = {  defaultConfigs ->
+                Log.d("opoppp", "onDefaultConfigGenerated: $defaultConfigs")
             },
     onInitSdk = {
         // Optional: Disable toast notifications for analytics
@@ -258,8 +302,7 @@ viewModelScope.apply {
 }
 
 fun initConsent(activity: Activity) {
-    viewModelScope.launch {
-        if (state.value.isConsentManager.not()) {
+    if (state.value.isConsentManager.not()) {
             _state.update {
                 it.copy(isConsentManager = true)
             }
@@ -272,7 +315,6 @@ fun initConsent(activity: Activity) {
                 runSplash()
             }
         }
-    }
 }
 ```
 
@@ -340,9 +382,7 @@ private fun showSplashAd(mContext: Activity) {
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                         _state.update { it.copy(progress = 100) }
                     }
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
 
@@ -460,52 +500,12 @@ AdKitNativeAdView(
 
 // destroy?.invoke()
 
-// For dialogs on the same screen
-AdKitNativeAdViewDialog(
-    nativeControllerConfig = NativeControllerConfig(
-        placementKey = "home_native", // Unique placement key
-        adIdKey = "home_native", // Can be common across placements,
-		consumeAnyAd = true|false //If you want to use another placement’s ad if it’s available, pass true; otherwise, pass false.
-		loadNextAd = false // if loadnew ad is true from remote config and  you do not want to load next ad then pass false
-    ),
-   	//optional
-    adCallBack =object: AdCallBack{
-                override fun onAdFailed(reason: String) {
-                    Log.d("dddddd", reason)
-                }
-
-                override fun onAdShow() {
-                    
-                }
-
-                override fun onAdClick() {
-                    Toast.makeText(activity, "home screen native ad click", Toast.LENGTH_SHORT).show()
-                }
-            },
-    callCustomDestroy = { callCustomDestroy ->
-				//handle Custom Destroy
-                destroy = callCustomDestroy
-    
-	)
-)
-
-// destroy?.invoke()
-
-
 ```
 
 ### XML Support
 
 ```xml
 <io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewXml
-    android:id="@+id/adFrameNative"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/_50sdp"
-    app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
-
-<!-- For dialogs on the same screen -->
-<io.monetize.kit.sdk.presentation.ui.native_ad.AdKitNativeAdViewDialogXml
     android:id="@+id/adFrameNative"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -596,13 +596,11 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_5sdp"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_2sdp">
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
                         android:orientation="horizontal">
 
                         <com.google.android.material.textview.MaterialTextView
@@ -610,22 +608,19 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
                             android:layout_width="@dimen/_20sdp"
                             android:layout_height="@dimen/_15sdp"
                             android:background="@drawable/border_ad"
-                            android:layout_marginHorizontal="@dimen/_3sdp"
                             android:gravity="center"
-                            android:paddingBottom="0dp"
                             android:text="AD"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_8ssp"
                             android:textStyle="bold" />
-                        
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/ad_headline"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_3sdp"
+                            android:layout_marginEnd="@dimen/_5sdp"
                             android:maxLines="2"
-                            android:paddingStart="@dimen/_2sdp"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_12ssp"
                             android:textStyle="bold" />
@@ -634,9 +629,9 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/ad_body"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
                         android:layout_marginEnd="@dimen/_5sdp"
                         android:maxLines="2"
                         android:textColor="@color/black_light"
@@ -675,6 +670,7 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
 </FrameLayout>
 
 
+
 ```
 
 ---
@@ -706,6 +702,18 @@ onInitSdk = {
 ### Setup in Application Class
 
 ```kotlin
+
+class AppClass : Application(), ActivityLifecycleCallbacks {
+
+	companion object {
+        var appContext: Context? = null
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        appContext = this
+	}
+}
 fun initializeAppClass() {
     try {
         registerActivityLifecycleCallbacks(this)
@@ -834,7 +842,8 @@ AdKit.openAdManager.canShowOpenAd(false|true)
 - `BannerAdType.LARGE_BANNER`: Large Banner
 - `BannerAdType.MEDIUM_RECTANGLE_BANNER`: Medium Rectangle Banner
 - `BannerAdType.BOTTOM_COLLAPSIBLE_BANNER`: Bottom Collapsible Banner
-- `BannerAdTypeTOP_COLLAPSIBLE_BANNER`: Top Collapsible Banner
+- `BannerAdType.TOP_COLLAPSIBLE_BANNER`: Top Collapsible Banner
+- `BannerAdType.LARGE_ANCHORED_ADAPTIVE_BANNER`: Large Anchored Adaptive Banner
 
 ### Remote Config Values
 - `{$placementkey}_isAdEnable`
@@ -1109,75 +1118,64 @@ AdKit.firebaseHelper.apply {
 
 ---
 
-# One-Time Purchase
+# Premium Billing
 
-Initialize billing in your splash screen:
-
-```kotlin
-AdKit.purchaseHelper.initBilling("one_time_purchase_id")
-```
-
-Handle purchase state in your ViewModel:
+Use `AdKit.premiumHelper` as the single public billing entry point for lifetime purchases and subscriptions.
 
 ```kotlin
-viewModelScope.apply {
-    launch {
-        AdKit.purchaseHelper.appPurchased.collectLatest { isPurchased ->
-            Log.d("ioiioo", "isPurchased: $isPurchased")
-        }
-    }
-    launch {
-        AdKit.purchaseHelper.productPriceFlow.collectLatest {
-            Log.d("ioiioo", "productPriceFlow: ${it.price.ifEmpty { "..." }}")
-        }
-    }
+AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
+
+AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+    val isPremium = premiumState.isPremium
+    val allPurchases = premiumState.allPurchases
 }
 
-// Trigger purchase
-AdKit.purchaseHelper.purchaseProduct(activity)
+val lifetimeOffer = AdKit.premiumHelper.getBillingPrice("android.test.purchased")
+val subscriptionOffer = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
 
-// You can check if the app is Life-time purchased using AdKit.
-val isPurchased = AdKit.adKitPref.isLifeTimePurchased
+AdKit.premiumHelper.purchase(activity, "android.test.purchased")
+AdKit.premiumHelper.purchase(activity, REMOVE_ADS_ID)
+AdKit.premiumHelper.purchase(
+    activity = activity,
+    productId = REMOVE_ADS_ID,
+    isForUpdatePlan = true
+)
 
-
-// You can check if any purchases has been done using AdKit.
-val isPurchased = AdKit.adKitPref.isAppPurchased
-```
-
----
-
-# Subscriptions
-
-```kotlin
-// You can check if the app is subscribed using AdKit.
+val isLifetimePurchased = AdKit.adKitPref.isLifeTimePurchased
 val isSubscribed = AdKit.adKitPref.isAppSubscribed
-
-
-// You can check if any purchases has been done using AdKit.
-val isPurchased = AdKit.adKitPref.isAppPurchased
-
+val isPremium = AdKit.adKitPref.isAppPurchased
 ```
 
-### ViewModel for Subscriptions
+### ViewModel for Premium Billing
 
 ```kotlin
 data class SettingScreenState(
-    val weeklyPrice: String = "",
-    val monthlyPrice: String = "",
-    val yearlyPrice: String = "",
-    val subscribedId: String = "",
+    val removeAdsPrice: String = "",
+    val feature1Price: String = "",
+    val feature2Price: String = "",
+    val feature3Price: String = "",
     val selectedButtonPos: Int = 0,
-    val buttonText: String = "subscribe"
+    val buttonText: String = "subscribe",
+    val purchasesList: List<String> = emptyList()
 )
 
 class SubscriptionViewModel : ViewModel() {
     private var _state = MutableStateFlow(SettingScreenState())
     val state = _state.asStateFlow()
 
-    private val subscriptionMap = mapOf(
-        0 to "weekly_subscription2",
-        1 to "monthly1_subscription",
-        2 to "yearly_subscription"
+   private val subscriptionMap = mapOf(
+        0 to REMOVE_ADS_ID,
+        1 to FEATURE_1,
+        2 to FEATURE_2,
+        3 to FEATURE_3,
     )
 
     private fun selectedId() = subscriptionMap[state.value.selectedButtonPos]
@@ -1185,75 +1183,133 @@ class SubscriptionViewModel : ViewModel() {
     init {
         viewModelScope.apply {
             launch {
-                AdKit.subscriptionHelper.subscriptionProducts.collectLatest {
-
-							val weeklyPriceModel = getBillingPrice("weekly_subscription2", "P1W")
-							val weeklyPrice = weeklyPriceModel.price
-							val weeklyPriceOffer = weeklyPriceModel.offerPrice
-                            val monthlyPrice = getBillingPrice("monthly1_subscription", "P1M").price
-                            val yearlyPrice = getBillingPrice("yearly_subscription", "P1Y").price
 
 
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    Log.d(TAG, "purchasesList: ${premiumState.allPurchases}")
+
+                    val removeAdsPrice = AdKit.premiumHelper.getBillingPrice(REMOVE_ADS_ID)
+                    val feature1Price = AdKit.premiumHelper.getBillingPrice(FEATURE_1)
+                    val feature2Price = AdKit.premiumHelper.getBillingPrice(FEATURE_2)
+                    val feature3Price = AdKit.premiumHelper.getBillingPrice(FEATURE_3)
+
+
+                    when (removeAdsPrice.type) {
+                        OfferType.FREE_TRIAL -> {
+                            Log.d(TAG, ": FREE_TRIAL")
+                        }
+
+                        OfferType.PAID_TRIAL -> {
+                            Log.d(TAG, ": PAID_TRIAL")
+                        }
+
+                        OfferType.STRAIGHT -> {
+                            Log.d(TAG, ": STRAIGHT")
+                        }
+                    }
+
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period} - freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature1Price.mainOfferText} - period=${feature1Price.period}- freeTrialText=${feature1Price.freeTrialText} - paidTrialText=${feature1Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature2Price.mainOfferText} - period=${feature2Price.period}- freeTrialText=${feature2Price.freeTrialText} - paidTrialText=${feature2Price.paidTrialText}"
+                    )
+                    Log.d(
+                        TAG,
+                        "mainOfferText=${feature3Price.mainOfferText} - period=${feature3Price.period}- freeTrialText=${feature3Price.freeTrialText} - paidTrialText=${feature3Price.paidTrialText}"
+                    )
                     _state.update {
+
                         it.copy(
-                            weeklyPrice = weeklyPrice,
-                            monthlyPrice = monthlyPrice,
-                            yearlyPrice = yearlyPrice
+                            purchasesList = premiumState.allPurchases,
+                            removeAdsPrice = "${removeAdsPrice.mainOfferText}",
+                            feature1Price = "${feature1Price.mainOfferText}",
+                            feature2Price = "${feature2Price.mainOfferText}",
+                            feature3Price = "${feature3Price.mainOfferText}",
                         )
                     }
-                }
-            }
-            launch {
-                AdKit.subscriptionHelper.subscribedId.collectLatest { subscribedId ->
-                    _state.update {
-                        it.copy(subscribedId = subscribedId)
-                    }
-                }
-            }
-            launch {
-                AdKit.subscriptionHelper.historyFetched.collectLatest {
-                    val buttonText = when {
-                        state.value.subscribedId.isEmpty() -> "subscribe"
-                        state.value.subscribedId == selectedId() -> "cancel subscription"
-                        AdKit.subscriptionHelper.isSubscriptionUpdateSupported() -> "update subscription"
-                        else -> state.value.buttonText
-                    }
-                    _state.update {
-                        it.copy(buttonText = buttonText)
-                    }
+
+
+                    changeButtonText()
+
+
                 }
             }
         }
     }
 
-    fun loadProducts(activity: Activity, list: List<String>) {
-        AdKit.subscriptionHelper.initBilling(activity, list)
-    }
+    fun changeButtonText() {
 
-    private fun getBillingPrice(productId: String, billingPeriod: String): PriceModel {
-        return AdKit.subscriptionHelper.getBillingPrice(productId, billingPeriod)
-    }
+        val selectedId = subscriptionMap[state.value.selectedButtonPos]
+        val purchases = state.value.purchasesList
 
-    fun updateSelectedButtonPos(activity:Activity, selectedButtonPos: Int) {
+        val buttonText = when {
+            purchases.isEmpty() -> "Subscribe"
+
+            selectedId != null && purchases.contains(selectedId) ->
+                "Cancel Subscription"
+
+            purchases.isNotEmpty() &&
+                    AdKit.premiumHelper.isSubscriptionUpdateSupported() ->
+                "Update Subscription"
+
+            else -> state.value.buttonText
+        }
+
         _state.update {
-            it.copy(selectedButtonPos = selectedButtonPos)
+            it.copy(buttonText = buttonText)
         }
-        AdKit.subscriptionHelper.querySubscriptionProducts(activity)
+    }
+
+   fun loadProducts(
+        activity: Activity,
+    ) {
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
+    }
+
+
+    fun updateSelectedButtonPos(selectedButtonPos: Int) {
+        _state.update {
+            it.copy(
+                selectedButtonPos = selectedButtonPos
+            )
+        }
+        changeButtonText()
     }
 
     fun purchase(activity: Activity) {
-        AdKit.subscriptionHelper.purchase(activity, selectedId())
+
+		// importatnt parameter "isForUpdatePlan"
+		// Pass true → update existing subscription
+		// Pass false → start a new subscription
+
+        AdKit.premiumHelper.purchase(activity, selectedId(), isForUpdatePlan = false, onUserDismissedPaywall = {
+            Log.d(TAG, "subscription purchase: user dismissed the paywall")
+        })
     }
 }
 ```
 
-### Implementing Subscriptions
+### Implementing Premium Plans
 
 ```kotlin
 LaunchedEffect(Unit) {
     subscriptionViewModel.loadProducts(
         activity,
-        listOf("weekly_subscription2", "monthly1_subscription", "yearly_subscription")
     )
 }
 
@@ -1318,16 +1374,27 @@ class SplashScreenViewModel(
         AdKit.splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-        purchaseHelper.initBilling("one_time_purchase_id")
+        
     }
+
+	fun loadProducts(activity:Activity){
+
+		AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
+	}
 
     private fun onResume() {
         if (state.value.runSplash) {
             animator?.resume()
         }
-        viewModelScope.launch {
-            _state.update { it.copy(isAppResumed = true) }
-        }
+         _state.update { it.copy(isAppResumed = true) }
     }
 
     private fun onPause() {
@@ -1337,9 +1404,7 @@ class SplashScreenViewModel(
         if (!isInterAdShowed && isInterAdCalled) {
             AdKit.splashAdController.pauseAd()
         }
-        viewModelScope.launch {
-            _state.update { it.copy(isAppResumed = false) }
-        }
+         _state.update { it.copy(isAppResumed = false) }
     }
 
     fun observeLifecycle(lifecycleOwner: LifecycleOwner) {
@@ -1388,16 +1453,15 @@ class SplashScreenViewModel(
                 }
             }
             launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    _state.update { it.copy(isPurchased = result) }
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }
     }
 
     fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
+        if (state.value.isConsentManager.not()) {
                 _state.update { it.copy(isConsentManager = true) }
                 if (!adKitPref.isAppPurchased && internetController.isConnected) {
                     consentManager.gatherConsent(activity)
@@ -1408,16 +1472,13 @@ class SplashScreenViewModel(
                     initializeSplash()
                 }
             }
-        }
     }
 
     private fun initializeSplash() {
-        viewModelScope.launch {
-            if (state.value.initializeSplash.not()) {
+       if (state.value.initializeSplash.not()) {
                 _state.update { it.copy(initializeSplash = true) }
                 fetchFirebase()
             }
-        }
     }
 
     private fun fetchFirebase() {
@@ -1428,11 +1489,9 @@ class SplashScreenViewModel(
     }
 
     private fun runSplash() {
-        viewModelScope.launch {
-            if (state.value.runSplash.not()) {
+         if (state.value.runSplash.not()) {
                 _state.update { it.copy(runSplash = true) }
             }
-        }
     }
 
     private fun startProgressAnimation() {
@@ -1441,9 +1500,7 @@ class SplashScreenViewModel(
             duration = 25_000L
             addUpdateListener { animation ->
                 val value = animation.animatedValue as? Int
-                viewModelScope.launch {
-                    _state.update { it.copy(progress = value ?: 50) }
-                }
+                 _state.update { it.copy(progress = value ?: 50) }
             }
             start()
         }
@@ -1463,9 +1520,7 @@ class SplashScreenViewModel(
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                        _state.update { it.copy(progress = 100) }
                     }
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
                         animator?.cancel()
@@ -1528,6 +1583,7 @@ val factory = remember { SplashScreenViewModelFactory() }
     })
 
     LaunchedEffect(Unit) {
+		splashViewModel.loadProducts(activity)
         splashViewModel.checkForUpdate(activity, launcher)
         splashViewModel.observeLifecycle(lifecycleOwner)
     }
@@ -1583,7 +1639,22 @@ class SplashViewModel(
         splashAdController.resetSplash()
         collections()
         startProgressAnimation()
-//        purchaseHelper.initBilling(productId)
+
+    }
+
+	fun loadProducts(
+        activity: Activity,
+    ) {
+
+        AdKit.premiumHelper.initBilling(activity,
+            items = listOf(
+                BillingItem.Lifetime("android.test.purchased", BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(REMOVE_ADS_ID, BillingItem.Type.REMOVE_ADS),
+                BillingItem.Subscription(FEATURE_1, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_2, BillingItem.Type.FEATURE),
+                BillingItem.Subscription(FEATURE_3, BillingItem.Type.FEATURE),
+            )
+        )
     }
 
     fun onResume(activity: Activity) {
@@ -1633,17 +1704,16 @@ class SplashViewModel(
                     }
                 }
             }
-            launch {
-                purchaseHelper.appPurchased.collectLatest { result ->
-                    _state.update { it.copy(isPurchased = result) }
+           launch {
+                AdKit.premiumHelper.premiumState.collectLatest { premiumState ->
+                    _state.update { it.copy(isPurchased = premiumState.isPremium) }
                 }
             }
         }
     }
 
     fun initConsent(activity: Activity) {
-        viewModelScope.launch {
-            if (state.value.isConsentManager.not()) {
+        if (state.value.isConsentManager.not()) {
                 _state.update { it.copy(isConsentManager = true) }
                 if (!adKitPref.isAppPurchased && internetController.isConnected) {
                     consentManager.gatherConsent(activity)
@@ -1654,16 +1724,13 @@ class SplashViewModel(
                     initializeSplash()
                 }
             }
-        }
     }
 
     private fun initializeSplash() {
-        viewModelScope.launch {
-            if (state.value.initializeSplash.not()) {
+        if (state.value.initializeSplash.not()) {
                 _state.update { it.copy(initializeSplash = true) }
                 fetchFirebase()
             }
-        }
     }
 
     private fun fetchFirebase() {
@@ -1674,11 +1741,9 @@ class SplashViewModel(
     }
 
     private fun runSplash() {
-        viewModelScope.launch {
-            if (state.value.runSplash.not()) {
+         if (state.value.runSplash.not()) {
                 _state.update { it.copy(runSplash = true) }
             }
-        }
     }
 
     private fun startProgressAnimation() {
@@ -1687,9 +1752,7 @@ class SplashViewModel(
             duration = 25_000L
             addUpdateListener { animation ->
                 val value = animation.animatedValue as? Int
-                viewModelScope.launch {
-                    _state.update { it.copy(progress = value ?: 50) }
-                }
+                 _state.update { it.copy(progress = value ?: 50) }
             }
             start()
         }
@@ -1709,9 +1772,7 @@ class SplashViewModel(
                         super.onAdShow()
                         isInterAdShowed = true
                         animator?.cancel()
-                        viewModelScope.launch {
-                            _state.update { it.copy(progress = 100) }
-                        }
+                       _state.update { it.copy(progress = 100) }
                     }
 
                     override fun onAdClosed(isInterShowed: Boolean, reason: String) {
@@ -1760,6 +1821,7 @@ class SplashAppActivity : BaseActivity() {
         setContentView(binding.root)
         viewModel.checkForUpdate(mContext, updateLauncher)
 
+		viewModel.loadProducts(mContext)
 
         lifecycleScope.launch {
             viewModel.state.collectLatest { state ->
