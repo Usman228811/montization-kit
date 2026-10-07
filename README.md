@@ -65,6 +65,7 @@ If you are using any mediation version:
 * `-adapter`
 * `-rc-adapter`
 * `-ng-adapter`
+* `-ng-rc-adapter`
 
 then add the following repositories in your `settings.gradle`:
 
@@ -99,9 +100,9 @@ Define the required plugins in your `.toml` file:
 
 ```toml id="k1brlw"
 [plugins]
-gmsServiceVersion = "4.4.4"
-firebaseCrashlyticsVersion = "3.0.6"
-firebasePerfVersion = "2.0.1"
+gmsServiceVersion = "4.5.0"
+firebaseCrashlyticsVersion = "3.0.8"
+firebasePerfVersion = "2.0.2"
 
 gmsServicePlugin = { id = "com.google.gms.google-services", version.ref = "gmsServiceVersion" }
 firebaseCrashlyticsPlugin = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsVersion" }
