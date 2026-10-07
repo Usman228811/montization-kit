@@ -45,7 +45,7 @@ android {
 }
 
 group = "com.github.Usman228811"
-version = "4.0.3-adapter"
+version = "4.0.4-adapter"
 
 
 afterEvaluate {
@@ -55,7 +55,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "4.0.3-adapter"
+                version = "4.0.4-adapter"
             }
         }
     }
@@ -103,11 +103,11 @@ dependencies {
 
 
     // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
-    implementation("com.google.ads.mediation:inmobi:11.3.0.1")
-    implementation("com.google.ads.mediation:vungle:7.7.4.2")
+    implementation("com.google.ads.mediation:inmobi:11.4.1.2")
+    implementation("com.google.ads.mediation:vungle:7.7.8.1")
     implementation("com.google.ads.mediation:facebook:6.22.0.1")
-    implementation("com.google.ads.mediation:mintegral:17.1.61.1")
-    implementation("com.google.ads.mediation:pangle:8.1.0.4.0")
+    implementation("com.google.ads.mediation:mintegral:17.1.81.1")
+    implementation("com.google.ads.mediation:pangle:8.3.0.4.0")
     implementation("net.premiumads.sdk:admob-adapter:2.2.6")
 
 
