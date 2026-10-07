@@ -1,8 +1,6 @@
 jdk:
   - openjdk21
-before_install:
-  - ls -la gradle/wrapper
-  - mkdir -p .jitpack && curl -sSL -o .jitpack/gradle-9.6.1-bin.zip https://services.gradle.org/distributions/gradle-9.6.1-bin.zip
-  - unzip -q -o .jitpack/gradle-9.6.1-bin.zip -d .jitpack || (cd .jitpack && jar xf gradle-9.6.1-bin.zip)
+
 install:
-  - sh .jitpack/gradle-9.6.1/bin/gradle :MonetizeKit:publishToMavenLocal --no-daemon --console=plain || sh .jitpack/gradle-9.6.1/bin/gradle :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
+  - chmod +x gradlew
+  - n=0; until ./gradlew :MonetizeKit:publishToMavenLocal --no-daemon --console=plain; do n=$((n+1)); if [ $n -ge 5 ]; then echo "gradlew failed $n times"; break; fi; echo "=== gradlew failed, retry $n in 20s ==="; sleep 20; done
