@@ -3,4 +3,4 @@ jdk:
 
 install:
   - chmod +x gradlew
-  - ./gradlew :MonetizeKit:publishToMavenLocal --no-daemon --console=plain
+  - n=0; until ./gradlew :MonetizeKit:publishToMavenLocal --no-daemon --console=plain; do n=$((n+1)); if [ $n -ge 5 ]; then echo "gradlew failed $n times"; break; fi; echo "=== gradlew failed, retry $n in 20s ==="; sleep 20; done
