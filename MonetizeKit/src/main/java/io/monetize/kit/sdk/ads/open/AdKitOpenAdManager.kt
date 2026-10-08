@@ -19,10 +19,12 @@ import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
+import io.monetize.kit.sdk.core.utils.REMOTE_OPEN_AD_ID_KEY
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
 import io.monetize.kit.sdk.core.utils.firebaseBoolean
 import io.monetize.kit.sdk.core.utils.firebaseLong
+import io.monetize.kit.sdk.core.utils.firebaseString
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
@@ -48,7 +50,12 @@ class AdKitOpenAdManager private constructor(
     private var isAdEnable = true
     private var isPause = false
     private var isLoadingEnable = true
-    private var adId = ""
+    private var localAdId = ""
+
+    // Remote config "OPEN_AD_ID" overrides the ID passed to AdKit.init
+    private val adId: String
+        get() = firebaseString(REMOTE_OPEN_AD_ID_KEY, "").trim().ifEmpty { localAdId }
+
     private var currentActivity: Activity? = null
 
     private var currentRoute: String? = null
@@ -117,7 +124,7 @@ class AdKitOpenAdManager private constructor(
 
 
     fun setOpenAdId(adId: String) {
-        this.adId = adId
+        this.localAdId = adId
     }
 
     fun setOpenAdConfigs() {

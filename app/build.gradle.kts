@@ -13,8 +13,8 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.photocleaner.swipetodelete.psma"
-//        applicationId = "com.example.gpsapp"
+//        applicationId = "com.photocleaner.swipetodelete.psma"
+        applicationId = "com.example.gpsapp"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
