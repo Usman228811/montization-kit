@@ -219,11 +219,11 @@ class SplashScreenViewModel(
 //                    "banner_common",
 //                )
 //            )
-            _state.update {
-                it.copy(
-                    loadAndShow = false
-                )
-            }
+//            _state.update {
+//                it.copy(
+//                    loadAndShow = false
+//                )
+//            }
             splashAdController.initSplashInterstitial(
                 activity = mContext,
                 placementKey = "splash_inter",

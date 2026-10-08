@@ -2,9 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinSerialization)
-//    alias(libs.plugins.gmsServicePlugin)
-//    alias(libs.plugins.firebaseCrashlyticsPlugin)
-//    alias(libs.plugins.firebasePerfPlugin)
+    alias(libs.plugins.gmsServicePlugin)
+    alias(libs.plugins.firebaseCrashlyticsPlugin)
+    alias(libs.plugins.firebasePerfPlugin)
 }
 
 android {
@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
 //        applicationId = "com.example.gpsapp"
-        applicationId = "com.photocleaner.swipetodelete.psma"
+        applicationId = "com.example.gpsapp"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
