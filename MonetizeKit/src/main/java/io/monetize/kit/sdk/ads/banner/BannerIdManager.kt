@@ -1,5 +1,7 @@
 package io.monetize.kit.sdk.ads.banner
 
+import android.util.Log
+import io.monetize.kit.sdk.core.utils.remoteAdIds
 class BannerIdManager private constructor() {
 
     companion object {
@@ -35,15 +37,17 @@ class BannerIdManager private constructor() {
 
     // Call this to get the next interstitial ID for a placement
     fun getNextBannerId(placement: String): String? {
-        val list = normalizedMap[placement] ?: return null
+        // Remote config "{placement}_adId" overrides the IDs passed to AdKit.init
+        val list = remoteAdIds(placement).ifEmpty { normalizedMap[placement].orEmpty() }
         if (list.isEmpty()) return null
 
-        val currentIndex = currentIndexMap[placement] ?: 0
+        // Modulo keeps the index valid if a remote config update shrinks the list
+        val currentIndex = (currentIndexMap[placement] ?: 0) % list.size
         val selectedId = list[currentIndex]
 
         // Update index for next call
         currentIndexMap[placement] = (currentIndex + 1) % list.size
-
+        Log.d("AdKit_Ad_Id", "${placement}_selectedId: $selectedId")
         return selectedId
     }
 }
