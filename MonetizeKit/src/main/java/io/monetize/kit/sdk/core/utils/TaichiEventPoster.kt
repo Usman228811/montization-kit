@@ -43,8 +43,17 @@ class TaichiEventPoster(val pref: AdKitPref) {
 
             pref.adsRevenueCount = 0.0f
             pref.adsImpressionCount = 0
+        } else if (totalImpressions > impressionThreshold) {
+            // Threshold not reached within the impression window: start a new window,
+            // otherwise the impression count stays above the limit and the event never fires again
+            Log.d("RevenueTracking", "Revenue event not posted, impression window reset")
+
+            pref.adsRevenueCount = 0.0f
+            pref.adsImpressionCount = 0
         } else {
             Log.d("RevenueTracking", "Revenue event not posted")
+
+            pref.adsRevenueCount = totalRevenue.toFloat()
         }
     }
 }
