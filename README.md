@@ -1127,6 +1127,29 @@ AdKit.firebaseHelper.apply {
 
 ---
 
+# Remote Ad Unit IDs
+
+You can change ad unit IDs from Firebase Remote Config without releasing an app update. The IDs passed to `AdKit.init` remain the defaults: when a key below is missing or empty, the SDK uses the local ID.
+
+| Ad | Remote Config key | Example |
+|---|---|---|
+| Interstitial, Rewarded, Native, Banner | `{adIdKey}_adId` | `inter_common_adId`, `home_native_adId`, `home_banner_adId` |
+| App Open | `OPEN_AD_ID` | `OPEN_AD_ID` |
+
+`{adIdKey}` is the same key you used in `mapOfInterIds`, `mapOfRewardIds`, `mapOfNativeIds` or `mapOfBannerIds`.
+
+The value can be:
+- A single ID: `ca-app-pub-xxxxxxxx/1111111111`
+- A comma-separated list: `ca-app-pub-xxxxxxxx/1111111111, ca-app-pub-xxxxxxxx/2222222222`
+- A JSON array: `["ca-app-pub-xxxxxxxx/1111111111", "ca-app-pub-xxxxxxxx/2222222222"]`
+
+A list rotates for that placement, the same as a local `listOf(...)`. New values apply on the next ad load, including real-time Remote Config updates.
+
+**Notes**
+- Remote IDs are only available after Remote Config is fetched, so load ads after `configFetched` (see the Splash Screen ViewModel below).
+
+---
+
 # Premium Billing
 
 Use `AdKit.premiumHelper` as the single public billing entry point for lifetime purchases and subscriptions.
