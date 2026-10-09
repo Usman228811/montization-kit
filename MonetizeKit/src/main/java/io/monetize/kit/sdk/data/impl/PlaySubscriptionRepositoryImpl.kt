@@ -3,6 +3,8 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -60,6 +62,11 @@ class PlaySubscriptionRepositoryImpl private constructor(
     val isBillingClientReady: Boolean
         get() = !isBillingClientDead && subscriptionClient.isReady
 
+    // The client only has to exist: with auto service reconnection a call made while
+    // disconnected reconnects first, so don't skip calls just because isReady is false
+    private val canCallBilling: Boolean
+        get() = !isBillingClientDead
+
     override fun purchaseProduct(
         activity: Activity,
         skuDetails: Package,
@@ -77,7 +84,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
                 context.showNoInternet(activity)
                 return
             }
-            if (isBillingClientDead || !subscriptionClient.isReady) {
+            if (!canCallBilling) {
                 context.showTryAgain(activity)
                 return
             }
@@ -111,7 +118,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
                 return
             }
 
-            if (!isBillingClientReady) {
+            if (!canCallBilling) {
                 context.showToast(activity.getString(R.string.try_again))
                 return
             }
@@ -233,8 +240,9 @@ class PlaySubscriptionRepositoryImpl private constructor(
     private fun getSku(skuList: MutableList<String>): String = skuList.firstOrNull().orEmpty()
 
     override fun querySubscriptionHistory(activity: Activity) {
+        // Only an OK purchase query says what the user owns. When billing isn't available or
+        // the query fails, keep the saved subscription state instead of reporting "no purchases".
         try {
-            purchasesList.clear()
             if (isBillingClientDead) {
                 return
             }
@@ -242,8 +250,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
             if (subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS).responseCode !=
                 BillingClient.BillingResponseCode.OK
             ) {
-                resetAllPurchases()
-                activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
+                Log.e(TAG, "querySubscriptionHistory skipped: subscriptions are not available right now")
                 return
             }
 
@@ -256,12 +263,16 @@ class PlaySubscriptionRepositoryImpl private constructor(
                         billingResult: BillingResult,
                         purchases: MutableList<Purchase>
                     ) {
+                        if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                            Log.e(TAG, "querySubscriptionHistory failed: ${billingResult.debugMessage}")
+                            return
+                        }
+
+                        purchasesList.clear()
                         var purchasesFound = false
-                        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases.isNotEmpty()) {
-                            for (purchase in purchases) {
-                                if (processSubscriptionPurchase(activity, purchase)) {
-                                    purchasesFound = true
-                                }
+                        for (purchase in purchases) {
+                            if (processSubscriptionPurchase(activity, purchase)) {
+                                purchasesFound = true
                             }
                         }
 
@@ -272,11 +283,10 @@ class PlaySubscriptionRepositoryImpl private constructor(
                     }
                 }
             )
-        } catch (_: LinkageError) {
-            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
-        } catch (_: Exception) {
-            activity.runOnUiThread { subscriptionListener.dispatchPurchases(emptyList()) }
-
+        } catch (e: LinkageError) {
+            Log.e(TAG, "querySubscriptionHistory: Billing linkage error", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "querySubscriptionHistory: Failed", e)
         }
     }
 
@@ -287,9 +297,9 @@ class PlaySubscriptionRepositoryImpl private constructor(
         if (!checkSubscriptionsId(getSku(purchase.products))) {
             return false
         }
-        if (purchase.isAcknowledged) {
-            notifyPurchase(activity, purchase)
-        } else {
+        // Grant it right away; acknowledging only stops Google refunding it after 3 days
+        notifyPurchase(activity, purchase)
+        if (!purchase.isAcknowledged) {
             acknowledgedPurchase(activity, purchase)
         }
         return true
@@ -328,7 +338,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
 
 
     override fun isSubscriptionSupported(): Boolean {
-        if (isBillingClientDead || !subscriptionClient.isReady) {
+        if (!canCallBilling) {
             return false
         }
         return subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS).responseCode ==
@@ -336,7 +346,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
     }
 
     override fun isSubscriptionUpdateSupported(): Boolean {
-        if (isBillingClientDead || !subscriptionClient.isReady) {
+        if (!canCallBilling) {
             return false
         }
         return subscriptionClient.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS_UPDATE).responseCode ==
@@ -348,6 +358,10 @@ class PlaySubscriptionRepositoryImpl private constructor(
     }
 
     override fun acknowledgedPurchase(activity: Activity, purchase: Purchase) {
+        acknowledgePurchaseWithRetry(activity, purchase, attempt = 1)
+    }
+
+    private fun acknowledgePurchaseWithRetry(activity: Activity, purchase: Purchase, attempt: Int) {
         if (isBillingClientDead) {
             return
         }
@@ -357,6 +371,13 @@ class PlaySubscriptionRepositoryImpl private constructor(
         subscriptionClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 notifyPurchase(activity, purchase)
+            } else if (attempt < MAX_ACKNOWLEDGE_ATTEMPTS && billingResult.responseCode in RETRYABLE_ACKNOWLEDGE_CODES) {
+                Log.w(TAG, "Acknowledge failed (${billingResult.responseCode}), retry $attempt")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    acknowledgePurchaseWithRetry(activity, purchase, attempt + 1)
+                }, acknowledgeRetryDelayMillis(attempt))
+            } else {
+                Log.e(TAG, "Acknowledge failed (${billingResult.responseCode}): ${billingResult.debugMessage}")
             }
         }
     }
@@ -385,6 +406,8 @@ class PlaySubscriptionRepositoryImpl private constructor(
                     .enablePendingPurchases(
                         PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
                     )
+                    // After a disconnect, the next billing call reconnects first instead of failing
+                    .enableAutoServiceReconnection()
                     .setListener(this)
                     .build()
             }
@@ -421,7 +444,7 @@ class PlaySubscriptionRepositoryImpl private constructor(
         activity: Activity,
         onResult: (Purchase?) -> Unit
     ) {
-        if (!isBillingClientReady) {
+        if (!canCallBilling) {
             activity.runOnUiThread { onResult(null) }
             return
         }

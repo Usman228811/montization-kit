@@ -24,6 +24,9 @@ class AdKitBannerPreloadHelper private constructor(
     }
 
     fun preLoadBanner(mContext: Activity, bannerControllerConfig: BannerControllerConfig) {
+        if (AdKit.initializer.getDisableAds()) {
+            return
+        }
         val bannerType =
             firebaseString("${bannerControllerConfig.placementKey}_bannerAdType", BannerAdType.ADAPTIVE_BANNER.name)
 
