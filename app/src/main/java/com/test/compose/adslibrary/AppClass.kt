@@ -89,7 +89,7 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                 bool("OPEN_AD_ENABLE", true)
                 bool("splash_inter_isAdOpenAd", false)
                 bool("IS_OPEN_AD_INSTANT", false)
-                bool("INTER_LOADING_ENABLE", false)
+                bool("INTER_LOADING_ENABLE", true)
                 bool("SPLASH_INTER_LOADING_ENABLE", true)
                 bool("OPEN_AD_LOADING_ENABLE", true)
                 long("OPEN_AD_INSTANT_TIME", 8)

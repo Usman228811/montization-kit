@@ -25,6 +25,7 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -106,6 +107,8 @@ class BillingRepositoryImpl private constructor(
                 .enablePendingPurchases(
                     PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
                 )
+                // After a disconnect, the next billing call reconnects first instead of failing
+                .enableAutoServiceReconnection()
                 .setListener { result, purchases ->
                     when (result.responseCode) {
                         BillingClient.BillingResponseCode.OK -> {
@@ -134,13 +137,18 @@ class BillingRepositoryImpl private constructor(
 
                 override fun onBillingSetupFinished(result: BillingResult) {
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                        Log.d("BILLING", "onBillingSetupFinished: OK")
                         isBillingReady = true
                         queryProductSkuForPurchase()
                     } else {
+                        Log.d("BILLING", "onBillingSetupFinished: FAILED")
 //                        "Setup Failed: ${result.responseCode}".logIt(BILLING_TAG)
                     }
                 }
             })
+        }else{
+            isBillingReady = true
+            queryProductSkuForPurchase()
         }
     }
 
@@ -264,35 +272,27 @@ class BillingRepositoryImpl private constructor(
     override fun checkProductPurchaseHistory() {
         if (!isBillingClientReady()) return
 
-        purchasesList.clear()
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP)
                 .build()
         ) { p0, p1 ->
-            var purchasesFound = false
-            if (p0.responseCode == BillingClient.BillingResponseCode.OK) {
-                if (p1.isNotEmpty()) {
-                    for (purchase in p1) {
-                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                            purchasesFound = true
-                            if (purchase.isAcknowledged) {
-                                purchasesList.add(
-                                    purchase.products.firstOrNull().orEmpty()
-                                )
-                                subscriptionListener?.onSubscriptionPurchasedFetched(
-                                    purchasesList
-                                )
-                            } else {
-                                acknowledgePurchase(purchase)
-                            }
-                        }
+            // Only an OK result says what the user owns. On errors (offline, service
+            // unavailable...) keep the saved premium state instead of reporting "no purchases".
+            if (p0.responseCode != BillingClient.BillingResponseCode.OK) {
+                return@queryPurchasesAsync
+            }
+
+            purchasesList.clear()
+            for (purchase in p1) {
+                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                    // Grant it right away; acknowledging only stops Google refunding it after 3 days
+                    purchasesList.add(purchase.products.firstOrNull().orEmpty())
+                    if (!purchase.isAcknowledged) {
+                        acknowledgePurchase(purchase)
                     }
                 }
             }
-            if (!purchasesFound) {
-                subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
-            }
-
+            subscriptionListener?.onSubscriptionPurchasedFetched(purchasesList.toList())
         }
     }
 
@@ -330,7 +330,7 @@ class BillingRepositoryImpl private constructor(
 //        } else false
     }
 
-    private fun acknowledgePurchase(purchase: Purchase) {
+    private fun acknowledgePurchase(purchase: Purchase, attempt: Int = 1) {
         if (!isBillingClientReady()) return
 
         val acknowledgeParams = AcknowledgePurchaseParams.newBuilder()
@@ -344,14 +344,20 @@ class BillingRepositoryImpl private constructor(
                     subscriptionListener?.onSubscriptionPurchasedFetched(
                         purchasesList
                     )
-//                    "Acknowledgment Successful".logIt(BILLING_TAG)
+                } else if (attempt < MAX_ACKNOWLEDGE_ATTEMPTS && result.responseCode in RETRYABLE_ACKNOWLEDGE_CODES) {
+                    Log.w(TAG, "One-Time-Purchase: Acknowledge failed (${result.responseCode}), retry $attempt")
+                    coroutineScope.launch {
+                        delay(acknowledgeRetryDelayMillis(attempt))
+                        acknowledgePurchase(purchase, attempt + 1)
+                    }
                 } else {
-//                    "Acknowledgment Failed: ${result.responseCode}".logIt(BILLING_TAG)
+                    Log.e(TAG, "One-Time-Purchase: Acknowledge failed (${result.responseCode}): ${result.debugMessage}")
                 }
             }
         }
     }
 
-    private fun isBillingClientReady(): Boolean =
-        isBillingClientInitialized && billingClient.isReady
+    // The client only has to exist: with auto service reconnection a call made while
+    // disconnected reconnects first, so don't skip calls just because isReady is false
+    private fun isBillingClientReady(): Boolean = isBillingClientInitialized
 }

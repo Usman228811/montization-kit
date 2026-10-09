@@ -136,7 +136,10 @@ class AdKitInAppUpdateManager private constructor(
                 launcher,
                 AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
             )
-        } ?: { updateStateCallback?.invoke(UpdateState.Failed) }
+        } ?: run {
+            // run{} executes the block; a bare { } here only created a lambda and never called it
+            updateStateCallback?.invoke(UpdateState.Failed)
+        }
     }
 }
 

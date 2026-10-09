@@ -173,6 +173,9 @@ class RemoteConfigBuilder private constructor() {
     fun getDefaultLong(key: String, default: Long = 0L): Long =
         (configMap[key] as? Number)?.toLong() ?: default
 
+    fun getDefaultDouble(key: String, default: Double = 0.0): Double =
+        (configMap[key] as? Number)?.toDouble() ?: default
+
     fun getDefaultString(key: String, default: String = ""): String =
         configMap[key] as? String ?: default
 
