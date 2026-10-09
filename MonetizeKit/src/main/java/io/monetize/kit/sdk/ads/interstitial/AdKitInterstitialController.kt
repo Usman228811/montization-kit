@@ -57,6 +57,8 @@ class InterstitialController private constructor(
     private var handlerAd = Handler(Looper.getMainLooper())
     private val mainHandler = Handler(Looper.getMainLooper())
     private var canRequestAd = true
+    // True while the loading dialog is up and the ad is about to be shown
+    private var isShowPending = false
     private var admobInterAd: InterstitialAd? = null
     private var mInterstitialControllerListener: InterstitialControllerListener? = null
     private var adLoadingDialog: AdLoadingDialog? = null
@@ -472,16 +474,29 @@ class InterstitialController private constructor(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
+        // A show is already scheduled (e.g. double tap); it reports to the latest listener,
+        // so a second show would only show the ad twice or fail
+        if (isShowPending) return
         if (firebaseBoolean("INTER_LOADING_ENABLE", false)) {
             try {
-                mInterstitialControllerListener?.onAdShow()
+                // onAdShow is sent by showAdmobAd when the ad is actually shown
                 val adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog.showAlertDialog()
+                isShowPending = true
                 handlerAd.postDelayed({
-                    showAdmobAd(activity, key)
+                    isShowPending = false
+                    if (activity.isFinishing || activity.isDestroyed) {
+                        // The screen closed during the delay; don't show the ad over the next screen
+                        mInterstitialControllerListener?.onAdClosed(
+                            reason = "$placementKey called onAdClosed because: screen was closed before the ad was shown"
+                        )
+                    } else {
+                        showAdmobAd(activity, key)
+                    }
                     adLoadingDialog.dismissAlertDialog()
                 }, 1000)
             } catch (e: Exception) {
+                isShowPending = false
                 showAdmobAd(activity, key)
             }
         } else {
@@ -503,12 +518,14 @@ class InterstitialController private constructor(
                     super.onAdDismissedFullScreenContent()
                     mainHandler.post {
                         dismissLoadingDialog()
+                        // Reset before notifying, so an ad requested from inside onAdClosed
+                        // isn't rejected as "Other Ad is showing"
+                        IS_INTERSTITIAL_Ad_SHOWING = false
+                        admobInterAd = null
                         mInterstitialControllerListener?.onAdClosed(
                             isInterShowed = true,
                             reason = "$placementKey called onAdClosed because: ad is showed successfully"
                         )
-                        IS_INTERSTITIAL_Ad_SHOWING = false
-                        admobInterAd = null
                         if (key.isEmpty() && !firebaseBoolean(
                                 "${placementKey}_isInterInstant",
                                 false
@@ -534,11 +551,12 @@ class InterstitialController private constructor(
                     super.onAdFailedToShowFullScreenContent(fullScreenContentError)
                     mainHandler.post {
                         dismissLoadingDialog()
+                        // Reset before notifying, so the caller can show another ad from onAdClosed
+                        admobInterAd = null
+                        IS_INTERSTITIAL_Ad_SHOWING = false
                         mInterstitialControllerListener?.onAdClosed(
                             reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${fullScreenContentError.code} message: ${fullScreenContentError.message}"
                         )
-                        admobInterAd = null
-                        IS_INTERSTITIAL_Ad_SHOWING = false
                     }
                 }
 

@@ -208,20 +208,35 @@ internal class SplashInterstitialManager private constructor(
         }
     }
 
+    // True while the loading dialog is up and the ad is about to be shown
+    private var isShowPending = false
+
     private fun adLoadingCheck(
         activity: Activity,
     ) {
+        // A show is already scheduled; showing again would show the ad twice or fail
+        if (isShowPending) return
         if (firebaseBoolean("SPLASH_INTER_LOADING_ENABLE", false)) {
             try {
-                mInterstitialControllerListener?.onAdShow()
+                // onAdShow is sent by showInterAd when the ad is actually shown
                 adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog?.showAlertDialog()
+                isShowPending = true
                 handlerAd.postDelayed({
-                    showInterAd(activity)
+                    isShowPending = false
+                    if (activity.isFinishing || activity.isDestroyed) {
+                        // The splash closed during the delay; don't show the ad over the next screen
+                        mInterstitialControllerListener?.onAdClosed(
+                            reason = "$placementKey called onAdClosed because: screen was closed before the ad was shown"
+                        )
+                    } else {
+                        showInterAd(activity)
+                    }
                     hideProgress()
                 }, 1000)
             } catch (e: Exception) {
                 e.printStackTrace()
+                isShowPending = false
                 hideProgress()
                 showInterAd(activity)
             }
@@ -376,13 +391,15 @@ internal class SplashInterstitialManager private constructor(
     }
 
     private fun hideProgressAndNullAd(isInterShowed: Boolean = false, reason: String) {
+        // Reset before notifying, so an ad requested from inside onAdClosed
+        // isn't rejected as "Other Ad is showing"
+        IS_INTERSTITIAL_Ad_SHOWING = false
+        interstitialAd = null
+        hideProgress()
         mInterstitialControllerListener?.onAdClosed(
             isInterShowed,
             "$placementKey called onAdClosed because: $reason"
         )
-        IS_INTERSTITIAL_Ad_SHOWING = false
-        interstitialAd = null
-        hideProgress()
     }
 
 
