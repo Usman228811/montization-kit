@@ -298,8 +298,15 @@ class GetNativeAdRepoImpl private constructor(
                                                 if (!mContext.isFinishing && !mContext.isDestroyed && !mContext.isChangingConfigurations) {
                                                     clearControllerListener()
                                                     adCallBack?.onAdShow()
+                                                    // On refresh the previous ad's view was just replaced, so release it
+                                                    largeNativeAd?.takeIf { it !== ad }?.let {
+                                                        destroyAd(it)
+                                                    }
                                                     largeNativeAd = ad
                                                     nativeAdController.startRefreshTime()
+                                                } else {
+                                                    // This screen is going away and won't keep the ad, so nothing else would destroy it
+                                                    destroyAd(ad)
                                                 }
                                             }, onAdClick = {
                                                 adCallBack?.onAdClick()
