@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.domain.usecase
 
+import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import io.monetize.kit.sdk.core.utils.init.AdKit
 import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
@@ -53,6 +54,7 @@ class InitBillingUseCase private constructor(
                 val uniquePurchases = purchasesList.distinct()
                 val hasRemoveAds = uniquePurchases.any { it in this@InitBillingUseCase.removeAdsIds }
 
+                Log.d("BILLING", "onSubscriptionPurchasedFetched: ")
                 adKitPref.isLifeTimePurchased = hasRemoveAds
                 _ucState.update {
                     it.copy(purchasesList = uniquePurchases)

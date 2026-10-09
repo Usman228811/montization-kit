@@ -20,9 +20,9 @@ import io.monetize.kit.sdk.core.utils.init.AdKit.adKitPref
 import io.monetize.kit.sdk.core.utils.init.AdKit.internetController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -42,6 +42,7 @@ class NativeAdSingleController {
     private var isAdEnable = true
     private var onAdClick: (() -> Unit)? = null
     private var canRefreshAd = true
+    private var refreshJob: Job? = null
 
 
     fun hasLargeAdOrLoading(): Boolean {
@@ -73,6 +74,8 @@ class NativeAdSingleController {
     fun clearNativeRefreshListener(listener: NativeRefreshListener?) {
         if (listener != null && nativeRefreshListener === listener) {
             nativeRefreshListener = null
+            // The running refresh timer belongs to the screen that owned this listener
+            cancelRefreshTime()
         }
     }
 
@@ -220,18 +223,23 @@ class NativeAdSingleController {
             canRefreshAd
         ) {
             canRefreshAd = false
-            CoroutineScope(Dispatchers.IO).launch {
+            refreshJob = CoroutineScope(Dispatchers.Main).launch {
                 delay(
                     refreshTime.milliseconds
                 )
-                largeAndSmallNativeAd?.destroy()
-                withContext(Dispatchers.Main) {
-                    largeAndSmallNativeAd = null
-                    canRefreshAd = true
-                    nativeRefreshListener?.refreshNativeAd()
-                }
+                refreshJob = null
+                canRefreshAd = true
+                // Don't destroy largeAndSmallNativeAd here: it is the preloaded next ad, not the
+                // one on screen. The screen destroys its shown ad once the new one replaces it.
+                nativeRefreshListener?.refreshNativeAd()
             }
         }
+    }
+
+    private fun cancelRefreshTime() {
+        refreshJob?.cancel()
+        refreshJob = null
+        canRefreshAd = true
     }
 }
 
