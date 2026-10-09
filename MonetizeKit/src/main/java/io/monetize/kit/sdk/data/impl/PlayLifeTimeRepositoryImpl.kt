@@ -22,6 +22,7 @@ import io.monetize.kit.sdk.domain.repo.SubscriptionListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -85,6 +86,8 @@ class PlayLifeTimeRepositoryImpl private constructor(
                 .enablePendingPurchases(
                     PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
                 )
+                // After a disconnect, the next billing call reconnects first instead of failing
+                .enableAutoServiceReconnection()
                 .setListener { result, purchases ->
                     when (result.responseCode) {
                         BillingClient.BillingResponseCode.OK -> handlePurchases(purchases)
@@ -206,16 +209,17 @@ class PlayLifeTimeRepositoryImpl private constructor(
     override fun checkProductPurchaseHistory() {
         if (!isBillingClientReady()) return
 
-        purchasesList.clear()
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.INAPP)
                 .build()
         ) { billingResult, purchases ->
-            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK || purchases.isNullOrEmpty()) {
-                subscriptionListener.dispatchPurchases(emptyList())
+            // Only an OK result says what the user owns. On errors (offline, service
+            // unavailable...) keep the saved premium state instead of reporting "no purchases".
+            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                 return@queryPurchasesAsync
             }
+            purchasesList.clear()
             handlePurchases(purchases)
             if (purchasesList.isEmpty()) {
                 subscriptionListener.dispatchPurchases(emptyList())
@@ -231,9 +235,9 @@ class PlayLifeTimeRepositoryImpl private constructor(
             if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) {
                 continue
             }
-            if (purchase.isAcknowledged) {
-                notifyPurchase(purchase)
-            } else {
+            // Grant it right away; acknowledging only stops Google refunding it after 3 days
+            notifyPurchase(purchase)
+            if (!purchase.isAcknowledged) {
                 acknowledgePurchase(purchase)
             }
         }
@@ -244,7 +248,7 @@ class PlayLifeTimeRepositoryImpl private constructor(
         subscriptionListener.dispatchPurchases(updatedPurchases)
     }
 
-    private fun acknowledgePurchase(purchase: Purchase) {
+    private fun acknowledgePurchase(purchase: Purchase, attempt: Int = 1) {
         if (!isBillingClientReady()) return
 
         val acknowledgeParams = AcknowledgePurchaseParams.newBuilder()
@@ -255,11 +259,20 @@ class PlayLifeTimeRepositoryImpl private constructor(
             billingClient.acknowledgePurchase(acknowledgeParams) { result ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     notifyPurchase(purchase)
+                } else if (attempt < MAX_ACKNOWLEDGE_ATTEMPTS && result.responseCode in RETRYABLE_ACKNOWLEDGE_CODES) {
+                    Log.w(TAG, "One-Time-Purchase: Acknowledge failed (${result.responseCode}), retry $attempt")
+                    coroutineScope.launch {
+                        delay(acknowledgeRetryDelayMillis(attempt))
+                        acknowledgePurchase(purchase, attempt + 1)
+                    }
+                } else {
+                    Log.e(TAG, "One-Time-Purchase: Acknowledge failed (${result.responseCode}): ${result.debugMessage}")
                 }
             }
         }
     }
 
-    private fun isBillingClientReady(): Boolean =
-        isBillingClientInitialized && billingClient.isReady
+    // The client only has to exist: with auto service reconnection a call made while
+    // disconnected reconnects first, so don't skip calls just because isReady is false
+    private fun isBillingClientReady(): Boolean = isBillingClientInitialized
 }

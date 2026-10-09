@@ -149,6 +149,10 @@ internal class OpenAdInterstitialManager private constructor(
                 if (!canRequestAd) {
                     return
                 }
+                if (adId.isEmpty() || !isAdEnable) {
+                    finishWithoutAd("ad is disabled or ad id is empty")
+                    return
+                }
                 if (adId.isNotEmpty() && isAdEnable /*&& AdKit.consentManager.canRequestAds*/) {
                     canRequestAd = false
                     startDelayHandler()
@@ -188,18 +192,7 @@ internal class OpenAdInterstitialManager private constructor(
                 }
 
             } else {
-                if (loadAndShow) {
-                    listener?.onAdLoaded(
-                        reason = "$placementKey called onAdLoaded because: App is minimized | Other Ad is showing | App is Purchased"
-
-                    )
-                } else {
-                    listener?.onAdClosed(
-                        reason = "$placementKey called onAdClosed because: App is minimized | Other Ad is showing | App is Purchased"
-
-                    )
-
-                }
+                finishWithoutAd("App is minimized | Other Ad is showing | App is Purchased")
             }
         }
     }
@@ -207,12 +200,17 @@ internal class OpenAdInterstitialManager private constructor(
     private fun handleException(reason: String) {
         if (isHandlerAdDelayRunning) {
             removeCallBacksDelay()
-            if (loadAndShow) {
-                listener?.onAdClosed(reason="$placementKey called onAdClosed because: $reason")
-            } else {
-                listener?.onAdLoaded(reason="$placementKey called onAdLoaded because: $reason")
+            finishWithoutAd(reason)
+        }
+    }
 
-            }
+    // Ends the splash wait when no ad will be shown: loadAndShow callers move on at
+    // onAdClosed, load-only callers move on at onAdLoaded.
+    private fun finishWithoutAd(reason: String) {
+        if (loadAndShow) {
+            listener?.onAdClosed(reason = "$placementKey called onAdClosed because: $reason")
+        } else {
+            listener?.onAdLoaded(reason = "$placementKey called onAdLoaded because: $reason")
         }
     }
 
@@ -242,8 +240,11 @@ internal class OpenAdInterstitialManager private constructor(
                 override fun onAdFailedToShowFullScreenContent(
                     adError: AdError
                 ) {
+                    // Drop the failed ad, otherwise hasAd() stays true and every later
+                    // interstitial request is routed to this ad instead of loading a normal inter
+                    mAppOpenAd = null
                     IS_INTERSTITIAL_Ad_SHOWING = false
-                    listener?.onAdClosed(true,
+                    listener?.onAdClosed(false,
                         reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
                     )
                 }
@@ -287,33 +288,50 @@ internal class OpenAdInterstitialManager private constructor(
 
     private fun showAdIfAvailable(activity: Activity) {
         try {
-            if (!IS_INTERSTITIAL_Ad_SHOWING) {
-                if (!IS_OPEN_Ad_SHOWING && hasAd()) {
-                    if (!isAppInPause) {
-                        setFullScreenCallBacks()
-                        checkProgressShowAd(activity)
-                    }
+            if (IS_INTERSTITIAL_Ad_SHOWING || IS_OPEN_Ad_SHOWING) {
+                // The splash timer is already stopped here, so without a callback the splash waits forever
+                finishWithoutAd("Other Ad is showing")
+            } else if (hasAd()) {
+                // When the app is paused, resumeAd() shows the ad once the user returns
+                if (!isAppInPause) {
+                    setFullScreenCallBacks()
+                    checkProgressShowAd(activity)
                 }
             }
         } catch (ignored: Exception) {
         }
     }
 
+    // True while the loading dialog is up and the ad is about to be shown
+    private var isShowPending = false
+
     private fun checkProgressShowAd(activity: Activity) {
+        // A show is already scheduled; showing again would show the ad twice or fail
+        if (isShowPending) return
         setFullScreenCallBacks()
         if (isLoadingEnable) {
             try {
                 val adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog.showAlertDialog()
+                isShowPending = true
                 Handler(Looper.getMainLooper()).postDelayed({
+                    isShowPending = false
                     try {
                         adLoadingDialog.dismissAlertDialog()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                    showAppOpenAd(activity)
+                    if (activity.isFinishing || activity.isDestroyed) {
+                        // The splash closed during the delay; don't show the ad over the next screen
+                        listener?.onAdClosed(
+                            reason = "$placementKey called onAdClosed because: screen was closed before the ad was shown"
+                        )
+                    } else {
+                        showAppOpenAd(activity)
+                    }
                 }, 1 * 1000)
             } catch (e: Exception) {
+                isShowPending = false
                 showAppOpenAd(activity)
             }
         } else {

@@ -26,7 +26,7 @@ class TaichiEventPoster(val pref: AdKitPref) {
     fun postRevenue(revenue: Double) {
         val totalRevenue = pref.adsRevenueCount + revenue
         val revenueThreshold =
-            firebaseLong("ads_revenue_threshold", 10).toDouble() / 1000.0
+            firebaseDouble("ads_revenue_threshold", 10.0) / 1000
 
         val totalImpressions = pref.adsImpressionCount
         val impressionThreshold =

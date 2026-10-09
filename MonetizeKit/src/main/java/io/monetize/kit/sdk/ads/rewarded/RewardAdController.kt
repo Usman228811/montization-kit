@@ -43,6 +43,8 @@ class RewardAdController private constructor(
     private var adIdKey: String = ""
     private var handlerAd = Handler(Looper.getMainLooper())
     private var canRequestAd = true
+    // True while the loading dialog is up and the ad is about to be shown
+    private var isShowPending = false
     private var isUserEarnReward = false
     private var rewardAd: RewardedAd? = null
     private var mInterstitialControllerListener: RewardedControllerListener? = null
@@ -403,16 +405,30 @@ class RewardAdController private constructor(
     private fun checkProgressShowAd(
         activity: Activity, key: String = "",
     ) {
+        // A show is already scheduled (e.g. double tap); it reports to the latest listener,
+        // so a second show would only show the ad twice or fail
+        if (isShowPending) return
         if (firebaseBoolean("INTER_LOADING_ENABLE", false)) {
             try {
-                mInterstitialControllerListener?.onAdShow()
+                // onAdShow is sent by showRewardAd when the ad is actually shown
                 val adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog.showAlertDialog()
+                isShowPending = true
                 handlerAd.postDelayed({
-                    showRewardAd(activity, key)
+                    isShowPending = false
+                    if (activity.isFinishing || activity.isDestroyed) {
+                        // The screen closed during the delay; don't show the ad over the next screen
+                        mInterstitialControllerListener?.onRewardDismissed(
+                            false,
+                            "$placementKey called onRewardDismissed because: screen was closed before the ad was shown"
+                        )
+                    } else {
+                        showRewardAd(activity, key)
+                    }
                     adLoadingDialog.dismissAlertDialog()
                 }, 1000)
             } catch (e: Exception) {
+                isShowPending = false
                 showRewardAd(activity, key)
             }
         } else {
@@ -427,13 +443,15 @@ class RewardAdController private constructor(
             object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     dismissLoadingDialog()
+                    // Reset before notifying, so an ad requested from inside onRewardDismissed
+                    // isn't rejected as "Other Ad is showing"
+                    IS_INTERSTITIAL_Ad_SHOWING = false
+                    rewardAd = null
                     mInterstitialControllerListener?.onRewardDismissed(
                         isUserEarnReward,
                         reason = "$placementKey called onRewardDismissed because: ad is showed successfully"
                     )
                     super.onAdDismissedFullScreenContent()
-                    IS_INTERSTITIAL_Ad_SHOWING = false
-                    rewardAd = null
                     if (key.isEmpty() && !firebaseBoolean(
                             "${placementKey}_isRewardInstant",
                             false
@@ -450,13 +468,14 @@ class RewardAdController private constructor(
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     dismissLoadingDialog()
+                    // Reset before notifying, so the caller can show another ad from onRewardDismissed
+                    rewardAd = null
+                    IS_INTERSTITIAL_Ad_SHOWING = false
                     mInterstitialControllerListener?.onRewardDismissed(
                         false,
                         reason = "$placementKey called onRewardDismissed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
                     )
                     super.onAdFailedToShowFullScreenContent(adError)
-                    rewardAd = null
-                    IS_INTERSTITIAL_Ad_SHOWING = false
                 }
 
                 override fun onAdShowedFullScreenContent() {

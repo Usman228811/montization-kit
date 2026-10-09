@@ -22,6 +22,9 @@ class AdKitNativePreloadHelper private constructor(
     }
 
     fun preLoadNativeAd(mContext: Activity, nativeControllerConfig: NativeControllerConfig) {
+        if (AdKit.initializer.getDisableAds()) {
+            return
+        }
 
         if (firebaseBoolean("${nativeControllerConfig.placementKey}_isAdEnable", false) /*&& AdKit.consentManager.canRequestAds*/) {
             var index = singleNativeList.indexOfFirst { it.key == nativeControllerConfig.adIdKey }
