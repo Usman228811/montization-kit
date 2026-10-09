@@ -188,7 +188,7 @@ class AdKitOpenAdManager private constructor(
         if (isAdAvailable) {
             showAdIfAvailable(true)
         } else {
-            if (!IS_INTERSTITIAL_Ad_SHOWING && !IS_OPEN_Ad_SHOWING && !isPause && !adKitPref.isAppPurchased) {
+            if (!IS_INTERSTITIAL_Ad_SHOWING && !IS_OPEN_Ad_SHOWING && !isPause && !adKitPref.isAppPurchased && AdKit.internetController.isConnected) {
                 if (!canRequestAd) {
                     return
                 }

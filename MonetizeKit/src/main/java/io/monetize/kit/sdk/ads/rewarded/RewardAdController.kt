@@ -443,13 +443,15 @@ class RewardAdController private constructor(
             object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     dismissLoadingDialog()
+                    // Reset before notifying, so an ad requested from inside onRewardDismissed
+                    // isn't rejected as "Other Ad is showing"
+                    IS_INTERSTITIAL_Ad_SHOWING = false
+                    rewardAd = null
                     mInterstitialControllerListener?.onRewardDismissed(
                         isUserEarnReward,
                         reason = "$placementKey called onRewardDismissed because: ad is showed successfully"
                     )
                     super.onAdDismissedFullScreenContent()
-                    IS_INTERSTITIAL_Ad_SHOWING = false
-                    rewardAd = null
                     if (key.isEmpty() && !firebaseBoolean(
                             "${placementKey}_isRewardInstant",
                             false
@@ -466,13 +468,14 @@ class RewardAdController private constructor(
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     dismissLoadingDialog()
+                    // Reset before notifying, so the caller can show another ad from onRewardDismissed
+                    rewardAd = null
+                    IS_INTERSTITIAL_Ad_SHOWING = false
                     mInterstitialControllerListener?.onRewardDismissed(
                         false,
                         reason = "$placementKey called onRewardDismissed because: onAdFailedToShowFullScreenContent code: ${adError.code} message: ${adError.message}"
                     )
                     super.onAdFailedToShowFullScreenContent(adError)
-                    rewardAd = null
-                    IS_INTERSTITIAL_Ad_SHOWING = false
                 }
 
                 override fun onAdShowedFullScreenContent() {

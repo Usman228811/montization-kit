@@ -430,13 +430,15 @@ class InterstitialController private constructor(
         admobInterAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 dismissLoadingDialog()
+                // Reset before notifying, so an ad requested from inside onAdClosed
+                // isn't rejected as "Other Ad is showing"
+                IS_INTERSTITIAL_Ad_SHOWING = false
+                admobInterAd = null
                 mInterstitialControllerListener?.onAdClosed(
                     isInterShowed = true,
                     reason = "$placementKey called onAdClosed because: ad is showed successfully"
                 )
                 super.onAdDismissedFullScreenContent()
-                IS_INTERSTITIAL_Ad_SHOWING = false
-                admobInterAd = null
                 if (key.isEmpty() && !firebaseBoolean(
                         "${placementKey}_isInterInstant",
                         false
@@ -459,12 +461,13 @@ class InterstitialController private constructor(
 
             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                 dismissLoadingDialog()
+                // Reset before notifying, so the caller can show another ad from onAdClosed
+                admobInterAd = null
+                IS_INTERSTITIAL_Ad_SHOWING = false
                 mInterstitialControllerListener?.onAdClosed(
                     reason = "$placementKey called onAdClosed because: onAdFailedToShowFullScreenContent code: ${p0.code} message: ${p0.message}"
                 )
                 super.onAdFailedToShowFullScreenContent(p0)
-                admobInterAd = null
-                IS_INTERSTITIAL_Ad_SHOWING = false
             }
 
         }

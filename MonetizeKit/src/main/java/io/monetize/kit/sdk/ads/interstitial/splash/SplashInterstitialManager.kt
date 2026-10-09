@@ -345,13 +345,15 @@ internal class SplashInterstitialManager private constructor(
     }
 
     private fun hideProgressAndNullAd(isInterShowed: Boolean = false, reason: String) {
+        // Reset before notifying, so an ad requested from inside onAdClosed
+        // isn't rejected as "Other Ad is showing"
+        IS_INTERSTITIAL_Ad_SHOWING = false
+        interstitialAd = null
+        hideProgress()
         mInterstitialControllerListener?.onAdClosed(
             isInterShowed,
             "$placementKey called onAdClosed because: $reason"
         )
-        IS_INTERSTITIAL_Ad_SHOWING = false
-        interstitialAd = null
-        hideProgress()
     }
 
 

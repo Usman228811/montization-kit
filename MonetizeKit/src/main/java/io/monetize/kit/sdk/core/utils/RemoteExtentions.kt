@@ -11,6 +11,9 @@ fun firebaseBoolean(key: String, default: Boolean) =
 fun firebaseLong(key: String, default: Long) =
     AdKit.firebaseHelper.getLong(key, default)
 
+fun firebaseDouble(key: String, default: Double) =
+    AdKit.firebaseHelper.getDouble(key, default)
+
 
 fun firebaseString(key: String, default: String) =
     AdKit.firebaseHelper.getString(key, default)

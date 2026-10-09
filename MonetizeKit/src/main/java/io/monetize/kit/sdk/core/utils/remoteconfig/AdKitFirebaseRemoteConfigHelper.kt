@@ -207,6 +207,14 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
+    internal fun getDouble(key: String, def: Double): Double {
+        return when (val value = cachedConfig[key]) {
+            is Number -> value.toDouble()
+            is String -> value.toDoubleOrNull() ?: defaultRemoteConfig.getDefaultDouble(key, def)
+            else -> defaultRemoteConfig.getDefaultDouble(key, def)
+        }
+    }
+
     internal fun getString(key: String, def: String): String {
         return when (val value = cachedConfig[key]) {
             is String -> value
