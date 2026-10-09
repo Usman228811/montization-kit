@@ -53,7 +53,8 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         getNativeAdUseCase.onDestroy()
     }
 
-    fun observeLifecycle(lifecycleOwner: LifecycleOwner) {
+    // Returns the observer so the caller can remove it when the ad view goes away
+    fun observeLifecycle(lifecycleOwner: LifecycleOwner): LifecycleEventObserver {
         val lifecycleObserver = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
@@ -69,6 +70,7 @@ class NativeAdViewModel(private var getNativeAdUseCase: GetNativeAdUseCase) : Vi
         }
 
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        return lifecycleObserver
 
     }
 

@@ -14,29 +14,29 @@ To integrate the Monetization Kit into your project, include the following in yo
 dependencies {
 
     // Standard SDK 
-    implementation("com.github.Usman228811:montization-kit:4.0.6")
+    implementation("com.github.Usman228811:montization-kit:4.0.7")
 
     // Standard SDK + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.6-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.7-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:4.0.6-rc")
+    implementation("com.github.Usman228811:montization-kit:4.0.7-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.6-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.7-rc-adapter")
 
 
     // Next Gen SDK
-    implementation("com.github.Usman228811:montization-kit:1.0.10-ng")
+    implementation("com.github.Usman228811:montization-kit:1.0.11-ng")
 
     // Next Gen SDK + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.10-ng-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.11-ng-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:1.0.10-ng-rc")
+    implementation("com.github.Usman228811:montization-kit:1.0.11-ng-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.10-ng-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.11-ng-rc-adapter")
 
 }
 ```
@@ -155,6 +155,7 @@ These configs should be added to your `defaultRemoteConfigBuilder` in your App C
 - `IS_OPEN_AD_INSTANT`- Enable/disable instant App-Open-Ad.
 - `OPEN_AD_INSTANT_TIME`- Time window to show instant App-Open-Ad.
 - `OPEN_AD_ENABLE`- Enable/disable App-Open-Ad completely.
+- `DISABLE_ALL_ADS`- Kill switch: set to `true` in Remote Config to stop all ads (splash, inter, reward, app open, native, banner) without an app update. Default `false`.
 
 ```kotlin
 AdKit.init(
@@ -1114,6 +1115,54 @@ AdKit.firebaseHelper.apply {
 }
 ```
 
+`configFetched` emits once the values are fetched (or the fetch timed out). A collector that starts later still receives it, so every screen can wait on it safely.
+
+### Reading values
+
+Use these functions anywhere in your app after `configFetched` (import them from `io.monetize.kit.sdk.core.utils`):
+
+| Type | Function | Firebase console type |
+|---|---|---|
+| Boolean | `firebaseBoolean(key, default)` | Boolean |
+| Long | `firebaseLong(key, default)` | Number (whole number) |
+| Double | `firebaseDouble(key, default)` | Number (decimal) |
+| String | `firebaseString(key, default)` | String or JSON |
+
+```kotlin
+import io.monetize.kit.sdk.core.utils.firebaseBoolean
+import io.monetize.kit.sdk.core.utils.firebaseDouble
+import io.monetize.kit.sdk.core.utils.firebaseLong
+import io.monetize.kit.sdk.core.utils.firebaseString
+
+// Boolean: true / false
+val isNewHomeEnabled: Boolean = firebaseBoolean("IS_NEW_HOME_ENABLED", false)
+
+// Long: whole numbers, e.g. seconds or counters
+val splashTime: Long = firebaseLong("splash_time", 16L)
+
+// Double: decimal numbers, e.g. prices or thresholds
+val revenueThreshold: Double = firebaseDouble("ads_revenue_threshold", 10.0)
+
+// String: text, ids or JSON
+val welcomeText: String = firebaseString("WELCOME_TEXT", "Hello")
+```
+
+**Which value is returned**
+1. The value fetched from Firebase Remote Config.
+2. If the key is not in Firebase (or the fetch failed), the value set for that key in `defaultRemoteConfigBuilder`.
+3. Otherwise, the `default` you pass to the function.
+
+If the Firebase value can't be read as the requested type (for example `"abc"` for `firebaseLong`), the default from step 2 or 3 is returned.
+
+**Setting defaults** in `defaultRemoteConfigBuilder` (App Class):
+
+```kotlin
+defaultRemoteConfigBuilder = {
+    bool("IS_NEW_HOME_ENABLED", false)
+    long("splash_time", 16)
+    string("WELCOME_TEXT", "Hello")
+}
+```
 ---
 
 # Remote Ad Unit IDs
