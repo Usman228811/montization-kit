@@ -12,8 +12,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
 import io.monetize.kit.sdk.core.utils.firebaseLong
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import java.util.concurrent.ConcurrentHashMap
 
 class AdKitFirebaseRemoteConfigHelper private constructor() {
@@ -64,8 +65,13 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         }
     }
 
-    private val _configFetched = Channel<Boolean>()
-    val configFetched = _configFetched.receiveAsFlow()
+    // A StateFlow keeps the "fetched" state: a Channel + trySend dropped the event when
+    // nobody was collecting yet, and only one collector could receive it.
+    private val _configFetched = MutableStateFlow(false)
+
+    // Emits only true, so collectors run once config is fetched (or the fetch timed out),
+    // including collectors that start after that moment.
+    val configFetched: Flow<Boolean> = _configFetched.filter { it }
 
 
     fun fetchRemoteValues(isDebug: Boolean) {
@@ -73,7 +79,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
         runnableSplash = Runnable {
             if (isHandlerRunning) {
                 isHandlerRunning = false
-                _configFetched.trySend(true)
+                _configFetched.value = true
             }
         }
 
@@ -92,7 +98,7 @@ class AdKitFirebaseRemoteConfigHelper private constructor() {
     private fun configFetched() {
         if (isHandlerRunning) {
             removeCallBacks()
-            _configFetched.trySend(true)
+            _configFetched.value = true
         }
     }
 

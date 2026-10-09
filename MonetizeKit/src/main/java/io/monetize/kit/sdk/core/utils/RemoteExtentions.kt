@@ -18,6 +18,9 @@ fun firebaseString(key: String, default: String) =
 internal const val REMOTE_AD_ID_SUFFIX = "_adId"
 internal const val REMOTE_OPEN_AD_ID_KEY = "OPEN_AD_ID"
 
+// Global kill switch: true in Remote Config stops every ad without an app update
+internal const val REMOTE_DISABLE_ALL_ADS_KEY = "DISABLE_ALL_ADS"
+
 /**
  * Ad unit IDs for [placement] from the remote config key "{placement}_adId".
  * The value can be a single ID, a comma-separated list, or a JSON array.

@@ -132,6 +132,7 @@ class SplashScreenViewModel(
                 firebaseHelper.apply {
                     configFetched.collectLatest {
                         try {
+                            Log.d("iiiiiii", "collections: $it")
 //                            assignRemoteValues(this)
                             runSplash()
                         } catch (e: Exception) {

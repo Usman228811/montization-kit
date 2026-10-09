@@ -163,6 +163,7 @@ These configs should be added to your `defaultRemoteConfigBuilder` in your App C
 - `IS_OPEN_AD_INSTANT`- Enable/disable instant App-Open-Ad.
 - `OPEN_AD_INSTANT_TIME`- Time window to show instant App-Open-Ad.
 - `OPEN_AD_ENABLE`- Enable/disable App-Open-Ad completely.
+- `DISABLE_ALL_ADS`- Kill switch: set to `true` in Remote Config to stop all ads (splash, inter, reward, app open, native, banner) without an app update. Default `false`.
 
 ```kotlin
 AdKit.init(

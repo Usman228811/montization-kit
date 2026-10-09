@@ -376,20 +376,31 @@ class AdKitOpenAdManager private constructor(
         }
     }
 
+    // True while the loading dialog is up and the ad is about to be shown
+    private var isShowPending = false
+
     private fun checkProgressShowAd(activity: Activity) {
+        // A show is already scheduled (e.g. the app came back to the foreground twice quickly)
+        if (isShowPending) return
         if (isLoadingEnable) {
             try {
                 val adLoadingDialog = AdLoadingDialog(activity)
                 adLoadingDialog.showAlertDialog()
+                isShowPending = true
                 Handler(Looper.getMainLooper()).postDelayed({
+                    isShowPending = false
                     try {
                         adLoadingDialog.dismissAlertDialog()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                    showAppOpenAd(activity)
+                    // The user left during the delay: keep the ad for the next time the app opens
+                    if (!isPause && !activity.isFinishing && !activity.isDestroyed) {
+                        showAppOpenAd(activity)
+                    }
                 }, 1 * 1000)
             } catch (e: Exception) {
+                isShowPending = false
                 showAppOpenAd(activity)
             }
         } else {

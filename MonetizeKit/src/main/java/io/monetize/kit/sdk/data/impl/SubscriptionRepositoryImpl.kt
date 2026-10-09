@@ -3,6 +3,8 @@ package io.monetize.kit.sdk.data.impl
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.net.toUri
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -63,6 +65,11 @@ class SubscriptionRepositoryImpl private constructor(
     val isBillingClientReady: Boolean
         get() = !isBillingClientDead && subscriptionClient.isReady
 
+    // The client only has to exist: with auto service reconnection a call made while
+    // disconnected reconnects first, so don't skip calls just because isReady is false
+    private val canCallBilling: Boolean
+        get() = !isBillingClientDead
+
     override fun purchaseProduct(
         activity: Activity,
         skuDetails: ProductDetails,
@@ -76,7 +83,7 @@ class SubscriptionRepositoryImpl private constructor(
                 return
             }
 
-            if (!isBillingClientReady) {
+            if (!canCallBilling) {
                 context.showToast(activity.getString(R.string.try_again))
                 return
             }
@@ -124,7 +131,7 @@ class SubscriptionRepositoryImpl private constructor(
                 return
             }
 
-            if (!isBillingClientReady) {
+            if (!canCallBilling) {
                 context.showToast(activity.getString(R.string.try_again))
                 return
             }
@@ -219,7 +226,7 @@ class SubscriptionRepositoryImpl private constructor(
         activity: Activity,
         onResult: (Purchase?) -> Unit
     ) {
-        if (!isBillingClientReady) {
+        if (!canCallBilling) {
             activity.runOnUiThread { onResult(null) }
             return
         }
@@ -266,7 +273,7 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     fun querySubscriptionProducts(activity: Activity) {
-        if (!isBillingClientReady) return
+        if (!canCallBilling) return
 
         val ids = productIds.orEmpty()
         if (ids.isEmpty()) {
@@ -340,21 +347,15 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun querySubscriptionHistory(activity: Activity) {
-        purchasesList.clear()
-
-        if (!isBillingClientReady) {
-            resetAllPurchases(activity)
-            activity.runOnUiThread {
-                subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
-            }
+        // Billing not ready or subscriptions not available right now: we can't tell what the
+        // user owns, so keep the saved subscription state instead of reporting "no purchases".
+        if (!canCallBilling) {
+            Log.e(TAG, "querySubscriptionHistory skipped: billing client is not ready")
             return
         }
 
         if (!isSubscriptionSupported()) {
-            resetAllPurchases(activity)
-            activity.runOnUiThread {
-                subscriptionListener?.onSubscriptionPurchasedFetched(emptyList())
-            }
+            Log.e(TAG, "querySubscriptionHistory skipped: subscriptions are not supported")
             return
         }
 
@@ -363,27 +364,30 @@ class SubscriptionRepositoryImpl private constructor(
             .build()
 
         subscriptionClient.queryPurchasesAsync(params) { billingResult, purchases ->
+            // Only an OK result says what the user owns; on errors keep the saved state
+            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                Log.e(TAG, "querySubscriptionHistory failed: ${billingResult.debugMessage}")
+                return@queryPurchasesAsync
+            }
+
+            purchasesList.clear()
             var purchasesFound = false
 
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                purchases.forEach { purchase ->
-                    val purchasedProductId = getSku(purchase.products)
+            purchases.forEach { purchase ->
+                val purchasedProductId = getSku(purchase.products)
 
-                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                        checkSubscriptionsId(purchasedProductId)
-                    ) {
-                        purchasesFound = true
+                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                    checkSubscriptionsId(purchasedProductId)
+                ) {
+                    purchasesFound = true
 
-                        if (purchase.isAcknowledged) {
-                            purchasesList.add(purchasedProductId)
-                            setSubscribed(activity, purchase)
-                        } else {
-                            acknowledgedPurchase(activity, purchase)
-                        }
+                    // Grant it right away; acknowledging only stops Google refunding it after 3 days
+                    purchasesList.add(purchasedProductId)
+                    setSubscribed(activity, purchase)
+                    if (!purchase.isAcknowledged) {
+                        acknowledgedPurchase(activity, purchase)
                     }
                 }
-            } else {
-                Log.e(TAG, "querySubscriptionHistory failed: ${billingResult.debugMessage}")
             }
 
             if (!purchasesFound) {
@@ -451,7 +455,7 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun isSubscriptionSupported(): Boolean {
-        if (!isBillingClientReady) return false
+        if (!canCallBilling) return false
 
         return subscriptionClient
             .isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)
@@ -459,7 +463,7 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun isSubscriptionUpdateSupported(): Boolean {
-        if (!isBillingClientReady) return false
+        if (!canCallBilling) return false
 
         return subscriptionClient
             .isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS_UPDATE)
@@ -472,7 +476,11 @@ class SubscriptionRepositoryImpl private constructor(
     }
 
     override fun acknowledgedPurchase(activity: Activity, purchase: Purchase) {
-        if (!isBillingClientReady) return
+        acknowledgePurchaseWithRetry(activity, purchase, attempt = 1)
+    }
+
+    private fun acknowledgePurchaseWithRetry(activity: Activity, purchase: Purchase, attempt: Int) {
+        if (!canCallBilling) return
 
         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken)
@@ -493,8 +501,13 @@ class SubscriptionRepositoryImpl private constructor(
                         purchasesList.distinct()
                     )
                 }
+            } else if (attempt < MAX_ACKNOWLEDGE_ATTEMPTS && billingResult.responseCode in RETRYABLE_ACKNOWLEDGE_CODES) {
+                Log.w(TAG, "Acknowledge failed (${billingResult.responseCode}), retry $attempt")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    acknowledgePurchaseWithRetry(activity, purchase, attempt + 1)
+                }, acknowledgeRetryDelayMillis(attempt))
             } else {
-                Log.e(TAG, "Acknowledge failed: ${billingResult.debugMessage}")
+                Log.e(TAG, "Acknowledge failed (${billingResult.responseCode}): ${billingResult.debugMessage}")
             }
         }
     }
@@ -529,6 +542,8 @@ class SubscriptionRepositoryImpl private constructor(
                             .enableOneTimeProducts()
                             .build()
                     )
+                    // After a disconnect, the next billing call reconnects first instead of failing
+                    .enableAutoServiceReconnection()
                     .setListener(this)
                     .build()
             }
