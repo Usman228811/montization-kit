@@ -138,7 +138,7 @@ class AppsFlyer {
             }
 
 
-            AdKit.adkitTaichiEventPoster.postRevenue(revenue)
+            AdKit.adkitTaichiEventPoster.postRevenue(adValue, revenue)
             AdKit.analytics.postRevenue("admob_revenue", bundle)
 
             Log.d(
