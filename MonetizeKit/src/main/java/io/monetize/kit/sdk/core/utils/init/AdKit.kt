@@ -44,7 +44,7 @@ object AdKit {
     private lateinit var mContext: Application
     private var isDebug: Boolean = true
     private var revenueCatBuilder: RevenueCatBuilder? = null
-    private var postRevenueOnFireBase: Boolean = false
+    private var postRevenueOnFireBase: Boolean = true
 
     internal fun getRevenueCatKey(): String {
         return revenueCatBuilder?.revenueCatKey ?: ""
