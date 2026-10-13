@@ -75,10 +75,10 @@ class AdKitAnalytics private constructor(
         }
     }
 
-    fun postTaichiRevenueCount() {
+    fun postTaichiRevenueCount(bundle: Bundle) {
         try {
             if (!isDebug) {
-                firebaseAnalytics.logEvent("Ad_imp_Revenue", Bundle())
+                firebaseAnalytics.logEvent("Ad_imp_Revenue", bundle)
             }
         } catch (_: Exception) {
         } catch (_: OutOfMemoryError) {
