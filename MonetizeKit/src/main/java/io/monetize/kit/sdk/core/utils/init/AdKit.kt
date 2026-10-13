@@ -42,7 +42,7 @@ object AdKit {
 
     private lateinit var mContext: Application
     private var isDebug: Boolean = true
-    private var postRevenueOnFireBase: Boolean = false
+    private var postRevenueOnFireBase: Boolean = true
 
 
     val initializer: AdKitInitializer
