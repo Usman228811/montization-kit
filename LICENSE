@@ -1,0 +1,49 @@
+MonetizeKit Proprietary License
+
+Copyright (c) 2025-2026 Usman Khan (github.com/Usman228811). All rights reserved.
+
+1. Ownership
+   MonetizeKit (the source code, compiled artifacts published on JitPack or elsewhere, and
+   documentation, together the "Software") is the property of the copyright holder above
+   (the "Licensor"). The Software being publicly visible does not grant any right to use it.
+
+2. Authorized use only
+   The Software may be used only in applications that the Licensor has explicitly authorized.
+   An application is identified by its package name (application ID) and its app signing
+   certificate. Authorization is given per application, can be limited in time, and can be
+   withdrawn by the Licensor at any time.
+
+3. Prohibited without authorization
+   Without the Licensor's prior authorization you may not:
+   a) include the Software, in whole or in part, in any application or other product;
+   b) copy, modify, fork for use, redistribute, sublicense, sell or publish the Software or
+      any work derived from it;
+   c) remove, disable or work around the license verification in the Software.
+
+4. License verification
+   The Software contacts a server operated by the Licensor to verify that the application is
+   authorized. It sends application-level information only: package name, app name, app
+   version, library version and the SHA-256 fingerprint of the app signing certificate. No
+   personal data of end users is collected. If an application is not authorized, the Software
+   may disable its features or stop the application from working.
+
+5. Enforcement
+   Use of the Software without authorization infringes the Licensor's copyright. The Licensor
+   may, among other remedies, file takedown notices and intellectual property complaints
+   (including DMCA notices) with Google Play and any other store, host or platform that
+   distributes an application using the Software without authorization, and request its
+   removal.
+
+6. Termination
+   Any authorization ends automatically if its terms are breached, or when the Licensor
+   withdraws it. After termination the Software must no longer be used or distributed in new
+   versions of the application.
+
+7. No warranty and limitation of liability
+   The Software is provided "as is", without warranty of any kind, express or implied. In no
+   event shall the Licensor be liable for any claim, damages or other liability arising from
+   the use of the Software.
+
+8. Contact
+   To request authorization for an application, contact the Licensor at
+   usman228811@gmail.com
