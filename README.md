@@ -2,6 +2,9 @@
 
 A comprehensive Kotlin library for Android (Jetpack Compose + XML), designed to streamline monetization with support for ads, in-app updates, in-app review, in-app purchases, subscriptions, App-Flyer, and analytics.
 
+> **License: proprietary, authorized apps only.**
+> This repository is public, but MonetizeKit may only be used in apps authorized by the owner. The library verifies each app (package name and signing certificate) with the owner's server; unauthorized apps may stop working, and the owner may report them to Google Play and other stores for removal. See [LICENSE](LICENSE). To request authorization, contact [usman228811@gmail.com](mailto:usman228811@gmail.com).
+
 ---
 
 # Installation
