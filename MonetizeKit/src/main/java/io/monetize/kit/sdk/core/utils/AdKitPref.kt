@@ -18,6 +18,15 @@ class AdKitPref private constructor(context: Context) {
         get() = pref.getInt("adsImpressionCount", 0)
         set(value) = pref.edit { putInt("adsImpressionCount", value) }
 
+    // Last answer of the license check; true until the server says otherwise
+    internal var isLicenseAllowed: Boolean
+        get() = pref.getBoolean("isLicenseAllowed", true)
+        set(value) = pref.edit { putBoolean("isLicenseAllowed", value) }
+
+    internal var licenseCheckedAt: Long
+        get() = pref.getLong("licenseCheckedAt", 0L)
+        set(value) = pref.edit { putLong("licenseCheckedAt", value) }
+
     var isLifeTimePurchased: Boolean
         get() = pref.getBoolean("isLifeTimePurchased", false)
         set(value) = pref.edit { putBoolean("isLifeTimePurchased", value) }
