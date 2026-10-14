@@ -42,8 +42,18 @@ android {
     }
 }
 
+// Library version for the license check report; read from `version` below, so it follows each release bump
+androidComponents {
+    onVariants { variant ->
+        variant.buildConfigFields?.put(
+            "LIBRARY_VERSION",
+            com.android.build.api.variant.BuildConfigField("String", "\"${project.version}\"", null)
+        )
+    }
+}
+
 group = "com.github.Usman228811"
-version = "1.0.12-ng-rc"
+version = "1.0.13-ng-rc"
 
 
 afterEvaluate {
@@ -53,7 +63,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "1.0.12-ng-rc"
+                version = "1.0.13-ng-rc"
             }
         }
     }
