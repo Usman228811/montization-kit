@@ -181,7 +181,7 @@ object AdKit {
         mapOfBannerIds: Map<String, Any>,
         defaultRemoteConfigBuilder: RemoteConfigBuilder.() -> Unit,
         resetInterKeyForCommonAds: String? = null,
-        postRevenueOnFireBase: Boolean = false,
+        postRevenueOnFireBase: Boolean = true,
         appFlyerSdkKey: String,
         onDefaultConfigGenerated: (String) -> Unit,
         onInitSdk: () -> Unit
