@@ -44,8 +44,18 @@ android {
     }
 }
 
+// Library version for the license check report; read from `version` below, so it follows each release bump
+androidComponents {
+    onVariants { variant ->
+        variant.buildConfigFields?.put(
+            "LIBRARY_VERSION",
+            com.android.build.api.variant.BuildConfigField("String", "\"${project.version}\"", null)
+        )
+    }
+}
+
 group = "com.github.Usman228811"
-version = "4.0.8"
+version = "4.0.9"
 
 
 afterEvaluate {
@@ -55,7 +65,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "4.0.8"
+                version = "4.0.9"
             }
         }
     }

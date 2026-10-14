@@ -25,6 +25,7 @@ import io.monetize.kit.sdk.core.utils.appflyer.AppsFlyer
 import io.monetize.kit.sdk.core.utils.consent.AdKitConsentManager
 import io.monetize.kit.sdk.core.utils.in_app_review.AdKitInAppReviewManager
 import io.monetize.kit.sdk.core.utils.in_app_update.AdKitInAppUpdateManager
+import io.monetize.kit.sdk.core.utils.license.AdKitLicenseManager
 import io.monetize.kit.sdk.core.utils.locale.LocaleHelper
 import io.monetize.kit.sdk.core.utils.purchase.AdKitPremiumHelper
 import io.monetize.kit.sdk.core.utils.remoteconfig.AdKitFirebaseRemoteConfigHelper
@@ -53,6 +54,11 @@ object AdKit {
     val adkitTaichiEventPoster: TaichiEventPoster
             by lazy {
                 TaichiEventPoster.getInstance(adKitPref)
+            }
+
+    internal val licenseManager: AdKitLicenseManager
+            by lazy {
+                AdKitLicenseManager.getInstance()
             }
 
     val inAppUpdateManager: AdKitInAppUpdateManager
@@ -183,6 +189,8 @@ object AdKit {
         mContext = context
         this.isDebug = isDebug
         this.postRevenueOnFireBase = postRevenueOnFireBase
+        // Runs fully in the background; prefs are only opened on the IO thread
+        licenseManager.verify(context) { adKitPref }
         val configBuilder = RemoteConfigBuilder.getInstance().apply(defaultRemoteConfigBuilder)
         val configDefaults = configBuilder.configMap
 
