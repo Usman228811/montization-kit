@@ -52,7 +52,7 @@ androidComponents {
 }
 
 group = "com.github.Usman228811"
-version = "1.0.13-ng-adapter"
+version = "1.0.14-ng-adapter"
 
 
 afterEvaluate {
@@ -62,7 +62,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "1.0.13-ng-adapter"
+                version = "1.0.14-ng-adapter"
             }
         }
     }
