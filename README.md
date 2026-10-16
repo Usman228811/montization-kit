@@ -30,16 +30,16 @@ dependencies {
 
 
     // Next Gen SDK
-    implementation("com.github.Usman228811:montization-kit:1.0.13-ng")
+    implementation("com.github.Usman228811:montization-kit:1.0.14-ng")
 
     // Next Gen SDK + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.13-ng-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:1.0.13-ng-rc")
+    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.13-ng-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-rc-adapter")
 
 }
 ```
