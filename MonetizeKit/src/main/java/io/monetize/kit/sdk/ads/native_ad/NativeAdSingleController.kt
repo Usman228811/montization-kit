@@ -143,10 +143,15 @@ class NativeAdSingleController {
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
                                 super.onAdFailedToLoad(adError)
-                                canRequestLargeAd = true
-                                largeAndSmallNativeAd = null
-                                adControllerListener?.onAdFailed("${nativeControllerConfig?.placementKey ?: ""} is failed with code: ${adError.code}, message: ${adError.message}")
-                            }
+
+                                // Next-Gen SDK delivers this on a background thread; the listener
+                                // removes the shimmer from adFrame, which must happen on the UI thread.
+                                context.runOnUiThread {
+                                    canRequestLargeAd = true
+                                    largeAndSmallNativeAd = null
+                                    adControllerListener?.onAdFailed("${nativeControllerConfig?.placementKey ?: ""} is failed with code: ${adError.code}, message: ${adError.message}")
+                                }
+                          }
                         }
 
                     NativeAdLoader.load(adRequest, adCallback)
