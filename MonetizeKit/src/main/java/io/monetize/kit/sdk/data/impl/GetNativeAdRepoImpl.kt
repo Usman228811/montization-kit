@@ -276,7 +276,8 @@ class GetNativeAdRepoImpl private constructor(
                                     context = mContext,
                                     adFrame = adFrame,
                                     nativeAdType = nativeAdType,
-                                    customLayoutHelper = nativeCustomLayoutHelper
+                                    customLayoutHelper = nativeCustomLayoutHelper,
+                                    placementKey = nativeControllerConfig.placementKey
                                 )
                             }
                             val listener = object : AdControllerListener {
