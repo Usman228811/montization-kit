@@ -110,6 +110,10 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     enable(true)
                     adType(NativeAdType.SMALL_NATIVE)
                 }
+                native("small_native_1") {
+                    enable(true)
+                    adType(NativeAdType.SMALL_NATIVE)
+                }
                 native("small_native_mini") {
                     enable(true)
                     adType(NativeAdType.SMALL_NATIVE_MINI)
@@ -232,6 +236,12 @@ class AppClass : Application(), ActivityLifecycleCallbacks {
                     largeNativeLayout = R.layout.large_native_layout_custom,
                     smallNativeLayout = R.layout.small_native_layout_custom,
                     smallNativeMediaViewLayout = R.layout.large_native_right_jazz_custom,
+                )
+
+                AdKit.nativeCustomLayoutHelper.setPlacementCustomLayouts(
+                    "small_native",
+                    smallNativeLayout = R.layout.small_native_layout_custom_2
+
                 )
 
                 AdKit.openAdManager.excludeNavigationRoutesFromOpenAd(

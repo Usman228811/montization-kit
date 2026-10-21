@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -60,23 +61,26 @@ fun AdKitBannerAdView(
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        AndroidView(
-            modifier = Modifier.fillMaxWidth(),
-            factory = { ctx ->
-                val inflater = LayoutInflater.from(ctx)
-                val adFrame = inflater.inflate(R.layout.ad_inflator, null) as LinearLayout
-                adFrame.visibility = View.VISIBLE
+        // Setup runs once per view, so a different config at the same spot needs a new view
+        key(bannerControllerConfig) {
+            AndroidView(
+                modifier = Modifier.fillMaxWidth(),
+                factory = { ctx ->
+                    val inflater = LayoutInflater.from(ctx)
+                    val adFrame = inflater.inflate(R.layout.ad_inflator, null) as LinearLayout
+                    adFrame.visibility = View.VISIBLE
 
-                // Set up the ad once per view; update{} would run again on every parent recomposition
-                bannerAdViewModel.initSingleBannerData(
-                    mContext = activity,
-                    bannerControllerConfig = bannerControllerConfig,
-                    adFrame = adFrame,
-                    adCallBack = stableAdCallBack
-                )
-                adFrame
-            }
-        )
+                    // Set up the ad once per view; update{} would run again on every parent recomposition
+                    bannerAdViewModel.initSingleBannerData(
+                        mContext = activity,
+                        bannerControllerConfig = bannerControllerConfig,
+                        adFrame = adFrame,
+                        adCallBack = stableAdCallBack
+                    )
+                    adFrame
+                }
+            )
+        }
     }
 
 }
