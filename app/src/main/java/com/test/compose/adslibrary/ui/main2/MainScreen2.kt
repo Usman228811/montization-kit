@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -121,10 +122,14 @@ fun Screen1(
         contentAlignment = Alignment.Center
     ) {
 
+        LaunchedEffect(screenType) {
+            Log.d("sdfsfsdfsf", "Screen1: $screenType")
+        }
+
         val config = if (screenType == 1) {
             NativeControllerConfig("large_native", "large_native")
         } else {
-            NativeControllerConfig("small_native", "small_native")
+            NativeControllerConfig("small_native_1", "small_native")
         }
 
         AdKitNativeAdView(
