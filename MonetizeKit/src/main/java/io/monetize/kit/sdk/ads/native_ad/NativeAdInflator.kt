@@ -47,11 +47,12 @@ private val defaultBannerShimmer = mapOf(
 fun addNativeShimmerLayout(
     context: Context,
     adFrame: LinearLayout, nativeAdType: NativeAdType,
-    customLayoutHelper: AdsCustomLayoutHelper? = null
+    customLayoutHelper: AdsCustomLayoutHelper? = null,
+    placementKey: String? = null,
 ) {
     val shimmerLayoutId = getFirstNonNull(
-        customLayoutHelper?.getShimmer(nativeAdType),
-        customLayoutHelper?.getLayout(nativeAdType),
+        customLayoutHelper?.getShimmer(nativeAdType, placementKey),
+        customLayoutHelper?.getLayout(nativeAdType, placementKey),
         defaultLayouts[nativeAdType]
     )
 
@@ -114,7 +115,8 @@ fun addNativeAdView(
 ) {
 
     try {
-        val (layoutId, isCustom) = adsCustomLayoutHelper.getLayout(nativeAdType)?.let { it to true }
+        val (layoutId, isCustom) = adsCustomLayoutHelper
+            .getLayout(nativeAdType, nativeControllerConfig.placementKey)?.let { it to true }
             ?: (defaultLayouts[nativeAdType] to false)
         layoutId?.let {
 
