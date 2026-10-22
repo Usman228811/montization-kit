@@ -17,29 +17,29 @@ To integrate the Monetization Kit into your project, include the following in yo
 dependencies {
 
     // Standard SDK 
-    implementation("com.github.Usman228811:montization-kit:4.0.9")
+    implementation("com.github.Usman228811:montization-kit:4.0.10")
 
     // Standard SDK + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.9-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.10-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:4.0.9-rc")
+    implementation("com.github.Usman228811:montization-kit:4.0.10-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.9-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.10-rc-adapter")
 
 
     // Next Gen SDK
-    implementation("com.github.Usman228811:montization-kit:1.0.14-ng")
+    implementation("com.github.Usman228811:montization-kit:1.0.15-ng")
 
     // Next Gen SDK + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.15-ng-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-rc")
+    implementation("com.github.Usman228811:montization-kit:1.0.15-ng-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.14-ng-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.15-ng-rc-adapter")
 
 }
 ```
@@ -685,6 +685,43 @@ AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
 
 
 ```
+
+### Different layouts per placement
+
+`setNativeCustomLayouts` sets one layout per ad type for the whole app. To give individual placements their own design (for example two `SMALL_NATIVE` placements that look different), use `setPlacementCustomLayouts` with the placement key, also in `onInitSdk`:
+
+```kotlin
+// Global layouts per type (used by every placement without its own layout)
+AdKit.nativeCustomLayoutHelper.setNativeCustomLayouts(
+    smallNativeLayout = R.layout.small_native_layout_custom,
+    largeNativeLayout = R.layout.large_native_layout_custom,
+)
+
+// Own SMALL_NATIVE design for "home_native"
+AdKit.nativeCustomLayoutHelper.setPlacementCustomLayouts(
+    placementKey = "home_native",
+    smallNativeLayout = R.layout.small_native_home,
+    smallNativeShimmer = R.layout.small_native_home_shimmer, // optional
+)
+
+// Own SMALL_NATIVE and LARGE_NATIVE designs for "settings_native"
+AdKit.nativeCustomLayoutHelper.setPlacementCustomLayouts(
+    placementKey = "settings_native",
+    smallNativeLayout = R.layout.small_native_settings,
+    largeNativeLayout = R.layout.large_native_settings,
+)
+```
+
+Which layout a placement shows, for its current `{placementKey}_nativeAdType`:
+1. Its own layout for that type (`setPlacementCustomLayouts`)
+2. The global layout for that type (`setNativeCustomLayouts`)
+3. The library default
+
+The loading shimmer uses the placement's own shimmer, then its own layout, then the global shimmer / layout, then the default.
+
+- Layouts are kept per placement **and** per type: if `home_native_nativeAdType` is changed to `LARGE_NATIVE` in Remote Config and `home_native` has no large layout of its own, the global large layout is used (never the small one). Set every type a placement may get.
+- Calling `setPlacementCustomLayouts` again for the same key replaces that placement's layouts.
+- Per-placement layouts must keep the same view IDs as the custom layout above (`SdkNativeAdView` with `@+id/ad_view`).
 
 ---
 
