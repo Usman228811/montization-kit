@@ -55,7 +55,7 @@ androidComponents {
 }
 
 group = "com.github.Usman228811"
-version = "4.0.10-meta"
+version = "4.0.11-meta"
 
 
 afterEvaluate {
@@ -65,7 +65,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "4.0.10-meta"
+                version = "4.0.11-meta"
             }
         }
     }
