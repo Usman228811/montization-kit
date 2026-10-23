@@ -15,9 +15,20 @@ class RemoteConfigBuilder private constructor() {
 //        }
 //    }
 
+    // Section of keys written by banner {} / native {} / fullScreen {}, so they are grouped by the
+    // block that made them, not by words in the placement key (fullScreen("splash_ad") has no "inter")
+    private val keySections = mutableMapOf<String, String>()
+
+    private inline fun inSection(section: String, block: () -> Unit) {
+        val before = configMap.keys.toSet()
+        block()
+        configMap.keys.filter { it !in before }.forEach { keySections[it] = section }
+    }
+
     fun mapToKeyValue(): String {
         val grouped = configMap.entries.groupBy { entry ->
-            when {
+            keySections[entry.key] ?: when {
+                // Keys from bool() / long() / string() are grouped by their name
                 entry.key.lowercase().contains("native") -> "NATIVE ADS"
 
                 entry.key.lowercase().contains("banner") -> "BANNER ADS"
@@ -71,6 +82,10 @@ class RemoteConfigBuilder private constructor() {
     }
 
     companion object {
+        private const val SECTION_NATIVE = "NATIVE ADS"
+        private const val SECTION_BANNER = "BANNER ADS"
+        private const val SECTION_FULL_SCREEN = "INTERSTITIAL / REWARDED ADS"
+
         @Volatile
         private var instance: RemoteConfigBuilder? = null
 
@@ -85,7 +100,7 @@ class RemoteConfigBuilder private constructor() {
     }
 
     fun banner(placementKey: String, block: BannerConfig.() -> Unit) {
-        BannerConfig(placementKey, configMap).apply(block)
+        inSection(SECTION_BANNER) { BannerConfig(placementKey, configMap).apply(block) }
     }
 
     class BannerConfig(
@@ -103,11 +118,11 @@ class RemoteConfigBuilder private constructor() {
     }
 
     fun native(placementKey: String, block: NativeConfig.() -> Unit) {
-        NativeConfig(placementKey, configMap).apply(block)
+        inSection(SECTION_NATIVE) { NativeConfig(placementKey, configMap).apply(block) }
     }
 
     fun fullScreen(placementKey: String, block: InterstitialConfig.() -> Unit) {
-        InterstitialConfig(placementKey, configMap).apply(block)
+        inSection(SECTION_FULL_SCREEN) { InterstitialConfig(placementKey, configMap).apply(block) }
     }
 
     class NativeConfig(
