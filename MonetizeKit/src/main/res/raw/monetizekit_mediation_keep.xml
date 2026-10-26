@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Mintegral looks up its layouts, ids and drawables by name at runtime (getIdentifier), which the
+    app's resource shrinker can't see. Apps built with shrinkResources would drop them and crash in
+    MBRewardVideoActivity with "Resources$NotFoundException: Resource ID #0x0". The shrinker reads
+    this file from the library, so those resources are kept in every app that uses the -adapter build.
+    The file itself is not packaged into the app.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@layout/mbridge_*,@id/mbridge_*,@drawable/mbridge_*,@anim/mbridge_*,@color/mbridge_*,@dimen/mbridge_*,@string/mbridge_*,@style/mbridge_*,@xml/mbridge_*,@raw/mbridge_*,@mipmap/mbridge_*" />
