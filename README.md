@@ -17,16 +17,16 @@ To integrate the Monetization Kit into your project, include the following in yo
 dependencies {
 
     // Standard SDK 
-    implementation("com.github.Usman228811:montization-kit:4.0.12")
+    implementation("com.github.Usman228811:montization-kit:4.0.13")
 
     // Standard SDK + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.12-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.13-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:4.0.12-rc")
+    implementation("com.github.Usman228811:montization-kit:4.0.13-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.12-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.13-rc-adapter")
 
 
     // Next Gen SDK
