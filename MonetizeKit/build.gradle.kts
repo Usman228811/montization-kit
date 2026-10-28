@@ -55,7 +55,7 @@ androidComponents {
 }
 
 group = "com.github.Usman228811"
-version = "4.0.12"
+version = "4.0.13"
 
 
 afterEvaluate {
@@ -65,7 +65,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "4.0.12"
+                version = "4.0.13"
             }
         }
     }
@@ -85,6 +85,7 @@ dependencies {
 
 
     implementation("com.google.android.gms:play-services-ads:25.5.0")
+    implementation("com.google.android.play:hsdp:2.2.0")
     implementation("com.intuit.sdp:sdp-android:1.1.1")
     implementation("com.intuit.ssp:ssp-android:1.1.1")
 
