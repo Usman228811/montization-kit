@@ -52,7 +52,7 @@ androidComponents {
 }
 
 group = "com.github.Usman228811"
-version = "1.0.18-ng-adapter"
+version = "1.0.19-ng-adapter"
 
 
 afterEvaluate {
@@ -62,7 +62,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "1.0.18-ng-adapter"
+                version = "1.0.19-ng-adapter"
             }
         }
     }
@@ -112,11 +112,11 @@ dependencies {
 
 
     // mediation: meta, inmobi, liftoff(vungle), mintegral, pangle
-    implementation("com.google.ads.mediation:inmobi:11.4.1.2")
-    implementation("com.google.ads.mediation:vungle:7.7.8.1")
+    implementation("com.google.ads.mediation:inmobi:11.5.1.0")
+    implementation("com.google.ads.mediation:vungle:7.8.0.0")
     implementation("com.google.ads.mediation:facebook:6.22.0.1")
-    implementation("com.google.ads.mediation:mintegral:17.1.81.1")
-    implementation("com.google.ads.mediation:pangle:8.3.0.4.0")
+    implementation("com.google.ads.mediation:mintegral:17.2.21.0")
+    implementation("com.google.ads.mediation:pangle:8.4.0.5.0")
 //    implementation("net.premiumads.sdk:admob-adapter:2.2.6")
 
     configurations.all {
