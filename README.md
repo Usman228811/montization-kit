@@ -20,26 +20,26 @@ dependencies {
     implementation("com.github.Usman228811:montization-kit:4.0.13")
 
     // Standard SDK + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.13-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.14-adapter")
 
     // RevenueCat Support
     implementation("com.github.Usman228811:montization-kit:4.0.13-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:4.0.13-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:4.0.14-rc-adapter")
 
 
     // Next Gen SDK
     implementation("com.github.Usman228811:montization-kit:1.0.18-ng")
 
     // Next Gen SDK + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.18-ng-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-adapter")
 
     // RevenueCat Support
     implementation("com.github.Usman228811:montization-kit:1.0.18-ng-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.18-ng-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-rc-adapter")
 
 }
 ```
