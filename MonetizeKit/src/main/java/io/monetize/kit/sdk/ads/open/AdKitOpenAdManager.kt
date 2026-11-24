@@ -12,11 +12,10 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd
 import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback
 import com.google.android.libraries.ads.mobile.sdk.common.AdActivity
-import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import io.monetize.kit.sdk.ads.preload.AdKitPreloader
+import io.monetize.kit.sdk.ads.preload.PreloadFormat
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.IS_OPEN_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.REMOTE_OPEN_AD_ID_KEY
@@ -67,7 +66,14 @@ class AdKitOpenAdManager private constructor(
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
     private var isHandlerAdDelayRunning = false
+
+    // Cancels the instant open ad's wait for the next preloaded ad
+    private var cancelWait: (() -> Unit)? = null
+
     private val runnableHandlerAdDelay = Runnable {
+        cancelWait?.invoke()
+        cancelWait = null
+        canRequestAd = true
         if (isHandlerAdDelayRunning) {
             try {
                 adLoadingDialog?.dismissAlertDialog()
@@ -134,6 +140,8 @@ class AdKitOpenAdManager private constructor(
     }
 
     fun initOpenAd() {
+        // The preloader tells when an open ad is ready, for OpenAdListener.onAdLoaded
+        AdKitPreloader.setOnPreloaded(PreloadFormat.APP_OPEN) { openAdListener?.onAdLoaded() }
         try {
             ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         } catch (e: Exception) {
@@ -206,45 +214,34 @@ class AdKitOpenAdManager private constructor(
                             startDelayHandler()
                             Log.d("AdKit_Logs", "instant open ad called")
 
-                            AppOpenAd.load(
-                                AdRequest.Builder(adId).build(),
-                                object : AdLoadCallback<AppOpenAd> {
-
-                                    override fun onAdLoaded(ad: AppOpenAd) {
-                                        super.onAdLoaded(ad)
-                                        Log.d("AdKit_Logs", "instant open ad loaded")
-                                        canRequestAd = true
-                                        mAppOpenAd = ad
-//                                        mAppOpenAd?.revenueListener(adId)
-                                        openAdListener?.onAdLoaded()
-
-                                        setFullScreenCallBacks(activity)
-                                        loadTime = Date().time
-
-                                        if (isHandlerAdDelayRunning) {
-                                            dismissLoadingDialog()
-                                            removeCallBacksDelay()
-                                            showAdIfAvailable(false)
-
-                                        }
+                            // Wait (up to OPEN_AD_INSTANT_TIME) for the preloader's next ad, then show it
+                            cancelWait = AdKitPreloader.awaitNext(
+                                PreloadFormat.APP_OPEN,
+                                listOf(adId)
+                            ) { loaded, reason ->
+                                cancelWait = null
+                                canRequestAd = true
+                                Log.d(
+                                    "AdKit_Logs",
+                                    "instant open ad ${if (loaded) "loaded" else "failed"}"
+                                )
+                                if (!loaded) {
+                                    openAdListener?.onAdFailed("OpenAd is failed: $reason")
+                                    if (isHandlerAdDelayRunning) {
+                                        dismissLoadingDialog()
+                                        removeCallBacksDelay()
                                     }
-
-                                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                                        super.onAdFailedToLoad(adError)
-                                        Log.d("AdKit_Logs", "instant open ad failed")
-
-                                        canRequestAd = true
-                                        mAppOpenAd = null
-                                        openAdListener?.onAdFailed("OpenAd is failed with code: ${adError.code}, message: ${adError.message}")
-
-
-                                        if (isHandlerAdDelayRunning) {
-                                            dismissLoadingDialog()
-                                            removeCallBacksDelay()
-                                        }
-                                    }
-                                },
-                            )
+                                    return@awaitNext
+                                }
+                                if (isHandlerAdDelayRunning) {
+                                    dismissLoadingDialog()
+                                    removeCallBacksDelay()
+                                    takeOpenAd()
+                                    setFullScreenCallBacks(activity)
+                                    showAdIfAvailable(false)
+                                }
+                            }
+                            AdKitPreloader.start(PreloadFormat.APP_OPEN, listOf(adId))
 
 //                            AppOpenAd.load(
 //                                mContext,
@@ -303,13 +300,14 @@ class AdKitOpenAdManager private constructor(
                     super.onAdPaid(value)
                     revenueListener(adId, adValue = value, "APP_OPEN")
                 }
+
                 override fun onAdDismissedFullScreenContent() {
                     activity.runOnUiThread {
                         mAppOpenAd = null
                         IS_OPEN_Ad_SHOWING = false
                         openAdListener?.onAdDismissed()
                         if (isOpenAdInstant.not()) {
-                            preloadOpenAd()
+//                            preloadOpenAd()
                         }
                     }
                 }
@@ -359,39 +357,8 @@ class AdKitOpenAdManager private constructor(
             if (isAdAvailable || !internetController.isConnected || adKitPref.isAppPurchased || isPause) {
                 return
             }
-            if (!canRequestAd) {
-                return
-            }
-            canRequestAd = false
-
             Log.d("AdKit_Logs", "preload open ad called")
-
-            AppOpenAd.load(
-                AdRequest.Builder(adId).build(),
-                object : AdLoadCallback<AppOpenAd> {
-
-
-                    override fun onAdLoaded(ad: AppOpenAd) {
-                        super.onAdLoaded(ad)
-                        Log.d("AdKit_Logs", "preload open ad loaded")
-                        canRequestAd = true
-                        mAppOpenAd = ad
-//                        mAppOpenAd?.revenueListener(adId)
-                        openAdListener?.onAdLoaded()
-
-
-                        loadTime = Date().time
-                    }
-
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        super.onAdFailedToLoad(adError)
-
-                        Log.d("AdKit_Logs", "preload open ad failed")
-                        canRequestAd = true
-                        mAppOpenAd = null
-                    }
-                },
-            )
+            AdKitPreloader.start(PreloadFormat.APP_OPEN, listOf(adId))
 
 //            AppOpenAd.load(
 //                mContext,
@@ -434,6 +401,7 @@ class AdKitOpenAdManager private constructor(
 
                         if (canShowOpenAd && !isExcludedRoute && !isExcludedActivity && currentActivity !is AdActivity) {
                             currentActivity?.let {
+                                takeOpenAd()
                                 Log.d("AdKit_Logs", "open ad progress $showWithProgress")
                                 if (showWithProgress) {
                                     setFullScreenCallBacks(it)
@@ -486,6 +454,7 @@ class AdKitOpenAdManager private constructor(
     }
 
     fun showAppOpenAd(activity: Activity) {
+        takeOpenAd()
         // Always bind callbacks right before show so no show path misses impression/revenue
         setFullScreenCallBacks(activity)
         mAppOpenAd?.show(activity)
@@ -497,6 +466,20 @@ class AdKitOpenAdManager private constructor(
         return dateDifference < numMilliSecondsPerHour * 4L
     }
 
+    // Takes the preloaded ad when none is held (or the held one is too old)
+    private fun takeOpenAd() {
+        if (mAppOpenAd != null && wasLoadTimeLessThanNHoursAgo()) return
+        AdKitPreloader.pollAppOpen(adId)?.let {
+            mAppOpenAd = it
+            loadTime = Date().time
+        }
+    }
+
+    // A held ad, or one waiting in the preloader (which replaces expired ads itself)
     private val isAdAvailable: Boolean
-        get() = mAppOpenAd != null && wasLoadTimeLessThanNHoursAgo()
+        get() = (mAppOpenAd != null && wasLoadTimeLessThanNHoursAgo()) ||
+                (adId.isNotEmpty() && AdKitPreloader.isAvailable(
+                    PreloadFormat.APP_OPEN,
+                    listOf(adId)
+                ))
 }

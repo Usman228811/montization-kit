@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils.init
 
+import io.monetize.kit.sdk.ads.preload.AdKitPreloader
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -66,6 +67,8 @@ class AdKitInitializer private constructor(
 
     fun disableAds(disableAds: Boolean) {
         this.disableAds = disableAds
+        // Ads turned off: stop preloading and drop the ads already waiting
+        if (disableAds) AdKitPreloader.destroyAll()
     }
 
     // Ads are off when disabled in code, by the "DISABLE_ALL_ADS" Remote Config kill switch,
