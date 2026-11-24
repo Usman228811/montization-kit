@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
+import io.monetize.kit.sdk.ads.preload.AdKitPreloader
+import io.monetize.kit.sdk.ads.preload.PreloadFormat
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
@@ -55,7 +54,13 @@ class RewardAdController private constructor(
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
     private var isHandlerAdDelayRunning = false
+    // Cancels the instant request's wait for the next preloaded ad
+    private var cancelWait: (() -> Unit)? = null
+
     private val runnableHandlerAdDelay = Runnable {
+        cancelWait?.invoke()
+        cancelWait = null
+        canRequestAd = true
         if (mInterstitialControllerListener != null && isHandlerAdDelayRunning) {
             try {
                 adLoadingDialog?.dismissAlertDialog()
@@ -141,7 +146,7 @@ class RewardAdController private constructor(
                 reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else if (savedCount == -1 || savedCount >= counter) {
-            if (rewardAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context, key)
             } else {
                 loadAndShow(
@@ -181,14 +186,14 @@ class RewardAdController private constructor(
                 reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else {
-            if (rewardAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context)
             } else {
                 listener.onRewardDismissed(
                     false,
                     reason = "$placementKey called onRewardDismissed because: Ad is null"
                 )
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
@@ -211,12 +216,12 @@ class RewardAdController private constructor(
                 reason = "$placementKey called onRewardDismissed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else if (savedCount == -1 || savedCount >= counter) {
-            if (rewardAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context, key)
             } else {
 
                 if ((savedCount + 2).toLong() >= counter) {
-                    loadInter(context)
+                    loadInterIfNoAd(context)
                 }
 
                 if (savedCount == -1) {
@@ -233,7 +238,7 @@ class RewardAdController private constructor(
                 false,
                 reason = "$placementKey called onRewardDismissed because: counter is not completed"
             )
-            loadInter(context)
+            loadInterIfNoAd(context)
             setInterCount(key, savedCount + 1)
         } else {
             listener.onRewardDismissed(
@@ -249,7 +254,7 @@ class RewardAdController private constructor(
         if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
@@ -274,85 +279,34 @@ class RewardAdController private constructor(
         } else {
             val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
             if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
 
+    // Starts the SDK preloader for every ad unit of the ad ID key; it keeps them filled from then on
     private fun loadInter(context: Context) {
-        try {
-            val canGo = AdKit.internetController.isConnected /*&& AdKit.consentManager.canRequestAds*/
-            if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
-                if (!canRequestAd) {
-                    return
-                }
-                canRequestAd = false
+        if (AdKit.adKitPref.isAppPurchased) return
+        AdKitPreloader.start(PreloadFormat.REWARDED, AdKit.rewardAdIdManager.getRewardIds(adIdKey))
+    }
 
-                val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
-                RewardedAd.load(
-                    AdRequest.Builder(id).build(),
-                    object : AdLoadCallback<RewardedAd> {
-                        override fun onAdLoaded(ad: RewardedAd) {
-                            // Next-gen SDK invokes callbacks on a background thread
-                            mainHandler.post {
-                                adUnitId = id
-                                rewardAd = ad
-                                canRequestAd = true
-                            }
-                        }
+    // Counter placements: two clicks before the counter completes, start preloading only if no ad is
+    // already waiting (held, or in the preloader of any ad unit of the ad ID key)
+    private fun loadInterIfNoAd(context: Context) {
+        if (rewardAd != null) return
+        if (AdKitPreloader.isAvailable(PreloadFormat.REWARDED, AdKit.rewardAdIdManager.getRewardIds(adIdKey))) return
+        loadInter(context)
+    }
 
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            mainHandler.post {
-                                rewardAd = null
-                                canRequestAd = true
-                            }
-                        }
-                    },
-                )
-
-
-//                RewardedAd.load(
-//                    AdRequest.Builder(id).build(),
-//                    object : AdLoadCallback<RewardedAd> {
-//
-//                        override fun onAdLoaded(ad: RewardedAd) {
-//                            super.onAdLoaded(ad)
-//                            rewardAd = ad
-//                            rewardAd?.revenueListener(id)
-//
-//                            canRequestAd = true
-//                        }
-//
-//                        override fun onAdFailedToLoad(adError: LoadAdError) {
-//                            super.onAdFailedToLoad(adError)
-//                            rewardAd = null
-//                            canRequestAd = true
-//                        }
-//                    },
-//                )
-
-//                RewardedAd.load(
-//                    context,id
-//                    ,
-//                    AdRequest.Builder().build(),
-//                    object : RewardedAdLoadCallback() {
-//                        override fun onAdLoaded(ad: RewardedAd) {
-//                            rewardAd = ad
-//                            rewardAd?.revenueListener(id)
-//
-//                            canRequestAd = true
-//                        }
-//
-//                        override fun onAdFailedToLoad(adError: LoadAdError) {
-//                            rewardAd = null
-//                            canRequestAd = true
-//                        }
-//                    },
-//                )
-            }
-        } catch (ignored: Exception) {
-            canRequestAd = true
-        }
+    // Takes a preloaded ad (next ad unit in rotation first) unless one is already held
+    private fun takeAd(): Boolean {
+        if (rewardAd != null) return true
+        val ids = AdKit.rewardAdIdManager.getRewardIds(adIdKey)
+        val (id, ad) = AdKitPreloader.pollRewarded(ids.size) { AdKit.rewardAdIdManager.getNextRewardId(adIdKey) }
+            ?: return false
+        adUnitId = id
+        rewardAd = ad
+        return true
     }
 
 
@@ -378,67 +332,36 @@ class RewardAdController private constructor(
                     )
                     return
                 }
-                if (rewardAd != null) {
+                if (takeAd()) {
                     checkProgressShowAd(context, key)
                 } else {
+                    val ids = AdKit.rewardAdIdManager.getRewardIds(adIdKey)
+                    if (ids.isEmpty()) {
+                        mInterstitialControllerListener?.onRewardDismissed(
+                            false,
+                            reason = "$placementKey called onRewardDismissed because: no ad unit ID for $adIdKey"
+                        )
+                        return
+                    }
                     canRequestAd = false
                     dismissLoadingDialog()
                     adLoadingDialog = AdLoadingDialog(context)
-                    val id = AdKit.rewardAdIdManager.getNextRewardId(adIdKey) ?: ""
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-                    RewardedAd.load(
-                        AdRequest.Builder(id).build(),
-                        object : AdLoadCallback<RewardedAd> {
-                            override fun onAdLoaded(ad: RewardedAd) {
-                                super.onAdLoaded(ad)
-                                mainHandler.post {
-                                    adUnitId = id
-                                    rewardAd = ad
-                                    canRequestAd = true
-                                    if (isHandlerAdDelayRunning) {
-                                        dismissLoadingDialog()
-                                        removeCallBacksDelay()
-                                        showRewardAd(context, key)
-                                    }
-                                }
-                            }
-
-                            override fun onAdFailedToLoad(adError: LoadAdError) {
-                                super.onAdFailedToLoad(adError)
-                                mainHandler.post {
-                                    canRequestAd = true
-                                    handlerRemoveCallback(
-                                        reason = "ad failed to load code: ${adError.code} message: ${adError.message}"
-                                    )
-                                }
-                            }
-                        },
-                    )
-//                    RewardedAd.load(
-//                        context, id,
-//                        AdRequest.Builder().build(),
-//                        object : RewardedAdLoadCallback() {
-//                            override fun onAdLoaded(ad: RewardedAd) {
-//                                rewardAd = ad
-//                                rewardAd?.revenueListener(id)
-//                                canRequestAd = true
-//                                if (isHandlerAdDelayRunning) {
-//                                    dismissLoadingDialog()
-//                                    removeCallBacksDelay()
-//                                    showRewardAd(context, key)
-//                                }
-//                            }
-//
-//                            override fun onAdFailedToLoad(adError: LoadAdError) {
-//                                canRequestAd = true
-//                                handlerRemoveCallback(
-//                                    reason = "ad failed to load code: ${adError.code} message: ${adError.message}"
-//
-//                                )
-//                            }
-//                        },
-//                    )
+                    // Wait (up to INTER_INSTANT_TIME) for the preloader's next ad, then show it
+                    cancelWait = AdKitPreloader.awaitNext(PreloadFormat.REWARDED, ids) { loaded, reason ->
+                        cancelWait = null
+                        canRequestAd = true
+                        if (!isHandlerAdDelayRunning) return@awaitNext
+                        if (loaded && takeAd()) {
+                            dismissLoadingDialog()
+                            removeCallBacksDelay()
+                            showRewardAd(context, key)
+                        } else {
+                            handlerRemoveCallback(reason = reason)
+                        }
+                    }
+                    AdKitPreloader.start(PreloadFormat.REWARDED, ids)
                 }
 
 
@@ -582,9 +505,4 @@ class RewardAdController private constructor(
         }
     }
 
-
-    private val hasAd: Boolean
-        get() {
-            return rewardAd != null
-        }
 }
