@@ -35,6 +35,10 @@ class RewardAdIdManager private constructor() {
         }
     }
 
+    // Every ad unit of the placement (Remote Config "{placement}_adId" first), for preloading them all
+    fun getRewardIds(placement: String): List<String> =
+        remoteAdIds(placement).ifEmpty { normalizedMap[placement].orEmpty() }.filter { it.isNotBlank() }
+
     // Call this to get the next interstitial ID for a placement
     fun getNextRewardId(placement: String): String? {
         // Remote config "{placement}_adId" overrides the IDs passed to AdKit.init
