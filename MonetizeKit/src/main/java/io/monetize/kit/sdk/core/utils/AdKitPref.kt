@@ -1,5 +1,6 @@
 package io.monetize.kit.sdk.core.utils
 
+import io.monetize.kit.sdk.ads.preload.AdKitPreloader
 import android.app.Application
 import android.content.Context
 import androidx.core.content.edit
@@ -28,14 +29,22 @@ class AdKitPref private constructor(context: Context) {
         set(value) = pref.edit { putLong("licenseCheckedAt", value) }
     var isLifeTimePurchased: Boolean
         get() = pref.getBoolean("isLifeTimePurchased", false)
-        set(value) = pref.edit { putBoolean("isLifeTimePurchased", value) }
+        set(value) {
+            pref.edit { putBoolean("isLifeTimePurchased", value) }
+            // Purchased: stop preloading and drop the ads already waiting
+            if (value) AdKitPreloader.destroyAll()
+        }
 
     var appLanguageCode: String
         get() = pref.getString("appLanguageCode", "en").toString()
         set(value) = pref.edit { putString("appLanguageCode", value) }
     var isAppSubscribed: Boolean
         get() = pref.getBoolean("isAppSubscribed", false)
-        set(value) = pref.edit { putBoolean("isAppSubscribed", value) }
+        set(value) {
+            pref.edit { putBoolean("isAppSubscribed", value) }
+            // Purchased: stop preloading and drop the ads already waiting
+            if (value) AdKitPreloader.destroyAll()
+        }
 
     val isAppPurchased: Boolean
         get() = isLifeTimePurchased || isAppSubscribed

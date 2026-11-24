@@ -5,14 +5,13 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAd
 import com.google.android.libraries.ads.mobile.sdk.interstitial.InterstitialAdEventCallback
 import io.monetize.kit.sdk.ads.open.AdLoadingDialog
+import io.monetize.kit.sdk.ads.preload.AdKitPreloader
+import io.monetize.kit.sdk.ads.preload.PreloadFormat
 import io.monetize.kit.sdk.core.utils.IS_INTERSTITIAL_Ad_SHOWING
 import io.monetize.kit.sdk.core.utils.appflyer.postAdImpression
 import io.monetize.kit.sdk.core.utils.appflyer.revenueListener
@@ -65,7 +64,13 @@ class InterstitialController private constructor(
 
     private val handlerAdDelay: Handler = Handler(Looper.getMainLooper())
     private var isHandlerAdDelayRunning = false
+    // Cancels the instant request's wait for the next preloaded ad
+    private var cancelWait: (() -> Unit)? = null
+
     private val runnableHandlerAdDelay = Runnable {
+        cancelWait?.invoke()
+        cancelWait = null
+        canRequestAd = true
         if (mInterstitialControllerListener != null && isHandlerAdDelayRunning) {
             try {
                 adLoadingDialog?.dismissAlertDialog()
@@ -146,7 +151,7 @@ class InterstitialController private constructor(
 
             )
         } else if (savedCount == -1 || savedCount >= counter) {
-            if (admobInterAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context, key)
             } else {
                 loadAndShow(
@@ -178,22 +183,19 @@ class InterstitialController private constructor(
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         this.adIdKey = adIdKey
-//        adUnitId = AdKit.interIdManager.getNextInterId(adIdKey, false) ?: ""
-//        Log.d("usman", "check on id: $adUnitId")
 
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
             listener.onAdClosed(
                 reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else {
-//            admobInterAd = InterstitialAdPreloader.pollAd(adUnitId)
-            if (admobInterAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context)
             } else {
                 listener.onAdClosed(
                     reason = "$placementKey called onAdClosed because: Ad is null"
                 )
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
@@ -208,7 +210,6 @@ class InterstitialController private constructor(
         mInterstitialControllerListener = listener
         this.placementKey = placementKey
         this.adIdKey = adIdKey
-//        adUnitId = AdKit.interIdManager.getNextInterId(adIdKey, false) ?: ""
 
         val savedCount = getInterCount(key)
         if (AdKit.adKitPref.isAppPurchased || !enable || AdKit.interHelper.getAppInPause() || IS_INTERSTITIAL_Ad_SHOWING) {
@@ -216,14 +217,12 @@ class InterstitialController private constructor(
                 reason = "$placementKey called onAdClosed because: App is minimized | Ad is disabled | Other Ad is showing | App is Purchased"
             )
         } else if (savedCount == -1 || savedCount >= counter) {
-
-//            admobInterAd = InterstitialAdPreloader.pollAd(adUnitId)
-            if (admobInterAd != null) {
+            if (takeAd()) {
                 checkProgressShowAd(context, key)
             } else {
 
                 if ((savedCount + 2).toLong() >= counter) {
-                    loadInter(context)
+                    loadInterIfNoAd(context)
                 }
 
                 if (savedCount == -1) {
@@ -238,7 +237,7 @@ class InterstitialController private constructor(
             listener.onAdClosed(
                 reason = "$placementKey called onAdClosed because: counter is not completed"
             )
-            loadInter(context)
+            loadInterIfNoAd(context)
             setInterCount(key, savedCount + 1)
         } else {
             listener.onAdClosed(
@@ -253,7 +252,7 @@ class InterstitialController private constructor(
         if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
             val savedCount = getInterCount(key)
             if (savedCount == -1 || savedCount >= counter) {
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
@@ -269,8 +268,6 @@ class InterstitialController private constructor(
         }
         this.placementKey = placementKey
         this.adIdKey = adIdKey
-//        adUnitId = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
-//        admobInterAd = InterstitialAdPreloader.pollAd(adUnitId)
         if (admobInterAd != null) {
             return
         }
@@ -280,79 +277,34 @@ class InterstitialController private constructor(
         } else {
             val canLoad = AdKit.internetController.isConnected && !AdKit.adKitPref.isAppPurchased
             if (/*AdKit.consentManager.canRequestAds &&*/ canLoad) {
-                loadInter(context)
+                loadInterIfNoAd(context)
             }
         }
     }
 
+    // Starts the SDK preloader for every ad unit of the ad ID key; it keeps them filled from then on
     private fun loadInter(context: Context) {
-        try {
-            val canGo = AdKit.internetController.isConnected /*&& AdKit.consentManager.canRequestAds*/
-            if (!AdKit.adKitPref.isAppPurchased && !hasAd && canGo) {
-                if (!canRequestAd) {
-                    return
-                }
-                canRequestAd = false
+        if (AdKit.adKitPref.isAppPurchased) return
+        AdKitPreloader.start(PreloadFormat.INTERSTITIAL, AdKit.interIdManager.getInterIds(adIdKey))
+    }
 
-                val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
-                InterstitialAd.load(
-                    AdRequest.Builder(id).build(),
-                    object : AdLoadCallback<InterstitialAd> {
-                        override fun onAdLoaded(ad: InterstitialAd) {
-                            Log.d("usman_k", "onAdPreloaded: $ad")
-                            // Next-gen SDK invokes callbacks on a background thread
-                            mainHandler.post {
-                                adUnitId = id
-                                admobInterAd = ad
-                                canRequestAd = true
-                            }
-                        }
+    // Counter placements: two clicks before the counter completes, start preloading only if no ad is
+    // already waiting (held, or in the preloader of any ad unit of the ad ID key)
+    private fun loadInterIfNoAd(context: Context) {
+        if (admobInterAd != null) return
+        if (AdKitPreloader.isAvailable(PreloadFormat.INTERSTITIAL, AdKit.interIdManager.getInterIds(adIdKey))) return
+        loadInter(context)
+    }
 
-                        override fun onAdFailedToLoad(adError: LoadAdError) {
-                            mainHandler.post {
-                                admobInterAd = null
-                                canRequestAd = true
-                            }
-                        }
-                    })
-
-
-//                InterstitialAd.load(
-//                    AdRequest.Builder(id).build(),
-//                    object : AdLoadCallback<InterstitialAd> {
-//                        override fun onAdLoaded(ad: InterstitialAd) {
-//                            admobInterAd = ad
-////                            admobInterAd?.revenueListener(id)
-//
-//                            canRequestAd = true
-//                        }
-//
-//                        override fun onAdFailedToLoad(adError: LoadAdError) {
-//                            admobInterAd = null
-//                            canRequestAd = true
-//                        }
-//                    })
-
-
-//                    object : InterstitialAdLoadCallback() {
-//                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
-//                            super.onAdLoaded(interstitialAd)
-//                            admobInterAd = interstitialAd
-//                            admobInterAd?.revenueListener(id)
-//
-//                            canRequestAd = true
-//                        }
-//
-//                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-//                            super.onAdFailedToLoad(loadAdError)
-//                            admobInterAd = null
-//                            canRequestAd = true
-//                        }
-//                    })
-            }
-        } catch (ignored: Exception) {
-            canRequestAd = true
-        }
+    // Takes a preloaded ad (next ad unit in rotation first) unless one is already held
+    private fun takeAd(): Boolean {
+        if (admobInterAd != null) return true
+        val ids = AdKit.interIdManager.getInterIds(adIdKey)
+        val (id, ad) = AdKitPreloader.pollInterstitial(ids.size) { AdKit.interIdManager.getNextInterId(adIdKey) }
+            ?: return false
+        adUnitId = id
+        admobInterAd = ad
+        return true
     }
 
 
@@ -376,67 +328,37 @@ class InterstitialController private constructor(
                     )
                     return
                 }
-                if (admobInterAd != null) {
+                if (takeAd()) {
+                    Log.d("usman", "loadAndShow: Ad taken successfully")
                     checkProgressShowAd(context, key)
                 } else {
+                    Log.d("usman", "loadAndShow: Ad load instant successfully")
+                    val ids = AdKit.interIdManager.getInterIds(adIdKey)
+                    if (ids.isEmpty()) {
+                        mInterstitialControllerListener?.onAdClosed(
+                            reason = "$placementKey called onAdClosed because: no ad unit ID for $adIdKey"
+                        )
+                        return
+                    }
                     canRequestAd = false
                     dismissLoadingDialog()
                     adLoadingDialog = AdLoadingDialog(context)
                     adLoadingDialog?.showAlertDialog()
                     startDelayHandler()
-                    val id = AdKit.interIdManager.getNextInterId(adIdKey) ?: ""
-                    InterstitialAd.load(
-                        AdRequest.Builder(id).build(),
-                        object : AdLoadCallback<InterstitialAd> {
-                            override fun onAdLoaded(ad: InterstitialAd) {
-                                mainHandler.post {
-                                    adUnitId = id
-                                    admobInterAd = ad
-                                    canRequestAd = true
-                                    if (isHandlerAdDelayRunning) {
-                                        dismissLoadingDialog()
-                                        removeCallBacksDelay()
-                                        showAdmobAd(context, key)
-                                    }
-                                }
-                            }
-
-                            override fun onAdFailedToLoad(adError: LoadAdError) {
-                                mainHandler.post {
-                                    canRequestAd = true
-                                    handlerRemoveCallback(
-                                        reason = "$placementKey ad failed to load code: ${adError.code} message: ${adError.message}"
-                                    )
-                                }
-                            }
-                        })
-
-
-//                        context, id,
-//                        AdRequest.Builder().build(),
-//                        object : InterstitialAdLoadCallback() {
-//                            override fun onAdLoaded(p0: InterstitialAd) {
-//                                super.onAdLoaded(p0)
-//                                admobInterAd = p0
-//                                admobInterAd?.revenueListener(
-//                                    id
-//                                )
-//
-//                                canRequestAd = true
-//                                if (isHandlerAdDelayRunning) {
-//                                    dismissLoadingDialog()
-//                                    removeCallBacksDelay()
-//                                    showAdmobAd(context, key)
-//                                }
-//                            }
-//
-//                            override fun onAdFailedToLoad(p0: LoadAdError) {
-//                                canRequestAd = true
-//                                handlerRemoveCallback(
-//                                    reason = "$placementKey ad failed to load code: ${p0.code} message: ${p0.message}"
-//                                )
-//                            }
-//                        })
+                    // Wait (up to INTER_INSTANT_TIME) for the preloader's next ad, then show it
+                    cancelWait = AdKitPreloader.awaitNext(PreloadFormat.INTERSTITIAL, ids) { loaded, reason ->
+                        cancelWait = null
+                        canRequestAd = true
+                        if (!isHandlerAdDelayRunning) return@awaitNext
+                        if (loaded && takeAd()) {
+                            dismissLoadingDialog()
+                            removeCallBacksDelay()
+                            showAdmobAd(context, key)
+                        } else {
+                            handlerRemoveCallback(reason = "$placementKey $reason")
+                        }
+                    }
+                    AdKitPreloader.start(PreloadFormat.INTERSTITIAL, ids)
                 }
 
             } else {
@@ -531,7 +453,7 @@ class InterstitialController private constructor(
                                 false
                             )
                         ) {
-                            loadInter(activity)
+//                            loadInter(activity)
                         }
                     }
                 }
@@ -573,10 +495,5 @@ class InterstitialController private constructor(
         }
     }
 
-
-    private val hasAd: Boolean
-        get() {
-            return admobInterAd != null
-        }
 
 }
