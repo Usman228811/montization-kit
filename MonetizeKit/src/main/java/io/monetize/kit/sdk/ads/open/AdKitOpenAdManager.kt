@@ -466,12 +466,13 @@ class AdKitOpenAdManager private constructor(
         return dateDifference < numMilliSecondsPerHour * 4L
     }
 
-    // Takes the preloaded ad when none is held (or the held one is too old)
+    // Takes the preloaded ad when none is held (or the held one is too old); the 4-hour expiry counts from
+    // when the ad was loaded, not from when it was taken out of the preloader
     private fun takeOpenAd() {
         if (mAppOpenAd != null && wasLoadTimeLessThanNHoursAgo()) return
-        AdKitPreloader.pollAppOpen(adId)?.let {
-            mAppOpenAd = it
-            loadTime = Date().time
+        AdKitPreloader.pollAppOpen(adId)?.let { (ad, loadedAt) ->
+            mAppOpenAd = ad
+            loadTime = loadedAt
         }
     }
 
