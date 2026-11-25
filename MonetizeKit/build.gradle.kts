@@ -52,7 +52,7 @@ androidComponents {
 }
 
 group = "com.github.Usman228811"
-version = "1.0.19-ng-pl"
+version = "1.0.20-ng-pl"
 
 afterEvaluate {
     publishing {
@@ -62,7 +62,7 @@ afterEvaluate {
 
                 groupId = "com.github.Usman228811"
                 artifactId = "MonetizeKit"
-                version = "1.0.19-ng-pl"
+                version = "1.0.20-ng-pl"
             }
         }
     }
