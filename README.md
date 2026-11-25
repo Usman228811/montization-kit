@@ -30,28 +30,28 @@ dependencies {
 
 
     // Next Gen SDK
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng")
 
     // Next Gen SDK + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-adapter")
 
     // RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-rc")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-rc")
 
     // RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-rc-adapter")
 
     // Next Gen SDK + Preloading API (interstitial, rewarded, app open)
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-pl")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-pl")
 
     // Next Gen SDK + Preloading API + Mediation
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-pl-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-pl-adapter")
 
     // Next Gen SDK + Preloading API + RevenueCat Support
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-pl-rc")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-pl-rc")
 
     // Next Gen SDK + Preloading API + RevenueCat + Mediation Adapters
-    implementation("com.github.Usman228811:montization-kit:1.0.19-ng-pl-rc-adapter")
+    implementation("com.github.Usman228811:montization-kit:1.0.20-ng-pl-rc-adapter")
 
 }
 ```
